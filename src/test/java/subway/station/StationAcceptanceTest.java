@@ -8,8 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+<<<<<<< HEAD
 import subway.station.StationRequest;
 import subway.station.StationResponse;
+=======
+>>>>>>> 3eefaf9... feat(admin): default code
 
 import java.util.Arrays;
 import java.util.List;

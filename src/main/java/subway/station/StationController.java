@@ -12,7 +12,10 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        return ResponseEntity.created(URI.create("/stations/1")).build();
+        Station station = new Station(stationRequest.getName());
+        Station newStation = new StationDao().save(station);
+        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)

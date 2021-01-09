@@ -30,19 +30,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_생성됨(response);
     }
 
-    @DisplayName("기존에 존재하는 지하철역 이름으로 지하철역을 생성한다.")
-    @Test
-    void createStationWithDuplicateName() {
-        //given
-        지하철역_등록되어_있음(강남역);
-
-        // when
-        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
-
-        // then
-        지하철역_생성_실패됨(response);
-    }
-
     @DisplayName("지하철역을 조회한다.")
     @Test
     void getStations() {
@@ -106,10 +93,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
     public static void 지하철역_생성됨(ExtractableResponse response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(response.header("Location")).isNotBlank();
-    }
-
-    public static void 지하철역_생성_실패됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철역_목록_응답됨(ExtractableResponse<Response> response) {

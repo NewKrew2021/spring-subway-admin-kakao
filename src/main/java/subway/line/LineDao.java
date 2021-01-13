@@ -21,6 +21,10 @@ public class LineDao {
         return persistStation;
     }
 
+    public List<Line> findAll() {
+        return lines;
+    }
+
     private Line createNewObject(Line line) {
         Field field = ReflectionUtils.findField(Line.class, "id");
         field.setAccessible(true);

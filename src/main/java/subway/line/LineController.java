@@ -40,8 +40,9 @@ public class LineController {
 //
 //    }
 //
-//    @DeleteMapping("/{lineId}")
-//    public ResponseEntity deleteLine(@PathVariable Long lineId) {
-//
-//    }
+    @DeleteMapping("/{lineId}")
+    public ResponseEntity deleteLine(@PathVariable Long lineId) {
+        lineDao.deleteById(lineId);
+        return ResponseEntity.noContent().build();
+    }
 }

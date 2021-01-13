@@ -23,4 +23,9 @@ public class LineDao {
         ReflectionUtils.setField(field, line, ++seq);
         return line;
     }
+
+    public void deleteById(Long id) {
+        lines.removeIf(it -> it.getId().equals(id));
+    }
+
 }

@@ -52,3 +52,113 @@ npm run dev
 ## 📝 License
 
 This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blob/master/LICENSE) licensed.
+
+<br>
+
+## 요구사항 정리
+* 1 단계 - 역 / 노선 관리기능
+    1. 지하철 역 관리 API 기능 완성하기
+        1. StationController를 통해 요청을 처리하는 부분은 미리 구현되어 있음
+        2. StationDao를 활용하여 지하철 역 정보를 관리
+    2. 지하철 노선 관리 API 구현하기
+        1. 노선 생성 Request/Response
+            * Request
+            ```
+            POST /lines HTTP/1.1
+            accept: */*
+            content-type: application/json; charset=UTF-8
+
+            {
+                "color": "bg-red-600",
+                "name": "신분당선"
+            }
+            ```
+            * Response
+            ```
+            HTTP/1.1 201
+            Location: /lines/1
+            Content-Type: application/json
+            Date: Fri, 13 Nov 2020 00:11:51 GMT
+
+            {
+               "id": 1,
+               "name": "신분당선",
+               "color": "bg-red-600"
+            }
+            ```
+        2. 노선 목록 조회 Request/Response
+            * Request
+            ```
+            GET /lines HTTP/1.1
+            accept: application/json
+            host: localhost:49468
+            ```
+            * Response
+            ```
+            HTTP/1.1 200
+            Content-Type: application/json
+            Date: Fri, 13 Nov 2020 00:11:51 GMT
+
+            [
+                {
+                    "id": 1,
+                    "name": "신분당선",
+                    "color": "bg-red-600"
+                },
+                {
+                    "id": 2,
+                    "name": "2호선",
+                    "color": "bg-green-600"
+                }
+            ]
+            ```
+        3. 지하철 조회 Request/Response
+            * Request
+            ```
+            GET /lines/1 HTTP/1.1
+            accept: application/json
+            host: localhost:49468
+            ```
+            * Response
+            ```
+            HTTP/1.1 200
+            Content-Type: application/json
+            Date: Fri, 13 Nov 2020 00:11:51 GMT
+
+            {
+                "id": 1,
+                "name": "신분당선",
+                "color": "bg-red-600"
+            }
+            ```
+        4. 지하철 수정 Request/Response
+            * Request
+            ```
+            PUT /lines/1 HTTP/1.1
+            accept: */*
+            content-type: application/json; charset=UTF-8
+            content-length: 45
+            host: localhost:49468
+
+            {
+                "color": "bg-blue-600",
+                "name": "구분당선"
+            }
+            ```
+            * Response
+            ```
+            HTTP/1.1 200
+            Date: Fri, 13 Nov 2020 00:11:51 GMT
+            ```
+        5. 지하철 삭제 Request/Response
+            * Request
+            ```
+            DELETE /lines/1 HTTP/1.1
+            accept: */*
+            host: localhost:49468
+            ```
+            * Response
+            ```
+            HTTP/1.1 204
+            Date: Fri, 13 Nov 2020 00:11:51 GMT
+            ```

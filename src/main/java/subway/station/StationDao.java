@@ -7,8 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StationDao {
+
+    private static final StationDao instance = new StationDao();
+    private static final List<Station> stations = new ArrayList<>();
     private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private StationDao() {
+    }
+
+    public static StationDao getInstance() {
+        return instance;
+    }
 
     public Station save(Station station) {
         Station persistStation = createNewObject(station);

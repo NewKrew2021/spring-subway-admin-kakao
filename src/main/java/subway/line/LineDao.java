@@ -28,4 +28,11 @@ public class LineDao {
         lines.removeIf(it -> it.getId().equals(id));
     }
 
+    public List<Line> findAll(){
+        return lines;
+    }
+
+    public Line findOne(Long lineId){
+        return lines.stream().filter(line -> line.getId().equals(lineId)).findFirst().get();
+    }
 }

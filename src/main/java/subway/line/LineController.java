@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.station.StationResponse;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,15 +26,19 @@ public class LineController {
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<LineResponse>> showLines() {
-//
-//    }
-//
-//    @GetMapping("/{lineId}")
-//    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-//
-//    }
+    @GetMapping
+    public ResponseEntity<List<LineResponse>> showLines() {
+        return ResponseEntity.ok(lineDao.findAll()
+                .stream()
+                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{lineId}")
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
+        Line newLine = lineDao.findOne(lineId);
+        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor()));
+    }
 //
 //    @PutMapping("/{lineId}")
 //    public ResponseEntity updateLine(@PathVariable Long lineId) {

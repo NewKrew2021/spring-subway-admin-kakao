@@ -6,6 +6,7 @@ import subway.exceptions.DuplicateLineNameException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class LineDao {
     private static long seq = 0L;
@@ -31,9 +32,14 @@ public class LineDao {
         return line;
     }
 
+    public static Optional<Line> findById(Long id) {
+        return lines.stream()
+                .filter(it -> it.getId() == id)
+                .findFirst();
+    }
+
     public static List<Line> findAll() {
         return lines;
     }
-
 
 }

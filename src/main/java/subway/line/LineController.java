@@ -3,10 +3,7 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateLineNameException;
 
 import java.awt.*;
@@ -53,5 +50,12 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponses);
     }
 
+    @PutMapping("/lines/{id}")
+    public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+        Line newLine = new Line(lineRequest.getName(), lineRequest.getColor());
+        LineDao.updateLine(id, newLine);
+        return ResponseEntity.ok().build();
+    }
 
+    @
 }

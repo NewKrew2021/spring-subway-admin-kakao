@@ -112,7 +112,7 @@ This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blo
                 }
             ]
             ```
-        3. 지하철 조회 Request/Response
+        3. 노선 조회 Request/Response
             * Request
             ```
             GET /lines/1 HTTP/1.1
@@ -131,7 +131,7 @@ This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blo
                 "color": "bg-red-600"
             }
             ```
-        4. 지하철 수정 Request/Response
+        4. 노선 수정 Request/Response
             * Request
             ```
             PUT /lines/1 HTTP/1.1
@@ -150,7 +150,7 @@ This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blo
             HTTP/1.1 200
             Date: Fri, 13 Nov 2020 00:11:51 GMT
             ```
-        5. 지하철 삭제 Request/Response
+        5. 노선 삭제 Request/Response
             * Request
             ```
             DELETE /lines/1 HTTP/1.1

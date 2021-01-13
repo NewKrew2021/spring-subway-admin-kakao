@@ -42,4 +42,16 @@ public class LineDao {
         return lines;
     }
 
+    public static Line updateLine(Long id, Line newLine) {
+        Optional<Line> line = findById(id);
+        if(line == null) {
+            throw new IllegalArgumentException();
+        }
+        Field field = ReflectionUtils.findField(Line.class, "id");
+        field.setAccessible(true);
+        ReflectionUtils.setField(field, newLine, id);
+        lines.set(lines.indexOf(line.get()), newLine);
+        return newLine;
+    }
+
 }

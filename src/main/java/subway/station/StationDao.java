@@ -5,10 +5,19 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+    private static Long seq = 0L;
+    private static List<Station> stations = new ArrayList<>();
+
+    private static StationDao instance;
+    public static StationDao getInstance(){
+        if(instance == null)
+            instance = new StationDao();
+        return instance;
+    }
+    private StationDao(){}
 
     public Station save(Station station) {
         Station persistStation = createNewObject(station);
@@ -18,6 +27,12 @@ public class StationDao {
 
     public List<Station> findAll() {
         return stations;
+    }
+
+    public List<Station> findByName(String name) {
+        return stations.stream()
+                .filter(val -> val.equals(name))
+                .collect(Collectors.toList());
     }
 
     public void deleteById(Long id) {

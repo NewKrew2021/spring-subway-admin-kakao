@@ -9,11 +9,16 @@ import java.util.List;
 
 @RestController
 public class StationController {
+    private StationDao stationDao;
+
+    public StationController() {
+        stationDao = new StationDao();
+    }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = new StationDao().save(station);
+        Station newStation = stationDao.save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }

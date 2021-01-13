@@ -12,6 +12,9 @@ public class StationDao {
 
     public Station save(Station station) {
         Station persistStation = createNewObject(station);
+        if(stations.contains(station)){
+            throw new IllegalArgumentException("역이 중복됩니다.");
+        }
         stations.add(persistStation);
         return persistStation;
     }

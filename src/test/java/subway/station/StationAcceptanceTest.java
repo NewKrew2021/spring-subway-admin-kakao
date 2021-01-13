@@ -58,6 +58,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_삭제됨(response);
     }
 
+    @DisplayName("지하철역을 제거하고 확인한다.")
+    @Test
+    void deleteAndCheckStation() {
+        //given
+        StationResponse stationResponse = 지하철역_등록되어_있음(강남역);
+
+        //when
+        지하철역_제거_요청(stationResponse);
+
+        //then
+        지하철역_목록_포함_안됨(지하철역_목록_조회_요청(), stationResponse);
+    }
+
     public static StationResponse 지하철역_등록되어_있음(String name) {
         return 지하철역_생성_요청(name).as(StationResponse.class);
     }
@@ -113,5 +126,15 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static void 지하철역_목록_포함_안됨(ExtractableResponse<Response> response, StationResponse deletedResponse) {
+        Long id = deletedResponse.getId();
+
+        List<Long> resultLineIds = response.jsonPath().getList(".", StationResponse.class).stream()
+                .map(StationResponse::getId)
+                .collect(Collectors.toList());
+
+        assertThat(resultLineIds).doesNotContain(id);
     }
 }

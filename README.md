@@ -38,6 +38,24 @@ npm run dev
 ```
 <br>
 
+## 구현 기능
+
+### 역 관리
+- [x] 역 추가 (Dao 리스트에 역 추가)
+- [x] 역 삭제 (Dao 리스트에 역 삭제)
+- [x] 역 목록 조회
+- [x] 역 컨트롤러 내 Dao 관리
+
+### 노선 정보 관리
+- [x] 노선 컨트롤러 개발
+- [x] 노선 Dao 개발
+- [x] 노선 객체 정의
+- [x] 노선 생성 기능 구현
+- [x] 노선 목록 조회 구현
+- [x] 노선 조회 구현
+- [x] 노선 수정 구현
+- [x] 노선 삭제 구현
+
 ## ✏️ Code Review Process
 [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
 

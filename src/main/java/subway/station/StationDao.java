@@ -20,9 +20,14 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        return stations.stream()
+                .filter(value -> value.getName().equals(station.getName()))
+                .findAny()
+                .orElseGet(() -> {
+                    Station persistStation = createNewObject(station);
+                    stations.add(persistStation);
+                    return persistStation;
+                });
     }
 
     public List<Station> findAll() {

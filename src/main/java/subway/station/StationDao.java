@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.util.ReflectionUtils;
+import subway.exceptions.DuplicateStationNameException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,9 +13,16 @@ public class StationDao {
     private static List<Station> stations = new ArrayList<>();
 
     public static Station save(Station station) {
+        if (isExistStations(station)) {
+            throw new DuplicateStationNameException("중복된 역 이름입니다.");
+        }
         Station persistStation = createNewObject(station);
         stations.add(persistStation);
         return persistStation;
+    }
+
+    public static boolean isExistStations(Station station) {
+        return stations.contains(station);
     }
 
     public static List<Station> findAll() {

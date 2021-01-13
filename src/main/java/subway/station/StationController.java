@@ -3,6 +3,8 @@ package subway.station;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exceptions.DuplicateLineNameException;
+import subway.exceptions.DuplicateStationNameException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,8 +16,14 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = new StationDao().save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        Station newStation;
+        StationResponse stationResponse;
+        try {
+            newStation = StationDao.save(station);
+            stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        } catch (DuplicateStationNameException exception) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 

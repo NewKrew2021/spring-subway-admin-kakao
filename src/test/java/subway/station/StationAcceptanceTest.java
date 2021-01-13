@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
- 
+
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+        StationDao.findAll().clear();
+    }
+
     @DisplayName("지하철역을 생성한다.")
     @Test
     void createStation() {
@@ -57,6 +64,17 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_삭제됨(response);
+    }
+
+
+    @DisplayName("존재하는 지하철 역을 추가하려고 시도한다.")
+    @Test
+    void createDuplicateStation() {
+        지하철역_생성_요청(강남역);
+        // when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+        // then
+        지하철역_중복됨(response);
     }
 
     @DisplayName("없는 지하철 역을 제거하려고 시도한다.")
@@ -127,5 +145,9 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    private void 지하철역_중복됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

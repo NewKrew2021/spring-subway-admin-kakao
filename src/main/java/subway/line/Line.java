@@ -93,6 +93,11 @@ public class Line {
         this.stations = stations;
     }
 
+    public void update(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

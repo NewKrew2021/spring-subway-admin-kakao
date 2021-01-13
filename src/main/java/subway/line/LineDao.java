@@ -42,5 +42,8 @@ public class LineDao {
                 .findFirst();
     }
 
-
+    public void update(Long id, LineRequest lineRequest) {
+        Line line = findById(id).get();
+        line.update(lineRequest);
+    }
 }

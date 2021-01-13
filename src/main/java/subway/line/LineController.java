@@ -39,12 +39,13 @@ public class LineController {
         Line newLine = lineDao.findOne(lineId);
         return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor()));
     }
-//
-//    @PutMapping("/{lineId}")
-//    public ResponseEntity updateLine(@PathVariable Long lineId) {
-//
-//    }
-//
+
+    @PutMapping("/{lineId}")
+    public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
+        lineDao.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor()));
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
         lineDao.deleteById(lineId);

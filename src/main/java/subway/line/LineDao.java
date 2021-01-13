@@ -54,4 +54,7 @@ public class LineDao {
         return newLine;
     }
 
+    public static boolean deleteById(Long id) {
+        return lines.removeIf(it -> it.getId().equals(id));
+    }
 }

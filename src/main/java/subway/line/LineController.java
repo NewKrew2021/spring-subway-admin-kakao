@@ -2,10 +2,7 @@ package subway.line;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
 import subway.station.StationResponse;
 
@@ -35,6 +32,12 @@ public class LineController {
         List<Line> lines = lineDao.findAll();
         List<LineResponse> lineResponses = lines.stream().map(LineResponse::new).collect(Collectors.toList());
         return ResponseEntity.ok().body(lineResponses);
+    }
+
+    @DeleteMapping("/lines/{id}")
+    public ResponseEntity deleteLine(@PathVariable Long id) {
+        lineDao.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -54,7 +54,7 @@ npm run dev
 - [x] 노선 목록 조회 구현
 - [ ] 노선 조회 구현
 - [ ] 노선 수정 구현
-- [ ] 노선 삭제 구현
+- [x] 노선 삭제 구현
 
 ## ✏️ Code Review Process
 [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)

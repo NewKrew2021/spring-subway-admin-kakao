@@ -1,7 +1,6 @@
 package subway.line;
 
 import org.springframework.util.ReflectionUtils;
-import subway.station.Station;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -30,5 +29,9 @@ public class LineDao {
         field.setAccessible(true);
         ReflectionUtils.setField(field, line, ++seq);
         return line;
+    }
+
+    public void deleteById(Long id) {
+        lines.removeIf(it -> it.getId().equals(id));
     }
 }

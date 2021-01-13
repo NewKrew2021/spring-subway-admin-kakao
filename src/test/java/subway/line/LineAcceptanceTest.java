@@ -33,8 +33,10 @@ public class LineAcceptanceTest extends AcceptanceTest {
         강남역 = 지하철역_등록되어_있음("강남역");
         downStation = 지하철역_등록되어_있음("광교역");
 
-        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
-        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600");
+        lineRequest2 = new LineRequest("구신분당선", "bg-red-600");
+//        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
+//        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
     }
 
     @DisplayName("지하철 노선을 생성한다.")
@@ -88,6 +90,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_응답됨(response, lineResponse);
     }
 
+    @DisplayName("존재하지 않는 지하철 노선을 조회한다.")
+    @Test
+    void getNonExistentLine() {
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_조회_요청(Long.MAX_VALUE);
+
+        // then
+        지하철_노선_응답_실패됨(response);
+    }
+
     @DisplayName("지하철 노선을 수정한다.")
     @Test
     void updateLine() {
@@ -99,6 +111,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_노선_수정됨(response);
+    }
+
+    @DisplayName("존재하지 않는 지하철 노선을 수정한다.")
+    @Test
+    void updateNonExistentLine() {
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_수정_요청(Long.MAX_VALUE, lineRequest2);
+
+        // then
+        지하철_노선_응답_실패됨(response);
     }
 
     @DisplayName("지하철 노선을 제거한다.")
@@ -115,7 +137,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
-        LineRequest lineRequest = new LineRequest(name, color, upStation.getId(), downStation.getId(), distance);
+        LineRequest lineRequest = new LineRequest(name, color);
+//        LineRequest lineRequest = new LineRequest(name, color, upStation.getId(), downStation.getId(), distance);
         return 지하철_노선_등록되어_있음(lineRequest);
     }
 
@@ -143,21 +166,28 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_조회_요청(LineResponse response) {
+        return 지하철_노선_조회_요청(response.getId());
+    }
+
+    public static ExtractableResponse<Response> 지하철_노선_조회_요청(Long id) {
         return RestAssured
                 .given().log().all()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().get("/lines/{lineId}", response.getId())
+                .when().get("/lines/{lineId}", id)
                 .then().log().all()
                 .extract();
     }
 
     public static ExtractableResponse<Response> 지하철_노선_수정_요청(LineResponse response, LineRequest params) {
+        return 지하철_노선_수정_요청(response.getId(), params);
+    }
 
+    public static ExtractableResponse<Response> 지하철_노선_수정_요청(Long id, LineRequest params) {
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(params)
-                .when().put("/lines/" + response.getId())
+                .when().put("/lines/" + id)
                 .then().log().all()
                 .extract();
     }
@@ -181,6 +211,10 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철_노선_목록_응답됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    public static void 지하철_노선_응답_실패됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     public static void 지하철_노선_응답됨(ExtractableResponse<Response> response, LineResponse lineResponse) {

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
-
+ 
     @DisplayName("지하철역을 생성한다.")
     @Test
     void createStation() {

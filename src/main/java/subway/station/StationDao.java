@@ -11,9 +11,18 @@ public class StationDao {
     private List<Station> stations = new ArrayList<>();
 
     public Station save(Station station) {
+        if (isExist(station.getName())) {
+            throw new IllegalStateException("이미 등록된 지하철역 입니다.");
+        }
+
         Station persistStation = createNewObject(station);
         stations.add(persistStation);
         return persistStation;
+    }
+
+    private boolean isExist(String name) {
+        return stations.stream()
+                .anyMatch(station -> station.getName().equals(name));
     }
 
     public List<Station> findAll() {

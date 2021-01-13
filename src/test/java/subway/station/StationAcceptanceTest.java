@@ -45,6 +45,20 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
     }
 
+    @DisplayName("지하철역을 중복으로 입력하면 같은 값이 반환된다.")
+    @Test
+    void checkDuplicateStations() {
+        // given
+        StationResponse stationResponse1 = 지하철역_등록되어_있음(강남역);
+
+        // when
+        StationResponse stationResponse2 = 지하철역_등록되어_있음(강남역);
+
+        // then
+        assertThat(stationResponse1.getId()).isEqualTo(stationResponse2.getId());
+    }
+
+
     @DisplayName("지하철역을 제거한다.")
     @Test
     void deleteStation() {

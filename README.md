@@ -52,3 +52,11 @@ npm run dev
 ## 📝 License
 
 This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blob/master/LICENSE) licensed.
+
+
+## 기능 요구 사항
+- 지하철역 관리 API 기능
+  1) 지하철 데이터 가져올 수 있게 수정
+  2) stationDao 데이터 공통으로 사용할 수 있게끔 수정
+  3) 지하철 역 중복 안되게 수정
+- 

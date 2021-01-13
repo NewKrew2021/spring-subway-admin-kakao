@@ -5,6 +5,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class LineDao {
 
@@ -34,4 +35,12 @@ public class LineDao {
     public void deleteById(Long id) {
         lines.removeIf(it -> it.getId().equals(id));
     }
+
+    public Optional<Line> findById(Long id) {
+        return lines.stream()
+                .filter(it -> it.getId() == id)
+                .findFirst();
+    }
+
+
 }

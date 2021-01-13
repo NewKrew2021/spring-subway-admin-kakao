@@ -8,6 +8,7 @@ import subway.station.StationResponse;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,6 +39,13 @@ public class LineController {
     public ResponseEntity deleteLine(@PathVariable Long id) {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
+        Optional<Line> lineOptional = lineDao.findById(id);
+        LineResponse lineResponse = new LineResponse(lineOptional.get());
+        return ResponseEntity.ok(lineResponse);
     }
 
 }

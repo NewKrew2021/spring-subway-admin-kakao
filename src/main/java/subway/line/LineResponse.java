@@ -27,6 +27,9 @@ public class LineResponse {
     }
 
     public LineResponse(Line line) {
+        if(!validator(line)){
+            throw new IllegalArgumentException("노선 정보가 존재하지 않습니다.");
+        }
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
@@ -46,5 +49,12 @@ public class LineResponse {
 
     public List<StationResponse> getStations() {
         return stations;
+    }
+
+    private boolean validator(Line line){
+        if (line == null) {
+            return false;
+        }
+        return true;
     }
 }

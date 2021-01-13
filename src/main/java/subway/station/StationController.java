@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,11 +21,18 @@ public class StationController {
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return ResponseEntity.ok().build();
+        List<StationResponse> responses = new ArrayList<>();
+        for (Station station : StationDao.findAll()) {
+            responses.add(new StationResponse(station.getId(), station.getName()));
+        }
+        return ResponseEntity.ok().body(responses);
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        return ResponseEntity.noContent().build();
+        if (StationDao.deleteById(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

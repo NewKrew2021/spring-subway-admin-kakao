@@ -1,5 +1,6 @@
 package subway.station;
 
+import com.sun.net.httpserver.HttpsConfigurator;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -58,6 +59,15 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_삭제됨(response);
     }
 
+    @DisplayName("없는 지하철 역을 제거하려고 시도한다.")
+    @Test
+    void deleteNotExistsStation() {
+        // given
+        ExtractableResponse<Response> response = 지하철역_제거_요청(new StationResponse(1L, "강남역"));
+
+        지하철역_삭제되지않음(response);
+    }
+
     public static StationResponse 지하철역_등록되어_있음(String name) {
         return 지하철역_생성_요청(name).as(StationResponse.class);
     }
@@ -101,6 +111,10 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철역_삭제됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    public static void 지하철역_삭제되지않음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {

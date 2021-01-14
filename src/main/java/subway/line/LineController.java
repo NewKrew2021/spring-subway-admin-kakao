@@ -7,10 +7,7 @@ import subway.station.StationController;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,7 +22,7 @@ public class LineController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Station> stations = new ArrayList<>();
+        List<Station> stations = new LinkedList<>();
         stations.add(StationController.stationDao.findById(lineRequest.getUpStationId()));
         stations.add(StationController.stationDao.findById(lineRequest.getDownStationId()));
 
@@ -48,7 +45,10 @@ public class LineController {
                     line.getId(),
                     line.getName(),
                     line.getColor(),
-                    Collections.emptyList()
+                    line.getStations()
+                            .stream()
+                            .map(StationResponse::new)
+                            .collect(Collectors.toList())
             ));
         }
 
@@ -63,7 +63,10 @@ public class LineController {
                 line.getId(),
                 line.getName(),
                 line.getColor(),
-                Collections.emptyList()
+                line.getStations()
+                        .stream()
+                        .map(StationResponse::new)
+                        .collect(Collectors.toList())
         );
         return ResponseEntity.ok().body(lineResponse);
     }
@@ -82,8 +85,16 @@ public class LineController {
 
 
     @PostMapping("/lines/{id}/sections")
-    public void addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        
+    public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
+        Line line = lineDao.findById(id).get();
+
+        // 상행 종점 등록
+       if(line.getUpStationId() == sectionRequest.getDownStationId()) {
+            line.getStations().add(0, StationController.stationDao.findById(sectionRequest.getUpStationId()));
+            line.setDistance(line.getDistance() + sectionRequest.getDistance());
+        }
+
+       return ResponseEntity.ok().build();
     }
 
 }

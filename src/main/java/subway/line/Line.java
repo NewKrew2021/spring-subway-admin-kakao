@@ -79,4 +79,8 @@ public class Line {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
 }

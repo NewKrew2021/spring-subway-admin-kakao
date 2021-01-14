@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class StationDao {
-    private Long seq = 0L;
     private final List<Station> stations = new ArrayList<>();
+    private Long seq = 0L;
 
     public Station save(Station station) throws SQLException {
         Station persistStation = createNewObject(station);

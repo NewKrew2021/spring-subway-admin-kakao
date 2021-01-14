@@ -1,11 +1,11 @@
 package subway.line;
 
 public class Section {
-    private Long id;
     private final Long line_id;
     private final Long up_station_id;
     private final Long down_station_id;
     private final int distance;
+    private Long id;
 
     public Section(Long line_id, Long up_station_id, Long down_station_id, int distance) {
         this.line_id = line_id;

@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Line {
+    // TODO 확인
+    private final List<Station> stations = new ArrayList<>();
     private Long id;
     private String name;
     private String color;
-    // TODO 확인
-    private final List<Station> stations = new ArrayList<>();
 
     public Line(String name, String color) {
         this.name = name;
@@ -25,12 +25,12 @@ public class Line {
         return name;
     }
 
-    public void addStation(Station station) {
-        stations.add(station);
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void addStation(Station station) {
+        stations.add(station);
     }
 
     public String getColor() {

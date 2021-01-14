@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 public class StationController {
-
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());

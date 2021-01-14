@@ -28,6 +28,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
+        LineDao.clear();
 
         // given
         강남역 = 지하철역_등록되어_있음("강남역");
@@ -124,6 +125,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_생성_요청(LineRequest params) {
+        System.out.println("지하철 노선 생성 요청:::");
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -134,6 +136,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     private static ExtractableResponse<Response> 지하철_노선_목록_조회_요청() {
+        System.out.println("지하철 노선 목록 조회 요청:::");
         return RestAssured
                 .given().log().all()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -143,6 +146,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_조회_요청(LineResponse response) {
+        System.out.println("지하철 노선 조회 요청:::");
         return RestAssured
                 .given().log().all()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -152,6 +156,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_수정_요청(LineResponse response, LineRequest params) {
+        System.out.println("지하철 노선 수정 요청:::");
 
         return RestAssured
                 .given().log().all()
@@ -163,6 +168,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_제거_요청(LineResponse lineResponse) {
+        System.out.println("지하철 노선 제거 요청:::");
+
         return RestAssured
                 .given().log().all()
                 .when().delete("/lines/" + lineResponse.getId())
@@ -171,6 +178,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선_생성됨(ExtractableResponse response) {
+        System.out.println("지하철 노선 생성:::");
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(response.header("Location")).isNotBlank();
     }
@@ -184,6 +192,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선_응답됨(ExtractableResponse<Response> response, LineResponse lineResponse) {
+        System.out.println("지하철 노선 응답됨:::");
+
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         LineResponse resultResponse = response.as(LineResponse.class);
         assertThat(resultResponse.getId()).isEqualTo(lineResponse.getId());

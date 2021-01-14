@@ -8,19 +8,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
     private static StationDao stationDao = new StationDao();
 
-    public static StationDao getInstance() {
-        return stationDao;
-    }
-
-    public List<StationResponse> getStationResponses() {
-        return stations.stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
-                .collect(Collectors.toList());
-    }
+    private Long seq = 0L;
+    private List<Station> stations = new ArrayList<>();
 
     public static void clear() {
         getInstance().stations.clear();
@@ -39,19 +30,29 @@ public class StationDao {
         return persistStation;
     }
 
-    public List<Station> findAll() {
-        return stations;
+    private Station createNewObject(Station station) {
+        Field field = ReflectionUtils.findField(Station.class, "id");
+        field.setAccessible(true);
+        ReflectionUtils.setField(field, station, ++seq);
+        return station;
     }
 
     public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public List<Station> findAll() {
+        return stations;
+    }
+
+    public List<StationResponse> getStationResponses() {
+        return stations.stream()
+                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .collect(Collectors.toList());
+    }
+
+    public static StationDao getInstance() {
+        return stationDao;
     }
 
     @Override

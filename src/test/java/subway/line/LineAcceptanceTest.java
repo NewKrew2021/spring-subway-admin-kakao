@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -112,6 +113,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_노선_삭제됨(response);
+
+        assertThat(지하철_노선_삭제_확인(lineRequest1)).isEqualTo(false);
+    }
+
+    public static boolean 지하철_노선_삭제_확인(LineRequest lineRequest){
+        return 지하철_노선_목록_조회_요청().jsonPath().getList(".", LineResponse.class).stream()
+                .filter(lineResponse -> lineResponse.getStations().contains(lineRequest.getUpStationId()) &&
+                        lineResponse.getStations().contains(lineRequest.getDownStationId()))
+                .findAny()
+                .isPresent();
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {

@@ -51,4 +51,10 @@ public class LineController {
         line.updateAll(lineRequest);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/lines/{id}")
+    public ResponseEntity deleteStation(@PathVariable Long id) {
+        LineDao.getInstance().deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

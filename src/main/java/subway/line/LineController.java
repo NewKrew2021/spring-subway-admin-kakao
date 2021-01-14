@@ -16,7 +16,7 @@ public class LineController {
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
 
-        Line line = new Line( lineRequest.getName(), lineRequest.getColor());
+        Line line = new Line( lineRequest );
 
         if( lineDao.hasContains(line) ) {
             return ResponseEntity.badRequest().build();

@@ -7,6 +7,17 @@ public class Line {
     private long id;
     private String name;
     private String color;
+    private long upStationId;
+    private long downStationId;
+    private int distance;
+
+    public Line (LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+        this.upStationId = lineRequest.getUpStationId();
+        this.downStationId = lineRequest.getDownStationId();
+        this.distance = lineRequest.getDistance();
+    }
 
     public Line(String name, String color) {
         this.name = name;

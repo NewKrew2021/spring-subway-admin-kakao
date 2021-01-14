@@ -10,10 +10,12 @@ import java.util.List;
 @RestController
 public class StationController {
 
+    private static StationDao stationDao = new StationDao();
+
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = new StationDao().save(station);
+        Station station = new Station(stationRequest.getName()); // 여기상태에서는 id가 없다.
+        Station newStation = stationDao.save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }

@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LineDao {
-    private static Long seq = 0L;
-    private static List<Line> lines=new ArrayList<>();
+    private Long seq = 0L;
+    private List<Line> lines=new ArrayList<>();
 
     public Line save(Line line){
-        Line persistStaion=createNewObject(line);
-        lines.add(persistStaion);
-        return persistStaion;
+        Line persistStation=createNewObject(line);
+        lines.add(persistStation);
+        return persistStation;
     }
     private Line createNewObject(Line line) {
         Field field = ReflectionUtils.findField(Line.class, "id");

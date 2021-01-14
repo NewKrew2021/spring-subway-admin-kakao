@@ -16,6 +16,14 @@ public class StationDao {
         return persistStation;
     }
 
+    public Station findById(Long id){
+        return stations
+                .stream()
+                .filter(station -> station.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<Station> findAll() {
         return stations;
     }

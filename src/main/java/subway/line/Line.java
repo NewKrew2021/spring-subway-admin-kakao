@@ -15,7 +15,7 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private static List<StationResponse> stations=new ArrayList<>();;
+    private List<Station> stations;
 
     public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
         this.name = name;
@@ -23,6 +23,7 @@ public class Line {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.stations=stations=new ArrayList<>();
     }
 
     public Line(Long id,String name, String color, Long upStationId, Long downStationId, int distance) {
@@ -32,6 +33,8 @@ public class Line {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.stations=stations=new ArrayList<>();
+
     }
 
     public Line(LineRequest lineRequest){
@@ -40,6 +43,8 @@ public class Line {
         this.upStationId=lineRequest.getUpStationId();
         this.downStationId=lineRequest.getDownStationId();
         this.distance=lineRequest.getDistance();
+        this.stations=stations=new ArrayList<>();
+
     }
 
     public void modify(LineRequest lineRequest){
@@ -48,6 +53,10 @@ public class Line {
         this.upStationId=lineRequest.getUpStationId();
         this.downStationId=lineRequest.getDownStationId();
         this.distance=lineRequest.getDistance();
+    }
+
+    public void add(Station station){
+        stations.add(station);
     }
 
     public long getId(){
@@ -74,7 +83,7 @@ public class Line {
         return distance;
     }
 
-    public static List<StationResponse> getStations() {
+    public List<Station> getStations() {
         return stations;
     }
 }

@@ -24,7 +24,9 @@ public class LineDao {
     }
 
     public Line save(Line line) {
+        System.out.println(line.getName());
         if (isExist(line)) {
+            System.out.println("이미 존재함.");
             return null;
         }
         Line persistLine = createNewObject(line);
@@ -36,7 +38,7 @@ public class LineDao {
         return lines.stream()
                 .map(Line::getName)
                 .collect(Collectors.toList())
-                .contains(line);
+                .contains(line.getName());
     }
 
     private Line createNewObject(Line line) {

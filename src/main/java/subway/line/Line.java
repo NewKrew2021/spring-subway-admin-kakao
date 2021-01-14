@@ -33,6 +33,23 @@ public class Line {
         this.downStationId = downStationId;
         this.distance = distance;
     }
+
+    public Line(LineRequest lineRequest){
+        this.name=lineRequest.getName();
+        this.color=lineRequest.getColor();
+        this.upStationId=lineRequest.getUpStationId();
+        this.downStationId=lineRequest.getDownStationId();
+        this.distance=lineRequest.getDistance();
+    }
+
+    public void modify(LineRequest lineRequest){
+        this.name=lineRequest.getName();
+        this.color=lineRequest.getColor();
+        this.upStationId=lineRequest.getUpStationId();
+        this.downStationId=lineRequest.getDownStationId();
+        this.distance=lineRequest.getDistance();
+    }
+
     public long getId(){
         return id;
     }

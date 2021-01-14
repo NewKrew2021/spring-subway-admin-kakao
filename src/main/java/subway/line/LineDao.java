@@ -42,5 +42,13 @@ public class LineDao {
         return lines;
     }
 
+    public void modify(Long id, LineRequest lineRequest){
+        Line line=findById(id);
+        line.modify(lineRequest);
+    }
+
+    public void delete(Long id){
+        lines.removeIf(it -> it.getId()==id);
+    }
 
 }

@@ -17,7 +17,7 @@ public class LineController {
         if(lineDao.isContainSameName(lineRequest.getName())){
             return ResponseEntity.badRequest().build();
         }
-        Line newLine= lineDao.save(new Line(lineRequest.getName(),lineRequest.getColor(),lineRequest.getUpStationId(),lineRequest.getDownStationId(),lineRequest.getDistance()));
+        Line newLine= lineDao.save(new Line(lineRequest));
         return ResponseEntity.created(URI.create("/line/" +newLine.getId())).body(new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations()));
     }
 
@@ -36,6 +36,20 @@ public class LineController {
         LineDao lineDao=new LineDao();
         Line searchedLine=lineDao.findById(lineId);
         return ResponseEntity.ok().body(new LineResponse(searchedLine.getId(),searchedLine.getName(),searchedLine.getColor(),searchedLine.getStations()));
+    }
+
+    @PutMapping("/lines/{lineId}")
+    public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest){
+        LineDao lineDao=new LineDao();
+        lineDao.modify(lineId, lineRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/lines/{lineId}")
+    public ResponseEntity<LineResponse> deleteLine(@PathVariable Long lineId){
+        LineDao lineDao =new LineDao();
+        lineDao.delete(lineId);
+        return  ResponseEntity.noContent().build();
     }
 
 

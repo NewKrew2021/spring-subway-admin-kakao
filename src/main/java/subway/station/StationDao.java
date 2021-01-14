@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StationDao {
-    private Long seq = 0L;
+    private static Long seq = 0L;
     private static List<Station> stations = new ArrayList<>();
 
     public Station save(Station station) {

@@ -1,17 +1,16 @@
 package subway.line;
 
 import subway.station.Station;
-import subway.station.StationResponse;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Line {
     private Long id;
     private String name;
     private String color;
-    private List<Station> stations;
+    // TODO 확인
+    private final List<Station> stations = new ArrayList<>();
 
     public Line(String name, String color) {
         this.name = name;
@@ -26,6 +25,10 @@ public class Line {
         return name;
     }
 
+    public void addStation(Station station) {
+        stations.add(station);
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -38,7 +41,7 @@ public class Line {
         this.color = color;
     }
 
-    public List<StationResponse> getStations() {
-        return Collections.unmodifiableList(new ArrayList<>());
+    public List<Station> getStations() {
+        return stations;
     }
 }

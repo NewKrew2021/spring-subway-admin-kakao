@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.DaoContainer;
 import subway.station.Station;
 import subway.station.StationResponse;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +31,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
-
+        DaoContainer.refreshAll();
         // given
         강남역 = 지하철역_등록되어_있음("강남역");
         downStation = 지하철역_등록되어_있음("광교역");
@@ -114,7 +116,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         // when
         ExtractableResponse<Response> response1 = 지하철_노선_제거_요청(lineResponse1);
 
-        LineResponse lineResponse2 = new LineResponse(new Line("역역", "빨강"));
+        LineResponse lineResponse2 = new LineResponse(new Line("역역", "빨강"), new ArrayList<>());
         ExtractableResponse<Response> response2 = 지하철_노선_제거_요청(lineResponse2);
 
         // then

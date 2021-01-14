@@ -3,6 +3,7 @@ package subway.station;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.DaoContainer;
 
 import java.net.URI;
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
-    private final StationDao stationDao = new StationDao();
+    private final StationDao stationDao = DaoContainer.getStationDao();
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {

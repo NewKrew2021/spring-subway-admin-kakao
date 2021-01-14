@@ -45,6 +45,7 @@ public class LineDao {
                 .findFirst().orElse(null);
     }
 
+    // TODO 변경할 이름이 이미 존재할 경우
     public void update(Long id, Line line) throws SQLException {
         Line selectedLine = getById(id);
 

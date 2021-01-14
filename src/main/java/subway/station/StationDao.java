@@ -28,6 +28,13 @@ public class StationDao {
                 .anyMatch(stationIn -> station.getName().equals(stationIn.getName()));
     }
 
+    public Station getById(Long id) {
+        return stations.stream()
+                .filter(station -> station.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<Station> findAll() {
         return Collections.unmodifiableList(stations);
     }

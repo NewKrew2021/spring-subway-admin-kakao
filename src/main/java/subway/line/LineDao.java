@@ -44,4 +44,9 @@ public class LineDao {
         Line line = getLine(id);
         line.editLine(name, color);
     }
+
+    public void deleteLineById(long id) {
+        lines.remove(getLine(id));
+        //System.out.println(lines);
+    }
 }

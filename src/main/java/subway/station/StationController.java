@@ -16,6 +16,9 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
+        if (StationDao.getInstance().findByName(stationRequest.getName()).size() != 0){
+            throw new DuplicateStationException();
+        }
         Station station = new Station(stationRequest.getName());
         Station newStation = StationDao.getInstance().save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
@@ -34,6 +37,11 @@ public class StationController {
     public ResponseEntity deleteStation(@PathVariable Long id) {
         StationDao.getInstance().deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(DuplicateStationException.class)
+    public ResponseEntity<String> handle(){
+        return ResponseEntity.badRequest().body("DuplicateStationException");
     }
 
 }

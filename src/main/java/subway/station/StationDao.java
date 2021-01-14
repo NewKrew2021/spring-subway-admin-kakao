@@ -29,9 +29,15 @@ public class StationDao {
         return stations;
     }
 
+    public Station findById(Long id) {
+        return stations.stream()
+                .filter(val -> val.getId()==id)
+                .collect(Collectors.toList()).get(0);
+    }
+
     public List<Station> findByName(String name) {
         return stations.stream()
-                .filter(val -> val.equals(name))
+                .filter(station -> station.getName().equals(name))
                 .collect(Collectors.toList());
     }
 

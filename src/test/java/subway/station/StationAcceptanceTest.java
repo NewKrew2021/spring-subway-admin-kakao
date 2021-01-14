@@ -13,12 +13,11 @@ import subway.exceptions.DuplicateStationException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import static org.hamcrest.core.Is.is;
 
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.*;import static org.hamcrest.Matchers.is;
 
 @DisplayName("지하철역 관련 기능")
 public class StationAcceptanceTest extends AcceptanceTest {
@@ -50,6 +49,13 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
     }
 
+    @DisplayName("지하철역 중복을 확인한다.")
+    @Test
+    void duplicateStation(){
+        지하철역_생성_요청(강남역);
+
+        지하철역_중복_확인(강남역);
+    }
 
     @DisplayName("지하철역을 제거한다.")
     @Test
@@ -67,6 +73,17 @@ public class StationAcceptanceTest extends AcceptanceTest {
         // body가 비어있는걸 확인한다
         assertThat(지하철역_삭제_확인(강남역)).isEqualTo(false);
 
+    }
+
+    public static void 지하철역_중복_확인(String name){
+        RestAssured
+                .given().log().all()
+                .body(new StationRequest(강남역))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/stations")
+                .then().log().all()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body(is("DuplicateStationException"));
     }
 
     public static boolean 지하철역_삭제_확인(String name){

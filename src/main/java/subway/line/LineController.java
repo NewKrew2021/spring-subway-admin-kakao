@@ -79,4 +79,11 @@ public class LineController {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/lines/{id}/sections")
+    public void addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
+        
+    }
+
 }

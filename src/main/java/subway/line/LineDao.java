@@ -5,6 +5,7 @@ import subway.station.Station;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LineDao {
@@ -30,5 +31,12 @@ public class LineDao {
 
     public List<Line> getLines() {
         return lines;
+    }
+
+    public Line getLine(long id) {
+        return lines.stream()
+                .filter(line -> line.getId() == id)
+                .findAny()
+                .orElse(null);
     }
 }

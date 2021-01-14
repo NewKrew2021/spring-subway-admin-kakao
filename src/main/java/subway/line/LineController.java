@@ -2,10 +2,7 @@ package subway.line;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
 import subway.station.StationDao;
 import subway.station.StationResponse;
@@ -41,5 +38,10 @@ public class LineController {
         return ResponseEntity.ok().body(LineDao.getInstance().findAll().stream()
                 .map((Line line) -> new LineResponse(line))
                 .collect(Collectors.toList()));
+    }
+
+    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
+        return ResponseEntity.ok().body(new LineResponse(LineDao.getInstance().findById(id)));
     }
 }

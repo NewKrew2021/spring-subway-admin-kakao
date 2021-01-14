@@ -1,10 +1,12 @@
 package subway.line;
 
 import org.springframework.util.ReflectionUtils;
+import subway.station.Station;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LineDao {
     private static Long seq = 0L;
@@ -27,6 +29,12 @@ public class LineDao {
 
     public List<Line> findAll() {
         return lines;
+    }
+
+    public Line findById(Long id) {
+        return lines.stream()
+                .filter(val -> val.getId()==id)
+                .collect(Collectors.toList()).get(0);
     }
 
     public void deleteById(Long id) {

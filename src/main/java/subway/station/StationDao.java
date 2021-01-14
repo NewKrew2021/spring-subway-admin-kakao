@@ -8,7 +8,7 @@ import java.util.List;
 
 public class StationDao {
     private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+    private static List<Station> stations = new ArrayList<>();
 
     public Station save(Station station) {
         Station persistStation = createNewObject(station);

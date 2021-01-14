@@ -1,10 +1,7 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import subway.station.StationResponse;
 
 import java.net.URI;
@@ -32,5 +29,20 @@ public class LineController {
                 Collections.emptyList()
         );
         return ResponseEntity.created(URI.create("/stations/" + line.getId())).body(lineResponse);
+    }
+
+    @GetMapping("/lines")
+    public ResponseEntity<List<LineResponse>> showStationsOfLine(){
+        List<LineResponse> lineResponses = new ArrayList<>();
+        for (Line line : lineDao.findAll()) {
+            lineResponses.add(new LineResponse(
+                    line.getId(),
+                    line.getName(),
+                    line.getColor(),
+                    Collections.emptyList()
+            ));
+        }
+
+        return ResponseEntity.ok().body(lineResponses);
     }
 }

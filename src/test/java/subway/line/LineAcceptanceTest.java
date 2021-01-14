@@ -52,10 +52,10 @@ public class LineAcceptanceTest extends AcceptanceTest {
     void createLineWithDuplicateName() {
         // given
         지하철_노선_등록되어_있음(lineRequest1);
-        System.out.println("--------------------");
+
         // when
         ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
-        System.out.println("--------------------");
+
         // then
         지하철_노선_생성_실패됨(response);
     }

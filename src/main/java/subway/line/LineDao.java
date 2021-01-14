@@ -43,9 +43,9 @@ public class LineDao {
         field.setAccessible(true);
         ReflectionUtils.setField(field, originLine, updateLine.getColor());
 
-        field = ReflectionUtils.findField(Line.class, "stations");
+        field = ReflectionUtils.findField(Line.class, "sections");
         field.setAccessible(true);
-        ReflectionUtils.setField(field, originLine, updateLine.getStations());
+        ReflectionUtils.setField(field, originLine, updateLine.getSections());
     }
 
     public void deleteById(Long id) {
@@ -56,10 +56,6 @@ public class LineDao {
         Field field = ReflectionUtils.findField(Line.class, "id");
         field.setAccessible(true);
         ReflectionUtils.setField(field, line, ++seq);
-
-        field = ReflectionUtils.findField(Line.class, "stations");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, new ArrayList<>());
 
         return line;
     }

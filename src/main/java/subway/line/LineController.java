@@ -64,4 +64,10 @@ public class LineController {
         lineDao.modify(id, lineRequest);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/lines/{id}")
+    public ResponseEntity deleteLineById(@PathVariable Long id) {
+        lineDao.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

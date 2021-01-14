@@ -95,6 +95,11 @@ API 요청에 대한 처리와 Dao 객체를 활용하여 데이터를 관리하
 - [DELETE] 노선 삭제 Request / Response
   - 아이디 정보를 통해서 Request를 보내면 그에 해당하는 노선 삭제
   - 성공 Response 는 204
+  
+
+## 질문목록
+- `private Line createNewObject(Line line)` 의 이유가 궁금하다.
+  
 
 ## 📝 License
 

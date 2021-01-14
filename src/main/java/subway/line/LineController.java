@@ -3,9 +3,7 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.Station;
 import subway.station.StationResponse;
-
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -19,17 +17,20 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineDao.findByName(lineRequest.getName()) != null) {
+        if (isNameDuplicate(lineRequest.getName())) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Station> stations = new ArrayList<>();
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), stations);
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), new ArrayList<>());
         Line newLine = lineDao.save(line);
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(lineResponse);
+    }
+
+    private boolean isNameDuplicate(String name) {
+        return lineDao.findByName(name) != null;
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

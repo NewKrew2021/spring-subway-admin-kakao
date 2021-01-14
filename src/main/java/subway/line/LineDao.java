@@ -1,7 +1,6 @@
 package subway.line;
 
 import org.springframework.util.ReflectionUtils;
-import subway.station.Station;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,7 +16,9 @@ public class LineDao {
         return persistLine;
     }
 
-    public List<Line> findAll() { return lines; }
+    public List<Line> findAll() {
+        return lines;
+    }
 
     public Line findById(Long id) {
         return lines.stream()
@@ -58,7 +59,7 @@ public class LineDao {
 
         field = ReflectionUtils.findField(Line.class, "stations");
         field.setAccessible(true);
-        ReflectionUtils.setField(field, line, new ArrayList<Station>());
+        ReflectionUtils.setField(field, line, new ArrayList<>());
 
         return line;
     }

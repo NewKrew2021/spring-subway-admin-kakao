@@ -41,4 +41,46 @@ public class LineDao {
         lines.remove(findOne(line.getId()));
         lines.add(line);
     }
+
+    public void saveSection(Long lineId, Section section) {
+        Line line = lines.stream().filter(l -> l.getId().equals(lineId)).findFirst().get();
+        List<Section> sections = line.getSections();
+        int sectionIdx = -1;
+        Long upId = section.getUpStationId(), downId = section.getDownStationId(), stationId = -1L;
+        for (int i = 0; i < sections.size(); i++) {
+            if(upId == sections.get(i).getUpStationId() || upId == sections.get(i).getDownStationId()) {
+                sectionIdx = i;
+                stationId = upId;
+                break;
+            }
+
+            if(downId == sections.get(i).getUpStationId() || downId == sections.get(i).getDownStationId()) {
+                sectionIdx = i;
+                stationId = downId;
+                break;
+            }
+        }
+        if(sectionIdx == -1){
+            return;
+        }
+        if(stationId == upId){
+            sections.add(sectionIdx, section);
+            if(sectionIdx < sections.size() - 1){
+                Long nextStationId = sections.get(sectionIdx + 1).getDownStationId();
+                Integer nextStationDistance = sections.get(sectionIdx + 1).getDistance() - section.getDistance();
+                sections.remove(sectionIdx + 1);
+                sections.add(sectionIdx + 1, new Section(downId, nextStationId, nextStationDistance));
+            }
+        }
+
+        if(stationId == downId){
+            sections.add(sectionIdx, section);
+            if(sectionIdx > 0){
+                Long prevStationId = sections.get(sectionIdx - 1).getDownStationId();
+                Integer prevStationDistance = sections.get(sectionIdx - 1).getDistance() - section.getDistance();
+                sections.remove(sectionIdx -1);
+                sections.add(sectionIdx - 1, new Section(prevStationId, upId, prevStationDistance));
+            }
+        }
+    }
 }

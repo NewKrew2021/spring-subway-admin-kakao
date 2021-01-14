@@ -2,12 +2,12 @@ package subway.line;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.Station;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineDao lineDao;
+    private final StationDao stationDao;
 
     public LineController() {
         lineDao = new LineDao();
+        stationDao = StationDao.getInstance();
     }
 
     @PostMapping
@@ -42,7 +44,22 @@ public class LineController {
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         Line newLine = lineDao.findOne(lineId);
-        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName()));
+
+        List<Section> sections = newLine.getSections();
+        Set<Long> stationIds = new LinkedHashSet<>();
+
+        for (Section section : sections) {
+            stationIds.add(section.getUpStationId());
+            stationIds.add(section.getDownStationId());
+        }
+
+        List<StationResponse> stationResponses = stationIds.stream()
+                .map(id -> {
+                    Station station = stationDao.findOne(id);
+                    return new StationResponse(station.getId(), station.getName());
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName(), stationResponses));
     }
 
     @PutMapping("/{lineId}")
@@ -59,6 +76,7 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public void createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-//        sectionDao.save(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance()));
+        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        lineDao.saveSection(lineId, section);
     }
 }

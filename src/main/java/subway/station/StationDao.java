@@ -9,6 +9,17 @@ import java.util.List;
 public class StationDao {
     private Long seq = 0L;
     private List<Station> stations = new ArrayList<>();
+    private static StationDao instance;
+
+    private StationDao() {
+    }
+
+    public static StationDao getInstance(){
+        if(instance == null){
+            instance = new StationDao();
+        }
+        return instance;
+    }
 
     public Station save(Station station) {
         Station persistStation = createNewObject(station);
@@ -18,6 +29,13 @@ public class StationDao {
 
     public List<Station> findAll() {
         return stations;
+    }
+
+    public Station findOne(Long stationId){
+        return stations.stream()
+                .filter(s -> s.getId().equals(stationId))
+                .findFirst()
+                .get();
     }
 
     public void deleteById(Long id) {

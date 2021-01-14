@@ -15,7 +15,7 @@ public class StationController {
     private final StationDao stationDao;
 
     public StationController() {
-        this.stationDao = new StationDao();
+        this.stationDao = StationDao.getInstance();
     }
 
     @PostMapping("/stations")

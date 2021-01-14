@@ -2,7 +2,10 @@ package subway.line;
 
 import subway.station.Station;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Line {
     private Long id;
@@ -11,7 +14,9 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private Integer distance;
-    private List<Station> stations;
+    private List<Section> sections = new ArrayList<>();
+
+    private Set<Long> stationIds = new HashSet<>();
 
     public Line() {
     }
@@ -33,6 +38,9 @@ public class Line {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        sections.add(new Section(upStationId, downStationId, distance));
+        stationIds.add(upStationId);
+        stationIds.add(downStationId);
     }
 
     public Long getId() {
@@ -47,7 +55,11 @@ public class Line {
         return name;
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public List<Section> getSections() {
+        return sections;
+    }
+
+    public Set<Long> getStationIds() {
+        return stationIds;
     }
 }

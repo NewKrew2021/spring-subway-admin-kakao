@@ -4,7 +4,7 @@ public class Section {
     private Long upStationId;
     private Long downStationId;
     private Integer distance;
-
+    private Long lineId;
     public Section() {
     }
 

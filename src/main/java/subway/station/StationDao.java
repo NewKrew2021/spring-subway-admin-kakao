@@ -1,10 +1,12 @@
 package subway.station;
 
 import org.springframework.util.ReflectionUtils;
+import subway.exception.NotExistException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class StationDao {
     private Long seq = 0L;
@@ -22,6 +24,14 @@ public class StationDao {
 
     public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
+    }
+
+    public Station findById(Long id) {
+        try {
+            return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
+        } catch (NoSuchElementException e) {
+            throw new NotExistException("해당 역이 존재하지 않습니다.");
+        }
     }
 
     private Station createNewObject(Station station) {

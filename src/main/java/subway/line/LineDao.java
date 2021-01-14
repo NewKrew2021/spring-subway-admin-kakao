@@ -24,7 +24,7 @@ public class LineDao {
 
     public Line findById(Long id) {
         try {
-            return lines.stream().filter(it -> it.getId().equals(id)).findFirst().get();
+            return lines.stream().filter(line -> line.getId().equals(id)).findFirst().get();
         } catch (NoSuchElementException e) {
             throw new NotExistException("해당 노선이 존재하지 않습니다.");
         }

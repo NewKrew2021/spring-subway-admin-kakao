@@ -3,6 +3,8 @@ package subway.line;
 import org.springframework.util.ReflectionUtils;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
+import subway.station.StationDao;
+import subway.station.StationResponse;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -55,6 +57,19 @@ public class Line {
                 .filter(section -> (findStatus(section, newSection) != AddStatus.FAIL))
                 .count();
         return ( count % 2 ) == 0 ;
+    }
+
+    public List<StationResponse> getStationResponses() {
+        List<StationResponse> stationResponses = new ArrayList<>();
+        for (int i = 0; i < sections.size() ; i++) {
+            Long stationId = sections.get(i).getUpStationId();
+            stationResponses.add(new StationResponse(StationDao.findById(stationId).get()));
+            if(i == sections.size() - 1) {
+                Long downStationId = sections.get(i).getDownStationId();
+                stationResponses.add(new StationResponse(StationDao.findById(downStationId).get()));
+            }
+        }
+        return stationResponses;
     }
 
     public void save(Section newSection) {

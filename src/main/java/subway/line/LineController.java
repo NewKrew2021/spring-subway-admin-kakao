@@ -1,19 +1,13 @@
 package subway.line;
 
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import subway.exceptions.DuplicateLineNameException;
-import subway.exceptions.DuplicateStationNameException;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
-import subway.station.StationDao;
 import subway.station.StationResponse;
 
-import java.awt.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,17 +37,9 @@ public class LineController {
         Line line = new Line(lineRequest);
         Line newLine = LineDao.save(line);
 
-        List<StationResponse> stationResponses = new ArrayList<>();
-        List<Section> sections = newLine.getSections();
-        for (int i = 0; i < sections.size() ; i++) {
-            Long stationId = sections.get(i).getUpStationId();
-            stationResponses.add(new StationResponse(StationDao.findById(stationId).get()));
-            if(i == sections.size() - 1) {
-                Long downStationId = sections.get(i).getDownStationId();
-                stationResponses.add(new StationResponse(StationDao.findById(downStationId).get()));
-            }
-        }
+        List<StationResponse> stationResponses = LineDao.getStationResponsesById(newLine.getId());
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
+
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -64,17 +50,9 @@ public class LineController {
         if (showLine == null) {
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = new ArrayList<>();
-        List<Section> sections = showLine.getSections();
-        for (int i = 0; i < sections.size() ; i++) {
-            Long stationId = sections.get(i).getUpStationId();
-            stationResponses.add(new StationResponse(StationDao.findById(stationId).get()));
-            if(i == sections.size() - 1) {
-                Long downStationId = sections.get(i).getDownStationId();
-                stationResponses.add(new StationResponse(StationDao.findById(downStationId).get()));
-            }
-        }
+        List<StationResponse> stationResponses = showLine.getStationResponses();
         LineResponse lineResponse = new LineResponse(showLine.getId(), showLine.getName(), showLine.getColor(), stationResponses);
+
         return ResponseEntity.ok().body(lineResponse);
     }
 
@@ -111,21 +89,4 @@ public class LineController {
         Line line = LineDao.saveSection(id, section);
         return ResponseEntity.ok().build();
     }
-
-//    @PostMapping("/lines/{lineId}/sections")
-//    public ResponseEntity createSection(@PathVariable(name = "lineId") Long id, @RequestBody SectionRequest sectionRequest) {
-//        Line line = LineDao.saveSection(id, sectionRequest);
-//        List<StationResponse> stationResponses = new ArrayList<>();
-//        List<Section> sections = line.getSections();
-//        for (int i = 0; i < sections.size() ; i++) {
-//            Long stationId = sections.get(i).getUpStationId();
-//            stationResponses.add(new StationResponse(StationDao.findById(stationId).get()));
-//            if(i == sections.size() - 1) {
-//                Long downStationId = sections.get(i).getDownStationId();
-//                stationResponses.add(new StationResponse(StationDao.findById(downStationId).get()));
-//            }
-//        }
-//        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
-//        return ResponseEntity.ok().body(lineResponse);
-//    }
 }

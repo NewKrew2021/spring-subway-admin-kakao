@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.util.ReflectionUtils;
 import subway.exceptions.DuplicateLineNameException;
+import subway.station.StationResponse;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -62,5 +63,10 @@ public class LineDao {
 
     public static boolean deleteById(Long id) {
         return lines.removeIf(it -> it.getId().equals(id));
+    }
+
+    public static List<StationResponse> getStationResponsesById(Long id) {
+        Line line = findById(id).get();
+        return line.getStationResponses();
     }
 }

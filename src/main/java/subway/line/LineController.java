@@ -4,7 +4,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
-import subway.station.StationResponse;
+import subway.station.StationController;
+import subway.station.StationDao;
 
 import java.net.URI;
 import java.util.List;
@@ -15,16 +16,27 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private LineDao lineDao;
+    private StationDao stationDao;
 
     public LineController(){
-        this.lineDao = new LineDao();
+        this.lineDao = LineDao.getInstance();
+        this.stationDao = StationDao.getInstance();
     }
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),lineRequest.getColor());
-        Line newLine = lineDao.save(line);
-        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor());
+        Line line = new Line(lineRequest);
+        Station upStation = stationDao.findById(lineRequest.getUpStationId()).get();
+        Station downStation = stationDao.findById(lineRequest.getDownStationId()).get();
+        line.addStation(upStation);
+        line.addStation(downStation);
+        Line newLine = null;
+        try {
+            newLine = lineDao.save(line);
+        } catch(IllegalArgumentException iae) {
+            return ResponseEntity.badRequest().build();
+        }
+        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 

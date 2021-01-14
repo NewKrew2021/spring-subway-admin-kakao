@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
-    private final StationDao stationDao = new StationDao();
+    private final StationDao stationDao = StationDao.getInstance();
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {

@@ -5,10 +5,22 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StationDao {
+    private static final StationDao stationDao = new StationDao();
+    private static final List<Station> stations = new ArrayList<>();
     private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private StationDao() {}
+
+    public static StationDao getInstance() {
+        return stationDao;
+    }
+
+    public static void clear() {
+        stations.clear();
+    }
 
     public Station save(Station station) {
         if (isExist(station.getName())) {
@@ -38,5 +50,11 @@ public class StationDao {
         field.setAccessible(true);
         ReflectionUtils.setField(field, station, ++seq);
         return station;
+    }
+
+    public Optional<Station> findById(long id) {
+        return stations.stream()
+                .filter(station -> station.getId()==id)
+                .findAny();
     }
 }

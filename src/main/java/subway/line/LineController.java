@@ -42,4 +42,12 @@ public class LineController {
         return ResponseEntity.ok(lineResponse);
     }
 
+    @PutMapping("/lines/{id}")
+    public ResponseEntity editLineById(@RequestBody LineRequest lineRequest, @PathVariable long id) {
+        lineDao.editLineById(id, lineRequest.getName(), lineRequest.getColor());
+        return ResponseEntity.ok().build();
+    }
+
+
+
 }

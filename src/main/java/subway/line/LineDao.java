@@ -39,4 +39,9 @@ public class LineDao {
                 .findAny()
                 .orElse(null);
     }
+
+    public void editLineById(long id, String name, String color) {
+        Line line = getLine(id);
+        line.editLine(name, color);
+    }
 }

@@ -1,5 +1,9 @@
 package subway.line;
 
+import subway.station.Station;
+
+import java.util.List;
+
 public class Line {
     private Long id;
     private String name;
@@ -7,6 +11,7 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private List<Station> stations;
 
     public Line() {
     }
@@ -27,6 +32,16 @@ public class Line {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line(String color, String name, Long upStationId, Long downStationId, int distance, List<Station> stations) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+        this.stations = stations;
     }
 
     public Long getId() {
@@ -51,6 +66,10 @@ public class Line {
 
     public int getDistance() {
         return distance;
+    }
+
+    public List<Station> getStations() {
+        return stations;
     }
 
     public void setColor(String color) {

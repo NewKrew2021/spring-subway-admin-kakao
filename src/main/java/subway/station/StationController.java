@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 public class StationController {
 
-    private static StationDao stationDao = new StationDao();
+    public static StationDao stationDao = new StationDao();
 
     public StationController(){ }
 

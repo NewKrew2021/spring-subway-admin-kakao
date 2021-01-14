@@ -45,4 +45,13 @@ public class LineDao {
         ReflectionUtils.setField(field, line, ++seq);
         return line;
     }
+
+    public void modify(Long id, LineRequest lineRequest) {
+        Line line = lines.stream()
+                .filter(l -> l.getId().equals(id))
+                .findAny()
+                .get();
+        line.setName(lineRequest.getName());
+        line.setColor(lineRequest.getColor());
+    }
 }

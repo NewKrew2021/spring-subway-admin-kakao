@@ -58,4 +58,10 @@ public class LineController {
         );
         return ResponseEntity.ok().body(lineResponse);
     }
+
+    @PutMapping("lines/{id}")
+    public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest){
+        lineDao.modify(id, lineRequest);
+        return ResponseEntity.ok().build();
+    }
 }

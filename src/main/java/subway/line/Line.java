@@ -52,4 +52,12 @@ public class Line {
     public int getDistance() {
         return distance;
     }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

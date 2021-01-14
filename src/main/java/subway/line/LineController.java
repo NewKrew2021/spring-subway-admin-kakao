@@ -45,4 +45,17 @@ public class LineController {
 
         return ResponseEntity.ok().body(lineResponses);
     }
+
+    @GetMapping("/lines/{id}")
+    public ResponseEntity<LineResponse> findLineById(@PathVariable Long id) {
+        Line line = lineDao.findById(id).get();
+
+        LineResponse lineResponse = new LineResponse(
+                line.getId(),
+                line.getName(),
+                line.getColor(),
+                Collections.emptyList()
+        );
+        return ResponseEntity.ok().body(lineResponse);
+    }
 }

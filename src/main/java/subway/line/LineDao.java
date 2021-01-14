@@ -29,6 +29,12 @@ public class LineDao {
                 .findAny();
     }
 
+    public Optional<Line> findById(Long id) {
+        return lines.stream()
+                .filter(line -> line.getId().equals(id))
+                .findAny();
+    }
+
     public void deleteById(Long id) {
         lines.removeIf(it -> it.getId().equals(id));
     }

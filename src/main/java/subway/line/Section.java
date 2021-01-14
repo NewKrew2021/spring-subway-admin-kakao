@@ -22,4 +22,8 @@ public class Section {
     public int getDistance() {
         return distance;
     }
+
+    public boolean contains(Long id) {
+        return upStationId == id || downStationId == id;
+    }
 }

@@ -29,11 +29,12 @@ public class Line {
         sections.add(new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
     }
 
-    public boolean containsBothStationsOrNothing(Section newSection) {
-        long count = sections.stream()
-                .filter(section -> (AddStatus.findStatus(section, newSection) != AddStatus.FAIL))
-                .count();
-        return ( count % 2 ) == 0 ;
+    private boolean containsBothStationsOrNothing(Section newSection) {
+        boolean containsUpStation = sections.stream()
+                .anyMatch(section -> section.contains(newSection.getUpStationId()));
+        boolean containsDownStation = sections.stream()
+                .anyMatch(section -> section.contains(newSection.getDownStationId()));
+        return containsDownStation == containsUpStation;
     }
 
     public List<StationResponse> getStationResponses() {
@@ -46,6 +47,32 @@ public class Line {
                 new StationResponse(StationDao.findById(sections.get(sections.size()-1).getDownStationId()).get())
         );
         return stationResponses;
+    }
+
+    public void delete(Long stationId) {
+        if(sections.size() == 1) {
+            new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
+        }
+
+        int selectedIndex = IntStream.range(0, sections.size())
+                .filter(i -> sections.get(i).getUpStationId() == stationId )
+                .findFirst()
+                .getAsInt();
+
+        long stationExistsCount = IntStream.range(0, sections.size())
+                .filter(i -> (sections.get(i).getUpStationId() == stationId || sections.get(i).getDownStationId() == stationId))
+                .count();
+
+        if(stationExistsCount == 1) {
+            sections.remove(selectedIndex);
+            return;
+        }
+
+        long upStationId = sections.get(selectedIndex - 1).getUpStationId();
+        long downStationId = sections.get(selectedIndex).getDownStationId();
+        int distance = sections.get(selectedIndex - 1).getDistance() + sections.get(selectedIndex).getDistance();
+        sections.set(selectedIndex - 1, new Section(upStationId, downStationId, distance));
+        sections.remove(selectedIndex);
     }
 
     public void save(Section newSection) {
@@ -64,17 +91,24 @@ public class Line {
         int distance = sections.get(selectedIndex).getDistance();
         AddStatus addStatus = AddStatus.findStatus(sections.get(selectedIndex), newSection);
         if (addStatus == AddStatus.ADD_INFRONT_UPSTATION) {
-            sections.add(0, newSection);
+            if(selectedIndex != 0) {
+                sections.set(selectedIndex+1, new Section(newSection.getDownStationId(), sections.get(selectedIndex+1).getDownStationId()))
+            }
+            sections.add(selectedIndex, newSection);
         }
         if (addStatus == AddStatus.ADD_BEHIND_DOWNSTATION) {
-            sections.add(sections.size(), newSection);
+            if(selectedIndex == sections.size()-1) {
+                //
+            }
+            sections.add(selectedIndex + 1, newSection);
         }
-        validateSectionDistance(newSection, distance);
         if (addStatus == AddStatus.ADD_BEHIND_UPSTATION) {
+            validateSectionDistance(newSection, distance);
             sections.set(selectedIndex, new Section(newSection.getDownStationId(), sections.get(selectedIndex).getDownStationId(), distance - newSection.getDistance()));
             sections.add(selectedIndex, new Section(newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance()));
         }
         if (addStatus == AddStatus.ADD_INFRONT_DOWNSTATION) {
+            validateSectionDistance(newSection, distance);
             sections.set(selectedIndex, new Section(sections.get(selectedIndex).getUpStationId(), newSection.getUpStationId(), distance - newSection.getDistance()));
             sections.add(selectedIndex, new Section(newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance()));
         }

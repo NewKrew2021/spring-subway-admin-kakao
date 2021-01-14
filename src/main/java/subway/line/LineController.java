@@ -89,4 +89,10 @@ public class LineController {
         Line line = LineDao.saveSection(id, section);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping(path = "/lines/{lineId}/sections", params = "stationId={stationId}")
+    public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @PathVariable(name = "stationId") Long stationId) {
+        LineDao.deleteSectionById(lineId, stationId);
+        return ResponseEntity.noContent().build();
+    }
 }

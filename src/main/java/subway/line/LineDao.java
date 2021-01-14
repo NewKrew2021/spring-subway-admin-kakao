@@ -65,6 +65,11 @@ public class LineDao {
         return lines.removeIf(it -> it.getId().equals(id));
     }
 
+    public static void deleteSectionById(Long lineId, Long stationId) {
+        Line line = findById(lineId).get();
+        line.delete(stationId);
+    }
+
     public static List<StationResponse> getStationResponsesById(Long id) {
         Line line = findById(id).get();
         return line.getStationResponses();

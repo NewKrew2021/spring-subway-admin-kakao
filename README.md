@@ -38,16 +38,63 @@ npm run dev
 ```
 <br>
 
-## ✏️ Code Review Process
-[텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)
 
-<br>
 
-## 🐞 Bug Report
+# 미션 설명
 
-버그를 발견한다면, [Issues](https://github.com/next-step/spring-subway-admin-kakao/issues) 에 등록해주세요 :)
+API 요청에 대한 처리와 Dao 객체를 활용하여 데이터를 관리하는 연습을 위한 미션
 
-<br>
+지하철 역과 지하철 노선을 관리하기 위한 API를 구현하기
+
+미리 제공된 프론트엔드 코드에서 `역 관리` 기능과 `노선 관리`기능이 잘 동작하도록 완성하기 (노선 생성 시 **상행역**, **하행역**, **거리** 입력은 무시)
+
+
+
+# 기능 구현 목록
+
+
+
+## 1단계 기능목록 - 역/노선 관리 기능
+
+> 지하철 역과 노선 이름은 중복이 될 수 없음
+
+### 1. 지하철 역 관리 API 기능 완성하기
+
+- `StationController`를 통해 요청을 처리하는 부분은 미리 구현되어 있음
+- `StationDao`를 활용하여 지하철 역 정보를 관리
+  -[X] 역 생성 Request를 보냈을 때, dao에 지하철 이름 저장하기
+
+### 2. 지하철 노선 관리 API 구현하기
+
+- LineController 구현
+  - 아래 API를 호출하는 메소드 구현
+
+
+
+- [POST] 노선 생성 Request / Response 
+  - Request 를 받아서 그거에 해당하는 ID(서버가 가지고 있음)를 생성후 다시 Response로 돌려줌
+
+
+
+- [GET] 노선 목록 조회 Request / Response 
+  - 노선에 등록된 구간 정보를 통해 노선목록을 응답하기
+
+
+
+- [GET] 노선 조회 Request / Response
+  - 아이디 정보를 통한 id, name, color, 역 목록을 포함한 정보 호출
+
+
+
+- [PUT] 노선 수정 Request / Response
+  - 아이디 정보를 통해서 color, name 를 Requset로 보내면 노선 수정
+  - 성공 Response는 200
+
+
+
+- [DELETE] 노선 삭제 Request / Response
+  - 아이디 정보를 통해서 Request를 보내면 그에 해당하는 노선 삭제
+  - 성공 Response 는 204
 
 ## 📝 License
 

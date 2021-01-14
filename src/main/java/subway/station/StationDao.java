@@ -16,7 +16,7 @@ public class StationDao {
         return stationDao;
     }
 
-    public List<StationResponse> getStationResponses(){
+    public List<StationResponse> getStationResponses() {
         return stations.stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
@@ -29,10 +29,10 @@ public class StationDao {
 
     public Station save(Station station) {
         Station foundStation = stations.stream()
-                .filter(tmpstation -> tmpstation.getName().equals(station.getName()))
+                .filter(tmpStation -> tmpStation.getName().equals(station.getName()))
                 .findAny()
                 .orElse(null);
-        if(foundStation != null)
+        if (foundStation != null)
             return foundStation;
         Station persistStation = createNewObject(station);
         stations.add(persistStation);
@@ -61,4 +61,5 @@ public class StationDao {
                 ", stations=" + stations.stream().map(Station::toString).collect(Collectors.joining(", ")) +
                 '}';
     }
+
 }

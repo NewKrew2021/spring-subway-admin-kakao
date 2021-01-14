@@ -18,4 +18,5 @@ public class AcceptanceTest {
     public void setUp() {
         RestAssured.port = port;
     }
+
 }

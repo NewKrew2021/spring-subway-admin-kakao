@@ -22,7 +22,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 역삼역 = "역삼역";
 
     @BeforeEach
-    void initialize(){
+    void initialize() {
         StationDao.clear();
     }
 
@@ -43,7 +43,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
         // given
         StationResponse stationResponse1 = 지하철역_등록되어_있음(강남역);
         StationResponse stationResponse2 = 지하철역_등록되어_있음(역삼역);
-        StationResponse stationResponse3 = 지하철역_등록되어_있음(역삼역);
 
         System.out.println(stationResponse1.toString());
         System.out.println(stationResponse2.toString());
@@ -126,4 +125,5 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
     }
+
 }

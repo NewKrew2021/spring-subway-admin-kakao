@@ -33,6 +33,7 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
+        this.stations = line.getStations();
     }
 
     public Long getId() {
@@ -56,5 +57,15 @@ public class LineResponse {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "LineResponse{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", stations=" + stations +
+                '}';
     }
 }

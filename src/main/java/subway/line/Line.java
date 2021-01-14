@@ -1,7 +1,9 @@
 package subway.line;
 
+import subway.station.Station;
 import subway.station.StationResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,12 +23,13 @@ public class Line {
         this.color = color;
     }
 
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
-        this.name = name;
-        this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
+    public Line(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+        this.upStationId = lineRequest.getUpStationId();
+        this.downStationId = lineRequest.getDownStationId();
+        this.distance = lineRequest.getDistance();
+        this.stations = new ArrayList<>();
     }
 
     public Long getId() {
@@ -96,6 +99,10 @@ public class Line {
     public void update(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
+    }
+
+    public void addStation(Station station){
+        stations.add(new StationResponse(station.getId(),station.getName()));
     }
 
     @Override

@@ -41,4 +41,14 @@ public class Line {
     public List<Station> getStations() {
         return stations;
     }
+
+    @Override
+    public String toString() {
+        return "Line{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", stations=" + stations +
+                '}';
+    }
 }

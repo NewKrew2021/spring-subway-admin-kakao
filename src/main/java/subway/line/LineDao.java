@@ -6,7 +6,9 @@ import subway.exception.NoContentException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LineDao {
     private static final LineDao instance = new LineDao();
@@ -39,6 +41,19 @@ public class LineDao {
         return line;
     }
 
+    private Line updateOldObject(Line sourceLine, Line destLine) {
+        Arrays.stream(Line.class.getDeclaredFields())
+                .filter(field -> !field.getName().equals("id"))
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field,
+                            destLine,
+                            ReflectionUtils.getField(field, sourceLine));
+                });
+        return destLine;
+    }
+    
+    
     public List<Line> findAll() {
         return lines;
     }
@@ -50,6 +65,11 @@ public class LineDao {
                 .orElseGet(() -> {
                     throw new NoContentException(id + "(Line)");
                 });
+    }
+
+    public Line update(Long id, Line sourceLine) {
+        Line destLine = findOne(id);
+        return updateOldObject(sourceLine, destLine);
     }
 
     public void deleteById(Long id) {

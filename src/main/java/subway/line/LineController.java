@@ -13,6 +13,8 @@ import java.net.URI;
 @RestController
 public class LineController {
 
+    private static LineDao lineDao = new LineDao();
+
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
 
@@ -26,7 +28,7 @@ public class LineController {
 
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), null);
 
-        return ResponseEntity.created(URI.create("/lines/" + id)).body(lineResponse);
+        return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(lineResponse);
     }
 
 //    @GetMapping

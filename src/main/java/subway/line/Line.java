@@ -11,12 +11,7 @@ public class Line {
     private Long id;
     private String color;
     private String name;
-    private Long upStationId;
-    private Long downStationId;
-    private Integer distance;
     private List<Section> sections = new ArrayList<>();
-
-    private Set<Long> stationIds = new HashSet<>();
 
     public Line() {
     }
@@ -35,12 +30,8 @@ public class Line {
     public Line(String color, String name, Long upStationId, Long downStationId, Integer distance) {
         this.color = color;
         this.name = name;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
         sections.add(new Section(upStationId, downStationId, distance));
-        stationIds.add(upStationId);
-        stationIds.add(downStationId);
+
     }
 
     public Long getId() {
@@ -57,9 +48,5 @@ public class Line {
 
     public List<Section> getSections() {
         return sections;
-    }
-
-    public Set<Long> getStationIds() {
-        return stationIds;
     }
 }

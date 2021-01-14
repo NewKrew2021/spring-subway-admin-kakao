@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
@@ -29,6 +30,9 @@ public class LineController {
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance()));
+        if(newLine == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
@@ -75,8 +79,19 @@ public class LineController {
     }
 
     @PostMapping("/{lineId}/sections")
-    public void createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        lineDao.saveSection(lineId, section);
+        if (!lineDao.saveSection(lineId, section)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{lineId}/sections")
+    public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
+        if (!lineDao.deleteSection(lineId, stationId)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.ok().build();
     }
 }

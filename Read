@@ -1,0 +1,13 @@
+structure{
+    int upStationId;
+    int downStationId;
+    int upStationDistance;
+    int downStationDistance;
+}
+
+
+
+a - c = 7
+
+a - b - c
+

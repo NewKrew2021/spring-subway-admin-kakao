@@ -12,6 +12,10 @@ public class LineDao {
     private static long seq = 0L;
     private static List<Line> lines = new ArrayList<>();
 
+    private static boolean isExistsLineName(Line line) {
+        return lines.contains(line);
+    }
+
     public static Line save(Line line) {
         if(isExistsLineName(line)) {
             throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
@@ -21,8 +25,10 @@ public class LineDao {
         return persistLine;
     }
 
-    private static boolean isExistsLineName(Line line) {
-        return lines.contains(line);
+    public static Line saveSection(Long id, Section section) {
+        Line line = findById(id).get();
+        line.save(section);
+        return line;
     }
 
     private static Line createNewObject(Line line) {

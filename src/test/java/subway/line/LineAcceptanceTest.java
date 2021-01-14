@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -28,15 +29,14 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
+        StationDao.clear();
 
         // given
         강남역 = 지하철역_등록되어_있음("강남역");
         downStation = 지하철역_등록되어_있음("광교역");
 
-        lineRequest1 = new LineRequest("신분당선", "bg-red-600");
-        lineRequest2 = new LineRequest("구신분당선", "bg-red-600");
-//        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
-//        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
+        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
     }
 
     @DisplayName("지하철 노선을 생성한다.")
@@ -137,8 +137,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
-        LineRequest lineRequest = new LineRequest(name, color);
-//        LineRequest lineRequest = new LineRequest(name, color, upStation.getId(), downStation.getId(), distance);
+        LineRequest lineRequest = new LineRequest(name, color, upStation.getId(), downStation.getId(), distance);
         return 지하철_노선_등록되어_있음(lineRequest);
     }
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class LineDao {
     private Long seq = 0L;
-    private List<Line> lines = new ArrayList<>();
+    private final List<Line> lines = new ArrayList<>();
 
     public Line save(Line line) {
         if (isExist(line.getName())) {

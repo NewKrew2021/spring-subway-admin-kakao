@@ -16,12 +16,17 @@ public class LineController {
 
     @PostMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getColor(),
-                lineRequest.getName(),
+        Line line = new Line(lineRequest.getName(),
+                lineRequest.getColor(),
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
-                lineRequest.getDistance());
-        if(LineDao.getInstance().findAll().stream().anyMatch((Line lineSaved) -> lineSaved.equals(line))){
+                lineRequest.getDistance(),
+                lineRequest.getExtraFare());
+        if(LineDao.getInstance().findAll().stream().anyMatch((Line lineSaved) ->
+                lineSaved.getName().equals(lineRequest.getName()) &&
+                lineSaved.getUpStationId() == lineRequest.getUpStationId() &&
+                        lineSaved.getDownStationId() == lineRequest.getDownStationId()
+        )){
             return ResponseEntity.badRequest().build();
         }
         Line newline = LineDao.getInstance().save(line);
@@ -29,7 +34,8 @@ public class LineController {
                 newline.getName(),
                 newline.getColor(),
                 newline.getStationInfo().stream()
-                        .map(val -> new StationResponse(val, StationDao.getInstance().findById(val).getName())).collect(Collectors.toList()));
+                        .map(val -> new StationResponse(val, StationDao.getInstance().findById(val).getName())).collect(Collectors.toList()),
+                newline.getExtraFare());
         return ResponseEntity.created(URI.create(("/lines/" + newline.getId()))).body(lineResponse);
     }
 
@@ -48,6 +54,7 @@ public class LineController {
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id,@RequestBody LineRequest lineRequest){
         Line line = LineDao.getInstance().findById(id);
+
         line.updateAll(lineRequest);
         return ResponseEntity.ok().build();
     }

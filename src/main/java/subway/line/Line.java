@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class Line {
     private Long id;
+    private int extraFare;
     private String color;
     private String name;
     private Long upStationId;
@@ -15,21 +16,22 @@ public class Line {
     public Line() {
     }
 
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
+    public Line(String name, String color, Long upStationId, Long downStationId, int distance, int extraFare) {
         this.name = name;
         this.color = color;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.extraFare = extraFare;
     }
 
     public void updateAll(LineRequest line){
         this.name = line.getName();
         this.color = line.getColor();
-        this.upStationId = line.getUpStationId();
-        this.downStationId = line.getDownStationId();
-        this.distance = line.getDistance();
+        this.extraFare = line.getExtraFare();
     }
+
+    public int getExtraFare() { return this.extraFare; }
 
     public String getColor() {
         return color;

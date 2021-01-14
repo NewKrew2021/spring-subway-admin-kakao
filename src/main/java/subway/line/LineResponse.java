@@ -8,8 +8,8 @@ public class LineResponse {
     private Long id;
     private String name;
     private String color;
-//    private int extraFare;
-//    private List<StationResponse> stations;
+    private int extraFare;
+    private List<StationResponse> stations;
 
     public LineResponse() {
 
@@ -33,7 +33,7 @@ public class LineResponse {
         return color;
     }
 
-//    public List<StationResponse> getStations() {
-//        return stations;
-//    }
+    public List<StationResponse> getStations() {
+        return stations;
+    }
 }

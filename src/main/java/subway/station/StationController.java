@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateLineNameException;
 import subway.exceptions.DuplicateStationNameException;
 
+import javax.swing.text.html.parser.Entity;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +14,18 @@ import java.util.List;
 @RestController
 public class StationController {
 
+    @ExceptionHandler(DuplicateStationNameException.class)
+    public ResponseEntity<String> errorHandler(DuplicateStationNameException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation;
         StationResponse stationResponse;
-        try {
-            newStation = StationDao.save(station);
-            stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        } catch (DuplicateStationNameException exception) {
-            return ResponseEntity.badRequest().build();
-        }
+        newStation = StationDao.save(station);
+        stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 

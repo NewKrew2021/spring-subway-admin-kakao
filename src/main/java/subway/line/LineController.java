@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateLineNameException;
+import subway.exceptions.DuplicateStationNameException;
 
 import java.awt.*;
 import java.net.URI;
@@ -15,17 +16,16 @@ import java.util.Optional;
 @Controller
 public class LineController {
 
+    @ExceptionHandler(DuplicateLineNameException.class)
+    public ResponseEntity<String> errorHandler(DuplicateLineNameException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        Line newLine;
-        LineResponse lineResponse;
-        try {
-            newLine = LineDao.save(line);
-            lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
-        } catch (DuplicateLineNameException exception) {
-            return ResponseEntity.badRequest().build();
-        }
+        Line newLine = LineDao.save(line);
+        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 

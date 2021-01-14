@@ -42,6 +42,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_목록_응답됨(response);
+
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
     }
 

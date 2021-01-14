@@ -3,27 +3,46 @@ package subway.section;
 import java.util.Objects;
 
 public class Section {
-    private Long lineId;
-    private Long upStationId;
-    private Long downStationId;
+    private long lineId;
+    private long upStationId;
+    private long downStationId;
     private int distance;
 
-    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+    public Section(long lineId, long upStationId, long downStationId, int distance) {
+        validate(upStationId, downStationId, distance);
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
     }
 
-    public Long getLineId() {
+    private void validate(long upStationId, long downStationId, int distance) {
+        if (isInvalidStationId(upStationId, downStationId)) {
+            throw new IllegalArgumentException("출발역과 도착역은 같을 수 없습니다.");
+        }
+
+        if (isInvalidDistance(distance)) {
+            throw new IllegalArgumentException("거리는 0보다 커야 합니다.");
+        }
+    }
+
+    private boolean isInvalidStationId(long upStationId, long downStationId) {
+        return upStationId == downStationId;
+    }
+
+    private boolean isInvalidDistance(int distance) {
+        return distance <= 0;
+    }
+
+    public long getLineId() {
         return lineId;
     }
 
-    public Long getUpStationId() {
+    public long getUpStationId() {
         return upStationId;
     }
 
-    public Long getDownStationId() {
+    public long getDownStationId() {
         return downStationId;
     }
 
@@ -36,7 +55,7 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return distance == section.distance && Objects.equals(lineId, section.lineId) && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
+        return lineId == section.lineId && upStationId == section.upStationId && downStationId == section.downStationId && distance == section.distance;
     }
 
     @Override

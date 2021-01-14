@@ -2,10 +2,11 @@ package subway.section;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SectionDao {
-    private List<Section> sections = new ArrayList<>();
+    private final List<Section> sections = new ArrayList<>();
 
     public void save(Section section) {
         sections.add(section);
@@ -13,7 +14,7 @@ public class SectionDao {
 
     public List<Section> findByLineId(Long lineId) {
         return sections.stream()
-                .filter(section -> section.getLineId().equals(lineId))
+                .filter(section -> Objects.equals(section.getLineId(), lineId))
                 .collect(Collectors.toList());
     }
 

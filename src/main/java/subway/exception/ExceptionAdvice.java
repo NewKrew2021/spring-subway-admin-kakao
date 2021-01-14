@@ -8,8 +8,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ExceptionAdvice {
 
     @ExceptionHandler(DuplicateNameException.class)
-    public ResponseEntity handle() {
+    public ResponseEntity handleDuplicate() {
         return ResponseEntity.badRequest().body("Exception");
     }
 
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity handleNoContent() {
+        return ResponseEntity.badRequest().body("Exception");
+    }
 }

@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.util.ReflectionUtils;
 import subway.exception.DuplicateNameException;
+import subway.exception.NoContentException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -21,11 +22,11 @@ public class LineDao {
 
     public Line save(Line line) {
         lines.stream()
-            .filter(value -> value.getName().equals(line.getName()))
-            .findAny()
-            .ifPresent(val -> {
-                throw new DuplicateNameException(line.getName());
-            });
+                .filter(value -> value.getName().equals(line.getName()))
+                .findAny()
+                .ifPresent(val -> {
+                    throw new DuplicateNameException(line.getName());
+                });
         Line persistLine = createNewObject(line);
         lines.add(persistLine);
         return persistLine;
@@ -40,6 +41,15 @@ public class LineDao {
 
     public List<Line> findAll() {
         return lines;
+    }
+
+    public Line findOne(Long id) {
+        return lines.stream()
+                .filter(line -> line.getId().equals(id))
+                .findAny()
+                .orElseGet(() -> {
+                    throw new NoContentException(id + "(Line)");
+                });
     }
 
     public void deleteById(Long id) {

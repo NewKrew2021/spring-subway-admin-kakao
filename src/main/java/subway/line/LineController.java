@@ -21,8 +21,12 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
+        Line newLine = lineDao.save(new Line(lineRequest.getColor(),
+                lineRequest.getName(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance()));
+        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -30,19 +34,19 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         return ResponseEntity.ok(lineDao.findAll()
                 .stream()
-                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
+                .map(line -> new LineResponse(line.getId(), line.getColor(), line.getName()))
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         Line newLine = lineDao.findOne(lineId);
-        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor()));
+        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName()));
     }
 
     @PutMapping("/{lineId}")
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        lineDao.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor()));
+        lineDao.update(new Line(lineId, lineRequest.getColor(), lineRequest.getName()));
         return ResponseEntity.ok().build();
     }
 
@@ -51,4 +55,5 @@ public class LineController {
         lineDao.deleteById(lineId);
         return ResponseEntity.noContent().build();
     }
+
 }

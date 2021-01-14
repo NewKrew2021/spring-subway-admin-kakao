@@ -28,4 +28,7 @@ public class LineDao {
     }
 
 
+    public List<Line> getLines() {
+        return lines;
+    }
 }

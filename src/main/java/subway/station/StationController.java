@@ -11,35 +11,30 @@ import java.util.List;
 import static subway.Container.stationDao;
 
 @RestController
+//@RequestMapping("/stations")
 public class StationController {
 
-    private final StationDao stationDao;
+    private final StationService stationService;
 
     public StationController() {
-        this.stationDao = new StationDao();
+        this.stationService = new StationService();
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+        StationResponse stationResponse = stationService.createStation(stationRequest);
+        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<Station> stations = stationDao.findAll();
-        List<StationResponse> stationResponses = new ArrayList<>();
-        for (Station station : stations) {
-            stationResponses.add(new StationResponse(station.getId(), station.getName()));
-        }
+        List<StationResponse> stationResponses = stationService.getAllStations();
         return ResponseEntity.ok().body(stationResponses);
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+        stationService.deleteStation(id);
         return ResponseEntity.noContent().build();
     }
 }

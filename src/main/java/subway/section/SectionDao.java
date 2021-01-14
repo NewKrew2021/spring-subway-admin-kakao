@@ -16,6 +16,15 @@ public class SectionDao {
         return persistSection;
     }
 
+    public Section findByUpStationId(long id) {
+        try {
+            return sections.stream().filter(section -> section.getUpStationId().equals(id)).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return null;
+//            throw new NotExistException("해당 구간이 존재하지 않습니다.");
+        }
+    }
+
     private Section createNewObject(Section section) {
         Field field = ReflectionUtils.findField(Section.class, "id");
         field.setAccessible(true);

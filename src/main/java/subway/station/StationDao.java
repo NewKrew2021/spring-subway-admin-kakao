@@ -30,7 +30,7 @@ public class StationDao {
         try {
             return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
         } catch (NoSuchElementException e) {
-            throw new NotExistException("해당 역이 존재하지 않습니다.");
+            return null;
         }
     }
 

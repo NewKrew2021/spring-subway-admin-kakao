@@ -13,43 +13,36 @@ import static subway.Container.*;
 @RestController
 public class LineController {
 
+    private final LineService lineService;
+
+    public LineController() {
+        this.lineService = new LineService();
+    }
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineDao.existName(lineRequest.getName())) {
+        if (lineService.existName(lineRequest.getName())) {
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stations = new ArrayList<>();
+
         try {
-            Station upStation = stationDao.findById(lineRequest.getUpStationId());
-            Station downStation = stationDao.findById(lineRequest.getDownStationId());
-            stations.add(new StationResponse(upStation.getId(), upStation.getName()));
-            stations.add(new StationResponse(downStation.getId(), downStation.getName()));
+            LineResponse lineResponse = lineService.createLine(lineRequest);
+            return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
         } catch (NotExistException e) {
             return ResponseEntity.badRequest().build();
         }
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId());
-        Line newLine = lineDao.save(line);
-        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
-        sectionDao.save(section);
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<Line> lines = lineDao.findAll();
-        List<LineResponse> lineResponses = new ArrayList<>();
-        for (Line line : lines) {
-            lineResponses.add(new LineResponse(line.getId(), line.getName(), line.getColor(), null));
-        }
+        List<LineResponse> lineResponses = lineService.getAllLines();
         return ResponseEntity.ok().body(lineResponses);
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
-        Line line = lineDao.findById(id);
-        return ResponseEntity.ok().body(new LineResponse(line.getId(), line.getName(), line.getColor(), null));
+        LineResponse lineResponse = lineService.getLine(id);
+        return ResponseEntity.ok().body(lineResponse);
     }
 
 //    @RequestMapping(value = "/lines/{id}", method = RequestMethod.PUT)
@@ -60,7 +53,7 @@ public class LineController {
 
     @DeleteMapping("/lines/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
-        lineDao.deleteById(id);
+        lineService.deleteLine(id);
         return ResponseEntity.noContent().build();
     }
 }

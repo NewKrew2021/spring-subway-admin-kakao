@@ -23,6 +23,14 @@ public class Line {
         this.distance = distance;
     }
 
+    public void updateAll(LineRequest line){
+        this.name = line.getName();
+        this.color = line.getColor();
+        this.upStationId = line.getUpStationId();
+        this.downStationId = line.getDownStationId();
+        this.distance = line.getDistance();
+    }
+
     public String getColor() {
         return color;
     }

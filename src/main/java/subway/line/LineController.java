@@ -44,4 +44,11 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
         return ResponseEntity.ok().body(new LineResponse(LineDao.getInstance().findById(id)));
     }
+
+    @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateLine(@PathVariable Long id,@RequestBody LineRequest lineRequest){
+        Line line = LineDao.getInstance().findById(id);
+        line.updateAll(lineRequest);
+        return ResponseEntity.ok().build();
+    }
 }

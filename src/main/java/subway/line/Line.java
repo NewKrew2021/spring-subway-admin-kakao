@@ -10,7 +10,7 @@ public class Line {
     private String name;
     private Long upStationId;
     private Long downStationId;
-    private int distance;
+    private Integer distance;
     private List<Station> stations;
 
     public Line() {
@@ -27,7 +27,7 @@ public class Line {
         this.name = name;
     }
 
-    public Line(String color, String name, Long upStationId, Long downStationId, int distance) {
+    public Line(String color, String name, Long upStationId, Long downStationId, Integer distance) {
         this.color = color;
         this.name = name;
         this.upStationId = upStationId;

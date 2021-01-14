@@ -6,6 +6,7 @@ import subway.station.StationResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,4 +57,8 @@ public class LineController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{lineId}/sections")
+    public void createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+//        sectionDao.save(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance()));
+    }
 }

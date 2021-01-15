@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import subway.query.Sql;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -36,10 +37,10 @@ public class SectionDao {
     }
 
     public List<Section> getByLineId(Long id) {
-        return jdbcTemplate.query("select * from section where line_id = ?", sectionMapper, id);
+        return jdbcTemplate.query(Sql.SELECT_SECTION_WITH_LINE_ID, sectionMapper, id);
     }
 
     public boolean deleteById(Long id) {
-        return jdbcTemplate.update("delete from section where id = ?", id) > 0;
+        return jdbcTemplate.update(Sql.DELETE_SECTION_WITH_ID, id) > 0;
     }
 }

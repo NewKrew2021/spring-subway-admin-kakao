@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.query.Sql;
 
 import java.util.List;
 
@@ -20,27 +21,27 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        this.jdbcTemplate.update("insert into station (name) values (?)", station.getName());
-        return this.jdbcTemplate.queryForObject("select * from station where name = ?",
+        this.jdbcTemplate.update(Sql.INSERT_STATION, station.getName());
+        return this.jdbcTemplate.queryForObject(Sql.SELECT_STATION_WITH_NAME,
                 stationMapper,
                 station.getName());
     }
 
     public Station getById(Long id) {
         return this.jdbcTemplate.queryForObject(
-                "select * from station where id = ?",
+                Sql.SELECT_STATION_WITH_ID,
                 stationMapper,
                 id);
     }
 
     public List<Station> findAll() {
         return this.jdbcTemplate.query(
-                "select * from station",
+                Sql.SELECT_ALL_STATIONS,
                 stationMapper
         );
     }
 
     public boolean deleteById(Long id) {
-        return this.jdbcTemplate.update("delete from station where id = ?", id) > 0;
+        return this.jdbcTemplate.update(Sql.DELETE_STATION_WITH_ID, id) > 0;
     }
 }

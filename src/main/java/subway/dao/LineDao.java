@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.query.Sql;
 
 import java.util.List;
 
@@ -20,34 +21,33 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        this.jdbcTemplate.update("insert into line (name, color) values (?, ?)", line.getName(), line.getColor());
-        return this.jdbcTemplate.queryForObject("select * from line where name = ?",
+        this.jdbcTemplate.update(Sql.INSERT_LINE, line.getName(), line.getColor());
+        return this.jdbcTemplate.queryForObject(Sql.SELECT_LINE_WITH_NAME,
                 lineMapper,
                 line.getName());
     }
 
     public List<Line> findAll() {
         return this.jdbcTemplate.query(
-                "select * from line",
+                Sql.SELECT_ALL_LINES,
                 lineMapper
         );
     }
 
     public Line getById(Long id) {
         return this.jdbcTemplate.queryForObject(
-                "select * from line where id = ?",
+                Sql.SELECT_LINE_WITH_ID,
                 lineMapper,
                 id
         );
     }
 
-    // TODO 변경할 이름이 이미 존재할 경우 - 테스트 하나 만들어서 해볼것.
     public void update(Long id, Line line) {
-        this.jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
+        this.jdbcTemplate.update(Sql.UPDATE_LINE_WITH_ID,
                 line.getName(), line.getColor(), id);
     }
 
     public boolean deleteById(Long id) {
-        return this.jdbcTemplate.update("delete from line where id = ?", id) > 0;
+        return this.jdbcTemplate.update(Sql.DELETE_LINE_BY_ID, id) > 0;
     }
 }

@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import subway.section.*;
 
 public class StationDao {
     private static Long seq = 0L;
@@ -31,7 +32,7 @@ public class StationDao {
 
     public Station findById(Long id) {
         return stations.stream()
-                .filter(val -> val.getId()==id)
+                .filter(station -> station.getId()==id)
                 .collect(Collectors.toList()).get(0);
     }
 
@@ -42,6 +43,9 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
+        if(subway.section.SectionDao.getInstance().contain(id)){
+            throw new subway.exceptions.InvalidValueException();
+        }
         stations.removeIf(it -> it.getId().equals(id));
     }
 

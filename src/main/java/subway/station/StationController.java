@@ -2,10 +2,14 @@ package subway.station;
 
 import org.apache.coyote.Response;
 import org.springframework.cglib.core.DuplicatesPredicate;
+import subway.exceptions.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateStationException;
+
+import subway.section.SectionDao;
 
 import java.net.URI;
 import java.util.List;
@@ -25,7 +29,6 @@ public class StationController {
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
-
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         return ResponseEntity.ok().body(StationDao.getInstance().findAll().stream()
@@ -40,8 +43,12 @@ public class StationController {
     }
 
     @ExceptionHandler(DuplicateStationException.class)
-    public ResponseEntity<String> handle(){
+    public ResponseEntity<String> handleDuplicateException(){
         return ResponseEntity.badRequest().body("DuplicateStationException");
     }
 
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity<String> handleInvalidValueException(){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 }

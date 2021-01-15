@@ -30,8 +30,9 @@ public class LineDao {
         return new Line(id,line.getColor(), line.getName());
     }
 
-    public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+    public int deleteById(Long lineId) {
+        String sql = "delete from LINE where id = ?";
+        return jdbcTemplate.update(sql, lineId);
     }
 
     public List<Line> findAll() {

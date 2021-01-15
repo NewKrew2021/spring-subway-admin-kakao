@@ -74,8 +74,9 @@ public class LineController {
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        lineDao.deleteById(lineId);
-        return ResponseEntity.noContent().build();
+        if(lineDao.deleteById(lineId) == 0)
+            return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{lineId}/sections")

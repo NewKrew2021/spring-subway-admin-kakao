@@ -7,6 +7,10 @@ public class Station {
     public Station() {
     }
 
+    public Station(StationRequest stationRequest) {
+        this.name = stationRequest.getName();
+    }
+
     public Station(Long id, String name) {
         this.id = id;
         this.name = name;

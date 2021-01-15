@@ -13,19 +13,17 @@ public class StationServiceImpl implements StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResponse save(StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
-        return new StationResponse(newStation.getId(), newStation.getName());
+    public Station save(Station station) {
+        Station newStation = new Station(station.getName());
+        return stationDao.save(newStation);
     }
 
-    public List<StationResponse> findAll() {
-        return stationDao.findAll().stream().map(res -> new StationResponse(res.getId(), res.getName())).collect(Collectors.toList());
+    public List<Station> findAll() {
+        return stationDao.findAll();
     }
 
-    public StationResponse findOne(Long stationId) {
-        Station station = stationDao.findOne(stationId);
-        return new StationResponse(station.getId(), station.getName());
+    public Station findOne(Long stationId) {
+        return stationDao.findOne(stationId);
     }
 
     public boolean deleteById(Long stationId) {

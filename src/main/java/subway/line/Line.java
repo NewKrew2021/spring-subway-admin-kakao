@@ -1,11 +1,9 @@
 package subway.line;
 
-import subway.station.Station;
+import subway.section.Section;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Line {
     private Long id;

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -18,23 +19,27 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        StationResponse stationResponse = stationService.save(stationRequest);
-        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
+        Station station = stationService.save(new Station(stationRequest));
+        return ResponseEntity.created(URI.create("/stations/" + station.getId())).body(new StationResponse(station));
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return ResponseEntity.ok(stationService.findAll());
+        return ResponseEntity.ok(stationService.findAll()
+                .stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/stations/{stationId}")
     public ResponseEntity<StationResponse> showStation(@PathVariable Long stationId) {
-        return ResponseEntity.ok(stationService.findOne(stationId));
+
+        return ResponseEntity.ok(new StationResponse(stationService.findOne(stationId)));
     }
 
     @DeleteMapping("/stations/{stationId}")
     public ResponseEntity deleteStation(@PathVariable Long stationId) {
-        if(!stationService.deleteById(stationId))
+        if (!stationService.deleteById(stationId))
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }

@@ -5,8 +5,8 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.station.Station;
+import subway.section.Section;
+import subway.section.SectionDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,8 @@ public class LineDao {
     private List<Line> lines = new ArrayList<>();
     private JdbcTemplate jdbcTemplate;
     private SectionDao sectionDao;
-    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate){
+
+    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate) {
         this.sectionDao = sectionDao;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -26,8 +27,8 @@ public class LineDao {
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-        sectionDao.save(new Section(section.getUpStationId(),section.getDownStationId(),section.getDistance(),id));
-        return new Line(id,line.getColor(), line.getName());
+        sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), id));
+        return new Line(id, line.getColor(), line.getName());
     }
 
     public int deleteById(Long lineId) {

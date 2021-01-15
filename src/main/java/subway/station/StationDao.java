@@ -29,18 +29,18 @@ public class StationDao {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);
         Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
 
-        return new Station(id,station.getName());
+        return new Station(id, station.getName());
     }
 
     public List<Station> findAll() {
         String sql = "select * from STATION";
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
         return rows.stream()
-                .map(row -> new Station((Long)row.get("id"), row.get("name").toString()))
+                .map(row -> new Station((Long) row.get("id"), row.get("name").toString()))
                 .collect(Collectors.toList());
     }
 
-    public Station findOne(Long stationId){
+    public Station findOne(Long stationId) {
         String sql = "select * from STATION where id = ?";
         return jdbcTemplate.queryForObject(sql, (resultSet, idx) -> new Station(resultSet.getLong("id"), resultSet.getString("name")), stationId);
     }

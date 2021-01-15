@@ -81,3 +81,13 @@ This project is [MIT](https://github.com/next-step/spring-subway-admin-kakao/blo
         - 상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음
 * 노선 조회 시 구간에 포함된 역 목록 응답
 * 지하철 구간 제거 API
+
+
+3단계 - 프레임워크 적용
+* 스프링 빈 활용하기
+    - 매번 생성하지 않아도 되는 객체와 싱글톤이나 static으로 구현되었던 객체들을 스프링 빈으로 관리하기
+* 스프링 JDBC 활용하기
+    - Dao 객체가 아닌 DB에서 데이터를 관리하기
+    - DB에 접근하기 위한 spring jdbc 라이브러리를 활용하기 (JdbcTemplate 등)
+* H2 DB를 통해 저장된 값 확인하기
+    - 실제로 DB에 저장이 잘 되었는지 확인할 수 있도록 설정하기 (log, console 등)

@@ -1,4 +1,4 @@
-package subway.acceptance;
+package subway.controller;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import subway.utils.TableRefresher;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
-public class AcceptanceTest {
+public class ControllerTest {
     @LocalServerPort
     int port;
     @Autowired

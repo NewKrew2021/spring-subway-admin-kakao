@@ -1,10 +1,10 @@
 package subway.dao;
 
-import subway.domain.Line;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.domain.Line;
 import subway.query.Sql;
 
 import java.util.List;
@@ -42,9 +42,9 @@ public class LineDao {
         );
     }
 
-    public void update(Long lineId, Line line) {
-        this.jdbcTemplate.update(Sql.UPDATE_LINE_WITH_ID,
-                line.getName(), line.getColor(), lineId);
+    public boolean update(Long lineId, Line line) {
+        return this.jdbcTemplate.update(Sql.UPDATE_LINE_WITH_ID,
+                line.getName(), line.getColor(), lineId) > 0;
     }
 
     public boolean deleteById(Long lineId) {

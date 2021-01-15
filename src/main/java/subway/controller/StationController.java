@@ -1,54 +1,47 @@
 package subway.controller;
 
-import subway.domain.Station;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.dao.StationDao;
 import subway.request.StationRequest;
 import subway.response.StationResponse;
+import subway.service.StationService;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")
 public class StationController {
-    private final StationDao stationDao;
+    private final StationService stationService;
 
     @Autowired
-    public StationController(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         try {
-            Station newStation = stationDao.save(stationRequest.getDomain());
-            StationResponse stationResponse = new StationResponse(newStation);
-            return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+            StationResponse stationResponse = stationService.createStation(stationRequest);
+            return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
         } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> response = stationDao.findAll().stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<StationResponse>> getStations() {
+        List<StationResponse> response = stationService.getStations();
         return ResponseEntity.ok().body(response);
     }
 
+    // TODO 구간에서 사용중인 역 삭제 불가처리 해야함.
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        boolean response = stationDao.deleteById(id);
-        if (response) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.badRequest().build();
+        boolean response = stationService.deleteLine(id);
+        return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 }

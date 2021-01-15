@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class StationDao {
-    private List<Station> stations = new ArrayList<>();
     private final JdbcTemplate jdbcTemplate;
 
     public StationDao(JdbcTemplate jdbcTemplate) {
@@ -45,8 +45,9 @@ public class StationDao {
         return jdbcTemplate.queryForObject(sql, (resultSet, idx) -> new Station(resultSet.getLong("id"), resultSet.getString("name")), stationId);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+    public int deleteById(Long stationId) {
+        String sql = "delete from STATION where id = ?";
+        return jdbcTemplate.update(sql, stationId);
     }
 
 }

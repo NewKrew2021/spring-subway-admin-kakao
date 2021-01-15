@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
-    private final StationDao stationDao;
+    private StationDao stationDao;
 
-    public StationController() {
-        this.stationDao = StationDao.getInstance();
+    public StationController(StationDao stationDao) {
+        this.stationDao = stationDao;
     }
 
     @PostMapping("/stations")

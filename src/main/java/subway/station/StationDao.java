@@ -1,30 +1,32 @@
 package subway.station;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
     private List<Station> stations = new ArrayList<>();
-    private static StationDao instance;
+    private final JdbcTemplate jdbcTemplate;
 
-    private StationDao() {
-    }
-
-    public static StationDao getInstance(){
-        if(instance == null){
-            instance = new StationDao();
-        }
-        return instance;
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("station")
+                .usingGeneratedKeyColumns("id");
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);
+        Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+
+        return new Station(id,station.getName());
     }
 
     public List<Station> findAll() {
@@ -42,10 +44,4 @@ public class StationDao {
         stations.removeIf(it -> it.getId().equals(id));
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
-    }
 }

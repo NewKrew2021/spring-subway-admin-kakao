@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+@Repository
 public class LineDao {
     private Long seq = 0L;
     private List<Line> lines = new ArrayList<>();

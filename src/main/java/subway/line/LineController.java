@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineDao lineDao;
-    private final StationDao stationDao;
+    private StationDao stationDao;
 
-    public LineController() {
+    public LineController(StationDao stationDao) {
         lineDao = new LineDao();
-        stationDao = StationDao.getInstance();
+        this.stationDao = stationDao;
     }
 
     @PostMapping

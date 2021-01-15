@@ -41,10 +41,8 @@ public class StationDao {
     }
 
     public Station findOne(Long stationId){
-        return stations.stream()
-                .filter(s -> s.getId().equals(stationId))
-                .findFirst()
-                .get();
+        String sql = "select * from STATION where id = ?";
+        return jdbcTemplate.queryForObject(sql, (resultSet, idx) -> new Station(resultSet.getLong("id"), resultSet.getString("name")), stationId);
     }
 
     public void deleteById(Long id) {

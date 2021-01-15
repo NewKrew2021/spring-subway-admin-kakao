@@ -34,9 +34,15 @@ public class StationController {
                 .collect(Collectors.toList()));
     }
 
-    @DeleteMapping("/stations/{id}")
-    public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+    @GetMapping(value = "/stations/{stationId}")
+    public ResponseEntity<StationResponse> showStation(@PathVariable Long stationId) {
+        Station station = stationDao.findOne(stationId);
+        return ResponseEntity.ok(new StationResponse(station.getId(), station.getName()));
+    }
+
+    @DeleteMapping("/stations/{stationId}")
+    public ResponseEntity deleteStation(@PathVariable Long stationId) {
+        stationDao.deleteById(stationId);
         return ResponseEntity.noContent().build();
     }
 

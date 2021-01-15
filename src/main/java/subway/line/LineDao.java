@@ -22,6 +22,14 @@ public class LineDao {
     private LineDao(){}
 
     public Line save(Line line) {
+        if(lines.stream().anyMatch((Line lineSaved) ->
+                lineSaved.getName().equals(line.getName()) &&
+                lineSaved.getUpStationId() == line.getUpStationId() &&
+                        lineSaved.getDownStationId() == line.getDownStationId()
+        )){
+            throw new RuntimeException();
+        }
+
         Line persistLine = createNewObject(line);
         lines.add(persistLine);
         return persistLine;

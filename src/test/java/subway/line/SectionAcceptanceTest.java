@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -105,11 +106,28 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_노선에_지하철역_제외_실패됨(removeResponse);
     }
 
+    @DisplayName("새로운 구간의 길이가 기존의 구간 길이보다 더 큰 경우 제외한다.")
+    @Test
+    void invalidSection(){
+        // given
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 양재역, 10);
+
+        // then
+        지하철_구간_생성_제외(response);
+    }
+
+    public static void 지하철_구간_생성_제외(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
     public static void 지하철_구간_등록되어_있음(LineResponse lineResponse, StationResponse upStation, StationResponse downStation, int distance) {
         지하철_구간_생성_요청(lineResponse, upStation, downStation, distance);
     }
 
-    public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line, StationResponse upStation, StationResponse downStation, int distance) {
+    public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line,
+                                                             StationResponse upStation,
+                                                             StationResponse downStation,
+                                                             int distance) {
         SectionRequest sectionRequest = new SectionRequest(upStation.getId(), downStation.getId(), distance);
 
         return RestAssured

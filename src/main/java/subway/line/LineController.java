@@ -3,13 +3,14 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.Station;
 import subway.station.StationDao;
 import subway.station.StationResponse;
-
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import subway.section.Section;
+import subway.section.SectionDao;
+
 
 @RestController
 public class LineController {
@@ -22,20 +23,12 @@ public class LineController {
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance(),
                 lineRequest.getExtraFare());
-        if(LineDao.getInstance().findAll().stream().anyMatch((Line lineSaved) ->
-                lineSaved.getName().equals(lineRequest.getName()) &&
-                lineSaved.getUpStationId() == lineRequest.getUpStationId() &&
-                        lineSaved.getDownStationId() == lineRequest.getDownStationId()
-        )){
-            return ResponseEntity.badRequest().build();
-        }
+
+        // 1 라인 추가
         Line newline = LineDao.getInstance().save(line);
-        LineResponse lineResponse = new LineResponse(newline.getId(),
-                newline.getName(),
-                newline.getColor(),
-                newline.getStationInfo().stream()
-                        .map(val -> new StationResponse(val, StationDao.getInstance().findById(val).getName())).collect(Collectors.toList()),
-                newline.getExtraFare());
+        // 2. 섹션 추가
+        SectionDao.getInstance().save(new Section(newline.getId(), newline.getUpStationId(), newline.getDownStationId(), newline.getDistance()));
+        LineResponse lineResponse = new LineResponse(newline);
         return ResponseEntity.created(URI.create(("/lines/" + newline.getId()))).body(lineResponse);
     }
 

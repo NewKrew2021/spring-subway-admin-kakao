@@ -24,13 +24,14 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line){
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
-        this.extraFare = line.getExtraFare();
-        this.stations = Arrays.asList(line.getUpStationId(), line.getDownStationId()).stream()
-                .map(val -> new StationResponse(val, StationDao.getInstance().findById(val).getName())).collect(Collectors.toList());
+    public LineResponse(Line line) {
+        this(line.getId(),
+                line.getName(),
+                line.getColor(),
+                line.getStationInfo().stream()
+                        .map(stationId -> new StationResponse(stationId, StationDao.getInstance().findById(stationId).getName()))
+                        .collect(Collectors.toList()),
+                line.getExtraFare());
     }
 
     public Long getId() {

@@ -50,6 +50,16 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_구간_생성됨(response, 신분당선, Arrays.asList(강남역, 양재역, 광교역));
     }
 
+    @DisplayName("상행이 새로운 역인 상태로 등록한다")
+    @Test
+    void addLineSectionReversed() {
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 강남역, 3);
+
+        // then
+        지하철_구간_생성됨(response, 신분당선, Arrays.asList(양재역, 강남역, 광교역));
+    }
+
     @DisplayName("지하철 노선에 여러개의 역을 순서 상관 없이 등록한다.")
     @Test
     void addLineSection2() {
@@ -124,11 +134,11 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     public static void 지하철_노선에_지하철역_순서_정렬됨(ExtractableResponse<Response> response, List<StationResponse> expectedStations) {
         LineResponse line = response.as(LineResponse.class);
         List<Long> stationIds = line.getStations().stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         List<Long> expectedStationIds = expectedStations.stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         assertThat(stationIds).containsExactlyElementsOf(expectedStationIds);

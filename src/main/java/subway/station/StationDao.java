@@ -20,6 +20,13 @@ public class StationDao {
         return stations;
     }
 
+    public Station findOne(Long stationId) {
+        return stations.stream()
+                .filter(station -> station.getId().equals(stationId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
     }

@@ -1,8 +1,11 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.Station;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
@@ -13,8 +16,11 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
+    @Autowired
+    private StationDao stationDao;
 
-    private final LineDao lineDao = new LineDao();
+    @Autowired
+    private LineDao lineDao;
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> removeLineSection(@PathVariable Long lineId, @RequestParam Long stationId) {
@@ -47,7 +53,7 @@ public class LineController {
         Section section = new Section(
                 lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
 
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), new LinkedList<>(Arrays.asList(section)));
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
 
@@ -62,8 +68,11 @@ public class LineController {
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id);
-        List<StationResponse> stationResponses = line.getStations().stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
+        List<StationResponse> stationResponses = line.getStationIds().stream()
+                .map(stationId -> {
+                    Station station = stationDao.findById(stationId);
+                    return new StationResponse(station.getId(), station.getName());
+                })
                 .collect(Collectors.toList());
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
 
@@ -89,7 +98,7 @@ public class LineController {
     @PutMapping("/lines/{id}")
     public ResponseEntity updateLine(@RequestBody LineRequest lineRequest, @PathVariable Long id) {
         Line line = lineDao.findById(id);
-        Line updateLine = new Line(lineRequest.getName(), lineRequest.getColor(), line.getSections());
+        Line updateLine = new Line(lineRequest.getName(), lineRequest.getColor());
         lineDao.update(line, updateLine);
         return ResponseEntity.ok().build();
     }

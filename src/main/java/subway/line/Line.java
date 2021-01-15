@@ -1,5 +1,8 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import subway.station.Station;
 import subway.station.StationDao;
 
@@ -15,13 +18,15 @@ public class Line {
     private String color;
     private LinkedList<Section> sections;
 
-    public Line() {
-    }
-
-    public Line(String name, String color, LinkedList<Section> sections) {
+    public Line(Long id, String name, String color) {
+        this.id = id;
         this.name = name;
         this.color = color;
-        this.sections = sections;
+    }
+
+    public Line(String name, String color) {
+        this.name = name;
+        this.color = color;
     }
 
     public Long getId() {
@@ -127,13 +132,13 @@ public class Line {
         }
     }
 
-    public List<Station> getStations() {
-        List<Station> stations = new ArrayList<>();
-        stations.add(StationDao.findById(sections.get(FIRST_INDEX).getUpStationId()));
+    public List<Long> getStationIds() {
+        List<Long> stationIds = new ArrayList<>();
+        stationIds.add(sections.get(FIRST_INDEX).getUpStationId());
         for(Section section : sections) {
-            stations.add(StationDao.findById(section.getDownStationId()));
+            stationIds.add(section.getDownStationId());
         }
-        return stations;
+        return stationIds;
     }
 
     public void removeStation(Long stationId) {

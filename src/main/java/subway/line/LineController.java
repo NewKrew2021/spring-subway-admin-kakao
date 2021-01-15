@@ -39,4 +39,9 @@ public class LineController {
     public ResponseEntity updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         return lineService.updateLine(id, lineRequest);
     }
+
+    @PostMapping(value = "/lines/{id}/sections")
+    public ResponseEntity createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
+        return lineService.createSection(id, sectionRequest);
+    }
 }

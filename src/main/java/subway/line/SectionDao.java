@@ -4,6 +4,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,8 +24,8 @@ public class SectionDao {
         return sectionDao;
     }
 
-    public Section save(Section section) {
-        Section persistSection = createNewObject(section);
+    public Section save(Section section, Long priority) {
+        Section persistSection = createNewObject(section,priority);
         sections.add(persistSection);
         return persistSection;
     }
@@ -33,10 +34,13 @@ public class SectionDao {
         return sections;
     }
 
-    private Section createNewObject(Section section) {
-        Field field = ReflectionUtils.findField(Section.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, section, ++seq);
+    private Section createNewObject(Section section, Long priority) {
+        Field idField = ReflectionUtils.findField(Section.class, "id");
+        idField.setAccessible(true);
+        ReflectionUtils.setField(idField, section, ++seq);
+        Field priorityField = ReflectionUtils.findField(Section.class, "priority");
+        priorityField.setAccessible(true);
+        ReflectionUtils.setField(priorityField, section, priority);
         return section;
     }
 
@@ -53,6 +57,8 @@ public class SectionDao {
     public List<Section> findByLineId(Long lineId){
         return sections.stream()
                 .filter(section -> section.getLineId() == lineId)
+                .sorted(Comparator.comparingLong(Section::getPriority))
                 .collect(Collectors.toList());
     }
+
 }

@@ -6,6 +6,7 @@ import subway.station.StationDao;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ public class LineService {
     private StationDao stationDao;
     private SectionDao sectionDao;
 
-    public LineService(){
+    public LineService() {
         this.lineDao = LineDao.getInstance();
         this.stationDao = StationDao.getInstance();
         this.sectionDao = SectionDao.getInstance();
@@ -28,12 +29,12 @@ public class LineService {
 
         try {
             newLine = lineDao.save(line);
-        } catch(IllegalArgumentException iae) {
+        } catch (IllegalArgumentException iae) {
             return ResponseEntity.badRequest().build();
         }
 
         Section section = new Section(newLine);
-        sectionDao.save(section);
+        sectionDao.save(section,1L);
 //        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations());
         LineResponse lineResponse = new LineResponse(newLine, getStations(newLine.getId()));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
@@ -67,9 +68,22 @@ public class LineService {
         Long stationId = sections.get(0).getUpStationId();
         stations.add(stationDao.findById(stationId).get());
         sections.stream()
+                .sorted(Comparator.comparingLong(Section::getPriority))
                 .forEach(section -> stations.add(stationDao.findById(section.getDownStationId()).get()));
         return stations;
     }
 
+    public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
+        Section section = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        List<Section> sections = sectionDao.findByLineId(id);
+        Long priority = 0L;
+
+        if (section.getDownStationId() == sections.get(0).getUpStationId()) {
+            priority = sections.get(0).getPriority() - 1;
+        }
+
+        sectionDao.save(section,priority);
+        return ResponseEntity.ok().build();
+    }
 
 }

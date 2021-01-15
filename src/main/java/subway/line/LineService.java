@@ -81,6 +81,9 @@ public class LineService {
         if (section.getDownStationId() == sections.get(0).getUpStationId()) {
             priority = sections.get(0).getPriority() - 1;
         }
+        if (section.getUpStationId() == sections.get(sections.size()-1).getDownStationId()) {
+            priority = sections.get(sections.size()-1).getPriority() + 1;
+        }
 
         sectionDao.save(section,priority);
         return ResponseEntity.ok().build();

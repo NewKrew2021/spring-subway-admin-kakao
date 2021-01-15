@@ -9,7 +9,6 @@ import subway.station.Station;
 import subway.station.StationDao;
 
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 

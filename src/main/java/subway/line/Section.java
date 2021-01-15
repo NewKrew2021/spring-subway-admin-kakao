@@ -1,5 +1,7 @@
 package subway.line;
 
+import java.util.Objects;
+
 public class Section {
     private final Long line_id;
     private final Long up_station_id;
@@ -40,5 +42,18 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return distance == section.distance && Objects.equals(line_id, section.line_id) && Objects.equals(up_station_id, section.up_station_id) && Objects.equals(down_station_id, section.down_station_id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(line_id, up_station_id, down_station_id, distance);
     }
 }

@@ -25,11 +25,6 @@ public class LineDao {
                 line.getName());
     }
 
-    public boolean isExists(Line line){
-        return this.jdbcTemplate.queryForObject(
-                "select count(*) from line where name = ?", Integer.class, line.getName()) > 0;
-    }
-
     public List<Line> findAll() {
         return this.jdbcTemplate.query(
                 "select * from line",

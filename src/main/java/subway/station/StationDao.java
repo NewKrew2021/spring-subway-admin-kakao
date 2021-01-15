@@ -25,11 +25,6 @@ public class StationDao {
                 station.getName());
     }
 
-    private boolean isExists(Station station) {
-        return this.jdbcTemplate.queryForObject(
-                "select count(*) from station where name = ?", Integer.class, station.getName()) > 0;
-    }
-
     public Station getById(Long id) {
         return this.jdbcTemplate.queryForObject(
                 "select * from station where id = ?",

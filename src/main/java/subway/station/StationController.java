@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 

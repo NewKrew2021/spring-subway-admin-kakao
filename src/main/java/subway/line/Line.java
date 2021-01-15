@@ -4,6 +4,7 @@ import subway.station.Station;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Line {
     // TODO 확인
@@ -49,5 +50,18 @@ public class Line {
 
     public List<Station> getStations() {
         return stations;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Line line = (Line) o;
+        return Objects.equals(stations, line.stations) && Objects.equals(name, line.name) && Objects.equals(color, line.color);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stations, name, color);
     }
 }

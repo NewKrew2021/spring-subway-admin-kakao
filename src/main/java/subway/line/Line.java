@@ -1,11 +1,11 @@
 package subway.line;
 
-import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
-import subway.station.StationResponse;
+import subway.station.StationDao;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Line {
@@ -15,51 +15,28 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private List<Station> stations;
+    private List<Section> sections;
 
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
-        this.name = name;
-        this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.stations=stations=new ArrayList<>();
+    public Line(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+        this.upStationId = lineRequest.getUpStationId();
+        this.downStationId = lineRequest.getDownStationId();
+        this.distance = lineRequest.getDistance();
+        this.sections = new LinkedList<>(Arrays.asList(
+                new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance())));
     }
 
-    public Line(Long id,String name, String color, Long upStationId, Long downStationId, int distance) {
-        this.id=id;
-        this.name = name;
-        this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.stations=stations=new ArrayList<>();
-
+    public void modify(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+        this.upStationId = lineRequest.getUpStationId();
+        this.downStationId = lineRequest.getDownStationId();
+        this.distance = lineRequest.getDistance();
     }
 
-    public Line(LineRequest lineRequest){
-        this.name=lineRequest.getName();
-        this.color=lineRequest.getColor();
-        this.upStationId=lineRequest.getUpStationId();
-        this.downStationId=lineRequest.getDownStationId();
-        this.distance=lineRequest.getDistance();
-        this.stations=stations=new ArrayList<>();
 
-    }
-
-    public void modify(LineRequest lineRequest){
-        this.name=lineRequest.getName();
-        this.color=lineRequest.getColor();
-        this.upStationId=lineRequest.getUpStationId();
-        this.downStationId=lineRequest.getDownStationId();
-        this.distance=lineRequest.getDistance();
-    }
-
-    public void add(Station station){
-        stations.add(station);
-    }
-
-    public long getId(){
+    public long getId() {
         return id;
     }
 
@@ -83,7 +60,15 @@ public class Line {
         return distance;
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public List<Section> getSections() {
+        return sections;
+    }
+
+    public void setUpStationId(Long upStationId) {
+        this.upStationId = upStationId;
+    }
+
+    public void setDownStationId(Long downStationId) {
+        this.downStationId = downStationId;
     }
 }

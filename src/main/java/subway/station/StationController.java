@@ -14,16 +14,20 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = new StationDao().save(station);
+        if(StationDao.getStationDao().hasSameStationName(station)){
+            return ResponseEntity.badRequest().build();
+        }
+        Station newStation = StationDao.getStationDao().save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        System.out.println(newStation.getId());
+        System.out.println(newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-
         List<StationResponse> StationResponses=new ArrayList<>();
-        List<Station> stations=new StationDao().findAll();
+        List<Station> stations=StationDao.getStationDao().findAll();
         for (Station station : stations) {
             StationResponses.add(new StationResponse(station.getId(), station.getName()));
         }
@@ -33,7 +37,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        new StationDao().deleteById(id);
+        StationDao.getStationDao().deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package subway.line;
 
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.util.List;
@@ -19,17 +20,11 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-        this.stations = line.getStations()
-                .stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+        this.stations = StationDao.getStationDao().getStationResponseList(
+                LineDao.getLineDao().getStations(line));
+
     }
-    public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.stations = stations;
-    }
+
 
     public Long getId() {
         return id;
@@ -45,5 +40,29 @@ public class LineResponse {
 
     public List<StationResponse> getStations() {
         return stations;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setExtraFare(int extraFare) {
+        this.extraFare = extraFare;
+    }
+
+    public void setStations(List<StationResponse> stations) {
+        this.stations = stations;
     }
 }

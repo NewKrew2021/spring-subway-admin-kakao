@@ -1,33 +1,33 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Repository
 public class LineDao {
-    private Long seq = 0L;
     private List<Line> lines = new ArrayList<>();
-
-    public Line save(Line line) {
-        if (lines.stream().anyMatch(l -> l.getName().equals(line.getName()))) {
-            return null;
-        }
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
-        return persistLine;
+    private JdbcTemplate jdbcTemplate;
+    private SectionDao sectionDao;
+    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate){
+        this.sectionDao = sectionDao;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+    public Line save(Line line, Section section) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
+                .usingGeneratedKeyColumns("id");
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
+        Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+        sectionDao.save(new Section(section.getUpStationId(),section.getDownStationId(),section.getDistance(),id));
+        return new Line(id,line.getColor(), line.getName());
     }
 
     public void deleteById(Long id) {
@@ -78,7 +78,7 @@ public class LineDao {
                 Long nextStationId = sections.get(sectionIdx + 1).getDownStationId();
                 Integer nextStationDistance = sections.get(sectionIdx + 1).getDistance() - section.getDistance();
                 sections.remove(sectionIdx + 1);
-                sections.add(sectionIdx + 1, new Section(downId, nextStationId, nextStationDistance));
+                sections.add(sectionIdx + 1, new Section(downId, nextStationId, nextStationDistance, lineId));
             }
         }
 
@@ -88,7 +88,7 @@ public class LineDao {
                 Long prevStationId = sections.get(sectionIdx - 1).getDownStationId();
                 Integer prevStationDistance = sections.get(sectionIdx - 1).getDistance() - section.getDistance();
                 sections.remove(sectionIdx - 1);
-                sections.add(sectionIdx - 1, new Section(prevStationId, upId, prevStationDistance));
+                sections.add(sectionIdx - 1, new Section(prevStationId, upId, prevStationDistance, lineId));
             }
         }
         return true;
@@ -124,7 +124,7 @@ public class LineDao {
 
             sections.remove(upIdx);
             sections.remove(downIdx);
-            sections.add(downIdx, new Section(prevStationId, nextStationId, nextDistance + prevDistance));
+            sections.add(downIdx, new Section(prevStationId, nextStationId, nextDistance + prevDistance, lineId));
         } else if (upFlag) {
             sections.remove(upIdx);
         } else if (downFlag) {

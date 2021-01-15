@@ -16,21 +16,21 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineDao lineDao;
-    private StationDao stationDao;
+    private final StationDao stationDao;
 
-    public LineController(StationDao stationDao) {
-        lineDao = new LineDao();
+    public LineController(LineDao lineDao, StationDao stationDao) {
+        this.lineDao = lineDao;
         this.stationDao = stationDao;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineDao.save(new Line(lineRequest.getColor(),
-                lineRequest.getName(),
-                lineRequest.getUpStationId(),
+                lineRequest.getName()),
+                new Section(lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance()));
-        if(newLine == null){
+        if (newLine == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName());

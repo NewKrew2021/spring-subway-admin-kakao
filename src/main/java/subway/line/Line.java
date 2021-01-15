@@ -30,7 +30,7 @@ public class Line {
     public Line(String color, String name, Long upStationId, Long downStationId, Integer distance) {
         this.color = color;
         this.name = name;
-        sections.add(new Section(upStationId, downStationId, distance));
+//        sections.add(new Section(upStationId, downStationId, distance));
 
     }
 

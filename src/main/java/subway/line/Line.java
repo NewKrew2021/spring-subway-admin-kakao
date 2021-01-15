@@ -12,7 +12,13 @@ public class Line {
     private long downStationId;//F
     private int distance;//24
     private LinkedList<SectionRequest> sectionRequests = new LinkedList<>();
+    private LinkedList<Long> stations = new LinkedList<>();
+    private LinkedList<Integer> distances = new LinkedList<>();
 
+    // A B C
+    //  3 7
+    // CA
+    // AC
 
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
@@ -22,6 +28,10 @@ public class Line {
         this.distance = lineRequest.getDistance();
 
         this.sectionRequests.add(new SectionRequest(upStationId, downStationId, distance));
+
+        this.stations.addFirst( lineRequest.getUpStationId() );
+        this.stations.addLast( lineRequest.getDownStationId() );
+        this.distances.add(lineRequest.getDistance());
     }
 
     public Line(String name, String color) {
@@ -105,8 +115,64 @@ public class Line {
                 }
             }
         }
+    }
 
 
+    public void addStation(SectionRequest sectionRequest) {
+        long upStationID = sectionRequest.getUpStationId();
+        long downStationID = sectionRequest.getDownStationId();
+        int distance = sectionRequest.getDistance();
+
+        SectionType sectionType = findSectionType( stations.indexOf(upStationID) , stations.indexOf(downStationID) );
+
+        if( sectionType == SectionType.EXCEPTION ) {
+            // 에러
+        }
+
+        // 거리 에러 필요
+
+        int index = sectionType.getIndex() - sectionType.ordinal(); // -1
+        updateSection(index, id, sectionType, distance);
+
+        if((index < 0 || index >= distances.size())) {
+            distances.set(index + 1 - sectionType.ordinal(), distances.get(index + 1 - sectionType.ordinal()) - distance); // 런타임에러
+        }
+    }
+
+    private void updateSection(int index, long id, SectionType sectionType, int distance) {
+        stations.add(index + 1, id);
+        distances.add(index + sectionType.ordinal(), distance );
+    }
+
+
+//        if(index < 0) { // DOWN_STATION
+//            stations.add(index + 1, upStationID);
+//            distances.add(index + sectionType.ordinal(), distance );
+//        }
+//
+//        if(index >= distances.size()) {  //UP_STATION
+//            stations.add(index + 1, downStationID);
+//            distances.add(index + sectionType.ordinal(), distance );
+//        }
+//
+//        if(sectionType == SectionType.UP_STATION) {
+//            stations.add(index + 1, downStationID); // index(3) + 1 = 4
+//            distances.add(index + sectionType.ordinal(), distance); // add 작동?
+//        }
+//
+//        if( sectionType == SectionType.DOWN_STATION ) {
+//            stations.add(index + 1, upStationID); // 0 번으로 제대로 입력
+//            distances.add(index + sectionType.ordinal(), distance); //
+//        }
+
+    //
+
+    private SectionType findSectionType( int upStationIndex, int downStationIndex ) {
+        SectionType sectionType = upStationIndex >= 0
+                ? (downStationIndex >= 0 ? SectionType.EXCEPTION : SectionType.UP_STATION)
+                : (downStationIndex >= 0 ? SectionType.DOWN_STATION : SectionType.EXCEPTION);
+        sectionType.setIndex(Math.max(upStationIndex,downStationIndex));
+        return sectionType;
     }
 
     @Override
@@ -139,4 +205,6 @@ public class Line {
                 ", color='" + color + '\'' +
                 '}';
     }
+
+
 }

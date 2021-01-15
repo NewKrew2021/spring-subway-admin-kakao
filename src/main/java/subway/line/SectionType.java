@@ -2,13 +2,14 @@ package subway.line;
 
 public enum SectionType {
 
-    FIRST_STATION,
+
     UP_STATION,
     DOWN_STATION,
+    FIRST_STATION,
     LAST_STATION,
     EXCEPTION;
 
-    private long id;
+    private int index;
     //어디서부터 어디로 갈지
     //어디서 : id
     //어디로 : type 값
@@ -17,12 +18,13 @@ public enum SectionType {
 
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setIndex(int index) {
+        this.index = index;
     }
 
-    public long getId() {
-        return this.id;
+    public int getIndex() {
+        return this.index;
     }
+
 
 }

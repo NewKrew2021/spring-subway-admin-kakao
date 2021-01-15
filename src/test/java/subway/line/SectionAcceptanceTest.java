@@ -96,7 +96,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_노선에_지하철역_제외됨(removeResponse, 신분당선, Arrays.asList(강남역, 정자역, 광교역));
     }
 
-    @DisplayName("지하철 노선에 등록된 지하철역이 두개일 때 한 역을 제외한다.")
+    @DisplayName("지하철 노선에 등록된 지하철역이 두   개일 때 한 역을 제외한다.")
     @Test
     void removeLineSection2() {
         // when

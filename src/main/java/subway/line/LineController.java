@@ -16,16 +16,18 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineDao lineDao;
+    private final LineService lineService;
     private final StationDao stationDao;
 
-    public LineController(LineDao lineDao, StationDao stationDao) {
+    public LineController(LineDao lineDao, LineService lineService, StationDao stationDao) {
         this.lineDao = lineDao;
+        this.lineService = lineService;
         this.stationDao = stationDao;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineDao.save(new Line(lineRequest.getColor(),
+        LineResponse newLine = lineService.save(new Line(lineRequest.getColor(),
                 lineRequest.getName()),
                 new Section(lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
@@ -33,8 +35,7 @@ public class LineController {
         if (newLine == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName());
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(newLine);
     }
 
     @GetMapping
@@ -74,25 +75,8 @@ public class LineController {
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        if(lineDao.deleteById(lineId) == 0)
+        if(!lineService.deleteById(lineId))
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{lineId}/sections")
-    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        if (!lineDao.saveSection(lineId, section)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{lineId}/sections")
-    public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        if (!lineDao.deleteSection(lineId, stationId)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
         return ResponseEntity.ok().build();
     }
 }

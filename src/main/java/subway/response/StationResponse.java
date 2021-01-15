@@ -1,18 +1,20 @@
 package subway.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import subway.domain.Station;
 
 public class StationResponse {
-    private Long id;
-    private String name;
-
-    // TODO 뭔진 모르겠지만 default 생성자가 필요.
-    public StationResponse() {
-    }
+    private final Long id;
+    private final String name;
 
     public StationResponse(Station station) {
-        this.id = station.getId();
-        this.name = station.getName();
+        this(station.getId(), station.getName());
+    }
+
+    public StationResponse(@JsonProperty("id") Long id,
+                           @JsonProperty("name") String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public Long getId() {

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.Section;
 import subway.section.SectionDao;
+import subway.section.SectionFactory;
 import subway.section.SectionRequest;
 import subway.station.Station;
 import subway.station.StationDao;
@@ -27,16 +28,17 @@ public class LineController {
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId());
+                lineRequest.getColor());
         Line newLine = lineDao.save(line);
 
-        Section newSection = new Section(newLine.getId(),
+        List<Section> sections = SectionFactory.createInitialSections(newLine.getId(),
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance());
-        sectionDao.save(newSection);
+
+        for (Section section : sections) {
+            sectionDao.save(section);
+        }
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(new LineResponse(line.getId(), line.getName(), line.getColor(), Collections.emptyList()));
@@ -63,7 +65,7 @@ public class LineController {
 
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateLine(@RequestBody LineRequest lineRequest, @PathVariable Long id) {
-        Line line = new Line(id, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
+        Line line = new Line(id, lineRequest.getName(), lineRequest.getColor());
         lineDao.update(line);
         return ResponseEntity.ok().build();
     }
@@ -74,41 +76,8 @@ public class LineController {
         return ResponseEntity.noContent().build();
     }
 
-    private Section findInsertableSection(List<Section> sections, Section newSection) {
-        return sections.stream()
-                .filter(section -> section.getUpStationId() == newSection.getUpStationId()
-                        || section.getDownStationId() == newSection.getDownStationId())
-                .findAny()
-                .orElse(null);
-//                .orElseThrow(() -> new RuntimeException("상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음"));
-    }
-
-    private Section createResidualSection(Long lineId, Section findSection, Section newSection) {
-        if (newSection.getUpStationId() == findSection.getUpStationId()) {
-            return new Section(lineId,
-                    newSection.getDownStationId(),
-                    findSection.getDownStationId(),
-                    findSection.getDistance() - newSection.getDistance());
-        }
-        return new Section(lineId,
-                findSection.getUpStationId(),
-                newSection.getUpStationId(),
-                findSection.getDistance() - newSection.getDistance());
-    }
-
-    private Section findExtendableSection(Line line, List<Section> sections, Section newSection) {
-        return sections.stream()
-                .filter(section -> section.getUpStationId() == line.getUpTerminalStationId()
-                        || section.getDownStationId() == line.getDownTerminalStationId())
-                .filter(section -> section.getUpStationId() == newSection.getDownStationId()
-                        || section.getDownStationId() == newSection.getUpStationId())
-                .findAny()
-                .orElse(null);
-    }
-
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Line line = lineDao.find(lineId).get();
         List<Section> sections = sectionDao.findByLineId(lineId);
 
         Section newSection = new Section(lineId,
@@ -116,35 +85,12 @@ public class LineController {
                 sectionRequest.getDownStationId(),
                 sectionRequest.getDistance());
 
-        Section findSection = findInsertableSection(sections, newSection);
-        if (findSection != null) {
-            Section residualSection = createResidualSection(lineId, findSection, newSection);
-            sectionDao.delete(findSection);
-            sectionDao.save(newSection);
-            sectionDao.save(residualSection);
-        } else {
-            findSection = findExtendableSection(line, sections, newSection);
-            Line newLine = null;
-            if (findSection.getUpStationId() == newSection.getDownStationId()) {
-                newLine = new Line(lineId,
-                        line.getName(),
-                        line.getColor(),
-                        newSection.getUpStationId(),
-                        line.getDownTerminalStationId());
+        Section insertableSection = findInsertableSection(sections, newSection);
+        Section residualSection = insertableSection.getDifferenceSection(newSection);
 
-            } else {
-                newLine = new Line(lineId,
-                        line.getName(),
-                        line.getColor(),
-                        line.getUpTerminalStationId(),
-                        newSection.getDownStationId());
-            }
-            lineDao.update(newLine);
-            sectionDao.save(newSection);
-        }
-        // 3. 기존 역사의 길이보다 같거나 길면 거
-        // 4. 중복 (상/하행 둘다 등록되어있으면 거절)
-        // 5. 상/하행 둘다 처음보면 거(ㅎ해결?)
+        sectionDao.delete(insertableSection);
+        sectionDao.save(newSection);
+        sectionDao.save(residualSection);
         return ResponseEntity.ok().build();
     }
 
@@ -155,7 +101,7 @@ public class LineController {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     private List<Station> getStationsByLine(Line line) {
@@ -164,18 +110,25 @@ public class LineController {
                 .collect(Collectors.toMap(Section::getUpStationId, Function.identity()));
 
         Section curr = sections.stream()
-                .filter(section -> section.getUpStationId() == line.getUpTerminalStationId())
+                .filter(Section::isUpTerminal)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(AssertionError::new);
 
         List<Station> stations = new ArrayList<>();
-        stations.add(stationDao.findById(curr.getUpStationId()).get());
-        while (curr != null) {
+        while (!curr.isDownTerminal()) {
             stations.add(
                     stationDao.findById(curr.getDownStationId()).get()
             );
-            curr = sectionCache.getOrDefault(curr.getDownStationId(), null);
+            curr = sectionCache.get(curr.getDownStationId());
         }
         return stations;
+    }
+
+    private Section findInsertableSection(List<Section> sections, Section newSection) {
+        return sections.stream()
+                .filter(section -> section.hasSameUpStation(newSection)
+                        || section.hasSameDownStation(newSection))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("삽입할 수 있는 구간이 없습니다."));
     }
 }

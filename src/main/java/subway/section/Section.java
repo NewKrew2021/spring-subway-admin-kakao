@@ -3,6 +3,8 @@ package subway.section;
 import java.util.Objects;
 
 public class Section {
+    static final long TERMINAL_ID = -1;
+    static final int INF = Integer.MAX_VALUE;
     private long lineId;
     private long upStationId;
     private long downStationId;
@@ -32,6 +34,44 @@ public class Section {
 
     private boolean isInvalidDistance(int distance) {
         return distance <= 0;
+    }
+
+    public Section getDifferenceSection(Section section) {
+        if (section.distance >= distance) {
+            throw new IllegalStateException("구간의 거리는 현재 구간의 거리보다 더 짧아야 합니다.");
+        }
+
+        if ((section.upStationId == upStationId)
+                == (section.downStationId == downStationId)) {
+            throw new IllegalStateException("상/하행역 중 단 하나만 일치해야 합니다.");
+        }
+
+        if (section.upStationId == upStationId) {
+            return new Section(lineId,
+                    section.downStationId,
+                    downStationId,
+                    distance - section.distance);
+        }
+        return new Section(lineId,
+                upStationId,
+                section.upStationId,
+                distance - section.distance);
+    }
+
+    public boolean hasSameUpStation(Section newSection) {
+        return upStationId == newSection.upStationId;
+    }
+
+    public boolean hasSameDownStation(Section newSection) {
+        return downStationId == newSection.downStationId;
+    }
+
+    public boolean isUpTerminal() {
+        return upStationId == TERMINAL_ID;
+    }
+
+    public boolean isDownTerminal() {
+        return downStationId == TERMINAL_ID;
     }
 
     public long getLineId() {

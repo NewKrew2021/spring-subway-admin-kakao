@@ -41,10 +41,6 @@ public class Line {
         return color;
     }
 
-    public LinkedList<Section> getSections() {
-        return sections;
-    }
-
     public void addSection(Section newSection) {
         if (addFirstSection(newSection)) return;
         if (addLastSection(newSection)) return;

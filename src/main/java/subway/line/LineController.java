@@ -9,8 +9,6 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,10 +20,13 @@ public class LineController {
     @Autowired
     private LineDao lineDao;
 
+    @Autowired
+    private SectionDao sectionDao;
+
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> removeLineSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         Line line = lineDao.findById(lineId);
-        line.removeStation(stationId);
+        sectionDao.removeSection(stationId);
 
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor());
         return ResponseEntity.ok().body(lineResponse);
@@ -35,11 +36,11 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
         Section section = new Section(
-                sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+                lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+
+        sectionDao.add(section);
 
         Line line = lineDao.findById(lineId);
-        line.addSection(section);
-
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor());
 
         return ResponseEntity.ok().body(lineResponse);
@@ -50,11 +51,13 @@ public class LineController {
         if (isNameDuplicate(lineRequest.getName())) {
             return ResponseEntity.badRequest().build();
         }
-        Section section = new Section(
-                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
-
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
+
+        Section section = new Section(
+                newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        sectionDao.save(section);
+
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
@@ -68,7 +71,7 @@ public class LineController {
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id);
-        List<StationResponse> stationResponses = line.getStationIds().stream()
+        List<StationResponse> stationResponses = sectionDao.getStationIds(id).stream()
                 .map(stationId -> {
                     Station station = stationDao.findById(stationId);
                     return new StationResponse(station.getId(), station.getName());

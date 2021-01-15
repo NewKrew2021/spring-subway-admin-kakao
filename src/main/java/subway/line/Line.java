@@ -93,6 +93,14 @@ public class Line {
         this.sections = sections;
     }
 
+    public void setUpStationId(Long upStationId) {
+        this.upStationId = upStationId;
+    }
+
+    public void setDownStationId(Long downStationId) {
+        this.downStationId = downStationId;
+    }
+
     public Section findSectionByUpStationId(Long upStationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(upStationId))

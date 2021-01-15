@@ -97,12 +97,16 @@ public class LineController {
         if(line.getUpStationId() == sectionRequest.getDownStationId()) {
             line.getStations().add(0, StationController.stationDao.findById(sectionRequest.getUpStationId()));
             lineDao.addSection(id, new Section(sectionRequest));
+            line.setUpStationId(sectionRequest.getUpStationId());
+            return ResponseEntity.ok().build();
         }
 
        // 하행 종점 등록
         if(line.getDownStationId() == sectionRequest.getUpStationId()) {
             line.getStations().add(StationController.stationDao.findById(sectionRequest.getDownStationId()));
             lineDao.addSection(id, new Section(sectionRequest));
+            line.setDownStationId(sectionRequest.getDownStationId());
+            return ResponseEntity.ok().build();
         }
 
         // 갈래길 방지
@@ -118,6 +122,7 @@ public class LineController {
             line.getSections().remove(section);
 
             line.getStations().add(1, StationController.stationDao.findById(sectionRequest.getDownStationId()));
+            return ResponseEntity.ok().build();
         }
 
         if(line.getDownStationId() == sectionRequest.getDownStationId()){
@@ -133,10 +138,10 @@ public class LineController {
 
             List<Station> stations = line.getStations();
             stations.add(stations.size()-1, StationController.stationDao.findById(sectionRequest.getDownStationId()));
+            return ResponseEntity.ok().build();
         }
 
-
-       return ResponseEntity.ok().build();
+        return ResponseEntity.badRequest().build();
     }
 
 }

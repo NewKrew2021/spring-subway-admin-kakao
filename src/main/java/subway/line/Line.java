@@ -2,6 +2,7 @@ package subway.line;
 
 import subway.station.Station;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Line {
@@ -15,9 +16,12 @@ public class Line {
     private List<Section> sections;
 
     public Line() {
+        stations = new ArrayList<>();
+        sections = new ArrayList<>();
     }
 
     public Line(String color, String name) {
+        this();
         this.id = 0L;
         this.name = name;
         this.color = color;
@@ -27,6 +31,7 @@ public class Line {
     }
 
     public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
+        this();
         this.id = id;
         this.name = name;
         this.color = color;
@@ -36,6 +41,7 @@ public class Line {
     }
 
     public Line(String color, String name, Long upStationId, Long downStationId, int distance, List<Station> stations) {
+        this();
         this.id = id;
         this.name = name;
         this.color = color;
@@ -104,6 +110,13 @@ public class Line {
     public Section findSectionByUpStationId(Long upStationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(upStationId))
+                .findAny()
+                .get();
+    }
+
+    public Section findSectionByDownStationId(Long downStationId) {
+        return sections.stream()
+                .filter(section -> section.getDownStationId().equals(downStationId))
                 .findAny()
                 .get();
     }

@@ -58,7 +58,6 @@ public class LineDao {
                 .filter(l -> l.getId().equals(id))
                 .findAny()
                 .get();
-
         line.getSections().add(section);
     }
 }

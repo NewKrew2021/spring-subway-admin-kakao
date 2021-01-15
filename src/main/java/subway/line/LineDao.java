@@ -54,13 +54,13 @@ public class LineDao {
     }
 
     public LineResponse getLineResponseById(Long lineId) {
-        return lines.stream().filter(line -> line.getId() == lineId)
+        return lines.stream().filter(line -> line.getId().equals(lineId))
                 .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor(), line.getStationResponses()))
                 .findAny().orElseThrow(LineNotFoundException::new);
     }
 
     public Line getLineById(Long lineId) {
-        return lines.stream().filter(line -> line.getId() == lineId)
+        return lines.stream().filter(line -> line.getId().equals(lineId))
                 .findAny().orElseThrow(LineNotFoundException::new);
     }
 

@@ -63,4 +63,11 @@ public class StationDao {
                 '}';
     }
 
+    //TODO
+    public Station getStationById(Long stationId) {
+        return stations.stream()
+                .filter(tmpStation -> tmpStation.getId().equals(stationId))
+                .findAny()
+                .orElse(null);
+    }
 }

@@ -11,7 +11,9 @@ import java.util.List;
 public class LineController {
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor(),
+                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+
         Line newLine = LineDao.getInstance().save(line);
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), newLine.getStationResponses());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);

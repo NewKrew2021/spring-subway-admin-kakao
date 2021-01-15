@@ -1,6 +1,7 @@
 package subway.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import subway.domain.Line;
 
 public class LineRequest {
     private final String name;
@@ -19,6 +20,10 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line getDomain() {
+        return new Line(name, color);
     }
 
     public String getName() {

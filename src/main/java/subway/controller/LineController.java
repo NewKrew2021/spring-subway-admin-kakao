@@ -26,6 +26,7 @@ interface SectionToLongFunction {
 }
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
     private final LineDao lineDao;
     private final StationDao stationDao;
@@ -38,25 +39,21 @@ public class LineController {
         this.sectionDao = sectionDao;
     }
 
-    @PostMapping("/lines")
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        Line newLine;
-
         try {
-            newLine = lineDao.save(line);
+            Line newLine = lineDao.save(lineRequest.getDomain());
             Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
                     lineRequest.getDownStationId(), lineRequest.getDistance());
             sectionDao.save(section);
+            LineResponse lineResponse = new LineResponse(newLine, getLineStations(newLine.getId()));
+            return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
         } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
-
-        LineResponse lineResponse = new LineResponse(newLine, getLineStations(newLine.getId()));
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> response = lineDao.findAll().stream()
                 .map(line -> new LineResponse(line, getLineStations(line.getId())))
@@ -64,7 +61,7 @@ public class LineController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/lines/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.getById(id);
         List<Station> stations = getLineStations(id);
@@ -75,9 +72,8 @@ public class LineController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("lines/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-
         try {
             lineDao.update(id, new Line(lineRequest.getName(), lineRequest.getColor()));
         } catch (DataAccessException e) {
@@ -86,7 +82,7 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         boolean response = lineDao.deleteById(id);
         if (response) {
@@ -96,13 +92,11 @@ public class LineController {
     }
 
     // TODO ExceptionHandler 작성
-    @PostMapping("/lines/{id}/sections")
-    public ResponseEntity createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
+    @PostMapping(value = "/{id}/sections", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SectionResponse> createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         // 라인 스테이션 리스트 받기
-
         List<Section> sections = sectionDao.getByLineId(id);
         List<Station> stations = sectionsToStations(sections);
-
         List<Section> sortedSections = sortByOrder(sections);
 
         // 색션 생성 가능여부 확인
@@ -110,7 +104,7 @@ public class LineController {
 
         // 추가 하행이 기존 상행 + 라스트에 붙는 케이스
         if (checkWithoutSplit(sectionRequest, sortedSections)) {
-            Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+            Section newSection = sectionRequest.getDomain();
             sectionDao.save(newSection);
             SectionResponse sectionResponse = new SectionResponse(newSection);
             return ResponseEntity.created(URI.create("/lines/" + id + "/sections/" + newSection.getId())).body(sectionResponse);
@@ -143,7 +137,7 @@ public class LineController {
         return ResponseEntity.created(URI.create("/lines/" + id + "/sections/" + newSection.getId())).body(sectionResponse);
     }
 
-    @DeleteMapping("/lines/{lineId}/sections")
+    @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         List<Station> stations = getLineStations(lineId);
         validate(stationId, stations);
@@ -155,14 +149,14 @@ public class LineController {
         if (downSideSectionToDelete == null || upsideSectionToDelete == null) {
             Section deleteSection = downSideSectionToDelete == null ? upsideSectionToDelete : downSideSectionToDelete;
             sectionDao.deleteById(deleteSection.getId());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         }
 
         Section newSection = new Section(lineId, upsideSectionToDelete.getUpStationId(), downSideSectionToDelete.getDownStationId(), downSideSectionToDelete.getDistance() + upsideSectionToDelete.getDistance());
         sectionDao.deleteById(downSideSectionToDelete.getId());
         sectionDao.deleteById(upsideSectionToDelete.getId());
         sectionDao.save(newSection);
-        return ResponseEntity.ok(newSection);
+        return ResponseEntity.noContent().build();
     }
 
     private Section sectionToStationId(List<Section> sections, SectionToLongFunction func, Long stationId) {

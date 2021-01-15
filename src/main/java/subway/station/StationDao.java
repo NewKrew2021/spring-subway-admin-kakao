@@ -1,67 +1,75 @@
 package subway.station;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.line.Section;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
-    private static StationDao stationDao;
 
-    public static StationDao getStationDao(){
-        if(stationDao==null){
-            stationDao=new StationDao();
-        }
-        return stationDao;
+
+    private JdbcTemplate jdbcTemplate;
+
+    public StationDao(){
+        jdbcTemplate=new JdbcTemplate();
     }
+    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
 
-    public void init(){
-        stations = new ArrayList<>();
-        seq = 0L;
-    }
-
-    public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+    public void save(Station station) {
+        String sql="insert into station (name) values (?)";
+        jdbcTemplate.update(sql,station.getName());
     }
 
     public Station findById(Long id){
-        return stations
-                .stream()
-                .filter(station -> station.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        String sql="select * from station where id=?";
+        return jdbcTemplate.queryForObject(sql,new Long[]{id}, actorRowMapper);
+    }
+    public Station findByName(String name){
+        System.out.println(name);
+        return jdbcTemplate.queryForObject("Select * from station where name=?",	new Object[] {name},
+                new RowMapper<Station>() {
+                    public Station mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        Station station = new Station();
+                        station.setId(rs.getLong("id"));
+                        station.setName(rs.getString("name"));
+                        return station;
+                    }
+                    } );
+
     }
 
     public boolean hasSameStationName(Station station){
-        return stations
-                .stream()
-                .anyMatch(i -> i.getName().equals(station.getName()));
+        int cnt=jdbcTemplate.queryForObject("Select count(*) From station where name=?",Integer.class,station.getName());
+        return cnt!=0;
     }
 
 
     public List<Station> findAll() {
-        return stations;
+        return jdbcTemplate.queryForList("select * from station",Station.class);
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+       jdbcTemplate.update("delete from station where id=?",id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
-    }
 
     public List<StationResponse> getStationResponseList(List<Station> station){
         return station

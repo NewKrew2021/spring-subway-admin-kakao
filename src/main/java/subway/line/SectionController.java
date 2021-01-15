@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +12,12 @@ import java.net.URI;
 
 @RestController
 public class SectionController {
-    SectionDao sectionDao=SectionDao.getSectionDao();
-    StationDao stationDao=StationDao.getStationDao();
-    LineDao lineDao = LineDao.getLineDao();
+    @Autowired
+    SectionDao sectionDao;
+    @Autowired
+    StationDao stationDao;
+    @Autowired
+    LineDao lineDao;
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest){
 

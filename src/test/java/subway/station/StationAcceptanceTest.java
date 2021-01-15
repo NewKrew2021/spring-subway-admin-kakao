@@ -21,10 +21,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
 
-    @BeforeEach
-    void setup(){
-        StationDao.getStationDao().init();
-    }
 
     @DisplayName("지하철역을 생성한다.")
     @Test

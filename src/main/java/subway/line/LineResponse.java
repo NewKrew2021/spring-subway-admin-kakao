@@ -12,7 +12,8 @@ public class LineResponse {
     private String color;
     private int extraFare;
     private List<StationResponse> stations;
-
+    StationDao stationDao;
+    LineDao lineDao;
     public LineResponse(){
 
     }
@@ -20,8 +21,8 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-        this.stations = StationDao.getStationDao().getStationResponseList(
-                LineDao.getLineDao().getStations(line));
+        this.stations = stationDao.getStationResponseList(
+                lineDao.getStations(line));
 
     }
 

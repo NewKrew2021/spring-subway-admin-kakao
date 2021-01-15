@@ -1,21 +1,23 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
 public class SectionDao {
     private static SectionDao sectionDao;
     private Long seq = 0L;
     private List<Section> sections = new LinkedList<>();
 
-    public static SectionDao getSectionDao(){
-        if(sectionDao==null){
-            sectionDao=new SectionDao();
-        }
-        return sectionDao;
+    JdbcTemplate jdbcTemplate;
+
+    public SectionDao(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void init(){

@@ -1,8 +1,12 @@
 package subway.station;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+import subway.line.LineDao;
+import subway.line.SectionDao;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -11,23 +15,32 @@ import java.util.List;
 @RestController
 public class StationController {
 
+    @Autowired
+    StationDao stationDao;
+    @Autowired
+    private SectionDao sectionDao;
+    @Autowired
+    private LineDao lineDao;
+
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if(StationDao.getStationDao().hasSameStationName(station)){
-            return ResponseEntity.badRequest().build();
-        }
-        Station newStation = StationDao.getStationDao().save(station);
+//        if(stationDao.hasSameStationName(station)){
+//            return ResponseEntity.badRequest().build();
+//        }
+
+        stationDao.save(station);
+
+        Station newStation = stationDao.findByName(station.getName());
+
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        System.out.println(newStation.getId());
-        System.out.println(newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> StationResponses=new ArrayList<>();
-        List<Station> stations=StationDao.getStationDao().findAll();
+        List<Station> stations = stationDao.findAll();
         for (Station station : stations) {
             StationResponses.add(new StationResponse(station.getId(), station.getName()));
         }
@@ -37,7 +50,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        StationDao.getStationDao().deleteById(id);
+        stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,7 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
 import subway.station.StationDao;
@@ -8,21 +10,17 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class LineDao {
     private static LineDao lineDao;
     private Long seq = 0L;
     private List<Line> lines =new ArrayList<>();
 
-    public static LineDao getLineDao(){
-        if(lineDao == null){
-            lineDao = new LineDao();
-        }
-        return lineDao;
-    }
+    JdbcTemplate jdbcTemplate;
+    StationDao stationDao;
 
-    public void init(){
-        lines = new ArrayList<>();
-        seq = 0L;
+    public LineDao(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Line save(Line line){
@@ -67,9 +65,9 @@ public class LineDao {
 
     public List<Station> getStations(Line line){
         List<Station> stations = new ArrayList<>();
-        stations.add(StationDao.getStationDao().findById(line.getUpStationId()));
+        stations.add(stationDao.findById(line.getUpStationId()));
         for (Section sections : line.getSections()) {
-            stations.add(StationDao.getStationDao().findById(sections.getDownStationId()));
+            stations.add(stationDao.findById(sections.getDownStationId()));
         }
         return stations;
     }

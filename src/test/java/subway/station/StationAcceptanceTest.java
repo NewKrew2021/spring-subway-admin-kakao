@@ -24,7 +24,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
-        StationDao.clear();
     }
 
     @DisplayName("지하철역을 생성한다.")

@@ -21,9 +21,15 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
-    private final LineDao lineDao = new LineDao();
-    private final StationDao stationDao = StationDao.getInstance();
-    private final SectionDao sectionDao = new SectionDao();
+    private final LineDao lineDao;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
+
+    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
+        this.lineDao = lineDao;
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
@@ -41,12 +47,13 @@ public class LineController {
         }
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
-                .body(new LineResponse(line.getId(), line.getName(), line.getColor(), Collections.emptyList()));
+                .body(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), Collections.emptyList()));
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.find(id).orElseThrow(() -> new IllegalArgumentException("노선이 존재하지 않습니다."));
+        Line line = lineDao.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("노선이 존재하지 않습니다."));
         List<Station> stations = getStationsByLine(line);
 
         List<StationResponse> stationResponses = stations.stream()
@@ -138,9 +145,9 @@ public class LineController {
 
         List<Station> stations = new ArrayList<>();
         while (!curr.isDownTerminal()) {
-            stations.add(
-                    stationDao.findById(curr.getDownStationId()).get()
-            );
+            stationDao.findById(curr.getDownStationId())
+                    .ifPresent(stations::add);
+
             curr = sectionCache.get(curr.getDownStationId());
         }
         return stations;

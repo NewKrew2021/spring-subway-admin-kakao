@@ -1,10 +1,10 @@
 package subway.section;
 
-import java.util.Objects;
-
 public class Section {
     static final long TERMINAL_ID = -1;
     static final int INF = Integer.MAX_VALUE;
+
+    private Long id;
     private long lineId;
     private long upStationId;
     private long downStationId;
@@ -12,6 +12,14 @@ public class Section {
 
     public Section(long lineId, long upStationId, long downStationId, int distance) {
         validate(upStationId, downStationId, distance);
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
+    public Section(Long id, long lineId, long upStationId, long downStationId, int distance) {
+        this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
@@ -96,6 +104,10 @@ public class Section {
         return upStationId == stationId || downStationId == stationId;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public long getLineId() {
         return lineId;
     }
@@ -110,18 +122,5 @@ public class Section {
 
     public int getDistance() {
         return distance;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Section section = (Section) o;
-        return lineId == section.lineId && upStationId == section.upStationId && downStationId == section.downStationId && distance == section.distance;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(lineId, upStationId, downStationId, distance);
     }
 }

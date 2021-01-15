@@ -1,5 +1,6 @@
 package subway.station;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Repository
 public class StationDao {
     private final List<Station> stations = new ArrayList<>();
     private Long seq = 0L;

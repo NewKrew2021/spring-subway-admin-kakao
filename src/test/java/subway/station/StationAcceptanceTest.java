@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.DaoContainer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +24,6 @@ public class StationAcceptanceTest extends AcceptanceTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
-        DaoContainer.refreshAll();
     }
 
     @DisplayName("지하철역을 생성한다.")

@@ -1,9 +1,9 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.DaoContainer;
 import subway.station.Station;
 import subway.station.StationDao;
 
@@ -19,9 +19,16 @@ interface SectionToLongFunction {
 
 @RestController
 public class LineController {
-    private final LineDao lineDao = DaoContainer.getLineDao();
-    private final StationDao stationDao = DaoContainer.getStationDao();
-    private final SectionDao sectionDao = DaoContainer.getSectionDao();
+    private final LineDao lineDao;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
+
+    @Autowired
+    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
+        this.lineDao = lineDao;
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {

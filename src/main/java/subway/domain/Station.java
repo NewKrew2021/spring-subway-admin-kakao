@@ -3,11 +3,8 @@ package subway.domain;
 import java.util.Objects;
 
 public class Station {
+    private final String name;
     private Long id;
-    private String name;
-
-    public Station() {
-    }
 
     public Station(Long id, String name) {
         this.id = id;

@@ -27,11 +27,11 @@ public class StationDao {
                 station.getName());
     }
 
-    public Station getById(Long id) {
+    public Station getById(Long stationId) {
         return this.jdbcTemplate.queryForObject(
                 Sql.SELECT_STATION_WITH_ID,
                 stationMapper,
-                id);
+                stationId);
     }
 
     public List<Station> findAll() {
@@ -41,7 +41,7 @@ public class StationDao {
         );
     }
 
-    public boolean deleteById(Long id) {
-        return this.jdbcTemplate.update(Sql.DELETE_STATION_WITH_ID, id) > 0;
+    public boolean deleteById(Long stationId) {
+        return this.jdbcTemplate.update(Sql.DELETE_STATION_WITH_ID, stationId) > 0;
     }
 }

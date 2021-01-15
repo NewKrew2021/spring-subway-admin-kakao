@@ -32,15 +32,15 @@ public class SectionDao {
     public Section save(Section section) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
         Long id = insertActor.executeAndReturnKey(parameters).longValue();
-        return new Section(id, section.getLine_id(), section.getUp_station_id(),
-                section.getDown_station_id(), section.getDistance());
+        return new Section(id, section.getLineId(), section.getUpStationId(),
+                section.getDownStationId(), section.getDistance());
     }
 
-    public List<Section> getByLineId(Long id) {
-        return jdbcTemplate.query(Sql.SELECT_SECTION_WITH_LINE_ID, sectionMapper, id);
+    public List<Section> getByLineId(Long lineId) {
+        return jdbcTemplate.query(Sql.SELECT_SECTION_WITH_LINE_ID, sectionMapper, lineId);
     }
 
-    public boolean deleteById(Long id) {
-        return jdbcTemplate.update(Sql.DELETE_SECTION_WITH_ID, id) > 0;
+    public boolean deleteById(Long sectionId) {
+        return jdbcTemplate.update(Sql.DELETE_SECTION_WITH_ID, sectionId) > 0;
     }
 }

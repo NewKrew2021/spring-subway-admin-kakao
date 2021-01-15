@@ -41,8 +41,6 @@ public class LineController {
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        line.addStation(stationDao.getById(lineRequest.getUpStationId()));
-        line.addStation(stationDao.getById(lineRequest.getDownStationId()));
         Line newLine;
 
         try {
@@ -128,12 +126,12 @@ public class LineController {
 
         // 삭제하고 쪼개서 저장하기 TODO transaction
         Section section1 = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        Section section2 = new Section(id, sectionRequest.getDownStationId(), sectionToSplit.getDown_station_id(),
+        Section section2 = new Section(id, sectionRequest.getDownStationId(), sectionToSplit.getDownStationId(),
                 sectionToSplit.getDistance() - sectionRequest.getDistance());
 
         // 하행 기준 분리 케이스
-        if (sectionToSplit.getDown_station_id().equals(sectionRequest.getDownStationId())) {
-            section2 = new Section(id, sectionToSplit.getUp_station_id(), sectionRequest.getUpStationId(),
+        if (sectionToSplit.getDownStationId().equals(sectionRequest.getDownStationId())) {
+            section2 = new Section(id, sectionToSplit.getUpStationId(), sectionRequest.getUpStationId(),
                     sectionToSplit.getDistance() - sectionRequest.getDistance());
         }
 
@@ -151,8 +149,8 @@ public class LineController {
         validate(stationId, stations);
 
         List<Section> sections = sectionDao.getByLineId(lineId);
-        Section downSideSectionToDelete = sectionToStationId(sections, Section::getUp_station_id, stationId);
-        Section upsideSectionToDelete = sectionToStationId(sections, Section::getDown_station_id, stationId);
+        Section downSideSectionToDelete = sectionToStationId(sections, Section::getUpStationId, stationId);
+        Section upsideSectionToDelete = sectionToStationId(sections, Section::getDownStationId, stationId);
 
         if (downSideSectionToDelete == null || upsideSectionToDelete == null) {
             Section deleteSection = downSideSectionToDelete == null ? upsideSectionToDelete : downSideSectionToDelete;
@@ -160,7 +158,7 @@ public class LineController {
             return ResponseEntity.ok().build();
         }
 
-        Section newSection = new Section(lineId, upsideSectionToDelete.getUp_station_id(), downSideSectionToDelete.getDown_station_id(), downSideSectionToDelete.getDistance() + upsideSectionToDelete.getDistance());
+        Section newSection = new Section(lineId, upsideSectionToDelete.getUpStationId(), downSideSectionToDelete.getDownStationId(), downSideSectionToDelete.getDistance() + upsideSectionToDelete.getDistance());
         sectionDao.deleteById(downSideSectionToDelete.getId());
         sectionDao.deleteById(upsideSectionToDelete.getId());
         sectionDao.save(newSection);
@@ -181,17 +179,17 @@ public class LineController {
     }
 
     private boolean checkWithoutSplit(SectionRequest sectionRequest, List<Section> sortedSections) {
-        return sortedSections.get(0).getUp_station_id().equals(sectionRequest.getDownStationId()) ||
-                sortedSections.get(sortedSections.size() - 1).getDown_station_id().equals(sectionRequest.getUpStationId());
+        return sortedSections.get(0).getUpStationId().equals(sectionRequest.getDownStationId()) ||
+                sortedSections.get(sortedSections.size() - 1).getDownStationId().equals(sectionRequest.getUpStationId());
     }
 
     private Section findSectionToSplit(List<Section> sortedSections, SectionRequest sectionRequest) {
         Optional<Section> optionalSection = sortedSections.stream()
-                .filter(section -> section.getUp_station_id().equals(sectionRequest.getUpStationId()))
+                .filter(section -> section.getUpStationId().equals(sectionRequest.getUpStationId()))
                 .findFirst();
 
         return optionalSection.orElseGet(() -> sortedSections.stream()
-                .filter(section -> section.getDown_station_id().equals(sectionRequest.getDownStationId()))
+                .filter(section -> section.getDownStationId().equals(sectionRequest.getDownStationId()))
                 .findFirst().orElseThrow(IllegalArgumentException::new));
 
     }
@@ -207,22 +205,22 @@ public class LineController {
         for (int i = 0; i < sections.size(); ++i) {
             Section currentSection = connection.get(currentStation);
             orderedSections.add(currentSection);
-            currentStation = currentSection.getDown_station_id();
+            currentStation = currentSection.getDownStationId();
         }
 
         return orderedSections;
     }
 
     private Long findFirstStation(List<Section> sections) {
-        List<Long> upStations = sections.stream().map(Section::getUp_station_id).collect(Collectors.toList());
-        List<Long> downStations = sections.stream().map(Section::getDown_station_id).collect(Collectors.toList());
+        List<Long> upStations = sections.stream().map(Section::getUpStationId).collect(Collectors.toList());
+        List<Long> downStations = sections.stream().map(Section::getDownStationId).collect(Collectors.toList());
         return upStations.stream().filter(station -> !downStations.contains(station)).findFirst().orElseThrow(IllegalArgumentException::new);
     }
 
     private Map<Long, Section> generateConnection(List<Section> sections) {
         Map<Long, Section> connection = new HashMap<>();
         for (Section section : sections) {
-            connection.put(section.getUp_station_id(), section);
+            connection.put(section.getUpStationId(), section);
         }
         return connection;
     }
@@ -244,10 +242,10 @@ public class LineController {
     private List<Station> sectionsToStations(List<Section> sections) {
         sections = sortByOrder(sections);
         List<Station> stations = sections.stream()
-                .map(Section::getUp_station_id)
+                .map(Section::getUpStationId)
                 .map(stationDao::getById)
                 .collect(Collectors.toList());
-        Station lastStation = stationDao.getById(sections.get(sections.size() - 1).getDown_station_id());
+        Station lastStation = stationDao.getById(sections.get(sections.size() - 1).getDownStationId());
         stations.add(lastStation);
         return stations;
     }

@@ -15,9 +15,9 @@ public class SectionResponse {
 
     public SectionResponse(Section section) {
         this.id = section.getId();
-        this.line_id = section.getLine_id();
-        this.up_station_id = section.getUp_station_id();
-        this.down_station_id = section.getDown_station_id();
+        this.line_id = section.getLineId();
+        this.up_station_id = section.getUpStationId();
+        this.down_station_id = section.getDownStationId();
         this.distance = section.getDistance();
     }
 

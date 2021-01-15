@@ -34,20 +34,20 @@ public class LineDao {
         );
     }
 
-    public Line getById(Long id) {
+    public Line getById(Long lineId) {
         return this.jdbcTemplate.queryForObject(
                 Sql.SELECT_LINE_WITH_ID,
                 lineMapper,
-                id
+                lineId
         );
     }
 
-    public void update(Long id, Line line) {
+    public void update(Long lineId, Line line) {
         this.jdbcTemplate.update(Sql.UPDATE_LINE_WITH_ID,
-                line.getName(), line.getColor(), id);
+                line.getName(), line.getColor(), lineId);
     }
 
-    public boolean deleteById(Long id) {
-        return this.jdbcTemplate.update(Sql.DELETE_LINE_BY_ID, id) > 0;
+    public boolean deleteById(Long lineId) {
+        return this.jdbcTemplate.update(Sql.DELETE_LINE_BY_ID, lineId) > 0;
     }
 }

@@ -79,12 +79,14 @@ public class SectionService {
             Section removedLine  = line.getSections().get(0);
             line.getSections().remove(removedLine);
             line.setUpStationId(removedLine.getDownStationId());
+            return true;
         }
 
         if(line.getDownStationId().equals(stationId)){
             Section removedLine  = line.getSections().get(-1);
             line.getSections().remove(removedLine);
             line.setDownStationId(removedLine.getUpStationId());
+            return true;
         }
 
         int index=0;
@@ -93,7 +95,7 @@ public class SectionService {
                 Section removeTargetSection  = line.getSections().get(index + 1);
                 line.getSections().remove(removeTargetSection);
                 section.combineSection(removeTargetSection);
-
+                return true;
             }
             index+=1;
         }

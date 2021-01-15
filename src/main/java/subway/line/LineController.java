@@ -4,9 +4,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.NotFoundException;
+import subway.section.Section;
+import subway.section.SectionDao;
+import subway.section.SectionRequest;
+import subway.station.Station;
+import subway.station.StationDao;
+import subway.station.StationResponse;
 
-import javax.xml.ws.Response;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +44,6 @@ public class LineController {
     @GetMapping(value = "/lines/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
         Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException());
-        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor());
 
         return ResponseEntity.ok().body(lineResponse);
     }

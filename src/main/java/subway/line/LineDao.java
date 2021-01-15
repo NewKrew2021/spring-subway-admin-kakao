@@ -11,7 +11,16 @@ import java.util.Optional;
 
 public class LineDao {
     private Long seq = 0L;
-    List<Line> lines = new ArrayList<>();
+    private List<Line> lines = new ArrayList<>();
+    private static LineDao singleInstance = new LineDao();
+
+    private LineDao(){
+
+    }
+
+    public static LineDao getInstance(){
+        return singleInstance;
+    }
 
     public Line save(Line line) {
         if (hasDuplicateName(line.getName())) {

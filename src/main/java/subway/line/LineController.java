@@ -94,6 +94,28 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/lines/{lineId}/sections")
+    public ResponseEntity<Void> deleteSections(@PathVariable Long lineId, @RequestParam Long stationId) {
+        List<Section> sections = sectionDao.findByLineId(lineId);
+        if (sections.size() == 3) {
+            throw new IllegalStateException("해당 노선은 지하철역을 삭제할 수 없습니다.");
+        }
+
+        List<Section> connectedSections = findSectionsByStationId(sections, stationId);
+        if (connectedSections.isEmpty()) {
+            throw new IllegalArgumentException("노선에 포함되지 않은 지하철역 입니다.");
+        }
+
+        Section first = connectedSections.get(0);
+        Section second = connectedSections.get(1);
+        Section joinedSection = first.getJoinedSection(second);
+
+        sectionDao.delete(first);
+        sectionDao.delete(second);
+        sectionDao.save(joinedSection);
+        return ResponseEntity.ok().build();
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
@@ -130,5 +152,11 @@ public class LineController {
                         || section.hasSameDownStation(newSection))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("삽입할 수 있는 구간이 없습니다."));
+    }
+
+    private List<Section> findSectionsByStationId(List<Section> sections, Long stationId) {
+        return sections.stream()
+                .filter(section -> section.containsStation(stationId))
+                .collect(Collectors.toList());
     }
 }

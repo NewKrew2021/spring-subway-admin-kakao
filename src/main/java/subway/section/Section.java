@@ -58,6 +58,24 @@ public class Section {
                 distance - section.distance);
     }
 
+    public Section getJoinedSection(Section section) {
+        if ((section.upStationId != downStationId)
+                && (section.downStationId != upStationId)) {
+            throw new IllegalStateException("연속된 구간이어야 합니다.");
+        }
+
+        if (section.upStationId == downStationId) {
+            return new Section(lineId,
+                    upStationId,
+                    section.downStationId,
+                    distance + section.distance);
+        }
+        return new Section(lineId,
+                section.upStationId,
+                downStationId,
+                distance + section.distance);
+    }
+
     public boolean hasSameUpStation(Section newSection) {
         return upStationId == newSection.upStationId;
     }
@@ -72,6 +90,10 @@ public class Section {
 
     public boolean isDownTerminal() {
         return downStationId == TERMINAL_ID;
+    }
+
+    public boolean containsStation(Long stationId) {
+        return upStationId == stationId || downStationId == stationId;
     }
 
     public long getLineId() {

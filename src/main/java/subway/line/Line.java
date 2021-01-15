@@ -1,6 +1,5 @@
 package subway.line;
 
-import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
 import subway.station.StationDao;
 import subway.station.StationResponse;
@@ -37,14 +36,6 @@ public class Line {
         this.sections = sections;
     }
 
-    private boolean containsBothStationsOrNothing(Section newSection) {
-        boolean containsUpStation = sections.stream()
-                .anyMatch(section -> section.contains(newSection.getUpStationId()));
-        boolean containsDownStation = sections.stream()
-                .anyMatch(section -> section.contains(newSection.getDownStationId()));
-        return containsDownStation == containsUpStation;
-    }
-
     public List<StationResponse> getStationResponses() {
         List<StationResponse> stationResponses = new ArrayList<>();
         for (int i = 0; i < sections.size(); i++) {
@@ -57,18 +48,27 @@ public class Line {
         return stationResponses;
     }
 
-    public void delete(Long stationId) {
-        if (sections.size() == 1) {
-            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
-        }
+    private boolean isDeleteStationIsFrontOrRear(Long stationId) {
+        return stationId == sections.get(0).getUpStationId() || stationId == sections.get(sections.size()-1).getDownStationId();
+    }
+
+    private void deleteFrontOrRearStation(Long stationId) {
         if (stationId == sections.get(0).getUpStationId()) {
             sections.remove(0);
             return;
         }
-        if (stationId == sections.get(sections.size()-1).getDownStationId()) {
-            sections.remove(sections.size()-1);
+        sections.remove(sections.size()-1);
+    }
+
+    public void delete(Long stationId) {
+        if (sections.size() == 1) {
+            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
+        }
+        if (isDeleteStationIsFrontOrRear(stationId)){
+            deleteFrontOrRearStation(stationId);
             return;
         }
+
         int selectedIndex = IntStream.range(1, sections.size())
                 .filter(i -> sections.get(i).getUpStationId() == stationId )
                 .findFirst()
@@ -85,7 +85,15 @@ public class Line {
         if (containsBothStationsOrNothing(newSection)) {
             throw new InvalidSectionException("두 역이 모두 포함되어 있거나, 두 역 모두 포함되어 있지 않습니다.");
         }
-        saveSectionWithStatus(newSection);
+        saveSection(newSection);
+    }
+
+    private boolean containsBothStationsOrNothing(Section newSection) {
+        boolean containsUpStation = sections.stream()
+                .anyMatch(section -> section.contains(newSection.getUpStationId()));
+        boolean containsDownStation = sections.stream()
+                .anyMatch(section -> section.contains(newSection.getDownStationId()));
+        return containsDownStation == containsUpStation;
     }
 
     private boolean newSectionIsFront(Section newSection) {
@@ -122,7 +130,7 @@ public class Line {
         sections.add(newSection);
     }
 
-    private void saveSectionWithStatus(Section newSection) {
+    private void saveSection(Section newSection) {
         if (newSectionIsFront(newSection)) {
             saveNewSectionFront(newSection);
             return;
@@ -138,17 +146,19 @@ public class Line {
                 .orElse(-1);
 
         if(selectedIndex == -1) {
-            int distance = sections.get(selectedIndex).getDistance();
             selectedIndex = IntStream.range(0, sections.size())
                     .filter(i->sections.get(i).getUpStationId() == newSection.getDownStationId())
                     .findFirst()
                     .getAsInt();
+            int distance = sections.get(selectedIndex).getDistance();
+            validateSectionDistance(newSection, distance);
             long prevUpStationId = sections.get(selectedIndex-1).getUpStationId();
             sections.set(selectedIndex-1, new Section(prevUpStationId, newSection.getUpStationId(), distance - newSection.getDistance()));
             sections.add(selectedIndex, newSection);
             return;
         }
         int distance = sections.get(selectedIndex).getDistance();
+        validateSectionDistance(newSection, distance);
         long prevDownStationId = sections.get(selectedIndex).getDownStationId();
         sections.set(selectedIndex, new Section(newSection.getDownStationId(), prevDownStationId, distance - newSection.getDistance()));
         sections.add(selectedIndex, newSection);

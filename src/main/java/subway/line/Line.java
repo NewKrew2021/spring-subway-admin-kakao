@@ -1,10 +1,5 @@
 package subway.line;
 
-import subway.station.Station;
-import subway.station.StationResponse;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class Line {
@@ -15,8 +10,6 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private List<StationResponse> stations;
-
 
     public Line(String name, String color) {
         this.name = name;
@@ -29,7 +22,6 @@ public class Line {
         this.upStationId = lineRequest.getUpStationId();
         this.downStationId = lineRequest.getDownStationId();
         this.distance = lineRequest.getDistance();
-        this.stations = new ArrayList<>();
     }
 
     public Long getId() {
@@ -88,21 +80,9 @@ public class Line {
         this.distance = distance;
     }
 
-    public List<StationResponse> getStations() {
-        return stations;
-    }
-
-    public void setStations(List<StationResponse> stations) {
-        this.stations = stations;
-    }
-
     public void update(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
-    }
-
-    public void addStation(Station station){
-        stations.add(new StationResponse(station.getId(),station.getName()));
     }
 
     @Override

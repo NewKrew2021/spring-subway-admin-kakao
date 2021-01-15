@@ -5,6 +5,7 @@ import subway.station.Station;
 import subway.station.StationDao;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,25 +14,28 @@ public class LineService {
 
     private LineDao lineDao;
     private StationDao stationDao;
+    private SectionDao sectionDao;
 
     public LineService(){
         this.lineDao = LineDao.getInstance();
         this.stationDao = StationDao.getInstance();
+        this.sectionDao = SectionDao.getInstance();
     }
 
     public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
         Line line = new Line(lineRequest);
-        Station upStation = stationDao.findById(lineRequest.getUpStationId()).get();
-        Station downStation = stationDao.findById(lineRequest.getDownStationId()).get();
-        line.addStation(upStation);
-        line.addStation(downStation);
         Line newLine;
+
         try {
             newLine = lineDao.save(line);
         } catch(IllegalArgumentException iae) {
             return ResponseEntity.badRequest().build();
         }
-        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations());
+
+        Section section = new Section(newLine);
+        sectionDao.save(section);
+//        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations());
+        LineResponse lineResponse = new LineResponse(newLine, getStations(newLine.getId()));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -48,13 +52,23 @@ public class LineService {
 
     public ResponseEntity<LineResponse> showLine(Long id) {
         Optional<Line> lineOptional = lineDao.findById(id);
-        LineResponse lineResponse = new LineResponse(lineOptional.get());
+        LineResponse lineResponse = new LineResponse(lineOptional.get(), getStations(id));
         return ResponseEntity.ok(lineResponse);
     }
 
     public ResponseEntity updateLine(Long id, LineRequest lineRequest) {
         lineDao.update(id, lineRequest);
         return ResponseEntity.ok().build();
+    }
+
+    public List<Station> getStations(Long id) {
+        List<Section> sections = sectionDao.findByLineId(id);
+        List<Station> stations = new ArrayList<>();
+        Long stationId = sections.get(0).getUpStationId();
+        stations.add(stationDao.findById(stationId).get());
+        sections.stream()
+                .forEach(section -> stations.add(stationDao.findById(section.getDownStationId()).get()));
+        return stations;
     }
 
 

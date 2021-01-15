@@ -24,9 +24,9 @@ public class SectionDao {
     }
 
     public Section save(Section section) {
-        Section persistStation = createNewObject(section);
-        sections.add(persistStation);
-        return persistStation;
+        Section persistSection = createNewObject(section);
+        sections.add(persistSection);
+        return persistSection;
     }
 
     public List<Section> findAll() {
@@ -34,7 +34,7 @@ public class SectionDao {
     }
 
     private Section createNewObject(Section section) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
+        Field field = ReflectionUtils.findField(Section.class, "id");
         field.setAccessible(true);
         ReflectionUtils.setField(field, section, ++seq);
         return section;

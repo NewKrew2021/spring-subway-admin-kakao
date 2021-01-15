@@ -14,6 +14,14 @@ public class Section {
         this.distance = distance;
     }
 
+    public Section(Line line) {
+        this.lineId = line.getId();
+        this.upStationId = line.getUpStationId();
+        this.downStationId = line.getDownStationId();
+        this.distance = line.getDistance();
+    }
+
+
     public Long getUpStationId() {
         return upStationId;
     }

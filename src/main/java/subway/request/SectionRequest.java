@@ -1,14 +1,15 @@
 package subway.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SectionRequest {
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
+    private final Long upStationId;
+    private final Long downStationId;
+    private final int distance;
 
-    public SectionRequest() {
-    }
-
-    public SectionRequest(Long upStationId, Long downStationId, int distance) {
+    public SectionRequest(@JsonProperty("upStationId") Long upStationId,
+                          @JsonProperty("downStationId") Long downStationId,
+                          @JsonProperty("distance") int distance) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;

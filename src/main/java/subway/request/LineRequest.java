@@ -1,16 +1,19 @@
 package subway.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LineRequest {
-    private String name;
-    private String color;
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
+    private final String name;
+    private final String color;
+    private final Long upStationId;
+    private final Long downStationId;
+    private final int distance;
 
-    public LineRequest() {
-    }
-
-    public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
+    public LineRequest(@JsonProperty("name") String name,
+                       @JsonProperty("color") String color,
+                       @JsonProperty("upStationId") Long upStationId,
+                       @JsonProperty("downStationId") Long downStationId,
+                       @JsonProperty("distance") int distance) {
         this.name = name;
         this.color = color;
         this.upStationId = upStationId;

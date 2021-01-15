@@ -9,11 +9,16 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(DuplicateNameException.class)
     public ResponseEntity handleDuplicate() {
-        return ResponseEntity.badRequest().body("Exception");
+        return ResponseEntity.status(400).body("Duplicate Exception");
     }
 
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity handleNoContent() {
-        return ResponseEntity.badRequest().body("Exception");
+        return ResponseEntity.status(500).body("No Content");
+    }
+
+    @ExceptionHandler(TwoStationException.class)
+    public ResponseEntity handleTwoStationException() {
+        return ResponseEntity.status(500).body("TwoStation Exception");
     }
 }

@@ -20,6 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 public class StationDaoTest {
     private final Station 강남역 = new Station("강남역");
     private final Station 역삼역 = new Station("역삼역");
+    private final Station 서현역 = new Station("서현역");
 
     @Autowired
     StationDao stationDao;
@@ -43,6 +44,15 @@ public class StationDaoTest {
     public void getByIdTest() {
         stationDao.save(강남역);
         assertThat(stationDao.getById(1L)).isEqualTo(강남역);
+    }
+
+    @DisplayName("데이터베이스의 여러 지하철역을 조회한다.")
+    @Test
+    public void batchGetByIdTest() {
+        stationDao.save(강남역);
+        stationDao.save(역삼역);
+        stationDao.save(서현역);
+        assertThat(stationDao.batchGetByIds(Arrays.asList(1L, 2L))).isEqualTo(Arrays.asList(강남역, 역삼역));
     }
 
     @DisplayName("데이터베이스의 지하철역 목록을 조회한다.")

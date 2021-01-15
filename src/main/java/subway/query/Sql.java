@@ -34,6 +34,7 @@ public class Sql {
     public static final String INSERT_STATION = "insert into station (name) values (?)";
     public static final String SELECT_STATION_WITH_NAME = "select * from station where name = ?";
     public static final String SELECT_STATION_WITH_ID = "select * from station where id = ?";
+    public static final String BATCH_SELECT_FROM_STATION = "select * from station where id in (:ids)";
     public static final String SELECT_ALL_STATIONS = "select * from station";
     public static final String DELETE_STATION_WITH_ID = "delete from station where id = ?";
 

@@ -3,6 +3,7 @@ package subway.controller;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Line;
+import subway.domain.OrderedSections;
 import subway.domain.Section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -46,7 +47,7 @@ public class LineController {
             Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
                     lineRequest.getDownStationId(), lineRequest.getDistance());
             sectionDao.save(section);
-            LineResponse lineResponse = new LineResponse(newLine, getLineStations(newLine.getId()));
+            LineResponse lineResponse = new LineResponse(newLine, getOrderedStationsOfLine(newLine.getId()));
             return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
         } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
@@ -56,7 +57,7 @@ public class LineController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> response = lineDao.findAll().stream()
-                .map(line -> new LineResponse(line, getLineStations(line.getId())))
+                .map(line -> new LineResponse(line, getOrderedStationsOfLine(line.getId())))
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(response);
     }
@@ -64,7 +65,7 @@ public class LineController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.getById(id);
-        List<Station> stations = getLineStations(id);
+        List<Station> stations = getOrderedStationsOfLine(id);
 
         if (line != null) {
             return ResponseEntity.ok().body(new LineResponse(line, stations));
@@ -95,23 +96,22 @@ public class LineController {
     @PostMapping(value = "/{id}/sections", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         // 라인 스테이션 리스트 받기
-        List<Section> sections = sectionDao.getByLineId(id);
-        List<Station> stations = sectionsToStations(sections);
-        List<Section> sortedSections = sortByOrder(sections);
+        OrderedSections orderedSections = new OrderedSections(sectionDao.getByLineId(id));
+        List<Long> stationsIds = orderedSections.getOrderedStationIds();
 
         // 색션 생성 가능여부 확인
-        validateRequest(stations, sectionRequest);
+        validateRequest(stationsIds, sectionRequest);
 
         // 추가 하행이 기존 상행 + 라스트에 붙는 케이스
-        if (checkWithoutSplit(sectionRequest, sortedSections)) {
-            Section newSection = sectionRequest.getDomain();
-            sectionDao.save(newSection);
+        Section section = sectionRequest.getDomain();
+        if (orderedSections.isAddToEdgeCase(section)) {
+            Section newSection = sectionDao.save(section);
             SectionResponse sectionResponse = new SectionResponse(newSection);
             return ResponseEntity.created(URI.create("/lines/" + id + "/sections/" + newSection.getId())).body(sectionResponse);
         }
 
         // 쪼개지는 케이스
-        Section sectionToSplit = findSectionToSplit(sortedSections, sectionRequest);
+        Section sectionToSplit = orderedSections.findSectionToSplit(sectionRequest.getDomain());
 
         // 거리체크
         if (sectionToSplit.getDistance() < sectionRequest.getDistance()) {
@@ -139,7 +139,7 @@ public class LineController {
 
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        List<Station> stations = getLineStations(lineId);
+        List<Station> stations = getOrderedStationsOfLine(lineId);
         validate(stationId, stations);
 
         List<Section> sections = sectionDao.getByLineId(lineId);
@@ -172,80 +172,30 @@ public class LineController {
         }
     }
 
-    private boolean checkWithoutSplit(SectionRequest sectionRequest, List<Section> sortedSections) {
-        return sortedSections.get(0).getUpStationId().equals(sectionRequest.getDownStationId()) ||
-                sortedSections.get(sortedSections.size() - 1).getDownStationId().equals(sectionRequest.getUpStationId());
-    }
-
-    private Section findSectionToSplit(List<Section> sortedSections, SectionRequest sectionRequest) {
-        Optional<Section> optionalSection = sortedSections.stream()
-                .filter(section -> section.getUpStationId().equals(sectionRequest.getUpStationId()))
-                .findFirst();
-
-        return optionalSection.orElseGet(() -> sortedSections.stream()
-                .filter(section -> section.getDownStationId().equals(sectionRequest.getDownStationId()))
-                .findFirst().orElseThrow(IllegalArgumentException::new));
-
-    }
-
-    private List<Section> sortByOrder(List<Section> sections) {
-        Long upStation = findFirstStation(sections);
-
-        Map<Long, Section> connection = generateConnection(sections);
-
-        Long currentStation = upStation;
-        List<Section> orderedSections = new ArrayList<>();
-
-        for (int i = 0; i < sections.size(); ++i) {
-            Section currentSection = connection.get(currentStation);
-            orderedSections.add(currentSection);
-            currentStation = currentSection.getDownStationId();
-        }
-
-        return orderedSections;
-    }
-
-    private Long findFirstStation(List<Section> sections) {
-        List<Long> upStations = sections.stream().map(Section::getUpStationId).collect(Collectors.toList());
-        List<Long> downStations = sections.stream().map(Section::getDownStationId).collect(Collectors.toList());
-        return upStations.stream().filter(station -> !downStations.contains(station)).findFirst().orElseThrow(IllegalArgumentException::new);
-    }
-
-    private Map<Long, Section> generateConnection(List<Section> sections) {
-        Map<Long, Section> connection = new HashMap<>();
-        for (Section section : sections) {
-            connection.put(section.getUpStationId(), section);
-        }
-        return connection;
-    }
-
-
-    private void validateRequest(List<Station> stations, SectionRequest sectionRequest) {
+    private void validateRequest(List<Long> stationIds, SectionRequest sectionRequest) {
         if (sectionRequest.getUpStationId().equals(sectionRequest.getDownStationId())) {
             throw new IllegalArgumentException();
         }
 
-        int containedNumber = (int) stations.stream().filter(station ->
-                station.getId().equals(sectionRequest.getDownStationId()) || station.getId().equals(sectionRequest.getUpStationId())).count();
+        int containedNumber = (int) stationIds.stream()
+                .filter(stationId -> stationId.equals(sectionRequest.getDownStationId()) ||
+                        stationId.equals(sectionRequest.getUpStationId()))
+                .count();
 
         if (containedNumber != 1) {
             throw new IllegalArgumentException();
         }
     }
 
-    private List<Station> sectionsToStations(List<Section> sections) {
-        sections = sortByOrder(sections);
-        List<Station> stations = sections.stream()
-                .map(Section::getUpStationId)
-                .map(stationDao::getById)
-                .collect(Collectors.toList());
-        Station lastStation = stationDao.getById(sections.get(sections.size() - 1).getDownStationId());
-        stations.add(lastStation);
-        return stations;
-    }
+    private List<Station> getOrderedStationsOfLine(Long lineId) {
+        OrderedSections orderedSections = new OrderedSections(sectionDao.getByLineId(lineId));
+        List<Long> orderedStationIds = orderedSections.getOrderedStationIds();
+        List<Station> stations = stationDao.batchGetByIds(orderedStationIds);
+        Map<Long, String> stationNameMap = new HashMap<>();
+        stations.forEach(station -> stationNameMap.put(station.getId(), station.getName()));
 
-    private List<Station> getLineStations(Long lineId) {
-        List<Section> sections = sectionDao.getByLineId(lineId);
-        return sectionsToStations(sections);
+        return orderedStationIds.stream()
+                .map(id -> new Station(id, stationNameMap.get(id)))
+                .collect(Collectors.toList());
     }
 }

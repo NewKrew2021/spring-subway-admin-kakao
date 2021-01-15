@@ -84,6 +84,17 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_구간_생성됨(response, 신분당선, Arrays.asList(강남역, 정자역, 양재역, 광교역));
     }
 
+    @DisplayName("지하철 노선에 여러개의 역을 앞뒤로 등록한다.")
+    @Test
+    void addLineSection5() {
+        // when
+        지하철_구간_생성_요청(신분당선, 광교역, 양재역, 2);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 강남역, 5);
+
+        // then
+        지하철_구간_생성됨(response, 신분당선, Arrays.asList(정자역, 강남역, 광교역, 양재역));
+    }
+
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다.")
     @Test
     void addLineSectionWithSameStation() {

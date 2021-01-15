@@ -5,21 +5,24 @@ public class Section {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private Long lineId;
 
     public Section() {
     }
 
-    public Section(Long id, Long upStationId, Long downStationId, int distance) {
+    public Section(Long id, Long upStationId, Long downStationId, int distance, Long lineId) {
         this.id = id;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.lineId = lineId;
     }
 
-    public Section(Long upStationId, Long downStationId, int distance) {
+    public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.lineId = lineId;
     }
 
     public Long getId() {
@@ -36,5 +39,9 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    public Long getLineId() {
+        return lineId;
     }
 }

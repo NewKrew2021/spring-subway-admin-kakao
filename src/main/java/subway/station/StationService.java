@@ -1,5 +1,7 @@
 package subway.station;
 
+import subway.exception.NotExistException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +22,11 @@ public class StationService {
     }
 
     public Station findStation(long id) {
-        return stationDao.findById(id);
+        Station station = stationDao.findById(id);
+        if (station == null) {
+            throw new NotExistException("해당 역이 존재하지 않습니다.");
+        }
+        return station;
     }
 
     public void deleteStation(long id) {

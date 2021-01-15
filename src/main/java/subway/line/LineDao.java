@@ -26,7 +26,7 @@ public class LineDao {
         try {
             return lines.stream().filter(line -> line.getId().equals(id)).findFirst().get();
         } catch (NoSuchElementException e) {
-            throw new NotExistException("해당 노선이 존재하지 않습니다.");
+            return null;
         }
     }
 
@@ -36,6 +36,21 @@ public class LineDao {
 
     public void deleteById(Long id) {
         lines.removeIf(it -> it.getId().equals(id));
+    }
+
+    public void updateById(Long id, Line line) {
+        int index = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).getId().equals(id)) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            return;
+        }
+        System.out.printf("======================%d, %d=========================\n", findById(id).getStartStationId(), findById(id).getEndStationId());
+        lines.set(index, line);
+        System.out.printf("======================%d, %d=========================\n", findById(id).getStartStationId(), findById(id).getEndStationId());
     }
 
     private Line createNewObject(Line line) {

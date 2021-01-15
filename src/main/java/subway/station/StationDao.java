@@ -23,10 +23,15 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+        stations.removeIf(station -> station.getId().equals(id));
     }
 
     public Station findById(Long id) {
+//        try {
+//            return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
+//        } catch (NoSuchElementException e) {
+//            throw new NotExistExcepton("해당 역이 존재하지 않습니다.");
+//        }
         try {
             return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
         } catch (NoSuchElementException e) {

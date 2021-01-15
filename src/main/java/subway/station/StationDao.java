@@ -1,6 +1,8 @@
 package subway.station;
 
 import org.springframework.util.ReflectionUtils;
+import subway.exception.NoContentException;
+import subway.line.Line;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -34,8 +36,21 @@ public class StationDao {
         return stations;
     }
 
+    public Station findOne(Long id) {
+        return stations.stream()
+                .filter(station -> station.getId().equals(id))
+                .findAny()
+                .orElseGet(() -> {
+                    throw new NoContentException(id + "(Station)");
+                });
+    }
+
     public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
+    }
+
+    public void deleteAll() {
+        stations.clear();
     }
 
     private Station createNewObject(Station station) {

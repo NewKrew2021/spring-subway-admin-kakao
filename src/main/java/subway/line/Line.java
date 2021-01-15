@@ -12,6 +12,7 @@ public class Line {
     private Long downStationId;
     private int distance;
     private List<Station> stations;
+    private List<Section> sections;
 
     public Line() {
     }
@@ -72,6 +73,10 @@ public class Line {
         return stations;
     }
 
+    public List<Section> getSections() {
+        return sections;
+    }
+
     public void setColor(String color) {
         this.color = color;
     }
@@ -83,4 +88,16 @@ public class Line {
     public void setDistance(int distance) {
         this.distance = distance;
     }
+
+    public void setSections(List<Section> sections) {
+        this.sections = sections;
+    }
+
+    public Section findSectionByUpStationId(Long upStationId) {
+        return sections.stream()
+                .filter(section -> section.getUpStationId().equals(upStationId))
+                .findAny()
+                .get();
+    }
+
 }

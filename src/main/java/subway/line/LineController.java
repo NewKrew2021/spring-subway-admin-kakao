@@ -26,8 +26,13 @@ public class LineController {
         stations.add(StationController.stationDao.findById(lineRequest.getUpStationId()));
         stations.add(StationController.stationDao.findById(lineRequest.getDownStationId()));
 
+        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+
         Line line = lineDao.save(new Line(lineRequest.getColor(), lineRequest.getName(),
                 lineRequest.getUpStationId(), lineRequest.getDownStationId(),lineRequest.getDistance() , stations));
+
+        lineDao.addSection(line.getId(), section);
+
         LineResponse lineResponse = new LineResponse(
                 line.getId(),
                 line.getName(),
@@ -89,10 +94,47 @@ public class LineController {
         Line line = lineDao.findById(id).get();
 
         // 상행 종점 등록
-       if(line.getUpStationId() == sectionRequest.getDownStationId()) {
+        if(line.getUpStationId() == sectionRequest.getDownStationId()) {
             line.getStations().add(0, StationController.stationDao.findById(sectionRequest.getUpStationId()));
-            line.setDistance(line.getDistance() + sectionRequest.getDistance());
+            lineDao.addSection(id, new Section(sectionRequest));
         }
+
+       // 하행 종점 등록
+        if(line.getDownStationId() == sectionRequest.getUpStationId()) {
+            line.getStations().add(StationController.stationDao.findById(sectionRequest.getDownStationId()));
+            lineDao.addSection(id, new Section(sectionRequest));
+        }
+
+        // 갈래길 방지
+        if(line.getUpStationId() == sectionRequest.getUpStationId()) {
+            Section section = line.findSectionByUpStationId(sectionRequest.getUpStationId());
+            if(section.getDistance() <= sectionRequest.getDistance()){
+                return ResponseEntity.badRequest().build();
+            }
+
+            line.getSections().add(new Section(sectionRequest.getDownStationId(), section.getDownStationId(),
+                    section.getDistance()- sectionRequest.getDistance()));
+            line.getSections().add(new Section(sectionRequest));
+            line.getSections().remove(section);
+
+            line.getStations().add(1, StationController.stationDao.findById(sectionRequest.getDownStationId()));
+        }
+
+        if(line.getDownStationId() == sectionRequest.getDownStationId()){
+            Section section = line.findSectionByUpStationId(sectionRequest.getDownStationId());
+            if(section.getDistance() <= sectionRequest.getDistance()){
+                return ResponseEntity.badRequest().build();
+            }
+
+            line.getSections().add(new Section(section.getUpStationId(), sectionRequest.getUpStationId(),
+                    section.getDistance() - sectionRequest.getDistance()));
+            line.getSections().add(new Section(sectionRequest));
+            line.getSections().remove(section);
+
+            List<Station> stations = line.getStations();
+            stations.add(stations.size()-1, StationController.stationDao.findById(sectionRequest.getDownStationId()));
+        }
+
 
        return ResponseEntity.ok().build();
     }

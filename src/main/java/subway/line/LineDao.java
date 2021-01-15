@@ -52,4 +52,13 @@ public class LineDao {
         line.setName(lineRequest.getName());
         line.setColor(lineRequest.getColor());
     }
+
+    public void addSection(Long id, Section section) {
+        Line line = lines.stream()
+                .filter(l -> l.getId().equals(id))
+                .findAny()
+                .get();
+
+        line.getSections().add(section);
+    }
 }

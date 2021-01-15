@@ -150,11 +150,6 @@ public class Line {
         }
         int distance = sections.get(selectedIndex).getDistance();
         long prevDownStationId = sections.get(selectedIndex).getDownStationId();
-
-
-        System.out.println(selectedIndex + " " + prevDownStationId + " " + "!!!!!");
-        System.out.println(sections.get(selectedIndex).getUpStationId() + " " + sections.get(selectedIndex).getDownStationId());
-        System.out.println(newSection.getUpStationId() + " " + newSection.getDownStationId());
         sections.set(selectedIndex, new Section(newSection.getDownStationId(), prevDownStationId, distance - newSection.getDistance()));
         sections.add(selectedIndex, newSection);
     }

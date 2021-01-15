@@ -16,6 +16,10 @@ public class StationController {
         this.stationDao = new StationDao();
     }
 
+    public StationDao getStationDao() {
+        return stationDao;
+    }
+
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
@@ -28,10 +32,16 @@ public class StationController {
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> res = stationDao.findAll()
                 .stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .map(Station::toDto)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping(value = "/stations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StationResponse> showStation(@PathVariable Long id) {
+        Station station = stationDao.findOne(id);
+        return ResponseEntity.ok(new StationResponse(station.getId(), station.getName()));
     }
 
     @DeleteMapping("/stations/{id}")

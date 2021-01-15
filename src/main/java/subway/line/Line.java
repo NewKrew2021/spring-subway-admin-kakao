@@ -60,25 +60,32 @@ public class Line {
         sections.remove(sections.size()-1);
     }
 
-    public void delete(Long stationId) {
-        if (sections.size() == 1) {
-            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
-        }
-        if (isDeleteStationIsFrontOrRear(stationId)){
-            deleteFrontOrRearStation(stationId);
-            return;
-        }
-
+    private void deleteStationById(Long stationId) {
         int selectedIndex = IntStream.range(1, sections.size())
-                .filter(i -> sections.get(i).getUpStationId() == stationId )
+                .filter(i -> sections.get(i).getUpStationId() == stationId)
                 .findFirst()
                 .getAsInt();
 
+        deleteStationAndMergeSection(selectedIndex);
+    }
+
+    private void deleteStationAndMergeSection(int selectedIndex) {
         long upStationId = sections.get(selectedIndex - 1).getUpStationId();
         long downStationId = sections.get(selectedIndex).getDownStationId();
         int distance = sections.get(selectedIndex - 1).getDistance() + sections.get(selectedIndex).getDistance();
         sections.set(selectedIndex - 1, new Section(upStationId, downStationId, distance));
         sections.remove(selectedIndex);
+    }
+
+    public void delete(Long stationId) {
+        if (sections.size() == 1) {
+            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
+        }
+        if (isDeleteStationIsFrontOrRear(stationId)) {
+            deleteFrontOrRearStation(stationId);
+            return;
+        }
+        deleteStationById(stationId);
     }
 
     public void save(Section newSection) {
@@ -102,15 +109,19 @@ public class Line {
     }
 
     private void saveNewSectionFront(Section newSection) {
-        if(sections.get(0).getUpStationId() == newSection.getDownStationId()) {
+        if (sections.get(0).getUpStationId() == newSection.getDownStationId()) {
             sections.add(0, newSection);
             return;
         }
-        int distance = sections.get(0).getDistance();
-        long prevDownStationId = sections.get(0).getDownStationId();
+        saveNewSectionBasedUpStation(newSection, 0);
+    }
+
+    private void saveNewSectionBasedUpStation(Section newSection, int selectedIndex) {
+        int distance = sections.get(selectedIndex).getDistance();
         validateSectionDistance(newSection, distance);
-        sections.set(0, new Section(newSection.getDownStationId(), prevDownStationId, distance - newSection.getDistance()));
-        sections.add(0, newSection);
+        long prevDownStationId = sections.get(selectedIndex).getDownStationId();
+        sections.set(selectedIndex, new Section(newSection.getDownStationId(), prevDownStationId, distance - newSection.getDistance()));
+        sections.add(selectedIndex, newSection);
     }
 
     private boolean newSectionIsRear(Section newSection) {
@@ -119,49 +130,59 @@ public class Line {
     }
 
     private void saveNewSectionRear(Section newSection) {
-        if(sections.get(sections.size()-1).getDownStationId() == newSection.getUpStationId()) {
+        if (sections.get(sections.size()-1).getDownStationId() == newSection.getUpStationId()) {
             sections.add(newSection);
             return;
         }
-        int distance = sections.get(sections.size()-1).getDistance();
-        long prevUpStationId = sections.get(sections.size()-1).getUpStationId();
-        validateSectionDistance(newSection, distance);
-        sections.set(sections.size()-1, new Section(prevUpStationId, newSection.getUpStationId(), distance - newSection.getDistance()));
-        sections.add(newSection);
+        saveNewSectionBasedDownStation(newSection, sections.size()-1);
     }
 
-    private void saveSection(Section newSection) {
+    private void saveNewSectionBasedDownStation(Section newSection, int selectedIndex) {
+        int distance = sections.get(selectedIndex).getDistance();
+        long prevUpStationId = sections.get(selectedIndex).getUpStationId();
+        validateSectionDistance(newSection, distance);
+        sections.set(selectedIndex, newSection);
+        sections.add(selectedIndex, new Section(prevUpStationId, newSection.getUpStationId(), distance - newSection.getDistance()));
+    }
+
+    private boolean isNewSectionIsFrontOrRear(Section newSection) {
+        return newSectionIsFront(newSection) || newSectionIsRear(newSection);
+    }
+
+    private void saveNewSectionFrontOrRear(Section newSection) {
         if (newSectionIsFront(newSection)) {
             saveNewSectionFront(newSection);
             return;
         }
-        if (newSectionIsRear(newSection)) {
-            saveNewSectionRear(newSection);
+        saveNewSectionRear(newSection);
+    }
+
+    private void saveSection(Section newSection) {
+        if(isNewSectionIsFrontOrRear(newSection)) {
+            saveNewSectionFrontOrRear(newSection);
             return;
         }
+        int selectedIndex = findUpStationIdFromSections(newSection.getUpStationId());
+        if (selectedIndex == -1) {
+            selectedIndex = findDownStationIdFromSections(newSection.getDownStationId());
+            saveNewSectionBasedDownStation(newSection, selectedIndex);
+            return;
+        }
+        saveNewSectionBasedUpStation(newSection, selectedIndex);
+    }
 
-        int selectedIndex = IntStream.range(0, sections.size())
-                .filter(i -> sections.get(i).getUpStationId() == newSection.getUpStationId())
+    private int findUpStationIdFromSections(Long newSectionUpStationId) {
+        return IntStream.range(0, sections.size())
+                .filter(i -> sections.get(i).getUpStationId() == newSectionUpStationId)
                 .findFirst()
                 .orElse(-1);
+    }
 
-        if(selectedIndex == -1) {
-            selectedIndex = IntStream.range(0, sections.size())
-                    .filter(i->sections.get(i).getUpStationId() == newSection.getDownStationId())
-                    .findFirst()
-                    .getAsInt();
-            int distance = sections.get(selectedIndex).getDistance();
-            validateSectionDistance(newSection, distance);
-            long prevUpStationId = sections.get(selectedIndex-1).getUpStationId();
-            sections.set(selectedIndex-1, new Section(prevUpStationId, newSection.getUpStationId(), distance - newSection.getDistance()));
-            sections.add(selectedIndex, newSection);
-            return;
-        }
-        int distance = sections.get(selectedIndex).getDistance();
-        validateSectionDistance(newSection, distance);
-        long prevDownStationId = sections.get(selectedIndex).getDownStationId();
-        sections.set(selectedIndex, new Section(newSection.getDownStationId(), prevDownStationId, distance - newSection.getDistance()));
-        sections.add(selectedIndex, newSection);
+    private int findDownStationIdFromSections(Long newSectionDownStationId) {
+        return IntStream.range(0, sections.size())
+                .filter(i->sections.get(i).getDownStationId() == newSectionDownStationId)
+                .findFirst()
+                .getAsInt();
     }
 
     private void validateSectionDistance(Section newSection, int distance) {

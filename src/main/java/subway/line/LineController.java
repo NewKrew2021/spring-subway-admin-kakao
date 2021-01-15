@@ -84,6 +84,7 @@ public class LineController {
     @PostMapping("/lines/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         Line line = lineDao.findById(id).get();
+        List<Section> sections = line.getSections();
 
         // 상행 종점 등록
         if(line.getUpStationId() == sectionRequest.getDownStationId()) {
@@ -106,36 +107,42 @@ public class LineController {
             return ResponseEntity.status(500).build();
         }
 
-        if(line.getUpStationId() == sectionRequest.getUpStationId()) {
-            Section section = line.findSectionByUpStationId(sectionRequest.getUpStationId());
-            if(section.getDistance() <= sectionRequest.getDistance()){
-                return ResponseEntity.status(500).build();
+        for (Section section : sections) {
+
+            if(section.getUpStationId() == sectionRequest.getUpStationId()) {
+                if(section.getDistance() <= sectionRequest.getDistance()){
+                    return ResponseEntity.status(500).build();
+                }
+
+                sections.add(new Section(sectionRequest.getDownStationId(), section.getDownStationId(),
+                        section.getDistance()- sectionRequest.getDistance()));
+                sections.add(new Section(sectionRequest));
+                sections.remove(section);
+
+                int index = line.getStations().indexOf(stationDao.findById(sectionRequest.getUpStationId()));
+
+                line.getStations().add(index+1, stationDao.findById(sectionRequest.getDownStationId()));
+                return ResponseEntity.ok().build();
             }
 
-            line.getSections().add(new Section(sectionRequest.getDownStationId(), section.getDownStationId(),
-                    section.getDistance()- sectionRequest.getDistance()));
-            line.getSections().add(new Section(sectionRequest));
-            line.getSections().remove(section);
+            if(section.getDownStationId() == sectionRequest.getDownStationId()){
+                if(section.getDistance() <= sectionRequest.getDistance()){
+                    return ResponseEntity.status(500).build();
+                }
 
-            line.getStations().add(1, stationDao.findById(sectionRequest.getDownStationId()));
-            return ResponseEntity.ok().build();
-        }
+                line.getSections().add(new Section(section.getUpStationId(), sectionRequest.getUpStationId(),
+                        section.getDistance() - sectionRequest.getDistance()));
+                line.getSections().add(new Section(sectionRequest));
+                line.getSections().remove(section);
 
-        if(line.getDownStationId() == sectionRequest.getDownStationId()){
-            Section section = line.findSectionByUpStationId(sectionRequest.getDownStationId());
-            if(section.getDistance() <= sectionRequest.getDistance()){
-                return ResponseEntity.status(500).build();
+                int index = line.getStations().indexOf(stationDao.findById(sectionRequest.getDownStationId()));
+
+                List<Station> stations = line.getStations();
+                stations.add(index, stationDao.findById(sectionRequest.getUpStationId()));
+                return ResponseEntity.ok().build();
             }
-
-            line.getSections().add(new Section(section.getUpStationId(), sectionRequest.getUpStationId(),
-                    section.getDistance() - sectionRequest.getDistance()));
-            line.getSections().add(new Section(sectionRequest));
-            line.getSections().remove(section);
-
-            List<Station> stations = line.getStations();
-            stations.add(stations.size()-1, stationDao.findById(sectionRequest.getDownStationId()));
-            return ResponseEntity.ok().build();
         }
+
 
         return ResponseEntity.status(500).build();
     }

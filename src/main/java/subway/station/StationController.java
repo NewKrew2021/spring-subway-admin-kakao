@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class StationController {
 
         try {
             newStation = stationDao.save(station);
-        } catch (SQLException e) {
+        } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
 

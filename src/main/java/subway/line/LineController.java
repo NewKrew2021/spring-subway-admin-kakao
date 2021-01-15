@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class LineController {
             Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
                     lineRequest.getDownStationId(), lineRequest.getDistance());
             sectionDao.save(section);
-        } catch (SQLException e) {
+        } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -74,7 +75,7 @@ public class LineController {
 
         try {
             lineDao.update(id, new Line(lineRequest.getName(), lineRequest.getColor()));
-        } catch (SQLException e) {
+        } catch (DataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

@@ -1,54 +1,50 @@
 package subway.station;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Repository
 public class StationDao {
-    private final List<Station> stations = new ArrayList<>();
-    private Long seq = 0L;
+    private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Station> stationMapper = (rs, rowNum) ->
+            new Station(rs.getLong(1), rs.getString(2));
 
-    public Station save(Station station) throws SQLException {
-        Station persistStation = createNewObject(station);
+    @Autowired
+    public StationDao(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-        if (isExists(station)) {
-            throw new SQLException();
-        }
-
-        stations.add(persistStation);
-        return persistStation;
+    public Station save(Station station) {
+        this.jdbcTemplate.update("insert into station (name) values (?)", station.getName());
+        return this.jdbcTemplate.queryForObject("select * from station where name = ?",
+                stationMapper,
+                station.getName());
     }
 
     private boolean isExists(Station station) {
-        return stations.stream()
-                .anyMatch(stationIn -> station.getName().equals(stationIn.getName()));
+        return this.jdbcTemplate.queryForObject(
+                "select count(*) from station where name = ?", Integer.class, station.getName()) > 0;
     }
 
     public Station getById(Long id) {
-        return stations.stream()
-                .filter(station -> station.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return this.jdbcTemplate.queryForObject(
+                "select * from station where id = ?",
+                stationMapper,
+                id);
     }
 
     public List<Station> findAll() {
-        return Collections.unmodifiableList(stations);
+        return this.jdbcTemplate.query(
+                "select * from station",
+                stationMapper
+        );
     }
 
     public boolean deleteById(Long id) {
-        return stations.removeIf(it -> it.getId().equals(id));
-    }
-
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+        return this.jdbcTemplate.update("delete from station where id = ?", id) > 0;
     }
 }

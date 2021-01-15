@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.util.ReflectionUtils;
+import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 import subway.line.Line;
 
@@ -22,18 +23,15 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        return stations.stream()
+        stations.stream()
                 .filter(value -> value.getName().equals(station.getName()))
                 .findAny()
-                .orElseGet(() -> {
-                    Station persistStation = createNewObject(station);
-                    stations.add(persistStation);
-                    return persistStation;
+                .ifPresent(existed -> {
+                    throw new DuplicateNameException(station.getName());
                 });
-    }
-
-    public List<Station> findAll() {
-        return stations;
+        Station persistStation = createNewObject(station);
+        stations.add(persistStation);
+        return persistStation;
     }
 
     public Station findOne(Long id) {
@@ -43,6 +41,10 @@ public class StationDao {
                 .orElseGet(() -> {
                     throw new NoContentException(id + "(Station)");
                 });
+    }
+
+    public List<Station> findAll() {
+        return stations;
     }
 
     public void deleteById(Long id) {

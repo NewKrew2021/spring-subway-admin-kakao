@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LineDao {
+
     private static final LineDao instance = new LineDao();
     private static final List<Line> lines = new ArrayList<>();
     private Long seq = 0L;
@@ -25,12 +26,38 @@ public class LineDao {
         lines.stream()
                 .filter(value -> value.getName().equals(line.getName()))
                 .findAny()
-                .ifPresent(val -> {
+                .ifPresent(existed -> {
                     throw new DuplicateNameException(line.getName());
                 });
         Line persistLine = createNewObject(line);
         lines.add(persistLine);
         return persistLine;
+    }
+
+    public Line findOne(Long id) {
+        return lines.stream()
+                .filter(line -> line.getId().equals(id))
+                .findAny()
+                .orElseGet(() -> {
+                    throw new NoContentException(id + "(Line)");
+                });
+    }
+
+    public List<Line> findAll() {
+        return lines;
+    }
+
+    public Line update(Long id, Line sourceLine) {
+        Line destLine = findOne(id);
+        return updateOldObject(sourceLine, destLine);
+    }
+
+    public void deleteById(Long id) {
+        lines.removeIf(it -> it.getId().equals(id));
+    }
+
+    public void deleteAll() {
+        lines.clear();
     }
 
     private Line createNewObject(Line line) {
@@ -50,32 +77,5 @@ public class LineDao {
                             ReflectionUtils.getField(field, sourceLine));
                 });
         return destLine;
-    }
-    
-    
-    public List<Line> findAll() {
-        return lines;
-    }
-
-    public Line findOne(Long id) {
-        return lines.stream()
-                .filter(line -> line.getId().equals(id))
-                .findAny()
-                .orElseGet(() -> {
-                    throw new NoContentException(id + "(Line)");
-                });
-    }
-
-    public Line update(Long id, Line sourceLine) {
-        Line destLine = findOne(id);
-        return updateOldObject(sourceLine, destLine);
-    }
-
-    public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
-    }
-
-    public void deleteAll() {
-        lines.clear();
     }
 }

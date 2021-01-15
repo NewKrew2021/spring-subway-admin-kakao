@@ -54,4 +54,15 @@ public class LineController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/lines/{lineId}/sections")
+    public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
+        Line line = lineDao.getLine(lineId);
+        SectionType sectionType = line.checkSectionType(sectionRequest); //종착지인경우 exception
+        if( sectionType == SectionType.EXCEPTION ) {
+            return ResponseEntity.badRequest().build();
+        }
+        line.addSection(sectionRequest, sectionType);
+        return ResponseEntity.ok().build();
+    }
+
 }

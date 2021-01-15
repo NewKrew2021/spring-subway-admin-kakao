@@ -1,17 +1,21 @@
-package subway.line;
+package subway.dao;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import subway.domain.Line;
+import subway.utils.TableRefresher;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+@DisplayName("노선 데이터 엑세스 관련 기능")
 @SpringBootTest
 public class LineDaoTest {
     private final Line 분당선 = new Line("분당선", "노랑");
@@ -23,17 +27,11 @@ public class LineDaoTest {
     JdbcTemplate jdbcTemplate;
 
     @BeforeEach
-    public void dropTable() {
-        jdbcTemplate.execute("DROP TABLE line IF EXISTS");
-        jdbcTemplate.execute("create table if not exists LINE\n" +
-                "(\n" +
-                "    id bigint auto_increment not null,\n" +
-                "    name varchar(255) not null unique,\n" +
-                "    color varchar(20) not null,\n" +
-                "    primary key(id)\n" +
-                ");");
+    public void refreshLine() {
+        TableRefresher.refreshLine(jdbcTemplate);
     }
 
+    @DisplayName("데이터베이스에 지하철 노선을 생성한다.")
     @Test
     public void saveTest() {
         assertThat(lineDao.save(분당선).getName()).isEqualTo(분당선.getName());
@@ -41,6 +39,7 @@ public class LineDaoTest {
                 lineDao.save(new Line("분당선", "빨강"))).isInstanceOf(DataAccessException.class);
     }
 
+    @DisplayName("데이터베이스의 지하철 노선을 수정한다.")
     @Test
     public void updateTest() {
         lineDao.save(분당선);
@@ -51,6 +50,7 @@ public class LineDaoTest {
                 lineDao.update(2L, 분당선)).isInstanceOf(DataAccessException.class);
     }
 
+    @DisplayName("데이터베이스의 지하철 노선을 전부 조회한다.")
     @Test
     public void findAllTest() {
         lineDao.save(분당선);
@@ -58,12 +58,14 @@ public class LineDaoTest {
         assertThat(lineDao.findAll()).containsExactlyElementsOf(Arrays.asList(분당선, 신분당선));
     }
 
+    @DisplayName("데이터베이스의 지하철 노선을 조회한다.")
     @Test
     public void getByIdTest() {
         lineDao.save(분당선);
         assertThat(lineDao.getById(1L)).isEqualTo(분당선);
     }
 
+    @DisplayName("데이터베이스의 지하철 노선을 삭제한다.")
     @Test
     public void deleteByIdTest() {
         lineDao.save(분당선);

@@ -1,5 +1,6 @@
-package subway.station;
+package subway.dao;
 
+import subway.domain.Station;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

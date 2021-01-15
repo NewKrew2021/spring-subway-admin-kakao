@@ -1,12 +1,20 @@
-package subway.line;
+package subway.controller;
 
+import subway.dao.LineDao;
+import subway.dao.SectionDao;
+import subway.domain.Line;
+import subway.domain.Section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.domain.Station;
+import subway.request.LineRequest;
+import subway.request.SectionRequest;
+import subway.response.LineResponse;
+import subway.response.SectionResponse;
+import subway.dao.StationDao;
 
 import java.net.URI;
 import java.util.*;

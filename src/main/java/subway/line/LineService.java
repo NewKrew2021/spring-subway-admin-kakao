@@ -27,19 +27,19 @@ public class LineService {
     public LineResponse createLine(LineRequest lineRequest) {
         List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());
 
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId());
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
         Line newLine = lineDao.save(line);
 
-        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
-        sectionService.createSection(section);
+        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(),line.getId());
+        sectionDao.save(section);
 
         return new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
     }
 
     private List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
         List<StationResponse> stations = new ArrayList<>();
-        Station upStation = stationService.findStation(upStationId);
-        Station downStation = stationService.findStation(downStationId);
+        Station upStation = stationDao.findById(upStationId);
+        Station downStation = stationDao.findById(downStationId);
         stations.add(new StationResponse(upStation.getId(), upStation.getName()));
         stations.add(new StationResponse(downStation.getId(), downStation.getName()));
         return stations;
@@ -63,10 +63,12 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
-    public LineResponse getLine(long id) {
+    public Line getLine(long id) {
         Line line = lineDao.findById(id);
-        List<StationResponse> stations = sectionService.getStationsOfLine(line);
-
-        return new LineResponse(line.getId(), line.getName(), line.getColor(), stations);
+        if (line == null) {
+            throw new NotExistException("해당 노선이 존재하지 않습니다.");
+        }
+        return line;
     }
+
 }

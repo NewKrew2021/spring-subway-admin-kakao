@@ -13,7 +13,7 @@ public class LineDaoTest {
     @DisplayName("id가 일치하는 노선을 반환한다.")
     public void findById_ifExist() {
         LineDao lineDao = new LineDao();
-        lineDao.save(new Line(1L, "신분당선", "빨간색",1L));
+        lineDao.save(new Line(1L, "신분당선", "빨간색",1L, 2L));
         assertThat(lineDao.findById(1L).getId()).isEqualTo(1L);
     }
 
@@ -21,7 +21,7 @@ public class LineDaoTest {
     @DisplayName("id가 일치하는 노선이 존재하지 않으면 예외 발생.")
     public void findById_ifNotExist() {
         LineDao lineDao = new LineDao();
-        lineDao.save(new Line(1L, "신분당선", "빨간색",1L));
+        lineDao.save(new Line(1L, "신분당선", "빨간색",1L, 2L));
         assertThatExceptionOfType(NotExistException.class).isThrownBy(() -> {
             lineDao.findById(3L).getId();
         }).withMessageMatching("해당 노선이 존재하지 않습니다.");

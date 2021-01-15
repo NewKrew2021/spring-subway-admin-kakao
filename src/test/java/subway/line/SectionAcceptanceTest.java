@@ -82,6 +82,16 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_구간_등록_실패됨(response);
     }
 
+    @DisplayName("이미 존재하는 구간의 길이가 새롭게 추가하려는 노선의 길이보다 같거나 짧다.")
+    @Test
+    void addLineSectionWithInvalidDistance() {
+        //when
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 양재역, 10);
+
+        // then
+        지하철_구간_등록_실패됨(response);
+    }
+
     @DisplayName("지하철 노선에 등록된 지하철역을 제외한다.")
     @Test
     void removeLineSection1() {

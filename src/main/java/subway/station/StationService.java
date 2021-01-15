@@ -20,7 +20,11 @@ public class StationService {
     }
 
     public Station findStation(long id) {
-        return stationDao.findById(id);
+        Station station = stationDao.findById(id);
+        if (station == null) {
+            throw new NotExistException("해당 역이 존재하지 않습니다.");
+        }
+        return station;
     }
 
     public void deleteStation(long id) {

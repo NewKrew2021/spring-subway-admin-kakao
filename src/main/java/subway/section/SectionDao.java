@@ -25,6 +25,23 @@ public class SectionDao {
         }
     }
 
+    public void updateSection(long id, Section section) {
+        int index = -1;
+        for (int i = 0; i < sections.size(); i++) {
+            if (sections.get(i).getId().equals(id)) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            return;
+        }
+        sections.set(index, new Section(id, section.getUpStationId(), section.getDownStationId(),section.getDistance(),section.getLineId()));
+    }
+
+    public void deleteById(long id) {
+        sections.removeIf(section -> section.getId().equals(id));
+    }
+
     private Section createNewObject(Section section) {
         Field field = ReflectionUtils.findField(Section.class, "id");
         field.setAccessible(true);

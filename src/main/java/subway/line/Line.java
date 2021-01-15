@@ -5,6 +5,7 @@ public class Line {
     private String name;
     private String color;
     private Long startStationId;
+    private Long endStationId;
 
     public Line() {
     }
@@ -14,12 +15,14 @@ public class Line {
         this.name = name;
         this.color = color;
         this.startStationId = startStationId;
+        this.endStationId = endStationId;
     }
 
-    public Line(String name, String color, Long startStationId) {
+    public Line(String name, String color, Long startStationId, Long endStationId) {
         this.name = name;
         this.color = color;
         this.startStationId = startStationId;
+        this.endStationId = endStationId;
     }
 
     public Long getId() {

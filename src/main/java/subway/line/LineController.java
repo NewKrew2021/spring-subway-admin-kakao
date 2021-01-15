@@ -14,9 +14,11 @@ import static subway.Container.*;
 public class LineController {
 
     private final LineService lineService;
+    private final SectionService sectionService;
 
     public LineController() {
         this.lineService = new LineService();
+        this.sectionService = new SectionService();
     }
 
     @PostMapping("/lines")
@@ -41,7 +43,9 @@ public class LineController {
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
-        LineResponse lineResponse = lineService.getLine(id);
+        Line line = lineService.getLine(id);
+        List<StationResponse> stations = sectionService.getStationsOfLine(line);
+        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stations);
         return ResponseEntity.ok().body(lineResponse);
     }
 

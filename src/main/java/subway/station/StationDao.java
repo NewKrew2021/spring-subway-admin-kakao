@@ -10,6 +10,9 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Repository
 public class StationDao {
@@ -30,7 +33,11 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        return stations;
+        String sql = "select * from STATION";
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+        return rows.stream()
+                .map(row -> new Station((Long)row.get("id"), row.get("name").toString()))
+                .collect(Collectors.toList());
     }
 
     public Station findOne(Long stationId){

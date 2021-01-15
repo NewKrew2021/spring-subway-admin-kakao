@@ -1,6 +1,8 @@
 package subway.line;
 
 public class Section {
+    private Long id;
+    private Long lineId;
     private Long upStationId;
     private Long downStationId;
     private int distance;
@@ -8,7 +10,8 @@ public class Section {
     public Section() {
     }
 
-    public Section(Long upStationId, Long downStationId, int distance) {
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+        this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
@@ -24,5 +27,9 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    public void add(Section section) {
+
     }
 }

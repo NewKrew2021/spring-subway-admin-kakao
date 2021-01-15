@@ -49,15 +49,13 @@ public class LineDao {
         return lines;
     }
 
-    public static Line updateLine(Long id, Line newLine) {
-        Optional<Line> line = findById(id);
+    public static Line updateLine(Long id, LineRequest lineRequest) {
+        Line line = findById(id).get();
         if(line == null) {
             throw new IllegalArgumentException();
         }
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, newLine, id);
-        lines.set(lines.indexOf(line.get()), newLine);
+        Line newLine = new Line(id, lineRequest.getName(), lineRequest.getColor(), line.getSections());
+        lines.set(lines.indexOf(line), newLine);
         return newLine;
     }
 

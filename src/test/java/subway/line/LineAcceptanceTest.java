@@ -54,6 +54,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void createLineWithDuplicateName() {
         // given
+        // 신분당선 , 강남역, 광교역
         지하철_노선_등록되어_있음(lineRequest1);
 
         // when

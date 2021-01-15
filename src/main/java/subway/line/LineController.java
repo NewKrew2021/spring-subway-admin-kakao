@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import subway.exceptions.DuplicateLineNameException;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
 import subway.station.StationResponse;
@@ -21,8 +22,8 @@ public class LineController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
-    @ExceptionHandler(InvalidLineArgumentException.class)
-    public ResponseEntity<String> badRequestErrorHandler(InvalidLineArgumentException e) {
+    @ExceptionHandler({InvalidLineArgumentException.class, DuplicateLineNameException.class})
+    public ResponseEntity<String> badRequestErrorHandler(RuntimeException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
@@ -68,9 +69,7 @@ public class LineController {
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        Line newLine = new Line(lineRequest.getName(), lineRequest.getColor());
-        LineDao.updateLine(id, newLine);
-
+        LineDao.updateLine(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
@@ -90,9 +89,9 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(path = "/lines/{lineId}/sections", params = "stationId={stationId}")
-    public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @PathVariable(name = "stationId") Long stationId) {
+    @DeleteMapping(path = "/lines/{lineId}/sections")
+    public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @RequestParam(name = "stationId") Long stationId) {
         LineDao.deleteSectionById(lineId, stationId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,14 +1,11 @@
-package subway.line;
+package subway.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.Station;
+import subway.line.*;
 import subway.station.StationDao;
-
-import javax.websocket.server.PathParam;
-import java.net.URI;
 
 @RestController
 public class SectionController {

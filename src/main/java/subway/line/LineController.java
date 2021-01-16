@@ -4,7 +4,8 @@ package subway.line;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.StationDao;
+import subway.section.Section;
+import subway.section.SectionDao;
 
 import java.net.URI;
 import java.util.List;

@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -6,7 +6,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {

@@ -1,9 +1,9 @@
-package subway.line;
+package subway.section;
 
+import subway.line.Line;
+import subway.section.Section;
+import subway.section.SectionDao;
 import subway.station.StationDao;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SectionService {
 

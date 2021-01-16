@@ -1,13 +1,12 @@
 package subway.station;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -22,16 +21,16 @@ public class StationController {
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation = stationDao.save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        StationResponse stationResponse = new StationResponse(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> stationResponses = new ArrayList<>();
-        for (Station station : stationDao.findAll()) {
-            stationResponses.add(new StationResponse(station.getId(), station.getName()));
-        }
+        List<StationResponse> stationResponses = stationDao.findAll()
+                .stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(stationResponses);
     }

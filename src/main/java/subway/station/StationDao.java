@@ -2,41 +2,68 @@ package subway.station;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.Statement;import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        String sql = "insert into station (name) values (?)";
+
+        KeyHolder keyHoler = new org.springframework.jdbc.support.GeneratedKeyHolder();
+
+        jdbcTemplate.update(e -> {
+                    java.sql.PreparedStatement preparedStatement = e.prepareStatement(
+                    sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, station.getName());
+            return preparedStatement;
+            }, keyHoler);
+
+        Long id = (long) keyHoler.getKey();
+        return new Station(id, station.getName());
     }
 
     public List<Station> findAll() {
-        return stations;
+        String sql = "select * from station";
+        return jdbcTemplate.query(
+                sql,
+                (resultSet,rowNum)->{
+                    Station station = new Station(
+                            resultSet.getLong("id"),
+                            resultSet.getString("name")
+            );
+            return station;
+        });
     }
 
     public Station findById (Long id){
-        return stations.stream()
-                .filter(station -> station.getId().equals(id))
-                .findAny()
-                .get();
+        String sql = "select * from station where id = ?";
+        return jdbcTemplate.queryForObject(
+                sql,
+                (resultSet, rowNum) -> {
+                    Station station = new Station(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name")
+                    );
+                    return station;
+                }, id);
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+        String sql = "delete from station where id = ?";
+        jdbcTemplate.update(sql,id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
-    }
 }

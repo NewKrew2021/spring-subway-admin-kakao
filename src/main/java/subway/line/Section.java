@@ -27,10 +27,15 @@ public class Section {
         this.distance = distance;
     }
 
-    public Section(SectionRequest sectionRequest){
+    public Section(Long lineId, SectionRequest sectionRequest){
+        this.lineId = lineId;
         this.upStationId = sectionRequest.getUpStationId();
         this.downStationId = sectionRequest.getDownStationId();
         this.distance = sectionRequest.getDistance();
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Long getLineId() {
@@ -54,7 +59,8 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return distance == section.distance && Objects.equals(lineId, section.lineId) && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
+        return Objects.equals(lineId, section.lineId) && (Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId)
+        || Objects.equals(upStationId, section.downStationId) && Objects.equals(downStationId, section.upStationId));
     }
 
     @Override

@@ -1,63 +1,79 @@
 package subway.line;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.*;
 
 @Repository
 public class LineDao {
-    private Long seq = 0L;
-    private List<Line> lines = new ArrayList<>();
+    private JdbcTemplate jdbcTemplate;
+
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
 
     public Line save(Line line) {
-        Line persistStation = createNewObject(line);
-        lines.add(persistStation);
-        return persistStation;
+        String sql = "insert into line (name, color) values (?,?)";
+
+        KeyHolder keyHoler = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(e -> {
+            PreparedStatement preparedStatement = e.prepareStatement(sql,
+                    Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, line.getName());
+            preparedStatement.setString(2, line.getColor());
+
+            return preparedStatement;
+        }, keyHoler);
+
+        Long id = (long) keyHoler.getKey();
+        return new Line(id, line.getName(), line.getColor());
     }
 
     public List<Line> findAll() {
-        return lines;
+        String sql = "select * from line";
+        return jdbcTemplate.query(
+                sql,
+                (resultSet,rowNum)->
+                    new Line(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("color")
+                    )
+                );
     }
 
-    public Optional<Line> findByName(String name) {
-         return lines.stream()
-                .filter(line -> line.getName().equals(name))
-                .findAny();
-    }
 
-    public Optional<Line> findById(Long id) {
-        return lines.stream()
-                .filter(line -> line.getId().equals(id))
-                .findAny();
+    public Line findById(Long id) {
+        String sql = "select * from line where id = ?";
+        return jdbcTemplate.queryForObject(
+                sql,
+                (resultSet,rowNum)->
+                    new Line(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("color")
+                    )
+                ,id);
     }
 
     public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+        jdbcTemplate.update("delete from line where id = ?", id);
     }
 
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
-    }
 
     public void modify(Long id, LineRequest lineRequest) {
-        Line line = lines.stream()
-                .filter(l -> l.getId().equals(id))
-                .findAny()
-                .get();
-        line.setName(lineRequest.getName());
-        line.setColor(lineRequest.getColor());
+        jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
+                id, lineRequest.getName(), lineRequest.getColor());
     }
 
-    public void addSection(Long id, Section section) {
-        Line line = lines.stream()
-                .filter(l -> l.getId().equals(id))
-                .findAny()
-                .get();
-        line.getSections().add(section);
+    public int findByName(String name) {
+        String sql = "select count(*) from line where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 }

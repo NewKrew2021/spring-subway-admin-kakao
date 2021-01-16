@@ -22,7 +22,7 @@ import static subway.station.StationAcceptanceTest.지하철역_등록되어_있
 @DisplayName("지하철 노선 관련 기능")
 public class LineAcceptanceTest extends AcceptanceTest {
     private StationResponse 강남역;
-    private StationResponse downStation;
+    private StationResponse 광교역;
     private LineRequest lineRequest1;
     private LineRequest lineRequest2;
 
@@ -31,10 +31,10 @@ public class LineAcceptanceTest extends AcceptanceTest {
         super.setUp();
         // given
         강남역 = 지하철역_등록되어_있음("강남역");
-        downStation = 지하철역_등록되어_있음("광교역");
+        광교역 = 지하철역_등록되어_있음("광교역");
 
-        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
-        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), 광교역.getId(), 10);
+        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), 광교역.getId(), 15);
     }
 
     @DisplayName("지하철 노선을 생성한다.")
@@ -108,13 +108,11 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteLine() {
         // given
-        LineResponse lineResponse1 = 지하철_노선_등록되어_있음(lineRequest1);
+        LineResponse lineResponse = 지하철_노선_등록되어_있음(lineRequest1);
 
         // when
-        ExtractableResponse<Response> response1 = 지하철_노선_제거_요청(lineResponse1);
-
-        LineResponse lineResponse2 = new LineResponse(new Line("역역", "빨강"), new ArrayList<>());
-        ExtractableResponse<Response> response2 = 지하철_노선_제거_요청(lineResponse2);
+        ExtractableResponse<Response> response1 = 지하철_노선_제거_요청(lineResponse);
+        ExtractableResponse<Response> response2 = 지하철_노선_제거_요청(lineResponse);
 
         // then
         지하철_노선_삭제됨(response1);

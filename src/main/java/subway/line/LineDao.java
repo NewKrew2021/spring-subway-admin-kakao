@@ -40,7 +40,6 @@ public class LineDao {
         );
     }
 
-    // TODO 변경할 이름이 이미 존재할 경우 - 테스트 하나 만들어서 해볼것.
     public void update(Long id, Line line) {
         this.jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
                 line.getName(), line.getColor(), id);

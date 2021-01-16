@@ -14,7 +14,6 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
-    // TODO 뭔진 모르겠지만 default 생성자가 필요.
     public LineResponse() {
     }
 

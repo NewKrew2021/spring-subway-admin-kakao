@@ -2,9 +2,11 @@ package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.InvalidIdException;
 import subway.station.Station;
 import subway.station.StationDao;
 
@@ -26,19 +28,22 @@ public class LineController {
         this.sectionDao = sectionDao;
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity illegalArgumentExceptionHandler() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(value = {DataAccessException.class, InvalidIdException.class})
+    public ResponseEntity exceptionHandler() {
+        return ResponseEntity.badRequest().build();
+    }
+
     @PostMapping("")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        Line newLine;
-
-        try {
-            newLine = lineDao.save(line);
-            Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
-                    lineRequest.getDownStationId(), lineRequest.getDistance());
-            sectionDao.save(section);
-        } catch (DataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
+        Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(), lineRequest.getDistance());
+        sectionDao.save(section);
 
         LineResponse lineResponse = new LineResponse(newLine, getLineStations(newLine.getId()));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
@@ -56,31 +61,25 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.getById(id);
         List<Station> stations = getLineStations(id);
-
-        if (line != null) {
-            return ResponseEntity.ok().body(new LineResponse(line, stations));
+        if (line == null) {
+            throw new InvalidIdException("존재하지 않는 Line ID 입니다. Line ID : " + id);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().body(new LineResponse(line, stations));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-
-        try {
-            lineDao.update(id, new Line(lineRequest.getName(), lineRequest.getColor()));
-        } catch (DataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        lineDao.update(id, new Line(lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         boolean response = lineDao.deleteById(id);
-        if (response) {
-            return ResponseEntity.noContent().build();
+        if (!response) {
+            throw new InvalidIdException("존재하지 않는 Line ID 입니다. Line ID : " + id);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.noContent().build();
     }
 
     // TODO ExceptionHandler 작성
@@ -155,6 +154,7 @@ public class LineController {
         return new SectionResponse(newSection);
     }
 
+    // Todo
     private void validateDistance(Section sectionToSplit, SectionRequest sectionRequest) {
         if (sectionRequest.getDistance() <= 0
                 || sectionToSplit.getDistance() < sectionRequest.getDistance()) {

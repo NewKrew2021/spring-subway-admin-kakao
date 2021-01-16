@@ -18,6 +18,9 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
+        if (stationDao.existsBy(stationRequest.getName())) {
+            throw new IllegalArgumentException("이미 등록된 지하철역 입니다.");
+        }
         Station station = new Station(stationRequest.getName());
         Station newStation = stationDao.save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
@@ -36,10 +39,5 @@ public class StationController {
     public ResponseEntity<Void> deleteStation(@PathVariable Long id) {
         stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

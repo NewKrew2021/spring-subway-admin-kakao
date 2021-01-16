@@ -1,8 +1,11 @@
 package subway.line;
 
+import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.LineNotFoundException;
+import subway.exception.StationNotFoundException;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionFactory;
@@ -33,14 +36,18 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor());
-        Line newLine = lineDao.save(line);
+        if (lineDao.existBy(lineRequest.getName())) {
+            throw new IllegalArgumentException("이미 등록된 지하철 노선 입니다.");
+        }
 
-        List<Section> sections = SectionFactory.createInitialSections(newLine.getId(),
+        Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
+
+        List<Section> sections = SectionFactory.createInitialSections(
+                newLine.getId(),
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
-                lineRequest.getDistance());
+                lineRequest.getDistance()
+        );
 
         for (Section section : sections) {
             sectionDao.save(section);
@@ -52,8 +59,7 @@ public class LineController {
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("노선이 존재하지 않습니다."));
+        Line line = lineDao.findById(id).orElseThrow(() -> new LineNotFoundException(id));
         List<Station> stations = getStationsByLine(line);
 
         List<StationResponse> stationResponses = stations.stream()
@@ -73,7 +79,11 @@ public class LineController {
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateLine(@RequestBody LineRequest lineRequest, @PathVariable Long id) {
         Line line = new Line(id, lineRequest.getName(), lineRequest.getColor());
-        lineDao.update(line);
+        try {
+            lineDao.update(line);
+        } catch (IncorrectUpdateSemanticsDataAccessException e) {
+            throw new LineNotFoundException(line.getId());
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -87,10 +97,12 @@ public class LineController {
     public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         List<Section> sections = sectionDao.findByLineId(lineId);
 
-        Section newSection = new Section(lineId,
+        Section newSection = new Section(
+                lineId,
                 sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(),
-                sectionRequest.getDistance());
+                sectionRequest.getDistance()
+        );
 
         Section insertableSection = findInsertableSection(sections, newSection);
         Section residualSection = insertableSection.getDifferenceSection(newSection);
@@ -123,16 +135,6 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
     private List<Station> getStationsByLine(Line line) {
         List<Section> sections = sectionDao.findByLineId(line.getId());
         Map<Long, Section> sectionCache = sections.stream()
@@ -145,8 +147,11 @@ public class LineController {
 
         List<Station> stations = new ArrayList<>();
         while (!curr.isDownTerminal()) {
-            stationDao.findById(curr.getDownStationId())
-                    .ifPresent(stations::add);
+            Long id = curr.getId();
+            stations.add(
+                    stationDao.findById(curr.getDownStationId())
+                            .orElseThrow(() -> new StationNotFoundException(id))
+            );
 
             curr = sectionCache.get(curr.getDownStationId());
         }

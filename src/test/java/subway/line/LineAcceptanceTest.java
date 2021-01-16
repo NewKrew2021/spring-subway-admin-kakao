@@ -102,7 +102,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선_응답_실패됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     public static void 지하철_노선_응답됨(ExtractableResponse<Response> response, LineResponse lineResponse) {

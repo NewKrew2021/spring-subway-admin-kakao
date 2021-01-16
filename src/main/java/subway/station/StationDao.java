@@ -23,15 +23,12 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        if (isExist(station.getName())) {
-            throw new IllegalStateException("이미 등록된 지하철역 입니다.");
-        }
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
                     "insert into station (name) values(?)",
-                    Statement.RETURN_GENERATED_KEYS);
+                    Statement.RETURN_GENERATED_KEYS
+            );
             psmt.setString(1, station.getName());
             return psmt;
         }, keyHolder);
@@ -40,16 +37,8 @@ public class StationDao {
         return new Station(id, station.getName());
     }
 
-    private boolean isExist(String name) {
-        return jdbcTemplate.queryForObject("select count(*) from station where name = ?", int.class, name) != 0;
-    }
-
     public List<Station> findAll() {
         return jdbcTemplate.query("select * from station", new StationMapper());
-    }
-
-    public void deleteById(Long id) {
-        jdbcTemplate.update("delete from station where id = ?", id);
     }
 
     public Optional<Station> findById(long id) {
@@ -58,6 +47,14 @@ public class StationDao {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+
+    public boolean existsBy(String name) {
+        return jdbcTemplate.queryForObject("select count(*) from station where name = ?", int.class, name) != 0;
+    }
+
+    public void deleteById(Long id) {
+        jdbcTemplate.update("delete from station where id = ?", id);
     }
 
     private final static class StationMapper implements RowMapper<Station> {

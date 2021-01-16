@@ -105,7 +105,7 @@ public class LineController {
         );
 
         Section insertableSection = findInsertableSection(sections, newSection);
-        Section residualSection = insertableSection.getDifferenceSection(newSection);
+        Section residualSection = insertableSection.subtractWith(newSection);
 
         sectionDao.delete(insertableSection);
         sectionDao.save(newSection);
@@ -127,7 +127,7 @@ public class LineController {
 
         Section first = connectedSections.get(0);
         Section second = connectedSections.get(1);
-        Section joinedSection = first.getJoinedSection(second);
+        Section joinedSection = first.mergeWith(second);
 
         sectionDao.delete(first);
         sectionDao.delete(second);

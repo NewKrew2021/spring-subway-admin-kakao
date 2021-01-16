@@ -38,10 +38,9 @@ public class StationController {
         return ResponseEntity.ok().body(response);
     }
 
-    // TODO 구간에서 사용중인 역 삭제 불가처리 해야함.
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        boolean response = stationService.deleteLine(id);
+        boolean response = stationService.deleteStation(id);
         return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 }

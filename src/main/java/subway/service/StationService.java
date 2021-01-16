@@ -30,7 +30,10 @@ public class StationService {
                 .collect(Collectors.toList());
     }
 
-    public boolean deleteLine(Long id) {
-        return stationDao.deleteById(id);
+    public boolean deleteStation(Long id) {
+        if (!stationDao.isUsingInSection(id)) {
+            return stationDao.deleteById(id);
+        }
+        return false;
     }
 }

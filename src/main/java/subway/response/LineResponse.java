@@ -18,9 +18,9 @@ public class LineResponse {
     public LineResponse(Line line, List<Station> stations) {
         this(line.getId(), line.getName(), line.getColor(),
                 Collections.unmodifiableList(
-                stations.stream()
-                        .map(StationResponse::new)
-                        .collect(Collectors.toList()))
+                        stations.stream()
+                                .map(StationResponse::new)
+                                .collect(Collectors.toList()))
         );
     }
 

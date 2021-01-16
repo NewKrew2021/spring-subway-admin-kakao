@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.Station;
 import subway.request.LineRequest;
@@ -28,6 +29,7 @@ public class LineController {
         this.sectionService = sectionService;
     }
 
+    @Transactional
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         try {
@@ -64,7 +66,7 @@ public class LineController {
         }
     }
 
-    // TODO 노선에 종속된 구간도 제거해야함.
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         boolean response = lineService.deleteLine(id);
@@ -73,6 +75,7 @@ public class LineController {
 
     // TODO 공통적 ExceptionHandler 작성
     // TODO 구간에 명시된 상행, 하행역이 실존하는지 확인해야함.
+    @Transactional
     @PostMapping(value = "/{id}/sections", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> addSectionToLine(@RequestBody SectionRequest sectionRequest,
                                                             @PathVariable Long id) {
@@ -86,6 +89,7 @@ public class LineController {
         }
     }
 
+    @Transactional
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteStationFromLine(@PathVariable Long lineId, @RequestParam Long stationId) {
         try {

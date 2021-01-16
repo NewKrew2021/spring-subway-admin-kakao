@@ -60,7 +60,7 @@ public class SectionService {
         Section sectionToSplit = orderedSections.findSectionToSplit(sectionToAdd);
         validateDistance(sectionToSplit.getDistance(), sectionToAdd.getDistance());
 
-        // 기존의 구간을 지우고, 두 구간으로 나누어 저장해야 한다. TODO 트랜젝션
+        // 기존의 구간을 지우고, 두 구간으로 나누어 저장해야 한다.
         Section newSection = sectionDao.save(sectionToAdd);
         sectionDao.save(getAnotherSection(sectionToSplit, sectionToAdd));
         sectionDao.deleteById(sectionToSplit.getId());
@@ -114,7 +114,7 @@ public class SectionService {
 
     private void deleteSectionFromMiddleOfLine(Section upsideSection, Section downsideSection) {
         Section newSection = mergedSection(upsideSection, downsideSection);
-        // 두 구간 사이의 역이 없어졌으므로, 두 구간을 합친다. TODO 트렌잭션
+        // 두 구간 사이의 역이 없어졌으므로, 두 구간을 합친다.
         sectionDao.deleteById(downsideSection.getId());
         sectionDao.deleteById(upsideSection.getId());
         sectionDao.save(newSection);

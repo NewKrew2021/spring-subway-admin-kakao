@@ -3,6 +3,7 @@ package subway.domain;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO 테스트 작성
 public class OrderedSections {
     private final List<Section> orderedSections = new ArrayList<>();
 
@@ -41,11 +42,11 @@ public class OrderedSections {
                 getLastStation().equals(section.getUpStationId());
     }
 
-    private Long getFirstStation(){
+    private Long getFirstStation() {
         return orderedSections.get(0).getUpStationId();
     }
 
-    private Long getLastStation(){
+    private Long getLastStation() {
         return orderedSections.get(orderedSections.size() - 1).getDownStationId();
     }
 

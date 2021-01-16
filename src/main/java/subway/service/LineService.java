@@ -44,6 +44,7 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
+    // TODO 테스트 작성, 일급객체 분리
     public List<Station> getOrderedStationsOfLine(Long lineId) {
         // 구간들이 있어야 역들의 순서를 맞출 수 있다.
         OrderedSections orderedSections = new OrderedSections(sectionDao.getByLineId(lineId));
@@ -68,6 +69,7 @@ public class LineService {
     }
 
     public boolean deleteLine(Long id) {
+        sectionDao.deleteAllByLineId(id);
         return lineDao.deleteById(id);
     }
 }

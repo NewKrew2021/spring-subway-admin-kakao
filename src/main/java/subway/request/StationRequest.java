@@ -10,7 +10,7 @@ public class StationRequest {
         this.name = name;
     }
 
-    public Station getDomain(){
+    public Station getDomain() {
         return new Station(name);
     }
 

@@ -57,7 +57,7 @@ public class StationDaoTest {
 
     @DisplayName("데이터베이스의 지하철역 목록을 조회한다.")
     @Test
-    public void findAll() {
+    public void findAllTest() {
         stationDao.save(강남역);
         stationDao.save(역삼역);
         assertThat(stationDao.findAll()).containsExactlyElementsOf(Arrays.asList(강남역, 역삼역));

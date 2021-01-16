@@ -4,7 +4,7 @@ public class Sql {
     // 테이블 제거 관련
     public static final String DROP_STATION_TABLE = "drop table station if exists";
     public static final String DROP_LINE_TABLE = "drop table line if exists";
-    public static final String DROP_SECTION_TABLE = "DROP TABLE section IF EXISTS";
+    public static final String DROP_SECTION_TABLE = "drop table section if exists";
 
     // 테이블 생성 관련
     public static final String CREATE_STATION_TABLE = "create table if not exists station\n" +
@@ -37,6 +37,9 @@ public class Sql {
     public static final String BATCH_SELECT_FROM_STATION = "select * from station where id in (:ids)";
     public static final String SELECT_ALL_STATIONS = "select * from station";
     public static final String DELETE_STATION_WITH_ID = "delete from station where id = ?";
+    public static final String SELECT_STATION_USAGE_COUNT_IN_SECTION = "select count(*) from (" +
+            "select up_station_id as id from section union select down_station_id as id from section" +
+            ") where id = ?;";
 
     // Line 관련
     public static final String INSERT_LINE = "insert into line (name, color) values (?, ?)";
@@ -49,4 +52,5 @@ public class Sql {
     // Section 관련
     public static final String SELECT_SECTION_WITH_LINE_ID = "select * from section where line_id = ?";
     public static final String DELETE_SECTION_WITH_ID = "delete from section where id = ?";
+    public static final String DELETE_ALL_SECTION_WITH_LINE_ID = "delete from section where line_id = ?";
 }

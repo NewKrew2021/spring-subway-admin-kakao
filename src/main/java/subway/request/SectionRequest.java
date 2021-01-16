@@ -19,7 +19,7 @@ public class SectionRequest {
         this.distance = distance;
     }
 
-    public Section getDomain(){
+    public Section getDomain() {
         return new Section(lineId, upStationId, downStationId, distance);
     }
 

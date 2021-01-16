@@ -33,13 +33,13 @@ public class SectionDaoTest {
 
     @DisplayName("데이터베이스에 지하철 구간을 생성한다.")
     @Test
-    public void save() {
+    public void saveTest() {
         assertThat(sectionDao.save(섹션1)).isEqualTo(섹션1);
     }
 
     @DisplayName("데이터베이스의 지하철 구간 목록을 노선 아이디 기준으로 조회한다.")
     @Test
-    public void getByLineId() {
+    public void getByLineIdTest() {
         sectionDao.save(섹션1);
         sectionDao.save(섹션2);
         sectionDao.save(섹션3);
@@ -50,7 +50,7 @@ public class SectionDaoTest {
 
     @DisplayName("데이터베이스의 지하철 구간을 제거한다.")
     @Test
-    public void deleteById() {
+    public void deleteByIdTest() {
         sectionDao.save(섹션1);
         assertThat(sectionDao.deleteById(1L)).isTrue();
         assertThat(sectionDao.deleteById(1L)).isFalse();

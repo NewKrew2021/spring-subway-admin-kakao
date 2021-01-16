@@ -1,6 +1,5 @@
 package subway.dao;
 
-import subway.domain.Section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import subway.domain.Section;
 import subway.query.Sql;
 
 import javax.sql.DataSource;
@@ -22,7 +22,7 @@ public class SectionDao {
                     rs.getLong(4), rs.getInt(5));
 
     @Autowired
-    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource){
+    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
         this.jdbcTemplate = jdbcTemplate;
         this.insertActor = new SimpleJdbcInsert(dataSource)
                 .withTableName("section")
@@ -42,5 +42,9 @@ public class SectionDao {
 
     public boolean deleteById(Long sectionId) {
         return jdbcTemplate.update(Sql.DELETE_SECTION_WITH_ID, sectionId) > 0;
+    }
+
+    public boolean deleteAllByLineId(Long lineId) {
+        return jdbcTemplate.update(Sql.DELETE_ALL_SECTION_WITH_LINE_ID, lineId) > 0;
     }
 }

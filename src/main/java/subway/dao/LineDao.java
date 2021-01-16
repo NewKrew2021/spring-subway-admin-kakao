@@ -16,7 +16,7 @@ public class LineDao {
             new Line(rs.getLong(1), rs.getString(2), rs.getString(3));
 
     @Autowired
-    public LineDao(JdbcTemplate jdbcTemplate){
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

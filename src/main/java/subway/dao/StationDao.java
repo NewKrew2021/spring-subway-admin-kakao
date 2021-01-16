@@ -1,13 +1,13 @@
 package subway.dao;
 
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import subway.domain.Station;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
+import subway.domain.Station;
 import subway.query.Sql;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class StationDao {
             new Station(rs.getLong(1), rs.getString(2));
 
     @Autowired
-    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate){
+    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.parameterJdbcTemplate = parameterJdbcTemplate;
     }
@@ -57,5 +57,10 @@ public class StationDao {
 
     public boolean deleteById(Long stationId) {
         return this.jdbcTemplate.update(Sql.DELETE_STATION_WITH_ID, stationId) > 0;
+    }
+
+    public boolean isUsingInSection(Long stationId) {
+        return this.jdbcTemplate.queryForObject(
+                Sql.SELECT_STATION_USAGE_COUNT_IN_SECTION, Integer.class, stationId) > 0;
     }
 }

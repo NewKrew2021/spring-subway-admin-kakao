@@ -31,6 +31,6 @@ public class StationService {
     }
 
     public boolean deleteStation(Long id) {
-            return stationDao.deleteById(id);
+        return stationDao.deleteById(id);
     }
 }

@@ -3,7 +3,6 @@ package subway.domain;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO 테스트 작성
 public class OrderedSections {
     private final List<Section> orderedSections = new ArrayList<>();
 

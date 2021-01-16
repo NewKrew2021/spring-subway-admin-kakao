@@ -40,7 +40,11 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        boolean response = stationService.deleteStation(id);
-        return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+        try {
+            boolean response = stationService.deleteStation(id);
+            return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+        } catch (DataAccessException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

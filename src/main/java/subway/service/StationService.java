@@ -31,9 +31,6 @@ public class StationService {
     }
 
     public boolean deleteStation(Long id) {
-        if (!stationDao.isUsingInSection(id)) {
             return stationDao.deleteById(id);
-        }
-        return false;
     }
 }

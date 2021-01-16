@@ -2,32 +2,32 @@ package subway.query;
 
 public class Sql {
     // 테이블 제거 관련
-    public static final String DROP_STATION_TABLE = "drop table station if exists";
-    public static final String DROP_LINE_TABLE = "drop table line if exists";
-    public static final String DROP_SECTION_TABLE = "drop table section if exists";
+    public static final String DROP_STATION_TABLE = "drop table station if exists cascade";
+    public static final String DROP_LINE_TABLE = "drop table line if exists cascade ";
+    public static final String DROP_SECTION_TABLE = "drop table section if exists cascade";
 
     // 테이블 생성 관련
-    public static final String CREATE_STATION_TABLE = "create table if not exists station\n" +
+    public static final String CREATE_STATION_TABLE = "create table if not exists STATION\n" +
             "(\n" +
-            "    id bigint auto_increment not null,\n" +
-            "    name varchar(255) not null unique,\n" +
-            "    primary key(id)\n" +
+            "    id   bigint auto_increment not null,\n" +
+            "    name varchar(255)          not null unique,\n" +
+            "    primary key (id)\n" +
             ");";
-    public static final String CREATE_LINE_TABLE = "create table if not exists line\n" +
+    public static final String CREATE_LINE_TABLE = "create table if not exists LINE\n" +
             "(\n" +
-            "    id bigint auto_increment not null,\n" +
-            "    name varchar(255) not null unique,\n" +
-            "    color varchar(20) not null,\n" +
-            "    primary key(id)\n" +
+            "    id    bigint auto_increment not null,\n" +
+            "    name  varchar(255)          not null unique,\n" +
+            "    color varchar(20)           not null,\n" +
+            "    primary key (id)\n" +
             ");";
     public static final String CREATE_SECTION_TABLE = "create table if not exists SECTION\n" +
             "(\n" +
-            "    id bigint auto_increment not null,\n" +
-            "    line_id bigint not null,\n" +
-            "    up_station_id bigint not null,\n" +
-            "    down_station_id bigint not null,\n" +
-            "    distance int,\n" +
-            "    primary key(id)\n" +
+            "    id              bigint auto_increment not null,\n" +
+            "    line_id         bigint                not null references LINE (id),\n" +
+            "    up_station_id   bigint                not null references STATION (id),\n" +
+            "    down_station_id bigint                not null references STATION (id),\n" +
+            "    distance        int,\n" +
+            "    primary key (id)\n" +
             ");";
 
     // Station 관련
@@ -37,9 +37,6 @@ public class Sql {
     public static final String BATCH_SELECT_FROM_STATION = "select * from station where id in (:ids)";
     public static final String SELECT_ALL_STATIONS = "select * from station";
     public static final String DELETE_STATION_WITH_ID = "delete from station where id = ?";
-    public static final String SELECT_STATION_USAGE_COUNT_IN_SECTION = "select count(*) from (" +
-            "select up_station_id as id from section union select down_station_id as id from section" +
-            ") where id = ?;";
 
     // Line 관련
     public static final String INSERT_LINE = "insert into line (name, color) values (?, ?)";

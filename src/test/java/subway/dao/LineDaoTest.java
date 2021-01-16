@@ -22,13 +22,13 @@ public class LineDaoTest {
     private final Line 신분당선 = new Line("신분당선", "초록");
     private final Line 수인선 = new Line("수인선", "파랑");
     @Autowired
-    LineDao lineDao;
+    private LineDao lineDao;
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void refreshLine() {
-        TableRefresher.refreshLine(jdbcTemplate);
+        TableRefresher.refreshTables(jdbcTemplate);
     }
 
     @DisplayName("데이터베이스에 지하철 노선을 생성한다.")

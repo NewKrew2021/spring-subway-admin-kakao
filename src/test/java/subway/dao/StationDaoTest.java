@@ -23,13 +23,13 @@ public class StationDaoTest {
     private final Station 서현역 = new Station("서현역");
 
     @Autowired
-    StationDao stationDao;
+    private StationDao stationDao;
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void refreshStation() {
-        TableRefresher.refreshStation(jdbcTemplate);
+        TableRefresher.refreshTables(jdbcTemplate);
     }
 
     @DisplayName("데이터베이스의 지하철역을 생성한다.")

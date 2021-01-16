@@ -58,9 +58,4 @@ public class StationDao {
     public boolean deleteById(Long stationId) {
         return this.jdbcTemplate.update(Sql.DELETE_STATION_WITH_ID, stationId) > 0;
     }
-
-    public boolean isUsingInSection(Long stationId) {
-        return this.jdbcTemplate.queryForObject(
-                Sql.SELECT_STATION_USAGE_COUNT_IN_SECTION, Integer.class, stationId) > 0;
-    }
 }

@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import subway.domain.Line;
 import subway.domain.Section;
+import subway.domain.Station;
 import subway.utils.TableRefresher;
 
 import java.util.Arrays;
@@ -22,13 +24,22 @@ public class SectionDaoTest {
     private final Section 섹션3 = new Section(2L, 2L, 3L, 5);
 
     @Autowired
-    SectionDao sectionDao;
+    private SectionDao sectionDao;
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private StationDao stationDao;
+    @Autowired
+    private LineDao lineDao;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void refreshSection() {
-        TableRefresher.refreshSection(jdbcTemplate);
+        TableRefresher.refreshTables(jdbcTemplate);
+        stationDao.save(new Station("수서역"));
+        stationDao.save(new Station("서현역"));
+        stationDao.save(new Station("수내역"));
+        lineDao.save(new Line("분당선", "노랑"));
+        lineDao.save(new Line("신분당선", "빨강"));
     }
 
     @DisplayName("데이터베이스에 지하철 구간을 생성한다.")

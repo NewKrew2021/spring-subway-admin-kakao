@@ -74,7 +74,6 @@ public class LineController {
     }
 
     // TODO 공통적 ExceptionHandler 작성
-    // TODO 구간에 명시된 상행, 하행역이 실존하는지 확인해야함.
     @Transactional
     @PostMapping(value = "/{id}/sections", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> addSectionToLine(@RequestBody SectionRequest sectionRequest,

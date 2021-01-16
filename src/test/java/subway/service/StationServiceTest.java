@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
@@ -12,6 +13,7 @@ import subway.request.StationRequest;
 import subway.utils.TableRefresher;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DisplayName("지하철역 서비스 관련 기능")
 @SpringBootTest
@@ -39,8 +41,8 @@ public class StationServiceTest {
 
         lineService.createLine(new LineRequest("분당선", "노랑", 1L, 2L, 3));
         sectionService.addSectionToLine(new SectionRequest(1L, 2L, 3L, 3));
-        assertThat(stationService.deleteStation(2L)).isFalse();
-        assertThat(stationService.deleteStation(3L)).isFalse();
+        assertThatThrownBy(() -> stationService.deleteStation(2L)).isInstanceOf(DataAccessException.class);
+        assertThatThrownBy(() -> stationService.deleteStation(3L)).isInstanceOf(DataAccessException.class);
 
         sectionService.deleteStationFromLine(1L, 2L);
         assertThat(stationService.deleteStation(2L)).isTrue();

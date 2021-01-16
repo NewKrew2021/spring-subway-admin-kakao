@@ -96,7 +96,7 @@ public class SectionControllerTest extends ControllerTest {
 
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다.")
     @Test
-    void addLineSectionWithSameStation() {
+    void addLineSectionWithDuplicateStation() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
 
@@ -109,6 +109,16 @@ public class SectionControllerTest extends ControllerTest {
     void addLineSectionWithNoStation() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 양재역, 3);
+
+        // then
+        지하철_구간_등록_실패됨(response);
+    }
+
+    @DisplayName("지하철 노선에 똑같은 역을 2개 등록한다.")
+    @Test
+    void addLineSectionWithSameStation() {
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 양재역, 3);
 
         // then
         지하철_구간_등록_실패됨(response);

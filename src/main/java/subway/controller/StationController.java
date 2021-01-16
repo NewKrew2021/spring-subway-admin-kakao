@@ -1,7 +1,6 @@
 package subway.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +23,8 @@ public class StationController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        try {
-            StationResponse stationResponse = stationService.createStation(stationRequest);
-            return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
-        } catch (DataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        StationResponse stationResponse = stationService.createStation(stationRequest);
+        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -40,11 +35,7 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        try {
-            boolean response = stationService.deleteStation(id);
-            return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
-        } catch (DataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        boolean response = stationService.deleteStation(id);
+        return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 }

@@ -14,20 +14,16 @@ import java.util.List;
 
 @RestController
 public class StationController {
-
     @Autowired
     StationDao stationDao;
-    @Autowired
-    private SectionDao sectionDao;
-    @Autowired
-    private LineDao lineDao;
+
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-//        if(stationDao.hasSameStationName(station)){
-//            return ResponseEntity.badRequest().build();
-//        }
+        if(stationDao.hasSameStationName(station)){
+            return ResponseEntity.badRequest().build();
+        }
 
         stationDao.save(station);
 

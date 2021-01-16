@@ -19,12 +19,9 @@ import java.util.stream.Collectors;
 @Repository
 public class StationDao {
 
-
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public StationDao(){
-        jdbcTemplate=new JdbcTemplate();
-    }
     private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
         Station station = new Station(
                 resultSet.getLong("id"),
@@ -40,19 +37,13 @@ public class StationDao {
 
     public Station findById(Long id){
         String sql="select * from station where id=?";
-        return jdbcTemplate.queryForObject(sql,new Long[]{id}, actorRowMapper);
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
+
     public Station findByName(String name){
         System.out.println(name);
-        return jdbcTemplate.queryForObject("Select * from station where name=?",	new Object[] {name},
-                new RowMapper<Station>() {
-                    public Station mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Station station = new Station();
-                        station.setId(rs.getLong("id"));
-                        station.setName(rs.getString("name"));
-                        return station;
-                    }
-                    } );
+        String sql = "Select * from station where name=?";
+        return jdbcTemplate.queryForObject(sql,	actorRowMapper, name);
 
     }
 
@@ -63,7 +54,9 @@ public class StationDao {
 
 
     public List<Station> findAll() {
-        return jdbcTemplate.queryForList("select * from station",Station.class);
+
+        return jdbcTemplate.query("select * from station",actorRowMapper);
+
     }
 
     public void deleteById(Long id) {

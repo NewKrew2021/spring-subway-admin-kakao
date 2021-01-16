@@ -11,14 +11,32 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.util.LinkedList;
 import java.util.List;
 
 @Repository
 public class SectionDao {
-    LinkedList<Section> sections;
+    public static final int FIRST_INDEX = 0;
+    public static final int MIN_SECTION_SIZE = 1;
+    public static final int SECOND_INDEX = 1;
 
     private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    public SectionDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    }
+    private final RowMapper<Section> actorRowMapper = (resultSet, rowNum) -> {
+        Section section = new Section(
+                resultSet.getLong("id"),
+                resultSet.getLong("line_id"),
+                resultSet.getLong("up_station_id"),
+                resultSet.getLong("down_station_id"),
+                resultSet.getInt("distance")
+        );
+        return section;
+    };
 
     public Section save(Section section) {
         String sql = "insert into section (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)";

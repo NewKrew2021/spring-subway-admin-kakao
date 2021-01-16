@@ -1,11 +1,16 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
-import subway.line.Line;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
 
+@Repository
 public class StationDao {
     private JdbcTemplate jdbcTemplate;
 
@@ -36,18 +41,18 @@ public class StationDao {
         return persistStation;
     }
 
-    public static List<Station> findAll() {
-        return stations;
+    public List<Station> findAll() {
+        String sql = "select id, name from station";
+        return jdbcTemplate.query(sql, actorRowMapper);
     }
 
-    public static void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+    public void deleteById(Long id) {
+        String sql = "delete from station where id = ?";
+        jdbcTemplate.update(sql, id);
     }
 
-    public static Station findById(Long stationId) {
-        return stations.stream()
-                .filter(station -> station.getId() == stationId)
-                .findFirst()
-                .orElse(null);
+    public Station findById(Long id) {
+        String sql = "select id, name from station where id = ?";
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 }

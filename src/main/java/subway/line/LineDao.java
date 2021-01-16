@@ -34,8 +34,18 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
+        String sql = "insert into line (name, color) values (?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "id" });
+            ps.setString(1, line.getName());
+            ps.setString(2, line.getColor());
+            return ps;
+        }, keyHolder);
+
+        Line persistLine = new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
+
         return persistLine;
     }
 
@@ -45,17 +55,17 @@ public class LineDao {
     }
 
     public Line findById(Long id) {
-        return lines.stream()
-                .filter(it -> it.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        String sql = "select id, name, color from line where id = ?";
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 
     public Line findByName(String name) {
-        return lines.stream()
-                .filter(it -> it.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+        String sql = "select id, name, color from line where name = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public void update(Line originLine, Line updateLine) {

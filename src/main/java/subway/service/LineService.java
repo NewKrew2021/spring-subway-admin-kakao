@@ -5,16 +5,11 @@ import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
-import subway.domain.Line;
-import subway.domain.OrderedSections;
-import subway.domain.Section;
-import subway.domain.Station;
+import subway.domain.*;
 import subway.request.LineRequest;
 import subway.response.LineResponse;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,23 +39,17 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
-    // TODO 테스트 작성, 일급객체 분리
-    public List<Station> getOrderedStationsOfLine(Long lineId) {
+    public OrderedStations getOrderedStationsOfLine(Long lineId) {
         // 구간들이 있어야 역들의 순서를 맞출 수 있다.
         OrderedSections orderedSections = new OrderedSections(sectionDao.getByLineId(lineId));
-        List<Long> orderedStationIds = orderedSections.getOrderedStationIds();
-        List<Station> stations = stationDao.batchGetByIds(orderedStationIds);
-        Map<Long, String> stationNameMap = new HashMap<>();
-        stations.forEach(station -> stationNameMap.put(station.getId(), station.getName()));
+        List<Station> stations = stationDao.batchGetByIds(orderedSections.getOrderedStationIds());
 
-        return orderedStationIds.stream()
-                .map(id -> new Station(id, stationNameMap.get(id)))
-                .collect(Collectors.toList());
+        return new OrderedStations(orderedSections, stations);
     }
 
     public LineResponse getLine(Long id) {
         Line line = lineDao.getById(id);
-        List<Station> stations = getOrderedStationsOfLine(id);
+        OrderedStations stations = getOrderedStationsOfLine(id);
         return new LineResponse(line, stations);
     }
 

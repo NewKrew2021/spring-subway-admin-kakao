@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.domain.Line;
+import subway.domain.OrderedStations;
 import subway.request.LineRequest;
 import subway.response.LineResponse;
 import subway.response.StationResponse;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,8 +145,7 @@ public class LineControllerTest extends ControllerTest {
     @Test
     void deleteLineNonExist() {
         // given
-        LineResponse lineResponse = new LineResponse(new Line("수인선", "빨강"), new ArrayList<>());
-
+        LineResponse lineResponse = new LineResponse(new Line("수인선", "빨강"), new OrderedStations());
         // when
         ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
 

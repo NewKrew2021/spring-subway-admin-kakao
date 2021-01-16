@@ -5,7 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import subway.domain.Station;
+import subway.domain.OrderedStations;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
 import subway.response.LineResponse;
@@ -73,20 +73,20 @@ public class LineController {
     @Transactional
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteStationFromLine(@PathVariable Long lineId, @RequestParam Long stationId) {
-        List<Station> stations = lineService.getOrderedStationsOfLine(lineId);
+        OrderedStations stations = lineService.getOrderedStationsOfLine(lineId);
         validateDeletable(stationId, stations);
         sectionService.deleteStationFromLine(lineId, stationId);
         return ResponseEntity.noContent().build();
     }
 
-    private void validateLineId(Long id, Long lineId) {
+    private static void validateLineId(Long id, Long lineId) {
         if (!id.equals(lineId)) {
             throw new IllegalArgumentException();
         }
     }
 
-    private void validateDeletable(Long stationId, List<Station> stations) {
-        if (stations.stream().noneMatch(station -> station.getId().equals(stationId)) || stations.size() <= 2) {
+    private static void validateDeletable(Long stationId, OrderedStations orderedStations) {
+        if (!orderedStations.hasStation(stationId) || orderedStations.size() <= 2) {
             throw new IllegalArgumentException();
         }
     }

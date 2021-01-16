@@ -2,7 +2,7 @@ package subway.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import subway.domain.Line;
-import subway.domain.Station;
+import subway.domain.OrderedStations;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +15,10 @@ public class LineResponse {
     // private final int extraFare;
     private final List<StationResponse> stations;
 
-    public LineResponse(Line line, List<Station> stations) {
+    public LineResponse(Line line, OrderedStations stations) {
         this(line.getId(), line.getName(), line.getColor(),
                 Collections.unmodifiableList(
-                        stations.stream()
+                        stations.getOrderedStations().stream()
                                 .map(StationResponse::new)
                                 .collect(Collectors.toList()))
         );

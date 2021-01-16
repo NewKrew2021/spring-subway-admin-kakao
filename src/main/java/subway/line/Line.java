@@ -1,11 +1,8 @@
 package subway.line;
 
-import subway.exception.NoContentException;
-import subway.exception.TwoStationException;
 import subway.station.Station;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class Line {
     private Long id;
@@ -32,12 +29,11 @@ public class Line {
         if (sections.isEmpty()) {
             return sections.insertFirstSection(upStation, downStation, distance);
         }
-
-        return sections.makeAndInsertSection(upStation, downStation, distance);
+        return sections.insertSection(upStation, downStation, distance);
     }
 
-    public void deleteStation(Long stationId) {
-        sections.deleteStation(stationId);
+    public void deleteStation(Station station) {
+        sections.deleteStation(station);
     }
 
     public Long getId() {

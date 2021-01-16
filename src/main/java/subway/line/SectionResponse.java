@@ -1,5 +1,7 @@
 package subway.line;
 
+import subway.station.Station;
+
 public class SectionResponse {
     private Long upStationId;
     private Long downStationId;

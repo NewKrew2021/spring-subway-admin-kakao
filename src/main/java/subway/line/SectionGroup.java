@@ -6,74 +6,89 @@ import subway.station.Station;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SectionGroup {
-    
+
     private final List<Section> sections;
-    
+
     public SectionGroup() {
         sections = new ArrayList<>();
     }
 
     public Section insertFirstSection(Station upStation, Station downStation, int distance) {
-        sections.add(new Section(null, upStation, Integer.MAX_VALUE / 2));
+        sections.add(new Section(null, upStation, Integer.MAX_VALUE));
         sections.add(new Section(upStation, downStation, distance));
-        sections.add(new Section(downStation, null, Integer.MAX_VALUE / 2));
+        sections.add(new Section(downStation, null, Integer.MAX_VALUE));
         return sections.get(1);
     }
 
-    public Section makeAndInsertSection(Station upStation, Station downStation, int distance) {
-        int targetIndex = -1;
+    public Section insertSection(Station upStation, Station downStation, int distance) {
+        int insertedIndex = findInsertedSectionIndex(upStation, downStation);
 
-        int upIndex = IntStream.range(1, sections.size())
-                .filter(i -> sections.get(i).getUpStation().getId().equals(upStation.getId()))
-                .findAny()
-                .orElse(-1);
-
-        int downIndex = IntStream.range(0, sections.size() - 1)
-                .filter(i -> sections.get(i).getDownStation().getId().equals(downStation.getId()))
-                .findAny()
-                .orElse(-1);
-
-        if ((upIndex == -1) == (downIndex == -1)) {
-            throw new NoContentException("둘 중 하나만 -1이여야함!");
-        }
-
-        if (distance >= sections.get(upIndex * downIndex * -1).getDistance()) {
+        if (distance >= sections.get(insertedIndex).getDistance()) {
             throw new NoContentException("길이가 맞지 않음");
         }
 
-        if (upIndex != -1) {
-            Section present = sections.get(upIndex);
-            sections.set(upIndex, new Section(downStation, present.getDownStation(), present.getDistance() - distance));
-            sections.add(upIndex, new Section(upStation, downStation, distance));
-            targetIndex = upIndex;
-        }
-
-        if (downIndex != -1) {
-            Section present = sections.get(downIndex);
-            sections.set(downIndex, new Section(upStation, downStation, distance));
-            sections.add(downIndex, new Section(present.getUpStation(), upStation, present.getDistance() - distance));
-            targetIndex = downIndex + 1;
-        }
-
-        return sections.get(targetIndex);
+        Section insertedSection = new Section(upStation, downStation, distance);
+        divideSection(insertedSection, insertedIndex);
+        return insertedSection;
     }
 
-    public void deleteStation(Long stationId) {
+    private int findInsertedSectionIndex(Station upStation, Station downStation) {
+        int upIndex = findSectionIndexWithUpStation(upStation).orElse(-1);
+        int downIndex = findSectionIndexWithDownStation(downStation).orElse(-1);
+
+        if ((upIndex == -1) == (downIndex == -1)) {
+            throw new NoContentException("두 역이 모두 없거나 있으면 안 된다.");
+        }
+
+        return upIndex * downIndex * (-1);
+    }
+
+    private void divideSection(Section insertedSection, int insertedIndex) {
+        Section present = sections.get(insertedIndex);
+        int dividedDistance = present.getDistance() - insertedSection.getDistance();
+
+        if (present.shareUpStation(insertedSection)) {
+            sections.set(insertedIndex, new Section(insertedSection.getDownStation(), present.getDownStation(), dividedDistance));
+        }
+
+        if (present.shareDownStation(insertedSection)) {
+            sections.set(insertedIndex, new Section(present.getUpStation(), insertedSection.getUpStation(), dividedDistance));
+            insertedIndex += 1;
+        }
+
+        sections.add(insertedIndex, insertedSection);
+    }
+
+    public void deleteStation(Station station) {
         if (sections.size() <= 3) {
             throw new TwoStationException();
         }
-        int sectionIndex = IntStream.range(1, sections.size())
-                .filter(i -> sections.get(i).getUpStation().getId().equals(stationId))
-                .findAny()
-                .orElseThrow(() -> new NoContentException("삭제 하려는데 데이터가 없습니다."));
-        sections.set(sectionIndex, new Section(sections.get(sectionIndex - 1).getUpStation(),
-                sections.get(sectionIndex).getDownStation(),
-                sections.get(sectionIndex - 1).getDistance() + sections.get(sectionIndex).getDistance()));
-        sections.remove(sectionIndex - 1);
+        int deletedIndex = findSectionIndexWithUpStation(station)
+                .orElseThrow(() -> new NoContentException("삭제하려는 역이 없습니다."));
+
+        Station upBound = sections.get(deletedIndex - 1).getUpStation();
+        Station downBound = sections.get(deletedIndex).getDownStation();
+        int combinedDistance = sections.get(deletedIndex - 1).getDistance() + sections.get(deletedIndex).getDistance();
+
+        sections.set(deletedIndex - 1, new Section(upBound, downBound, combinedDistance));
+        sections.remove(deletedIndex);
+    }
+
+    private OptionalInt findSectionIndexWithUpStation(Station station) {
+        return IntStream.range(1, sections.size())
+                .filter(i -> sections.get(i).isUpStation(station))
+                .findAny();
+    }
+
+    private OptionalInt findSectionIndexWithDownStation(Station station) {
+        return IntStream.range(0, sections.size() - 1)
+                .filter(i -> sections.get(i).isDownStation(station))
+                .findAny();
     }
 
     public List<Station> getStations() {

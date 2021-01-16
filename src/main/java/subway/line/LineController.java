@@ -3,6 +3,7 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.Station;
 import subway.station.StationDao;
 
 import java.net.URI;
@@ -62,7 +63,8 @@ public class LineController {
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> deleteStationOnLine(@PathVariable Long lineId, @RequestParam("stationId") Long stationId) {
         Line line = lineDao.findOne(lineId);
-        line.deleteStation(stationId);
+        Station station = stationDao.findOne(stationId);
+        line.deleteStation(station);
         return ResponseEntity.noContent().build();
     }
 

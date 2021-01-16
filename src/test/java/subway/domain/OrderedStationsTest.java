@@ -1,6 +1,7 @@
 package subway.domain;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class OrderedStationsTest {
         );
     }
 
+    @DisplayName("상행부터 하행 순으로 나열된 지하철역 받아오기.")
     @Test
     public void getOrderedStationsTest() {
         assertThat(orderedStations.getOrderedStations()).containsExactlyElementsOf(
@@ -43,6 +45,7 @@ public class OrderedStationsTest {
         );
     }
 
+    @DisplayName("지하철역을 포함하고 있는지 확인하기.")
     @Test
     public void hasStationTest() {
         assertThat(orderedStations.hasStation(1L)).isTrue();

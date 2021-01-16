@@ -55,6 +55,7 @@ public class LineServiceTest {
         assertThat(sectionDao.getByLineId(1L)).isEqualTo(Collections.emptyList());
     }
 
+    @DisplayName("지하철 노선들을 기반으로 지하철역을 상행부터 하행 순으로 정렬한다.")
     @Test
     public void getOrderedStationsOfLineTest() {
         assertThat(lineService.getOrderedStationsOfLine(1L).getOrderedStations()).isEqualTo(Arrays.asList(

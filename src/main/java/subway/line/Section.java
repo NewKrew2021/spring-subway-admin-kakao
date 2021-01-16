@@ -3,6 +3,8 @@ package subway.line;
 import java.util.Objects;
 
 public class Section {
+    private Long id;
+    private Long lineId;
     private Long upStationId;
     private Long downStationId;
     private int distance;
@@ -10,7 +12,16 @@ public class Section {
     public Section() {
     }
 
-    public Section(Long upStationId, Long downStationId, int distance) {
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
+        this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
@@ -20,6 +31,10 @@ public class Section {
         this.upStationId = sectionRequest.getUpStationId();
         this.downStationId = sectionRequest.getDownStationId();
         this.distance = sectionRequest.getDistance();
+    }
+
+    public Long getLineId() {
+        return lineId;
     }
 
     public Long getUpStationId() {
@@ -39,12 +54,11 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return (Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId)) ||
-                (Objects.equals(upStationId, section.downStationId) && Objects.equals(downStationId, section.upStationId));
+        return distance == section.distance && Objects.equals(lineId, section.lineId) && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(upStationId, downStationId, distance);
+        return Objects.hash(lineId, upStationId, downStationId, distance);
     }
 }

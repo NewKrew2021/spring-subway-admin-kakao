@@ -1,58 +1,43 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import subway.exceptions.DuplicateStationException;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import subway.section.*;
 
+@Repository
 public class StationDao {
-    private static Long seq = 0L;
-    private static List<Station> stations = new ArrayList<>();
+    private JdbcTemplate jdbcTemplate;
 
-    private static StationDao instance;
-    public static StationDao getInstance(){
-        if(instance == null)
-            instance = new StationDao();
-        return instance;
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
-    private StationDao(){}
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        try{
+            String SQL = "insert into STATION (name) values (?)";
+            int stationId = jdbcTemplate.update(SQL, new Object[]{station.getName()});
+
+            return findById(Long.valueOf(stationId));
+        } catch (DataIntegrityViolationException e){
+            throw new DuplicateStationException();
+        }
     }
 
     public List<Station> findAll() {
-        return stations;
+        return this.jdbcTemplate.query("SELECT * FROM STATION",
+                (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")));
     }
 
-    public Station findById(Long id) {
-        return stations.stream()
-                .filter(station -> station.getId()==id)
-                .collect(Collectors.toList()).get(0);
-    }
-
-    public List<Station> findByName(String name) {
-        return stations.stream()
-                .filter(station -> station.getName().equals(name))
-                .collect(Collectors.toList());
+    public Station findById(Long stationId) {
+        return this.jdbcTemplate.queryForObject("SELECT * FROM STATION where id = ?",
+                (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")),
+                stationId);
     }
 
     public void deleteById(Long id) {
-        if(subway.section.SectionDao.getInstance().contain(id)){
-            throw new subway.exceptions.InvalidValueException();
-        }
-        stations.removeIf(it -> it.getId().equals(id));
-    }
-
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+        jdbcTemplate.update("delete from STATION where id = ?", id);
     }
 }

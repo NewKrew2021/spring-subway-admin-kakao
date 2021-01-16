@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.*;import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.hamcrest.Matchers.is;
 
 @DisplayName("지하철역 관련 기능")
 public class StationAcceptanceTest extends AcceptanceTest {
@@ -82,8 +83,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/stations")
                 .then().log().all()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(is("DuplicateStationException"));
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     public static boolean 지하철역_삭제_확인(String name){

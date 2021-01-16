@@ -26,7 +26,7 @@ public class Sql {
             "    line_id         bigint                not null references LINE (id),\n" +
             "    up_station_id   bigint                not null references STATION (id),\n" +
             "    down_station_id bigint                not null references STATION (id),\n" +
-            "    distance        int,\n" +
+            "    distance        int check (distance >= 1 and distance <= 100000),\n" +
             "    primary key (id)\n" +
             ");";
 

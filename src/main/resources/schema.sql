@@ -19,6 +19,6 @@ create table if not exists SECTION
     line_id         bigint                not null references LINE (id),
     up_station_id   bigint                not null references STATION (id),
     down_station_id bigint                not null references STATION (id),
-    distance        int,
+    distance        int check (distance >= 1 and distance <= 100000),
     primary key (id)
 );

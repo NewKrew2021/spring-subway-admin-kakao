@@ -13,7 +13,14 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private List<Section> sections;
+
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId){
+        this.id = id;
+        this.name= name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+    }
 
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
@@ -21,8 +28,7 @@ public class Line {
         this.upStationId = lineRequest.getUpStationId();
         this.downStationId = lineRequest.getDownStationId();
         this.distance = lineRequest.getDistance();
-        this.sections = new LinkedList<>(Arrays.asList(
-                new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance())));
+
     }
 
     public void modify(LineRequest lineRequest) {
@@ -56,10 +62,6 @@ public class Line {
 
     public int getDistance() {
         return distance;
-    }
-
-    public List<Section> getSections() {
-        return sections;
     }
 
     public void setUpStationId(Long upStationId) {

@@ -15,6 +15,8 @@ public class SectionController {
     StationDao stationDao;
     @Autowired
     LineDao lineDao;
+    @Autowired
+    SectionService sectionService;
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest){
 
@@ -26,10 +28,7 @@ public class SectionController {
 
         Line nowLine = lineDao.findById(lineId);
 
-
-
-        SectionService sectionService = new SectionService(stationDao, sectionDao);
-        Section newSection = new Section(sectionRequest);
+        Section newSection = new Section(lineId,sectionRequest.getUpStationId(),sectionRequest.getDownStationId(),sectionRequest.getDistance());
         if(sectionService.insertSection(nowLine, newSection)){
             return ResponseEntity.ok().build();
         }
@@ -40,7 +39,6 @@ public class SectionController {
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId){
         System.out.println("실행됨");
-        SectionService sectionService = new SectionService(stationDao, sectionDao);
         Line nowLine = lineDao.findById(lineId);
 
         if(sectionService.deleteStation(nowLine,stationId)){

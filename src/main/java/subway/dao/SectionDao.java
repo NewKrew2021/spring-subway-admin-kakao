@@ -31,8 +31,8 @@ public class SectionDao {
 
     public Section save(Section section) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
-        Long id = insertActor.executeAndReturnKey(parameters).longValue();
-        return new Section(id, section.getLineId(), section.getUpStationId(),
+        Long lineId = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Section(lineId, section.getLineId(), section.getUpStationId(),
                 section.getDownStationId(), section.getDistance());
     }
 

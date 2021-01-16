@@ -25,8 +25,7 @@ public class SectionService {
     }
 
     public SectionResponse addSectionToLine(SectionRequest sectionRequest) {
-        Long lineId = sectionRequest.getLineId();
-        OrderedSections orderedSections = getOrderedSectionsByLineId(lineId);
+        OrderedSections orderedSections = getOrderedSectionsByLineId(sectionRequest.getLineId());
         Section sectionToAdd = sectionRequest.getDomain();
 
         validateSectionAddRequest(orderedSections.getOrderedStationIds(), sectionRequest);
@@ -71,12 +70,12 @@ public class SectionService {
     private static Section getAnotherSection(Section sectionToSplit, Section sectionToAdd) {
         // 하행 기준 분리 ex, (A - C) 에 (B - C) 추가
         if (sectionToSplit.getDownStationId().equals(sectionToAdd.getDownStationId())) {
-            return new Section(sectionToSplit.getLineId(), sectionToSplit.getUpStationId(), sectionToAdd.getUpStationId(),
-                    sectionToSplit.getDistance() - sectionToAdd.getDistance());
+            return new Section(sectionToSplit.getLineId(), sectionToSplit.getUpStationId(),
+                    sectionToAdd.getUpStationId(), sectionToSplit.getDistance() - sectionToAdd.getDistance());
         }
         // 상행 기준 분리 ex, (A - C) 에 (A - B) 추가
-        return new Section(sectionToSplit.getLineId(), sectionToAdd.getDownStationId(), sectionToSplit.getDownStationId(),
-                sectionToSplit.getDistance() - sectionToAdd.getDistance());
+        return new Section(sectionToSplit.getLineId(), sectionToAdd.getDownStationId(),
+                sectionToSplit.getDownStationId(), sectionToSplit.getDistance() - sectionToAdd.getDistance());
     }
 
     private static void validateSectionAddRequest(List<Long> stationIds, SectionRequest sectionRequest) {

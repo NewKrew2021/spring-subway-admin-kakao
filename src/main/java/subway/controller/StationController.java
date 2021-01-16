@@ -29,13 +29,12 @@ public class StationController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> getStations() {
-        List<StationResponse> response = stationService.getStations();
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(stationService.getStations());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteStation(@PathVariable Long id) {
-        boolean response = stationService.deleteStation(id);
-        return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+    @DeleteMapping("/{stationId}")
+    public ResponseEntity deleteStation(@PathVariable Long stationId) {
+        return stationService.deleteStation(stationId) ?
+                ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 }

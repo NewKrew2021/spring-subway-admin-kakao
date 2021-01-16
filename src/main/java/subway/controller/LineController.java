@@ -29,7 +29,7 @@ public class LineController {
     }
 
     @Transactional
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         LineResponse lineResponse = lineService.createLine(lineRequest);
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
@@ -37,34 +37,32 @@ public class LineController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> getLines() {
-        List<LineResponse> responses = lineService.getLines();
-        return ResponseEntity.ok().body(responses);
+        return ResponseEntity.ok().body(lineService.getLines());
     }
 
     @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> getLine(@PathVariable Long lineId) {
-        LineResponse lineResponse = lineService.getLine(lineId);
-        return ResponseEntity.ok().body(lineResponse);
+        return ResponseEntity.ok().body(lineService.getLine(lineId));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        boolean response = lineService.modifyLine(id, lineRequest);
-        return response ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-    }
-
-    @Transactional
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteLine(@PathVariable Long id) {
-        boolean response = lineService.deleteLine(id);
-        return response ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+    @PutMapping(value = "/{lineId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity modifyLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
+        return lineService.modifyLine(lineId, lineRequest) ?
+                ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
     @Transactional
-    @PostMapping(value = "/{id}/sections", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/{lineId}")
+    public ResponseEntity deleteLine(@PathVariable Long lineId) {
+        return lineService.deleteLine(lineId) ?
+                ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+    }
+
+    @Transactional
+    @PostMapping(value = "/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> addSectionToLine(@RequestBody SectionRequest sectionRequest,
-                                                            @PathVariable Long id) {
-        validateLineId(id, sectionRequest.getLineId());
+                                                            @PathVariable Long lineId) {
+        validateLineId(lineId, sectionRequest.getLineId());
         SectionResponse sectionResponse = sectionService.addSectionToLine(sectionRequest);
         return ResponseEntity.created(URI.create("/lines/" + sectionRequest.getLineId() +
                 "/sections/" + sectionResponse.getId())).body(sectionResponse);
@@ -73,8 +71,7 @@ public class LineController {
     @Transactional
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteStationFromLine(@PathVariable Long lineId, @RequestParam Long stationId) {
-        OrderedStations stations = lineService.getOrderedStationsOfLine(lineId);
-        validateDeletable(stationId, stations);
+        validateDeletable(stationId, lineService.getOrderedStationsOfLine(lineId));
         sectionService.deleteStationFromLine(lineId, stationId);
         return ResponseEntity.noContent().build();
     }

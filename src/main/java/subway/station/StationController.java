@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/stations")
 public class StationController {
     private final StationDao stationDao;
 
@@ -19,7 +20,7 @@ public class StationController {
         this.stationDao = stationDao;
     }
 
-    @PostMapping("/stations")
+    @PostMapping("")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation;
@@ -34,7 +35,7 @@ public class StationController {
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
-    @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> response = stationDao.findAll().stream()
                 .map(StationResponse::new)
@@ -42,7 +43,7 @@ public class StationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/stations/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         boolean response = stationDao.deleteById(id);
         if (response) {

@@ -106,4 +106,15 @@ public class Line {
     }
 
 
+    public boolean deleteSection(long stationId) {
+        // 찾고  : 예외처리 : station 이 없을경우와, sections 의 사이즈가 2인경우
+        // 삭제  : 중간역이 빠질 경우, 양 옆이 연결되고 && 종점이 빠질 경우, 다음 역이 종점이 됨
+        //      : 수정 사항 -> 삭제 대상 index 와. 종점 여부는 index와 station.size 비교로 알 수 있음
+        int index = sections.findDeleteSection(stationId);
+        if( index == -1 ) {
+            return false;
+        }
+        sections.deleteSection(index);
+        return true;
+    }
 }

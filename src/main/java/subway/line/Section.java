@@ -48,12 +48,18 @@ public class Section {
         return downDistance;
     }
 
+
+
     public void setDownDistance(int distance) {
         this.downDistance = distance;
     }
 
     public void setUpDistance(int distance) {
         this.upDistance = distance;
+    }
+
+    public long getStationId() {
+        return this.station.getId();
     }
 }
 

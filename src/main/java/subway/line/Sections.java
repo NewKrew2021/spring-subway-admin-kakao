@@ -98,4 +98,30 @@ public class Sections {
     public List<Section> getSections() {
         return sections;
     }
+
+    // 0개 일 경우
+    public int findDeleteSection(long stationId) {
+        if (sections.size() == 2) {
+            return -1;
+        }
+        return IntStream.range(0, sections.size())
+                .filter(i -> sections.get(i).getStationId() == stationId)
+                .findFirst()
+                .orElse(-1);
+    }
+
+    public void deleteSection(int index) {
+        if (index == 0) { //first station
+            sections.get(index + 1).setUpDistance(0);
+        }
+        if (index == sections.size() - 1) { // last station
+            sections.get(index - 1).setDownDistance(0);
+        }
+        if (index != 0 && index != sections.size() - 1) {
+            int distance = sections.get(index).getDownDistance() + sections.get(index).getUpDistance();
+            sections.get(index - 1).setDownDistance(distance);
+            sections.get(index + 1).setUpDistance(distance);
+        }
+        sections.remove(index); //지우기
+    }
 }

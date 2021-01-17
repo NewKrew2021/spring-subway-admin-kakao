@@ -64,4 +64,13 @@ public class LineController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
+    @DeleteMapping(value = "/lines/{lineId}/sections")
+    public ResponseEntity deleteSection(@PathVariable long lineId ,@RequestParam long stationId) {
+        Line line = lineDao.getLine(lineId);
+        if ( line.deleteSection(stationId) ) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
 }

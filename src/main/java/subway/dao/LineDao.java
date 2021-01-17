@@ -27,9 +27,9 @@ public class LineDao {
         return line;
     };
 
-    public void save(Line line){
+    public int save(Line line){
         String sql="insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
-        jdbcTemplate.update(sql,line.getName(),line.getColor(),line.getUpStationId(),line.getDownStationId());
+        return jdbcTemplate.update(sql,line.getName(),line.getColor(),line.getUpStationId(),line.getDownStationId());
 
     }
 
@@ -55,10 +55,10 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public void modify(Long id, LineRequest lineRequest){
+    public void updateLine(Line line){
         String sql = "update line set name=?, color = ?, up_station_id = ?, down_station_id = ?  where id=?";
         jdbcTemplate.update(
-                sql,lineRequest.getName(),lineRequest.getColor(),lineRequest.getUpStationId(),lineRequest.getDownStationId(),id);
+                sql,line.getName(),line.getColor(),line.getUpStationId(),line.getDownStationId(),line.getId());
     }
     public void modifyLineStationId(Line line){
         String sql = "update line set up_station_id = ?, down_station_id = ? where id=?";

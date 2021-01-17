@@ -17,7 +17,14 @@ public class Line {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
     }
-
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId,int distance){
+        this.id = id;
+        this.name= name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance=distance;
+    }
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();

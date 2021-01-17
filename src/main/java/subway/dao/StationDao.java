@@ -5,10 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.dto.Station;
-import subway.dto.StationResponse;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 public class StationDao {
@@ -16,7 +14,7 @@ public class StationDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
+    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
         Station station = new Station(
                 resultSet.getLong("id"),
                 resultSet.getString("name")
@@ -31,13 +29,13 @@ public class StationDao {
 
     public Station findById(Long id){
         String sql="select * from station where id=?";
-        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
     public Station findByName(String name){
         System.out.println(name);
         String sql = "Select * from station where name=?";
-        return jdbcTemplate.queryForObject(sql,	actorRowMapper, name);
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, name);
 
     }
 
@@ -49,7 +47,7 @@ public class StationDao {
 
     public List<Station> findAll() {
 
-        return jdbcTemplate.query("select * from station",actorRowMapper);
+        return jdbcTemplate.query("select * from station", stationRowMapper);
 
     }
 
@@ -58,10 +56,4 @@ public class StationDao {
     }
 
 
-    public List<StationResponse> getStationResponseList(List<Station> station){
-        return station
-                .stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
-    }
 }

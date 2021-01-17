@@ -26,22 +26,11 @@ public class SectionService {
 
     private static final int MIN_SECTION_SIZE = 1;
 
+    public void insertFirstSection(Section section){
+        sectionDao.save(section);
+    }
 
     public boolean insertSection(Line nowLine, Section newSection){
-        /*
-            1.라인 왼쪽 끝에 붙는 경우 ->무조건 가능
-            2.라인 오른쪽 끝에 붙는 경우 -> 무조건 가능
-            3.왼쪽 + 가운데, 가운데 + 오른쪽으로 갈리는경우 ->거리가 더 짧아야함
-            1,2,3 이외에는 무조건 불가능
-         */
-        /*
-            half -> 거리 짧으면 true
-                 -> 거리
-         */
-        // 1. 라인 왼쪽 or 오른쪽 끝에 붙는 경우
-
-
-
 
         List<Section> sectionListFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
 
@@ -59,19 +48,13 @@ public class SectionService {
             return true;
         }
         for(Section oldSection: sectionListFromNowLine){
-            System.out.println("==================");
-            System.out.println(newSection.toString());
-            System.out.println(oldSection.toString());
-            System.out.println("==================");
             if(canInsertMatchingUpStation(oldSection,newSection)){
-                System.out.println("매칭업");
                 Section modifiedSection = new Section(oldSection.getId(),oldSection.getLineId(),newSection.getDownStationId(), oldSection.getDownStationId(), oldSection.getDistance() - newSection.getDistance());
                 sectionDao.modifySection(modifiedSection);
                 sectionDao.save(newSection);
                 return true;
             }
             if(canInsertMatchingDownStation(oldSection,newSection)){
-                System.out.println("매칭다운");
                 Section modifiedSection = new Section(oldSection.getId(),oldSection.getLineId(),oldSection.getUpStationId(), newSection.getUpStationId(), oldSection.getDistance()-newSection.getDistance());
                 sectionDao.modifySection(modifiedSection);
                 sectionDao.save(newSection);
@@ -93,7 +76,6 @@ public class SectionService {
             return false;
         }
 
-
         if(line.getUpStationId().equals(stationId) ){
             Section removeTargetSection  = sectionListFromNowLine.get(0);
             sectionDao.deleteSection(removeTargetSection.getId());
@@ -109,35 +91,28 @@ public class SectionService {
         }
 
         int index=0;
-        for(Section section: sectionListFromNowLine){
-            if(section.getDownStationId().equals(stationId)){
-                //다운이 일치하는역을 찾으면 그 뒤역을 삭제하고
-                Section removeTargetSection  = sectionListFromNowLine.get(index + 1);
+        for(Section section: sectionListFromNowLine) {
+            if (section.getDownStationId().equals(stationId)) {
+                Section removeTargetSection = sectionListFromNowLine.get(index + 1);
                 sectionDao.deleteSection(removeTargetSection.getId());
-                System.out.println("삭제------------------");
-                System.out.println("원본"+section.toString());
-                System.out.println("지워짐:"+removeTargetSection.toString());
-                Section modifiedSection=new Section(section.getId(),section.getLineId(),section.getUpStationId(),removeTargetSection.getDownStationId(),section.getDistance()+ removeTargetSection.getDistance());
-                System.out.println("변경됨:"+modifiedSection.toString());
+                Section modifiedSection = new Section(section.getId(), section.getLineId(), section.getUpStationId(), removeTargetSection.getDownStationId(), section.getDistance() + removeTargetSection.getDistance());
                 sectionDao.modifySection(modifiedSection);
                 return true;
             }
-            index+=1;
+            index += 1;
         }
-
-
-
         return false;
     }
 
-    public List<Station> getStationListBySectionList(List<Section> sectionList, Long endUpStationId){
+    public List<Station> getStationsByLine(Line line){
+        List<Section> sections=sectionDao.findSectionsByLineId(line.getId());
         List<Station> result = new ArrayList<>();
         Map<Long, Long> sectionMap = new HashMap<>();
-        for(Section section: sectionList){
+        for(Section section: sections){
             sectionMap.put(section.getUpStationId(), section.getDownStationId());
         }
-        result.add(stationDao.findById(endUpStationId));
-        Long nextId=endUpStationId;
+        result.add(stationDao.findById(line.getUpStationId()));
+        Long nextId=line.getUpStationId();
         while(sectionMap.get(nextId) != null){
             result.add(stationDao.findById(sectionMap.get(nextId)));
             nextId = sectionMap.get(nextId);
@@ -145,9 +120,7 @@ public class SectionService {
         return result;
     }
 
-    public List<Section> getSectionListByLineId(Long lineId){
-        return sectionDao.findSectionsByLineId(lineId);
-    }
+
 
     private boolean isMatchedOnlyUpEndStation(Line nowLine, Section newSection){
        return nowLine.getUpStationId().equals(newSection.getDownStationId());
@@ -169,7 +142,6 @@ public class SectionService {
                     &&oldSection.getDistance()>newSection.getDistance()){
                 return true;
         }
-
         return false;
     }
 

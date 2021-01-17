@@ -41,11 +41,9 @@ public class LineDao {
     public void editLineById(long id, String name, String color) {
         Line line = getLine(id);
         line.editLine(name, color);
-        //System.out.println(lines);
     }
 
     public void deleteLineById(long id) {
         lines.remove(getLine(id));
-        //System.out.println(lines);
     }
 }

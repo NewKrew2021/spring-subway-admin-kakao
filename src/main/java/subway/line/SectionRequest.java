@@ -17,21 +17,10 @@ public class SectionRequest {
     public Long getDownStationId() {
         return downStationId;
     }
+
     public int getDistance() {
         return distance;
     }
 
-    public SectionType containId(SectionRequest sectionRequest) {
-        boolean matchUpStation = this.upStationId.equals(sectionRequest.getUpStationId());
-        boolean matchDownStation = this.downStationId.equals(sectionRequest.getDownStationId());
-
-        if(matchDownStation == matchUpStation || this.distance <= sectionRequest.getDistance()) {
-            return SectionType.EXCEPTION; // 거리체크
-        }
-        if( matchUpStation ) {
-            return SectionType.INSERT_DOWN_STATION;
-        }
-        return SectionType.INSERT_UP_STATION;
-    }
 
 }

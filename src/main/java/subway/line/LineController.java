@@ -57,8 +57,6 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         Line line = lineDao.getLine(lineId);
-        // 상행 station id , 하행 station id, distance
-        //Section request 를 깨서, station, station
 
         if (line.insertSection(sectionRequest)) {
             return ResponseEntity.ok().build();

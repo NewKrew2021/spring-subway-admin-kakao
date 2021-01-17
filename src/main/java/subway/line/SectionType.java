@@ -11,10 +11,6 @@ public enum SectionType {
     INSERT_LAST_STATION,
     EXCEPTION;
 
-    //INSERT_DOWN_STATION
-
-    //A B C D
-    // BF
 
     private int index;
 

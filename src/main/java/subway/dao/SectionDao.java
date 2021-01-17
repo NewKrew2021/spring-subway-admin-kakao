@@ -1,9 +1,10 @@
-package subway.section;
+package subway.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.dto.Section;
 
 import java.util.*;
 

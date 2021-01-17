@@ -1,13 +1,17 @@
-package subway.line;
+package subway.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.section.SectionService;
-import subway.station.Station;
+import subway.dto.Line;
+import subway.dao.LineDao;
+import subway.dto.LineRequest;
+import subway.dto.LineResponse;
+import subway.dto.Section;
+import subway.dao.SectionDao;
+import subway.service.SectionService;
+import subway.dto.Station;
 
 import java.net.URI;
 import java.util.List;

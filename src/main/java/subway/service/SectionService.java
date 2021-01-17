@@ -1,13 +1,13 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.dto.Line;
+import subway.dao.LineDao;
+import subway.dao.SectionDao;
+import subway.dto.Section;
+import subway.dto.Station;
+import subway.dao.StationDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;

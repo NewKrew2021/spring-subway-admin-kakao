@@ -1,10 +1,4 @@
-package subway.line;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import subway.section.SectionDao;
-import subway.station.Station;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+package subway.dto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +12,7 @@ public class LineResponse {
     public LineResponse(){
 
     }
-    public LineResponse(Line line,List<Station> stations){
+    public LineResponse(Line line, List<Station> stations){
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();

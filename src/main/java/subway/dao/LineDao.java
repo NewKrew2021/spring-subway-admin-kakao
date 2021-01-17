@@ -1,16 +1,12 @@
-package subway.line;
+package subway.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.section.Section;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.dto.Line;
+import subway.dto.LineRequest;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -19,11 +15,6 @@ public class LineDao {
     JdbcTemplate jdbcTemplate;
     @Autowired
     StationDao stationDao;
-//    private String name;
-//    private String color;
-//    private Long upStationId;
-//    private Long downStationId;
-//    private int distance;
 
     private RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
         Line line = new Line(
@@ -92,12 +83,3 @@ public class LineDao {
 
     }
 }
-
-//    public List<Station> getStations(Line line){
-//        List<Station> stations = new ArrayList<>();
-//        stations.add(stationDao.findById(line.getUpStationId()));
-//        for (Section sections : line.getSections()) {
-//            stations.add(stationDao.findById(sections.getDownStationId()));
-//        }
-//        return stations;
-//    }Testing started at 11:29 오전 ...

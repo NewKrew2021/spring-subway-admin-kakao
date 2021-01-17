@@ -1,10 +1,6 @@
-package subway.line;
+package subway.dto;
 
-import subway.section.Section;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import subway.dto.LineRequest;
 
 public class Line {
     private Long id;

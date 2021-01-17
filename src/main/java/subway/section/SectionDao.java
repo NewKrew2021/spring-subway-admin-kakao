@@ -1,27 +1,27 @@
 package subway.section;
 
-import org.springframework.util.ReflectionUtils;
-import subway.DuplicateException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import subway.NotFoundException;
 
-import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+@Repository
 public class SectionDao {
-    private Long seq = 0L;
-    private List<Section> sections = new ArrayList<>();
-    private static SectionDao instance = new SectionDao();
+    private final JdbcTemplate jdbcTemplate;
 
-    private SectionDao() {
-
-    }
-
-    public static SectionDao getInstance() {
-        return instance;
+    public SectionDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Section save(Section section){
@@ -67,11 +67,28 @@ public class SectionDao {
     }
 
     private Section insertAtDB(Section section) {
-        //System.out.println("HO insertAtDB");
-        Section persistSection = createNewObject(section);
-        sections.add(persistSection);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        return persistSection;
+        jdbcTemplate.update(con -> {
+            PreparedStatement psmt = con.prepareStatement(
+                    "insert into section (line_id, up_station_id, down_station_id, distance) values(?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            psmt.setLong(1, section.getLineId());
+            psmt.setLong(2, section.getUpStationId());
+            psmt.setLong(3, section.getDownStationId());
+            psmt.setInt(4, section.getDistance());
+            return psmt;
+        }, keyHolder);
+
+        Long id = (Long) keyHolder.getKey();
+
+        return new Section(
+                id,
+                section.getLineId(),
+                section.getUpStationId(),
+                section.getDownStationId(),
+                section.getDistance()
+        );
     }
 
     public boolean existSameUpstationId(Long lineId, Long upStationId) {
@@ -121,12 +138,12 @@ public class SectionDao {
      * 한 라인에 존재하는 모든 section들 중에서, upstationId가 일치하는 section을 return
      */
     private Section getSectionByUpStationId(Long lineId, Long upStationId){
-        List<Section> sectionsInLine = findAllByLineId(lineId);
-
-        return sectionsInLine.stream()
-                .filter(it -> it.getUpStationId().equals(upStationId))
-                .findFirst()
-                .orElse(null);
+        try {
+            String sqlQuery = "select * from section where line_id = ? and up_station_id = ? limit 1";
+            return jdbcTemplate.queryForObject(sqlQuery, new SectionMapper(), lineId, upStationId);
+        } catch (Exception e){
+            return null;
+        }
     }
 
     /**
@@ -188,9 +205,9 @@ public class SectionDao {
     }
 
     private boolean alreadyExistInLine(Long lineId, Long stationId){
-        List<Section> sectionsInLine = findAllByLineId(lineId);
-        return sectionsInLine.stream()
-                .anyMatch(it -> (it.getUpStationId().equals(stationId) || (it.getDownStationId().equals(stationId))));
+        String sqlQuery = "select count(*) from section where line_id = ? and (up_station_id = ? or down_station_id = ?)";
+        int existCount = jdbcTemplate.queryForObject(sqlQuery, int.class, lineId, stationId, stationId);
+        return existCount != 0;
     }
 
     public void deleteStation(Long lineId, Long stationId) {

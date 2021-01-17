@@ -5,9 +5,6 @@ public class SectionRequest {
     private Long downStationId;
     private int distance;
 
-    public SectionRequest() {
-    }
-
     public SectionRequest(Long upStationId, Long downStationId, int distance) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
@@ -32,9 +29,9 @@ public class SectionRequest {
             return SectionType.EXCEPTION; // 거리체크
         }
         if( matchUpStation ) {
-            return SectionType.UP_STATION;
+            return SectionType.INSERT_DOWN_STATION;
         }
-        return SectionType.DOWN_STATION;
+        return SectionType.INSERT_UP_STATION;
     }
 
 }

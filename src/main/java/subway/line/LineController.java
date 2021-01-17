@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +17,9 @@ public class LineController {
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
 
-        Line line = new Line( lineRequest );
+        Line line = new Line(lineRequest);
 
-        if( lineDao.hasContains(line) ) {
+        if (lineDao.hasContains(line)) {
             return ResponseEntity.badRequest().build();
         }
         lineDao.save(line);
@@ -28,15 +29,15 @@ public class LineController {
     }
 
     @GetMapping("/lines")
-    public ResponseEntity<List<LineResponse>> showLines(){
+    public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResponses = lineDao.getLines().stream()
-                                            .map(LineResponse::new)
-                                            .collect(Collectors.toList());
+                .map(LineResponse::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(lineResponses);
     }
 
     @GetMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> showLineById(@PathVariable long id){
+    public ResponseEntity<LineResponse> showLineById(@PathVariable long id) {
         LineResponse lineResponse = new LineResponse(lineDao.getLine(id));
         return ResponseEntity.ok(lineResponse);
     }
@@ -56,16 +57,13 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         Line line = lineDao.getLine(lineId);
+        // 상행 station id , 하행 station id, distance
+        //Section request 를 깨서, station, station
 
-        if ( line.insertSection( sectionRequest ) ) {
+        if (line.insertSection(sectionRequest)) {
             return ResponseEntity.ok().build();
         }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-
-    // 오늘 목표 2단계
-    // 각자 실습해서 내일 4시전에 3단계 마치고 피드백 날리기
-    //
 
 }

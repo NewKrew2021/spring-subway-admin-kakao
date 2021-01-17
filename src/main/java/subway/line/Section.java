@@ -1,33 +1,43 @@
 package subway.line;
 
 import subway.station.Station;
+import subway.station.StationResponse;
 
 public class Section {
 
     private int upDistance;
-    private long stationId;
+    private Station station;
     private int downDistance;
 
-    // section != section request
-    // A B C D
-    //  2 3 4
-    // 0A2
-    // 2B3
-    // 3C4
-    // 4D0
-
-    public Section( int upDistance, long stationId, int downDistance ) {
+    public Section(int upDistance, Station station, int downDistance ) {
         this.upDistance = upDistance;
-        this.stationId = stationId;
+        this.station = station;
         this.downDistance = downDistance;
     }
 
+    public StationResponse convertStationResponse() {
+        return new StationResponse(station.getId(), station.getName());
+    }
+
+//    public Section(SectionType type, int upDistance, int downDistance, long stationId){
+//        if(type == SectionType.INSERT_UP_STATION){
+//            this(up)
+//        }
+//    }
+
+    //A B C D E
+    //FA
+
     public SectionType sectionConfirm(long upStationId, long downStationId, int index) {
-        if( stationId == upStationId ) {
-            return SectionType.setIndex(SectionType.UP_STATION, index);
+        if( station.getId() == upStationId ) {
+            SectionType sectionType = SectionType.INSERT_DOWN_STATION; // INDEX == SIZE-1 FINAL
+            sectionType.setIndex(index);
+            return sectionType;
         }
-        if( stationId == downStationId ) {
-            return SectionType.setIndex(SectionType.DOWN_STATION, index);
+        if( station.getId() == downStationId ) {
+            SectionType sectionType = SectionType.INSERT_UP_STATION; // index == 0 FIRST
+            sectionType.setIndex(index);
+            return sectionType;
         }
         return SectionType.EXCEPTION;
     }

@@ -15,6 +15,7 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
+        this.stations = line.getStationResponses();
     }
 
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {

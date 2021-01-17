@@ -10,7 +10,11 @@ import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
-    StationDao stationDao = StationDao.getInstance();
+    StationDao stationDao;
+
+    public StationController(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {

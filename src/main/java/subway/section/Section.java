@@ -8,6 +8,15 @@ public class Section {
 
     }
 
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        if(distance <= 0) throw new RuntimeException();
+        this.id = id;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
     public Section(Long upStationId, Long downStationId, Long lineId, int distance) {
         if(distance <= 0) throw new RuntimeException();
         this.upStationId = upStationId;

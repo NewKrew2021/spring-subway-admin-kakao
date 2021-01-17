@@ -1,6 +1,9 @@
 package subway.station;
 
-public class Station {
+import java.io.Serializable;
+
+public class Station implements Serializable {
+
     private Long id;
     private String name;
 

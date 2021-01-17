@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
@@ -29,11 +30,14 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     private StationResponse 정자역;
     private StationResponse 광교역;
 
+    @Autowired
+    StationDao stationDao;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
         LineDao.getInstance().deleteAll();
-        StationDao.getInstance().deleteAll();
+        stationDao.deleteAll();
 
 
         강남역 = 지하철역_등록되어_있음("강남역");

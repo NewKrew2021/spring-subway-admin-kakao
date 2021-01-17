@@ -54,8 +54,8 @@ public class SectionDao {
                 , lineId);
     }
 
-    public List<Section> findSectionsForDelete(Long stationId) {
-        String sql = "select * from section where up_station_id = ? OR down_station_id = ?";
+    public List<Section> findSectionsForDelete(Long lineId, Long stationId) {
+        String sql = "select * from section where line_id = ? AND where up_station_id = ? OR down_station_id = ?";
         return jdbcTemplate.query(
                 sql,
                 (resultSet, rowNum) ->
@@ -66,6 +66,6 @@ public class SectionDao {
                                 resultSet.getLong("down_station_id"),
                                 resultSet.getInt("distance")
                         )
-                , stationId, stationId);
+                , lineId, stationId, stationId);
     }
 }

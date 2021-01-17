@@ -70,7 +70,7 @@ public class LineDao {
 
     public void modify(Long id, LineRequest lineRequest) {
         jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
-                id, lineRequest.getName(), lineRequest.getColor());
+                lineRequest.getName(), lineRequest.getColor(), id);
     }
 
     public int findByName(String name) {

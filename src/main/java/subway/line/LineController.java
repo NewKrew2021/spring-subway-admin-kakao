@@ -162,7 +162,7 @@ public class LineController {
             return ResponseEntity.status(500).build();
         }
 
-        List<Section> delSections = sectionDao.findSectionsForDelete(stationId);
+        List<Section> delSections = sectionDao.findSectionsForDelete(id, stationId);
         Section front = null;
         Section rear = null;
         for (Section delSection : delSections) {

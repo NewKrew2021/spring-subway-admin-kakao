@@ -9,7 +9,8 @@ public class Section {
     }
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
-        if(distance <= 0) throw new RuntimeException();
+        validationCheck(upStationId, downStationId, distance);
+
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -18,11 +19,17 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, Long lineId, int distance) {
-        if(distance <= 0) throw new RuntimeException();
+        validationCheck(upStationId, downStationId, distance);
+
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.lineId = lineId;
         this.distance = distance;
+    }
+
+    public static void validationCheck(Long upStationId, Long downStationId, int distance) {
+        if(distance <= 0) throw new IllegalSectionCreateException("distance는 0보다 커야 합니다.");
+        if(upStationId == downStationId) throw new IllegalSectionCreateException("upStationId 와 downStationId는 서로 달라야 합니다.");
     }
 
     public Long getId() {

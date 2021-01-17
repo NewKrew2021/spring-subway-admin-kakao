@@ -30,6 +30,8 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        Section.validationCheck(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
 

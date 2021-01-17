@@ -209,17 +209,24 @@ public class SectionDao {
     }
 
     public void deleteStation(Long lineId, Long stationId) {
-        if(!alreadyExistInLine(lineId, stationId)) {
-            throw new NotFoundException("삭제할 station이 존재하지 않습니다.");
-        }
-
-        if(findAllByLineId(lineId).size() <= 2) {
-            throw new CannotConstructRightSectionsForLine("해당 line에서 더 이상 station을 삭제할 수 없습니다.");
-        }
+        deleteableCheck(lineId, stationId);
 
         Section forwardSection = getSectionByDownStationId(lineId, stationId);
         Section backwardSection = getSectionByUpStationId(lineId, stationId);
 
+        /* 삭제할 station이 상행 종점인 경우 */
+        if(null == forwardSection) {
+            deleteById(backwardSection.getId());
+            return;
+        }
+
+        /* 삭제한 station이 하행 종점인 경우 */
+        if(null == backwardSection) {
+            deleteById(forwardSection.getId());
+            return;
+        }
+
+        /* 종점이 아닌 station을 삭제하는 경우 */
         deleteById(forwardSection.getId());
         deleteById(backwardSection.getId());
 
@@ -231,6 +238,17 @@ public class SectionDao {
         );
 
         insertAtDB(newSection);
+    }
+
+    private void deleteableCheck(Long lineId, Long stationId) {
+        if(!alreadyExistInLine(lineId, stationId)) {
+            throw new NotFoundException("삭제할 station이 존재하지 않습니다.");
+        }
+
+        /* 존재하는 section의 수가 1 이하일 경우 */
+        if(findAllByLineId(lineId).size() <= 1) {
+            throw new CannotConstructRightSectionsForLine(findAllByLineId(lineId).size() + " " + "해당 line에서 더 이상 station을 삭제할 수 없습니다.");
+        }
     }
 
     private final static class SectionMapper implements RowMapper<Section> {

@@ -1,64 +1,69 @@
 package subway.station;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 import subway.line.Line;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StationDao {
 
-    private static final StationDao instance = new StationDao();
-    private static final List<Station> stations = new ArrayList<>();
-    private Long seq = 0L;
+    private final JdbcTemplate jdbcTemplate;
 
-    private StationDao() {
-    }
+    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
 
-    public static StationDao getInstance() {
-        return instance;
+    @Autowired
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Station save(Station station) {
-        stations.stream()
-                .filter(value -> value.getName().equals(station.getName()))
-                .findAny()
-                .ifPresent(existed -> {
-                    throw new DuplicateNameException("동일한 이름을 가진 지하철역이 이미 존재합니다.");
-                });
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "insert into station (name) values (?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, station.getName());
+            return ps;
+        }, keyHolder);
+
+        Long id = keyHolder.getKey().longValue();
+        return new Station(id, station.getName());
     }
 
     public Station findOne(Long id) {
-        return stations.stream()
-                .filter(station -> station.getId().equals(id))
-                .findAny()
-                .orElseGet(() -> {
-                    throw new NoContentException("해당 id를 갖는 지하철 역이 존재하지 않습니다.");
-                });
+        try {
+            return jdbcTemplate.queryForObject("select * from station where id = ?", stationRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoContentException("해당 id를 갖는 지하철 역이 존재하지 않습니다.");
+        }
     }
 
     public List<Station> findAll() {
-        return stations;
+        return jdbcTemplate.query("select * from station", stationRowMapper);
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+        jdbcTemplate.update("delete from station where id = ?", id);
     }
 
-    public void deleteAll() {
-        stations.clear();
-    }
-
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
-    }
 }

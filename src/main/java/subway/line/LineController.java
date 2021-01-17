@@ -1,6 +1,5 @@
 package subway.line;
 
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineDao lineDao = LineDao.getInstance();
-    private final StationDao stationDao = StationDao.getInstance();
+    private final StationDao stationDao = null;
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {

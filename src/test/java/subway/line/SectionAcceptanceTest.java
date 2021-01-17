@@ -33,7 +33,6 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     public void setUp() {
         super.setUp();
         LineDao.getInstance().deleteAll();
-        StationDao.getInstance().deleteAll();
 
         강남역 = 지하철역_등록되어_있음("강남역");
         양재역 = 지하철역_등록되어_있음("양재역");

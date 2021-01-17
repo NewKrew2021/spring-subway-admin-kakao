@@ -1,11 +1,17 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import subway.DuplicateException;
-import subway.line.Line;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,7 +57,8 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+        String sqlQuery = "delete from station where id = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     private Station createNewObject(Station station) {

@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
-    LineDao lineDao = LineDao.getInstance();
-    SectionDao sectionDao = SectionDao.getInstance();
-    StationDao stationDao = StationDao.getInstance();
+    LineDao lineDao;
+    SectionDao sectionDao;
+    StationDao stationDao;
 
     Logger logger = LoggerFactory.getLogger(LineController.class);
 

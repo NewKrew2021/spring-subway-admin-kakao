@@ -5,7 +5,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.dto.Station;
-import subway.dao.StationDao;
 import subway.dto.StationRequest;
 import subway.dto.StationResponse;
 import subway.service.StationService;
@@ -16,15 +15,17 @@ import java.util.List;
 
 @RestController
 public class StationController {
+    private final StationService stationService;
+
     @Autowired
-    StationDao stationDao;
-    @Autowired
-    StationService stationService;
+    public StationController(StationService stationService){
+        this.stationService=stationService;
+    }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if(!stationService.insertSation(station)){
+        if(!stationService.insertStation(station)){
             return ResponseEntity.badRequest().build();
         }
 

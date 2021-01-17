@@ -9,10 +9,11 @@ import java.util.List;
 
 @Service
 public class LineService {
-
+    private final LineDao lineDao;
     @Autowired
-    LineDao lineDao;
-
+    public LineService(LineDao lineDao){
+        this.lineDao=lineDao;
+    }
 
     public boolean insertLine(Line line) {
         if (lineDao.isContainSameName(line.getName())) {

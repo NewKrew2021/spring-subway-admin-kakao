@@ -10,10 +10,14 @@ import java.util.List;
 @Service
 public class StationService {
 
-    @Autowired
-    StationDao stationDao;
+    private final StationDao stationDao;
 
-    public boolean insertSation(Station station){
+    @Autowired
+    public StationService(StationDao stationDao){
+        this.stationDao=stationDao;
+    }
+
+    public boolean insertStation(Station station){
         if(checkDuplicatedStationName(station.getName())){
             return false;
         }

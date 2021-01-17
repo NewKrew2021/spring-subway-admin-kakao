@@ -16,15 +16,17 @@ import java.util.Map;
 
 @Service
 public class SectionService {
-
-    @Autowired
-    private StationDao stationDao;
-    @Autowired
-    private SectionDao sectionDao;
-    @Autowired
-    private LineDao lineDao;
-
     private static final int MIN_SECTION_SIZE = 1;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
+    private final LineDao lineDao;
+
+    @Autowired
+    public SectionService(StationDao stationDao,SectionDao sectionDao,LineDao lineDao){
+        this.stationDao=stationDao;
+        this.sectionDao=sectionDao;
+        this.lineDao=lineDao;
+    }
 
     public void insertFirstSection(Section section){
         sectionDao.save(section);
@@ -119,8 +121,6 @@ public class SectionService {
         }
         return result;
     }
-
-
 
     private boolean isMatchedOnlyUpEndStation(Line nowLine, Section newSection){
        return nowLine.getUpStationId().equals(newSection.getDownStationId());

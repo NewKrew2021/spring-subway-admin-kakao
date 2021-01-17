@@ -13,10 +13,15 @@ import subway.service.SectionService;
 
 @RestController
 public class SectionController {
+
+    private final SectionService sectionService;
+    private final LineService lineService;
+
     @Autowired
-    SectionService sectionService;
-    @Autowired
-    LineService lineService;
+    public SectionController(SectionService sectionService,LineService lineService){
+        this.sectionService=sectionService;
+        this.lineService=lineService;
+    }
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {

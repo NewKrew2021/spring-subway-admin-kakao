@@ -20,10 +20,14 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
+    private final LineService lineService;
+    private final SectionService sectionService;
+
     @Autowired
-    LineService lineService;
-    @Autowired
-    SectionService sectionService;
+    public LineController(LineService lineService,SectionService sectionService){
+        this.lineService=lineService;
+        this.sectionService=sectionService;
+    }
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest){

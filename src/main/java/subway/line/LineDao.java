@@ -1,75 +1,71 @@
 package subway.line;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import subway.exceptions.DuplicateLineNameException;
-import subway.station.StationResponse;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+@Repository
 public class LineDao {
-    private static long seq = 0L;
-    private static List<Line> lines = new ArrayList<>();
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    private static boolean isExistsLineName(Line line) {
-        return lines.contains(line);
-    }
+    private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
+        Line line = new Line(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("color"),
+                resultSet.getLong("start_station_id"),
+                resultSet.getLong("end_station_id")
+        );
+        return line;
+    };
 
-    public static Line save(Line line) {
-        if(isExistsLineName(line)) {
+    public Long save(LineRequest lineRequest) {
+        String sql = "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?,?,?,?)";
+        Long lineId;
+        try {
+            jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
+            lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, lineRequest.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
         }
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
-        return persistLine;
+        return lineId;
     }
 
-    public static Line saveSection(Long id, Section section) {
-        Line line = findById(id).get();
-        line.save(section);
-        return line;
+    public Line findById(Long id) {
+        String sql = "select * from line where id = ?";
+        return jdbcTemplate.queryForObject(sql, lineRowMapper, Long.valueOf(id));
     }
 
-    private static Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+    public List<Line> findAll() {
+        String sql = "select * from line";
+        return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public static Optional<Line> findById(Long id) {
-        return lines.stream()
-                .filter(it -> it.getId() == id)
-                .findFirst();
+    public Line updateLine(Long id, LineRequest lineRequest) {
+        String sql = "update line set name = ?, color = ? where id = ?";
+        jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), Long.valueOf(id));
+        return findById(id);
     }
 
-    public static List<Line> findAll() {
-        return lines;
+    public Line updateLineStartStation(Long lineId, Long stationId) {
+        String sql = "update line set start_station_id = ? where id = ?";
+        jdbcTemplate.update(sql, Long.valueOf(stationId), Long.valueOf(lineId));
+        return findById(lineId);
     }
 
-    public static Line updateLine(Long id, LineRequest lineRequest) {
-        Line line = findById(id).get();
-        if(line == null) {
-            throw new IllegalArgumentException();
-        }
-        Line newLine = new Line(id, lineRequest.getName(), lineRequest.getColor(), line.getSections());
-        lines.set(lines.indexOf(line), newLine);
-        return newLine;
+    public Line updateLineEndStation(Long lineId, Long stationId) {
+        String sql = "update line set end_station_id = ? where id = ?";
+        jdbcTemplate.update(sql, Long.valueOf(stationId), Long.valueOf(lineId));
+        return findById(lineId);
     }
 
-    public static boolean deleteById(Long id) {
-        return lines.removeIf(it -> it.getId().equals(id));
-    }
-
-    public static void deleteSectionById(Long lineId, Long stationId) {
-        Line line = findById(lineId).get();
-        line.delete(stationId);
-    }
-
-    public static List<StationResponse> getStationResponsesById(Long id) {
-        Line line = findById(id).get();
-        return line.getStationResponses();
+    public int deleteById(Long id) {
+        String sql = "delete from line where id = ?";
+        return jdbcTemplate.update(sql, Long.valueOf(id));
     }
 }

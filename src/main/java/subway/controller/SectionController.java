@@ -8,53 +8,34 @@ import subway.dto.Line;
 import subway.dto.Section;
 import subway.dto.SectionRequest;
 import subway.dto.SectionResponse;
-import subway.dao.LineDao;
-import subway.dao.SectionDao;
+import subway.service.LineService;
 import subway.service.SectionService;
-import subway.dao.StationDao;
 
 @RestController
 public class SectionController {
     @Autowired
-    SectionDao sectionDao;
-    @Autowired
-    StationDao stationDao;
-    @Autowired
-    LineDao lineDao;
-    @Autowired
     SectionService sectionService;
+    @Autowired
+    LineService lineService;
+
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest){
-
-        /*
-            1.라인 왼쪽 끝에 붙는 경우
-            2.라인 오른쪽 끝에 붙는 경우
-            3.왼쪽 + 가운데, 가운데 + 오른쪽으로 갈리는경우
-         */
-
-        Line nowLine = lineDao.findById(lineId);
-
-        Section newSection = new Section(lineId,sectionRequest.getUpStationId(),sectionRequest.getDownStationId(),sectionRequest.getDistance());
-        if(sectionService.insertSection(nowLine, newSection)){
+    public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+        Line nowLine = lineService.findById(lineId);
+        Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        if (sectionService.insertSection(nowLine, newSection)) {
             return ResponseEntity.ok().build();
         }
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity<SectionResponse> deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId){
-        System.out.println("실행됨");
-        Line nowLine = lineDao.findById(lineId);
-
-        if(sectionService.deleteStation(nowLine,stationId)){
-            System.out.println("정상");
+    public ResponseEntity<SectionResponse> deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
+        Line nowLine = lineService.findById(lineId);
+        if (sectionService.deleteStation(nowLine, stationId)) {
             return ResponseEntity.ok().build();
         }
-        System.out.println("실패");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-
 
 
 }

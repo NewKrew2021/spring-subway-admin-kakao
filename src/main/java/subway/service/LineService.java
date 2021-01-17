@@ -14,33 +14,30 @@ public class LineService {
     LineDao lineDao;
 
 
-    public boolean insertLine(Line line){
-        if(lineDao.isContainSameName(line.getName())){
+    public boolean insertLine(Line line) {
+        if (lineDao.isContainSameName(line.getName())) {
             return false;
         }
-        if(lineDao.save(line)==0){
-            return false;
-        }
-        return true;
+        return lineDao.save(line) != 0;
     }
 
-    public Line findLineByName(String name){
-       return lineDao.findLineByName(name);
+    public Line findLineByName(String name) {
+        return lineDao.findLineByName(name);
     }
 
-    public List<Line> findAll(){
+    public List<Line> findAll() {
         return lineDao.findAll();
     }
 
-    public Line findById(Long id){
+    public Line findById(Long id) {
         return lineDao.findById(id);
     }
 
-    public void modifyLine(Line line){
+    public void modifyLine(Line line) {
         lineDao.updateLine(line);
     }
 
-    public void deleteLine(Long id){
+    public void deleteLine(Long id) {
         lineDao.delete(id);
     }
 

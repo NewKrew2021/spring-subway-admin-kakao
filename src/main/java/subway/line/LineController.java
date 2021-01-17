@@ -29,7 +29,7 @@ public class LineController {
     }
 
     @PostMapping("/lines")
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest){
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
 
@@ -63,7 +63,7 @@ public class LineController {
     }
 
     @GetMapping(value = "/lines/{id}")
-    public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
 
         List<StationResponse> stationResponses = new ArrayList<>();
@@ -88,7 +88,7 @@ public class LineController {
 
     @PutMapping(value = "/lines/{id}")
     public ResponseEntity modifyLine(@RequestBody LineRequest lineRequest,
-                                     @PathVariable Long id){
+                                     @PathVariable Long id) {
         lineDao.update(new Line(id, lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
@@ -101,7 +101,7 @@ public class LineController {
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId,
-                                        @RequestParam Long stationId){
+                                        @RequestParam Long stationId) {
 
         sectionDao.deleteStation(lineId, stationId);
         return ResponseEntity.ok().build();

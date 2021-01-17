@@ -55,7 +55,7 @@ public class LineDao {
         jdbcTemplate.update(query, line.getName(), line.getColor(), line.getId());
     }
 
-    public Optional<Line> findById(Long id){
+    public Optional<Line> findById(Long id) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("select * from line where id = ?", new LineMapper(), id));
         } catch (EmptyResultDataAccessException e) {

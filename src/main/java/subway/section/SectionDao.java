@@ -47,7 +47,7 @@ public class SectionDao {
         return insertAtDB(section);
     }
 
-    private void addNewBackwardSection(Section section, Section oldSection){
+    private void addNewBackwardSection(Section section, Section oldSection) {
         Section newSection = new Section(
                 section.getDownStationId(),
                 oldSection.getDownStationId(),
@@ -120,13 +120,13 @@ public class SectionDao {
         Map<Long, Boolean> isStartPoint = new HashMap<>();
 
         /* 모든 station에 대해 start point = true 라는 의미로 초기화 */
-        for(Section section : sections){
+        for(Section section : sections) {
             isStartPoint.put(section.getUpStationId(), true);
             isStartPoint.put(section.getDownStationId(), true);
         }
 
         /* 모든 section의 downStation Id에 대해 false 처리함 */
-        for(Section section : sections){
+        for(Section section : sections) {
             isStartPoint.put(section.getDownStationId(), false);
         }
 
@@ -140,11 +140,11 @@ public class SectionDao {
     /**
      * 한 라인에 존재하는 모든 section들 중에서, upstationId가 일치하는 section을 return
      */
-    private Section getSectionByUpStationId(Long lineId, Long upStationId){
+    private Section getSectionByUpStationId(Long lineId, Long upStationId) {
         try {
             String sqlQuery = "select * from section where line_id = ? and up_station_id = ? limit 1";
             return jdbcTemplate.queryForObject(sqlQuery, new SectionMapper(), lineId, upStationId);
-        } catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
@@ -152,8 +152,8 @@ public class SectionDao {
     /**
      * 한 라인에 존재하는 모든 section들 중에서, downStationId가 일치하는 section을 return
      */
-    private Section getSectionByDownStationId(Long lineId, Long downStationId){
-        try{
+    private Section getSectionByDownStationId(Long lineId, Long downStationId) {
+        try {
             String sqlQuery = "select * from section where line_id = ? and down_station_id = ? limit 1";
             return jdbcTemplate.queryForObject(sqlQuery, new SectionMapper(), lineId, downStationId);
         } catch (Exception e) {
@@ -161,13 +161,13 @@ public class SectionDao {
         }
     }
 
-    public List<Long> findSortedIdsByLineId(Long lineId){
+    public List<Long> findSortedIdsByLineId(Long lineId) {
         /* 주어진 Line 위에 정의된 모든 section들을 collect */
         List<Section> sections = findAllByLineId(lineId);
 
         /* 현재 station에서 다음 station을 참조할 수 있는 map을 생성 */
         Map<Long, Long> upStationToDownStation = new HashMap<>();
-        for(Section section : sections){
+        for(Section section : sections) {
             upStationToDownStation.put(section.getUpStationId(), section.getDownStationId());
         }
 
@@ -184,7 +184,7 @@ public class SectionDao {
         return stationIds;
     }
 
-    public boolean canInsert(Section section){
+    public boolean canInsert(Section section) {
 
         /* line을 처음 생성하는 경우는 통과 */
         if(findAllByLineId(section.getLineId()).size() == 0) {
@@ -195,25 +195,25 @@ public class SectionDao {
         boolean downStationExist = alreadyExistInLine(section.getLineId(), section.getDownStationId());
 
         /* 둘다 등록되었거나, 둘다 등록되어 있지 않는 경우 */
-        if(upStationExist == downStationExist){
+        if(upStationExist == downStationExist) {
             return false;
         }
 
         return  true;
     }
 
-    private boolean alreadyExistInLine(Long lineId, Long stationId){
+    private boolean alreadyExistInLine(Long lineId, Long stationId) {
         String sqlQuery = "select count(*) from section where line_id = ? and (up_station_id = ? or down_station_id = ?)";
         int existCount = jdbcTemplate.queryForObject(sqlQuery, int.class, lineId, stationId, stationId);
         return existCount != 0;
     }
 
     public void deleteStation(Long lineId, Long stationId) {
-        if(!alreadyExistInLine(lineId, stationId)){
+        if(!alreadyExistInLine(lineId, stationId)) {
             throw new NotFoundException("삭제할 station이 존재하지 않습니다.");
         }
 
-        if(findAllByLineId(lineId).size() <= 2){
+        if(findAllByLineId(lineId).size() <= 2) {
             throw new CannotConstructRightSectionsForLine("해당 line에서 더 이상 station을 삭제할 수 없습니다.");
         }
 

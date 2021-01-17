@@ -21,7 +21,6 @@ public class LineController {
         if( lineDao.hasContains(line) ) {
             return ResponseEntity.badRequest().build();
         }
-
         lineDao.save(line);
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), null);
 
@@ -56,17 +55,17 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
-//        Line line = lineDao.getLine(lineId);
-//        SectionType sectionType = line.checkSectionType(sectionRequest); //종착지인경우 exception
-//        if( sectionType == SectionType.EXCEPTION ) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//        line.addSection(sectionRequest, sectionType);
-
         Line line = lineDao.getLine(lineId);
-        line.addStation( sectionRequest );
 
-        return ResponseEntity.ok().build();
+        if ( line.insertSection( sectionRequest ) ) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.badRequest().build();
     }
+
+    // 오늘 목표 2단계
+    // 각자 실습해서 내일 4시전에 3단계 마치고 피드백 날리기
+    //
 
 }

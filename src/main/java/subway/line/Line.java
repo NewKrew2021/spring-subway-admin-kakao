@@ -11,14 +11,9 @@ public class Line {
     private long upStationId;//A
     private long downStationId;//F
     private int distance;//24
-    private LinkedList<SectionRequest> sectionRequests = new LinkedList<>();
-    private LinkedList<Long> stations = new LinkedList<>();
-    private LinkedList<Integer> distances = new LinkedList<>();
+    //private LinkedList<SectionRequest> sectionRequests = new LinkedList<>();
 
-    // A B C
-    //  3 7
-    // CA
-    // AC
+    private Sections sections;
 
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
@@ -27,11 +22,8 @@ public class Line {
         this.downStationId = lineRequest.getDownStationId();
         this.distance = lineRequest.getDistance();
 
-        this.sectionRequests.add(new SectionRequest(upStationId, downStationId, distance));
-
-        this.stations.addFirst( lineRequest.getUpStationId() );
-        this.stations.addLast( lineRequest.getDownStationId() );
-        this.distances.add(lineRequest.getDistance());
+        //this.sectionRequests.add(new SectionRequest(upStationId, downStationId, distance));
+        this.sections = new Sections(lineRequest);
     }
 
     public Line(String name, String color) {
@@ -56,124 +48,101 @@ public class Line {
     public String getColor() {
         return color;
     }
-
-    public SectionType checkSectionType(SectionRequest sectionRequest) {
-        List<SectionType> sectionTypes = sectionRequests.stream()
-                .map(section -> section.containId(sectionRequest))
-                .filter(type -> type != SectionType.EXCEPTION)
-                .collect(Collectors.toList());
-
-        if( sectionTypes.size() > 1 ) {
-            return SectionType.EXCEPTION; // 중복체크
-        }
-
-        if( this.upStationId == sectionRequest.getDownStationId() ) {
-            return SectionType.FIRST_STATION;
-        }
-
-        if( this.downStationId == sectionRequest.getUpStationId() ) {
-            return SectionType.LAST_STATION;
-        }
-
-        if( sectionTypes.size() == 0 ) {
-            return SectionType.EXCEPTION; // 없는경우
-        }
-
-        return sectionTypes.get(0);
-    }
-
-    public void addSection(SectionRequest sectionRequest, SectionType sectionType) {
-        if (sectionType == SectionType.FIRST_STATION) {
-            this.sectionRequests.addFirst(sectionRequest);
-            upStationId = sectionRequest.getUpStationId();
-            distance += sectionRequest.getDistance();
-        }
-        else if(sectionType == SectionType.LAST_STATION) {
-            this.sectionRequests.addLast(sectionRequest);
-            downStationId = sectionRequest.getDownStationId();
-            distance += sectionRequest.getDistance();
-        }
-        else if(sectionType == SectionType.UP_STATION  ) {
-            for (int i = 0; i < sectionRequests.size(); i++) {
-                if( sectionRequests.get(i).containId(sectionRequest) != SectionType.DOWN_STATION  ) {
-                    SectionRequest nextSection = new SectionRequest(sectionRequest.getDownStationId()
-                            , sectionRequests.get(i).getDownStationId(), sectionRequests.get(i).getDistance() - sectionRequest.getDistance());
-                    sectionRequests.set(i, sectionRequest);
-                    sectionRequests.add(i + 1, nextSection);
-                    break;
-                }
-            }
-        }
-        else {
-            for (int i = 0; i < sectionRequests.size(); i++) {
-                if( sectionRequests.get(i).containId(sectionRequest) != SectionType.DOWN_STATION  ) {
-                    SectionRequest nextSection = new SectionRequest(sectionRequest.getUpStationId()
-                            , sectionRequests.get(i).getUpStationId(),  sectionRequests.get(i).getDistance() - sectionRequest.getDistance());
-                    sectionRequests.set(i,sectionRequest);
-                    sectionRequests.add(i,nextSection);
-                    break;
-                }
-            }
-        }
-    }
-
-
-    public void addStation(SectionRequest sectionRequest) {
-        long upStationID = sectionRequest.getUpStationId();
-        long downStationID = sectionRequest.getDownStationId();
-        int distance = sectionRequest.getDistance();
-
-        SectionType sectionType = findSectionType( stations.indexOf(upStationID) , stations.indexOf(downStationID) );
-
+    
+    public boolean insertSection(SectionRequest sectionRequest) {
+        SectionType sectionType = sections.matchStation(sectionRequest); //에러판정을
         if( sectionType == SectionType.EXCEPTION ) {
-            // 에러
+            return false;
         }
-
-        // 거리 에러 필요
-
-        int index = sectionType.getIndex() - sectionType.ordinal(); // -1
-        updateSection(index, id, sectionType, distance);
-
-        if((index < 0 || index >= distances.size())) {
-            distances.set(index + 1 - sectionType.ordinal(), distances.get(index + 1 - sectionType.ordinal()) - distance); // 런타임에러
-        }
+        sections.addSection(sectionType, sectionRequest);
+        return true;
     }
 
-    private void updateSection(int index, long id, SectionType sectionType, int distance) {
-        stations.add(index + 1, id);
-        distances.add(index + sectionType.ordinal(), distance );
-    }
+    //A B C D E
+    // 3 4 5 6
+    //BF
+    //FB
 
-
-//        if(index < 0) { // DOWN_STATION
-//            stations.add(index + 1, upStationID);
-//            distances.add(index + sectionType.ordinal(), distance );
-//        }
-//
-//        if(index >= distances.size()) {  //UP_STATION
-//            stations.add(index + 1, downStationID);
-//            distances.add(index + sectionType.ordinal(), distance );
-//        }
-//
-//        if(sectionType == SectionType.UP_STATION) {
-//            stations.add(index + 1, downStationID); // index(3) + 1 = 4
-//            distances.add(index + sectionType.ordinal(), distance); // add 작동?
-//        }
-//
-//        if( sectionType == SectionType.DOWN_STATION ) {
-//            stations.add(index + 1, upStationID); // 0 번으로 제대로 입력
-//            distances.add(index + sectionType.ordinal(), distance); //
-//        }
-
+    // 에러검사
+    //  - 거리검사
+    //  -
+    // 전형검사
     //
 
-    private SectionType findSectionType( int upStationIndex, int downStationIndex ) {
-        SectionType sectionType = upStationIndex >= 0
-                ? (downStationIndex >= 0 ? SectionType.EXCEPTION : SectionType.UP_STATION)
-                : (downStationIndex >= 0 ? SectionType.DOWN_STATION : SectionType.EXCEPTION);
-        sectionType.setIndex(Math.max(upStationIndex,downStationIndex));
-        return sectionType;
-    }
+    //A B C D E
+    // CF
+    // FC
+    // GH, AC
+    //
+//
+//    public SectionType checkSectionType(SectionRequest sectionRequest) {
+//        List<SectionType> sectionTypes = sectionRequests.stream()
+//                .map(section -> section.containId(sectionRequest))
+//                .filter(type -> type != SectionType.EXCEPTION)
+//                .collect(Collectors.toList());
+//
+//        if( sectionTypes.size() > 1 ) {
+//            return SectionType.EXCEPTION; // 중복체크
+//        }
+//
+//        if( this.upStationId == sectionRequest.getDownStationId() ) {
+//            return SectionType.FIRST_STATION;
+//        }
+//
+//        if( this.downStationId == sectionRequest.getUpStationId() ) {
+//            return SectionType.LAST_STATION;
+//        }
+//
+//        if( sectionTypes.size() == 0 ) {
+//            return SectionType.EXCEPTION; // 없는경우
+//        }
+//
+//        return sectionTypes.get(0);
+//    }
+//
+//    public void addSection(SectionRequest sectionRequest, SectionType sectionType) {
+//        if (sectionType == SectionType.FIRST_STATION) {
+//            this.sectionRequests.addFirst(sectionRequest);
+//            upStationId = sectionRequest.getUpStationId();
+//            distance += sectionRequest.getDistance();
+//        }
+//        else if(sectionType == SectionType.LAST_STATION) {
+//            this.sectionRequests.addLast(sectionRequest);
+//            downStationId = sectionRequest.getDownStationId();
+//            distance += sectionRequest.getDistance();
+//        }
+//        else if(sectionType == SectionType.UP_STATION  ) {
+//            for (int i = 0; i < sectionRequests.size(); i++) {
+//                if( sectionRequests.get(i).containId(sectionRequest) != SectionType.DOWN_STATION  ) {
+//                    SectionRequest nextSection = new SectionRequest(sectionRequest.getDownStationId()
+//                            , sectionRequests.get(i).getDownStationId(), sectionRequests.get(i).getDistance() - sectionRequest.getDistance());
+//                    sectionRequests.set(i, sectionRequest);
+//                    sectionRequests.add(i + 1, nextSection);
+//                    break;
+//                }
+//            }
+//        }
+//        else {
+//            for (int i = 0; i < sectionRequests.size(); i++) {
+//                if( sectionRequests.get(i).containId(sectionRequest) != SectionType.DOWN_STATION  ) {
+//                    SectionRequest nextSection = new SectionRequest(sectionRequest.getUpStationId()
+//                            , sectionRequests.get(i).getUpStationId(),  sectionRequests.get(i).getDistance() - sectionRequest.getDistance());
+//                    sectionRequests.set(i,sectionRequest);
+//                    sectionRequests.add(i,nextSection);
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//
+//
+//    private SectionType findSectionType( int upStationIndex, int downStationIndex ) {
+//        SectionType sectionType = upStationIndex >= 0
+//                ? (downStationIndex >= 0 ? SectionType.EXCEPTION : SectionType.UP_STATION)
+//                : (downStationIndex >= 0 ? SectionType.DOWN_STATION : SectionType.EXCEPTION);
+//        sectionType.setIndex(Math.max(upStationIndex,downStationIndex));
+//        return sectionType;
+//    }
 
     @Override
     public boolean equals(Object o) {

@@ -14,19 +14,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
-    private static StationDao singleInstance = new StationDao();
+    private final JdbcTemplate jdbcTemplate;
 
-    private StationDao(){
-
-    }
-
-    public static StationDao getInstance(){
-        return singleInstance;
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Station save(Station station) {
@@ -34,26 +28,36 @@ public class StationDao {
             throw new DuplicateException();
         }
 
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        return persistStation;
+        jdbcTemplate.update(con -> {
+            PreparedStatement psmt = con.prepareStatement(
+                    "insert into station (name) values(?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            psmt.setString(1, station.getName());
+            return psmt;
+        }, keyHolder);
+
+        Long id = (Long) keyHolder.getKey();
+
+        return new Station(
+                id,
+                station.getName()
+        );
     }
 
     public List<Station> findAll() {
+        String sqlQuery = "select * from station";
+        List<Station> stations = jdbcTemplate.query(sqlQuery, new StationMapper());
         return stations;
     }
 
-    public List<Station> findAllByLineId(Long id) {
-        return stations.stream()
-                .filter(station -> station.getId() == id)
-                .collect(Collectors.toList());
-    }
-
-    public Optional<Station> findById(Long id){
-        return stations.stream()
-                .filter(station -> (station.getId() == id))
-                .findFirst();
+    public Optional<Station> findById(Long id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("select * from station where id = ?", new StationMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     public void deleteById(Long id) {
@@ -61,17 +65,20 @@ public class StationDao {
         jdbcTemplate.update(sqlQuery, id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    private boolean hasDuplicateName(String name){
+        String query = "select count(*) from station where name = ?";
+        int count = jdbcTemplate.queryForObject(query, int.class, name);
+        if (count != 0) return true;
+        return false;
     }
 
-    private boolean hasDuplicateName(String name){
-        for(Station station : stations){
-            if(station.getName().equals(name)) return true;
+    private final static class StationMapper implements RowMapper<Station> {
+        @Override
+        public Station mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Long id = rs.getLong("id");
+            String name = rs.getString("name");
+
+            return new Station(id, name);
         }
-        return false;
     }
 }

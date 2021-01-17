@@ -31,14 +31,14 @@ public class SectionDao {
 
         if(existSameUpstationId(section.getLineId(), section.getUpStationId())) {
             Section oldSection = getSectionByUpStationId(section.getLineId(), section.getUpStationId());
-            deleteById(oldSection.getId());
             addNewBackwardSection(section, oldSection);
+            deleteById(oldSection.getId());
         }
 
         if(existSameDownStationId(section.getLineId(), section.getDownStationId())) {
             Section oldSection = getSectionByDownStationId(section.getLineId(), section.getDownStationId());
-            deleteById(oldSection.getId());
             addNewForwardSection(section, oldSection);
+            deleteById(oldSection.getId());
         }
 
         return insertAtDB(section);
@@ -102,13 +102,13 @@ public class SectionDao {
     }
 
     public void deleteById(Long id) {
-        sections.removeIf(it -> it.getId().equals(id));
+        String query = "delete from section where id = ?";
+        jdbcTemplate.update(query, id);
     }
 
     public List<Section> findAllByLineId(Long id){
-        return sections.stream()
-                .filter(section -> section.getLineId().equals(id))
-                .collect(Collectors.toList());
+        String query = "select * from section where line_id = ?";
+        return jdbcTemplate.query(query, new SectionMapper(), id);
     }
 
     private Long getFirstStationId(Long id) {
@@ -150,12 +150,12 @@ public class SectionDao {
      * 한 라인에 존재하는 모든 section들 중에서, downStationId가 일치하는 section을 return
      */
     private Section getSectionByDownStationId(Long lineId, Long downStationId){
-        List<Section> sectionsInLine = findAllByLineId(lineId);
-
-        return sectionsInLine.stream()
-                .filter(it -> it.getDownStationId().equals(downStationId))
-                .findFirst()
-                .orElse(null);
+        try{
+            String sqlQuery = "select * from section where line_id = ? and down_station_id = ? limit 1";
+            return jdbcTemplate.queryForObject(sqlQuery, new SectionMapper(), lineId, downStationId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public List<Long> findSortedIdsByLineId(Long lineId){
@@ -179,13 +179,6 @@ public class SectionDao {
         }
 
         return stationIds;
-    }
-
-    private Section createNewObject(Section section) {
-        Field field = ReflectionUtils.findField(Section.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, section, ++seq);
-        return section;
     }
 
     public boolean canInsert(Section section){
@@ -229,5 +222,18 @@ public class SectionDao {
         );
 
         insertAtDB(newSection);
+    }
+
+    private final static class SectionMapper implements RowMapper<Section> {
+        @Override
+        public Section mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Long id = rs.getLong("id");
+            Long lineId = rs.getLong("line_id");
+            Long upStationId = rs.getLong("up_station_id");
+            Long downStationId= rs.getLong("down_station_id");
+            int distance = rs.getInt("distance");
+
+            return new Section(id, lineId, upStationId, downStationId, distance);
+        }
     }
 }

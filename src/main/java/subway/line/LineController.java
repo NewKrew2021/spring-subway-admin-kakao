@@ -26,6 +26,12 @@ public class LineController {
 
     Logger logger = LoggerFactory.getLogger(LineController.class);
 
+    public LineController(StationDao stationDao, LineDao lineDao, SectionDao sectionDao) {
+        this.stationDao = stationDao;
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+    }
+
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest){
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
@@ -64,8 +70,9 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
         Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException());
 
-        List<Long> stationIds = sectionDao.findSortedIdsByLineId(id);
         List<StationResponse> stationResponses = new ArrayList<>();
+
+        List<Long> stationIds = sectionDao.findSortedIdsByLineId(id);
 
         for(Long stationId : stationIds){
             Station station = stationDao.findById(stationId).orElseThrow(() -> new NotFoundException());
@@ -86,7 +93,7 @@ public class LineController {
     @PutMapping(value = "/lines/{id}")
     public ResponseEntity modifyLine(@RequestBody LineRequest lineRequest,
                                                    @PathVariable Long id){
-        lineDao.update(new Line(lineRequest.getName(), lineRequest.getColor(), id));
+        lineDao.update(new Line(id, lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
 

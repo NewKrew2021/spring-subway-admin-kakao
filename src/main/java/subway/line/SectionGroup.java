@@ -29,7 +29,7 @@ public class SectionGroup {
         int insertedIndex = findInsertedSectionIndex(upStation, downStation);
 
         if (distance >= sections.get(insertedIndex).getDistance()) {
-            throw new NoContentException("길이가 맞지 않음");
+            throw new IllegalArgumentException("기존 노선보다 작은 길이를 입력해야 합니다.");
         }
 
         Section insertedSection = new Section(upStation, downStation, distance);
@@ -42,7 +42,7 @@ public class SectionGroup {
         int downIndex = findSectionIndexWithDownStation(downStation).orElse(-1);
 
         if ((upIndex == -1) == (downIndex == -1)) {
-            throw new NoContentException("두 역이 모두 없거나 있으면 안 된다.");
+            throw new IllegalArgumentException("두 역이 모두 없거나 있으면 안됩니다.");
         }
 
         return upIndex * downIndex * (-1);

@@ -27,7 +27,7 @@ public class LineDao {
                 .filter(value -> value.getName().equals(line.getName()))
                 .findAny()
                 .ifPresent(existed -> {
-                    throw new DuplicateNameException(line.getName());
+                    throw new DuplicateNameException("동일한 이름을 가진 노선이 이미 존재합니다.");
                 });
         Line persistLine = createNewObject(line);
         lines.add(persistLine);
@@ -39,7 +39,7 @@ public class LineDao {
                 .filter(line -> line.getId().equals(id))
                 .findAny()
                 .orElseGet(() -> {
-                    throw new NoContentException(id + "(Line)");
+                    throw new NoContentException("해당 id를 갖는 노선이 존재하지 않습니다.");
                 });
     }
 

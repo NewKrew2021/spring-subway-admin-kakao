@@ -27,7 +27,7 @@ public class StationDao {
                 .filter(value -> value.getName().equals(station.getName()))
                 .findAny()
                 .ifPresent(existed -> {
-                    throw new DuplicateNameException(station.getName());
+                    throw new DuplicateNameException("동일한 이름을 가진 지하철역이 이미 존재합니다.");
                 });
         Station persistStation = createNewObject(station);
         stations.add(persistStation);
@@ -39,7 +39,7 @@ public class StationDao {
                 .filter(station -> station.getId().equals(id))
                 .findAny()
                 .orElseGet(() -> {
-                    throw new NoContentException(id + "(Station)");
+                    throw new NoContentException("해당 id를 갖는 지하철 역이 존재하지 않습니다.");
                 });
     }
 

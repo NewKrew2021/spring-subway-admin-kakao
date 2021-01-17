@@ -1,48 +1,50 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import subway.exceptions.DuplicateStationNameException;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
+@Repository
 public class StationDao {
-    private static Long seq = 0L;
-    private static List<Station> stations = new ArrayList<>();
 
-    public static Station save(Station station) {
-        if (isExistStations(station)) {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
+
+    public Station save(Station station) {
+        String sql = "insert into STATION(name) VALUES (?)";
+        try {
+            jdbcTemplate.update(sql, station.getName());
+        } catch (Exception e) {
             throw new DuplicateStationNameException("중복된 역 이름입니다.");
         }
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        return jdbcTemplate.queryForObject("select id, name from STATION where name = ?", stationRowMapper, station.getName());
     }
 
-    public static boolean isExistStations(Station station) {
-        return stations.contains(station);
+    public List<Station> findAll() {
+        String sql = "select id, name from station";
+        return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public static List<Station> findAll() {
-        return stations;
+    public int deleteById(Long id) {
+        String sql = "delete from station where id = ?";
+        return jdbcTemplate.update(sql, Long.valueOf(id));
     }
 
-    public static boolean deleteById(Long id) {
-        return stations.removeIf(it -> it.getId().equals(id));
-    }
-
-    public static Optional<Station> findById(Long id) {
-        return stations.stream()
-                .filter(it -> it.getId() == id)
-                .findFirst();
-    }
-
-    private static Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public Station findById(Long id) {
+        String sql = "select id, name from station where id = ?";
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, Long.valueOf(id));
     }
 }

@@ -1,8 +1,10 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import subway.exceptions.InvalidSectionException;
 import subway.station.StationDao;
 import subway.station.StationResponse;
+import subway.station.StationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,9 @@ public class Line {
     private String name;
     private String color;
     private List<Section> sections = new ArrayList<>();
+
+    @Autowired
+    private StationService stationService;
 
     public Line() {
     }
@@ -40,10 +45,10 @@ public class Line {
         List<StationResponse> stationResponses = new ArrayList<>();
         for (int i = 0; i < sections.size(); i++) {
             Long stationId = sections.get(i).getUpStationId();
-            stationResponses.add(new StationResponse(StationDao.findById(stationId).get()));
+            stationResponses.add(new StationResponse(stationService.findById(stationId)));
         }
         stationResponses.add(
-                new StationResponse(StationDao.findById(sections.get(sections.size()-1).getDownStationId()).get())
+                new StationResponse(stationService.findById(sections.get(sections.size()-1).getDownStationId()))
         );
         return stationResponses;
     }

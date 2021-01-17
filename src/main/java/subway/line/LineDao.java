@@ -1,43 +1,41 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
+import subway.station.Station;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Repository
 public class LineDao {
-    private static final LineDao instance = new LineDao();
-    private static final List<Line> lines = new ArrayList<>();
-    private Long seq = 0L;
+    private final JdbcTemplate jdbcTemplate;
 
-    private LineDao() {
-    }
-
-    public static LineDao getInstance() {
-        return instance;
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Line save(Line line) {
-        lines.stream()
-                .filter(value -> value.getName().equals(line.getName()))
-                .findAny()
-                .ifPresent(val -> {
-                    throw new DuplicateNameException(line.getName());
-                });
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
-        return persistLine;
-    }
-
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+        String sql = "insert into line (name, color) values (?,?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, line.getName());
+            ps.setString(2, line.getColor());
+            return ps;
+        }, keyHolder);
+        return new Line(
+                keyHolder.getKey().longValue(),
+                line.getName(),
+                line.getColor());
     }
 
     private Line updateOldObject(Line sourceLine, Line destLine) {
@@ -51,31 +49,52 @@ public class LineDao {
                 });
         return destLine;
     }
-    
-    
+
+
     public List<Line> findAll() {
-        return lines;
+        String sql = "select * from line";
+        return jdbcTemplate.query(
+                sql,
+                (resultSet, rowNum) -> new Line(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("color")
+                ));
     }
 
     public Line findOne(Long id) {
-        return lines.stream()
-                .filter(line -> line.getId().equals(id))
-                .findAny()
-                .orElseGet(() -> {
-                    throw new NoContentException(id + "(Line)");
-                });
+        String sql = "select id, name, color from line where id = ?";
+        return jdbcTemplate.queryForObject(
+                sql,
+                (resultSet, rowNum) -> new Line(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("color")
+                ), id);
     }
 
-    public Line update(Long id, Line sourceLine) {
-        Line destLine = findOne(id);
-        return updateOldObject(sourceLine, destLine);
+    public Line update(Long id, Line line) {
+        String sql = "update line set name = ?, color = ? where id = ?";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, line.getName());
+            ps.setString(2, line.getColor());
+            ps.setLong(3, id);
+            return ps;
+        }, keyHolder);
+        return new Line(keyHolder.getKey().longValue(),
+                line.getName(),
+                line.getColor());
     }
 
     public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+        String sql = "delete from line where id = ?";
+        jdbcTemplate.update(sql, id);
     }
 
     public void deleteAll() {
-        lines.clear();
+        String sql = "delete from line";
+        jdbcTemplate.update(sql);
     }
 }

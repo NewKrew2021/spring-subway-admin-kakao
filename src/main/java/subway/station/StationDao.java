@@ -39,7 +39,7 @@ public class StationDao {
     }
 
     public Station findOne(Long id) {
-        String sql = "select id, name from station";
+        String sql = "select id, name from station where id = ?";
         return jdbcTemplate.queryForObject(
                 sql,
                 (resultSet, rowNum) -> new Station(

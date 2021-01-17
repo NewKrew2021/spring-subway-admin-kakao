@@ -11,10 +11,11 @@ import java.util.stream.Collectors;
 @RestController
 public class LineController {
 
-    private final LineDao lineDao = LineDao.getInstance();
+    private final LineDao lineDao;
     private final StationDao stationDao;
 
-    public LineController(StationDao stationDao) {
+    public LineController(LineDao lineDao, StationDao stationDao) {
+        this.lineDao = lineDao;
         this.stationDao = stationDao;
     }
 

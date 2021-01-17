@@ -1,21 +1,18 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
-import subway.line.Line;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -37,17 +34,21 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
-                    "insert into station (name) values (?)",
-                    Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, station.getName());
-            return ps;
-        }, keyHolder);
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                        "insert into station (name) values (?)",
+                        Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, station.getName());
+                return ps;
+            }, keyHolder);
 
-        Long id = keyHolder.getKey().longValue();
-        return new Station(id, station.getName());
+            Long id = keyHolder.getKey().longValue();
+            return new Station(id, station.getName());
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateNameException("동일한 이름을 가진 지하철 역이 이미 존재합니다.");
+        }
     }
 
     public Station findOne(Long id) {

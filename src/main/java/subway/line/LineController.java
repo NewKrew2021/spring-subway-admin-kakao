@@ -7,17 +7,18 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
 
-    private LineDao lineDao;
-    private StationDao stationDao;
-    private SectionDao sectionDao;
+    private final LineDao lineDao;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao){
+    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
@@ -25,7 +26,7 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineDao.findByName(lineRequest.getName()) != 0){
+        if (lineDao.findByName(lineRequest.getName()) != 0) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -44,7 +45,7 @@ public class LineController {
     }
 
     @GetMapping("/lines")
-    public ResponseEntity<List<LineResponse>> showStationsOfLine(){
+    public ResponseEntity<List<LineResponse>> showStationsOfLine() {
 
         return ResponseEntity.ok().body(lineDao.findAll()
                 .stream()
@@ -53,7 +54,7 @@ public class LineController {
     }
 
     @PutMapping("lines/{id}")
-    public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest){
+    public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         lineDao.modify(id, lineRequest);
         return ResponseEntity.ok().build();
     }
@@ -74,15 +75,15 @@ public class LineController {
         Section tail = findTailSection(sections);
 
         // 상행 종점 등록
-        if(head.getDownStationId() == sectionRequest.getDownStationId()) {
+        if (head.getDownStationId() == sectionRequest.getDownStationId()) {
             sectionDao.save(new Section(id, Line.HEAD, sectionRequest.getUpStationId(), 0));
             sectionDao.save(new Section(id, sectionRequest));
             sectionDao.deleteById(head.getId());
             return ResponseEntity.ok().build();
         }
 
-       // 하행 종점 등록
-        if(tail.getUpStationId() == sectionRequest.getUpStationId()) {
+        // 하행 종점 등록
+        if (tail.getUpStationId() == sectionRequest.getUpStationId()) {
             sectionDao.save(new Section(id, sectionRequest.getDownStationId(), Line.TAIL, 0));
             sectionDao.save(new Section(id, sectionRequest));
             sectionDao.deleteById(tail.getId());
@@ -90,19 +91,19 @@ public class LineController {
         }
 
         // 갈래길
-        if(sections.contains(new Section(id, sectionRequest))){
+        if (sections.contains(new Section(id, sectionRequest))) {
             return ResponseEntity.status(500).build();
         }
 
         for (Section section : sections) {
 
-            if(section.getUpStationId() == sectionRequest.getUpStationId()) {
-                if(section.getDistance() <= sectionRequest.getDistance()){
+            if (section.getUpStationId() == sectionRequest.getUpStationId()) {
+                if (section.getDistance() <= sectionRequest.getDistance()) {
                     return ResponseEntity.status(500).build();
                 }
 
                 sectionDao.save(new Section(id, sectionRequest.getDownStationId(), section.getDownStationId(),
-                        section.getDistance()- sectionRequest.getDistance()));
+                        section.getDistance() - sectionRequest.getDistance()));
                 sectionDao.save(new Section(id, sectionRequest));
                 sectionDao.deleteById(section.getId());
 
@@ -110,8 +111,8 @@ public class LineController {
                 return ResponseEntity.ok().build();
             }
 
-            if(section.getDownStationId() == sectionRequest.getDownStationId()){
-                if(section.getDistance() <= sectionRequest.getDistance()){
+            if (section.getDownStationId() == sectionRequest.getDownStationId()) {
+                if (section.getDistance() <= sectionRequest.getDistance()) {
                     return ResponseEntity.status(500).build();
                 }
 
@@ -157,7 +158,7 @@ public class LineController {
     public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
         List<Section> sections = sectionDao.findSectionsByLineId(id);
 
-        if(sections.size() <= 3) {
+        if (sections.size() <= 3) {
             return ResponseEntity.status(500).build();
         }
 

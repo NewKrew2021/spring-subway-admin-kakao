@@ -2,7 +2,6 @@ package subway.line;
 
 import subway.station.StationResponse;
 
-
 import java.util.List;
 
 public class LineResponse {
@@ -12,7 +11,8 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
-    public LineResponse () {}
+    public LineResponse() {
+    }
 
     public LineResponse(Long id, String name, String color) {
         this.id = id;

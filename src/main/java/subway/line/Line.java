@@ -4,8 +4,8 @@ public class Line {
     public static final long HEAD = 0;
     public static final long TAIL = -1;
     private Long id;
-    private String name;
-    private String color;
+    private final String name;
+    private final String color;
 
     public Line(String name, String color) {
         this.name = name;

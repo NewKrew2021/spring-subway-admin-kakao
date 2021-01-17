@@ -10,13 +10,13 @@ import java.util.List;
 
 @Repository
 public class SectionDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Section save(Section section){
+    public Section save(Section section) {
         String sql = "insert into section (line_id, up_station_id, down_station_id, distance) values (?,?,?,?)";
 
         KeyHolder keyHoler = new GeneratedKeyHolder();
@@ -39,26 +39,11 @@ public class SectionDao {
         jdbcTemplate.update("delete from section where id = ?", id);
     }
 
-    public List<Section> findSectionsByLineId(Long lineId){
+    public List<Section> findSectionsByLineId(Long lineId) {
         String sql = "select * from section where line_id = ?";
         return jdbcTemplate.query(
                 sql,
-                (resultSet,rowNum)->
-                    new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("up_station_id"),
-                        resultSet.getLong("down_station_id"),
-                        resultSet.getInt("distance")
-                    )
-                ,lineId);
-    }
-
-    public List<Section> findSectionsForDelete (Long stationId) {
-        String sql = "select * from section where up_station_id = ? OR down_station_id = ?";
-        return jdbcTemplate.query(
-                sql,
-                (resultSet,rowNum)->
+                (resultSet, rowNum) ->
                         new Section(
                                 resultSet.getLong("id"),
                                 resultSet.getLong("line_id"),
@@ -66,6 +51,21 @@ public class SectionDao {
                                 resultSet.getLong("down_station_id"),
                                 resultSet.getInt("distance")
                         )
-                ,stationId, stationId);
+                , lineId);
+    }
+
+    public List<Section> findSectionsForDelete(Long stationId) {
+        String sql = "select * from section where up_station_id = ? OR down_station_id = ?";
+        return jdbcTemplate.query(
+                sql,
+                (resultSet, rowNum) ->
+                        new Section(
+                                resultSet.getLong("id"),
+                                resultSet.getLong("line_id"),
+                                resultSet.getLong("up_station_id"),
+                                resultSet.getLong("down_station_id"),
+                                resultSet.getInt("distance")
+                        )
+                , stationId, stationId);
     }
 }

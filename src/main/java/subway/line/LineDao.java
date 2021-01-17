@@ -1,16 +1,17 @@
 package subway.line;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.List;
 
 @Repository
 public class LineDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -39,13 +40,13 @@ public class LineDao {
         String sql = "select * from line";
         return jdbcTemplate.query(
                 sql,
-                (resultSet,rowNum)->
-                    new Line(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("color")
-                    )
-                );
+                (resultSet, rowNum) ->
+                        new Line(
+                                resultSet.getLong("id"),
+                                resultSet.getString("name"),
+                                resultSet.getString("color")
+                        )
+        );
     }
 
 
@@ -53,13 +54,13 @@ public class LineDao {
         String sql = "select * from line where id = ?";
         return jdbcTemplate.queryForObject(
                 sql,
-                (resultSet,rowNum)->
-                    new Line(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("color")
-                    )
-                ,id);
+                (resultSet, rowNum) ->
+                        new Line(
+                                resultSet.getLong("id"),
+                                resultSet.getString("name"),
+                                resultSet.getString("color")
+                        )
+                , id);
     }
 
     public void deleteById(Long id) {

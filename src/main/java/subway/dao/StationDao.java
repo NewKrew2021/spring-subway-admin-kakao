@@ -22,9 +22,9 @@ public class StationDao {
         return station;
     };
 
-    public void save(Station station) {
+    public int save(Station station) {
         String sql="insert into station (name) values (?)";
-        jdbcTemplate.update(sql,station.getName());
+        return jdbcTemplate.update(sql,station.getName());
     }
 
     public Station findById(Long id){
@@ -39,8 +39,8 @@ public class StationDao {
 
     }
 
-    public boolean hasSameStationName(Station station){
-        int cnt=jdbcTemplate.queryForObject("Select count(*) From station where name=?",Integer.class,station.getName());
+    public boolean hasSameStationName(String name){
+        int cnt=jdbcTemplate.queryForObject("Select count(*) From station where name=?",Integer.class,name);
         return cnt!=0;
     }
 

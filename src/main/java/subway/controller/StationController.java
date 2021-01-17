@@ -8,6 +8,7 @@ import subway.dto.Station;
 import subway.dao.StationDao;
 import subway.dto.StationRequest;
 import subway.dto.StationResponse;
+import subway.service.StationService;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,18 +18,17 @@ import java.util.List;
 public class StationController {
     @Autowired
     StationDao stationDao;
-
+    @Autowired
+    StationService stationService;
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if(stationDao.hasSameStationName(station)){
+        if(!stationService.insertSation(station)){
             return ResponseEntity.badRequest().build();
         }
 
-        stationDao.save(station);
-
-        Station newStation = stationDao.findByName(station.getName());
+        Station newStation = stationService.findStationByName(station.getName());
 
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
@@ -37,7 +37,7 @@ public class StationController {
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> StationResponses=new ArrayList<>();
-        List<Station> stations = stationDao.findAll();
+        List<Station> stations = stationService.findAllStations();
         for (Station station : stations) {
             StationResponses.add(new StationResponse(station.getId(), station.getName()));
         }
@@ -47,7 +47,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+        stationService.deleteStation(id);
         return ResponseEntity.noContent().build();
     }
 }

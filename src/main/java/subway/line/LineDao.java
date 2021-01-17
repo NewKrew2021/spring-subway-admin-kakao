@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.DuplicateException;
+import subway.section.Section;
 import subway.station.Station;
 import subway.station.StationDao;
 
@@ -33,6 +34,40 @@ public class LineDao {
             throw new DuplicateException();
         }
 
+        return insertAtDB(line);
+    }
+
+    public void update(Line line) {
+        String updateQuery = "update line set name = ?, color = ? where id = ?";
+        jdbcTemplate.update(updateQuery, line.getName(), line.getColor(), line.getId());
+    }
+
+    public Optional<Line> findById(Long id) {
+        String selectByIdQuery = "select * from line where id = ?";
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(selectByIdQuery, new LineMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public List<Line> findAll() {
+        String selectAllQuery = "select * from line";
+        List<Line> lines = jdbcTemplate.query(selectAllQuery, new LineMapper());
+        return lines;
+    }
+
+    public void deleteById(Long id) {
+        String deleteByIdQuery = "delete from line where id = ?";
+        jdbcTemplate.update(deleteByIdQuery, id);
+    }
+
+    public boolean hasDuplicateName(String name) {
+        String countByNameQuery = "select count(*) from line where name = ?";
+        return jdbcTemplate.queryForObject(countByNameQuery, int.class, name) != 0;
+    }
+
+    private Line insertAtDB(Line line) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
@@ -53,38 +88,7 @@ public class LineDao {
         );
     }
 
-    public void update(Line line){
-        String query = "update line set name = ?, color = ? where id = ?";
-        jdbcTemplate.update(query, line.getName(), line.getColor(), line.getId());
-    }
-
-    public Optional<Line> findById(Long id){
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("select * from line where id = ?", new LineMapper(), id));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    public List<Line> findAll() {
-        String sqlQuery = "select * from line";
-        List<Line> lines = jdbcTemplate.query(sqlQuery, new LineMapper());
-        return lines;
-    }
-
-    public void deleteById(Long id) {
-        String sqlQuery = "delete from line where id = ?";
-        jdbcTemplate.update(sqlQuery, id);
-    }
-
-    public boolean hasDuplicateName(String name) {
-        String sqlQuery = "select count(*) from line where name = ?";
-        int count = jdbcTemplate.queryForObject(sqlQuery, int.class, name);
-        return count != 0;
-    }
-
     private final static class LineMapper implements RowMapper<Line> {
-
         @Override
         public Line mapRow(ResultSet rs, int rowNum) throws SQLException {
             Long id = rs.getLong("id");

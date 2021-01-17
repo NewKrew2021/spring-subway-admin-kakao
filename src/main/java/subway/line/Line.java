@@ -10,7 +10,7 @@ public class Line {
         this.color = color;
     }
 
-    public Line(Long id, String name, String color){
+    public Line(Long id, String name, String color) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -19,6 +19,7 @@ public class Line {
     public Long getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }

@@ -11,7 +11,7 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
-    public LineResponse(){
+    public LineResponse() {
 
     }
 

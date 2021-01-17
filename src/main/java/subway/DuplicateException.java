@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public class DuplicateException extends RuntimeException {
     private HttpStatus status = HttpStatus.BAD_REQUEST;
 
-    public DuplicateException(){
+    public DuplicateException() {
         super("Same name exists");
     }
 

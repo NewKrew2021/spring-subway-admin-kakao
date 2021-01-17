@@ -24,8 +24,8 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        if(hasDuplicateName(station.getName())){
-            throw new DuplicateException();
+        if(hasDuplicateName(station.getName())) {
+            throw new DuplicateException("동일한 이름을 가지는 station이 이미 존재합니다.");
         }
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -66,10 +66,9 @@ public class StationDao {
     }
 
     private boolean hasDuplicateName(String name){
-        String query = "select count(*) from station where name = ?";
-        int count = jdbcTemplate.queryForObject(query, int.class, name);
-        if (count != 0) return true;
-        return false;
+        String sqlQuery = "select count(*) from station where name = ?";
+        int count = jdbcTemplate.queryForObject(sqlQuery, int.class, name);
+        return count != 0;
     }
 
     private final static class StationMapper implements RowMapper<Station> {

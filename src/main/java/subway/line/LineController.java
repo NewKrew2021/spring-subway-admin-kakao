@@ -1,7 +1,5 @@
 package subway.line;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +18,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
+    StationDao stationDao;
     LineDao lineDao;
     SectionDao sectionDao;
-    StationDao stationDao;
-
-    Logger logger = LoggerFactory.getLogger(LineController.class);
 
     public LineController(StationDao stationDao, LineDao lineDao, SectionDao sectionDao) {
         this.stationDao = stationDao;
@@ -41,14 +37,14 @@ public class LineController {
         sectionDao.save(section);
 
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
-
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity createSection(@RequestBody SectionRequest sectionRequest,
                                         @PathVariable Long lineId) {
-        lineDao.findById(lineId).orElseThrow(() -> new NotFoundException());
+        lineDao.findById(lineId).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
+
         Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), lineId, sectionRequest.getDistance());
         sectionDao.save(section);
 
@@ -68,14 +64,13 @@ public class LineController {
 
     @GetMapping(value = "/lines/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
-        Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException());
+        Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
 
         List<StationResponse> stationResponses = new ArrayList<>();
-
         List<Long> stationIds = sectionDao.findSortedIdsByLineId(id);
 
         for(Long stationId : stationIds){
-            Station station = stationDao.findById(stationId).orElseThrow(() -> new NotFoundException());
+            Station station = stationDao.findById(stationId).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
             stationResponses.add(new StationResponse(
                 station.getId(), station.getName()
             ));
@@ -85,14 +80,15 @@ public class LineController {
                 line.getId(),
                 line.getName(),
                 line.getColor(),
-                stationResponses);
+                stationResponses
+        );
 
         return ResponseEntity.ok().body(lineResponse);
     }
 
     @PutMapping(value = "/lines/{id}")
     public ResponseEntity modifyLine(@RequestBody LineRequest lineRequest,
-                                                   @PathVariable Long id){
+                                     @PathVariable Long id){
         lineDao.update(new Line(id, lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }

@@ -24,23 +24,26 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Section save(Section section){
-        if(!canInsert(section)){
-           throw new RuntimeException();
+    public Section save(Section section) {
+        if(!canInsert(section)) {
+            throw new CannotConstructRightSectionsForLine("잘못된 section 저장입니다.");
         }
 
+        /* 중간에 끼워 넣는경우 1 : upstation을 기준으로 기존 section을 삭제하고, 새롭게 연결해주어야 할 section을 추가 */
         if(existSameUpstationId(section.getLineId(), section.getUpStationId())) {
             Section oldSection = getSectionByUpStationId(section.getLineId(), section.getUpStationId());
             addNewBackwardSection(section, oldSection);
             deleteById(oldSection.getId());
         }
 
+        /* 중간에 끼워 넣는 경우 2 : downstation을 기준으로 기존 section을 삭제하고, 새롭게 연결해주어야 할 section을 추가 */
         if(existSameDownStationId(section.getLineId(), section.getDownStationId())) {
             Section oldSection = getSectionByDownStationId(section.getLineId(), section.getDownStationId());
             addNewForwardSection(section, oldSection);
             deleteById(oldSection.getId());
         }
 
+        /* 전달된 새로운 section을 추가 */
         return insertAtDB(section);
     }
 
@@ -131,7 +134,7 @@ public class SectionDao {
         return isStartPoint.keySet().stream()
                 .filter(key -> isStartPoint.get(key))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException());
+                .orElseThrow(() -> new NotFoundException("first station을 찾는데 실패했습니다."));
     }
 
     /**
@@ -182,6 +185,8 @@ public class SectionDao {
     }
 
     public boolean canInsert(Section section){
+
+        /* line을 처음 생성하는 경우는 통과 */
         if(findAllByLineId(section.getLineId()).size() == 0) {
             return true;
         }
@@ -204,12 +209,16 @@ public class SectionDao {
     }
 
     public void deleteStation(Long lineId, Long stationId) {
+        if(!alreadyExistInLine(lineId, stationId)){
+            throw new NotFoundException("삭제할 station이 존재하지 않습니다.");
+        }
+
+        if(findAllByLineId(lineId).size() <= 2){
+            throw new CannotConstructRightSectionsForLine("해당 line에서 더 이상 station을 삭제할 수 없습니다.");
+        }
+
         Section forwardSection = getSectionByDownStationId(lineId, stationId);
         Section backwardSection = getSectionByUpStationId(lineId, stationId);
-
-        if(forwardSection == null || backwardSection == null) {
-            throw new RuntimeException();
-        }
 
         deleteById(forwardSection.getId());
         deleteById(backwardSection.getId());

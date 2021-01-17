@@ -6,17 +6,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.DuplicateException;
-import subway.station.Station;
-import subway.station.StationDao;
 
-import java.lang.reflect.Field;
+import subway.DuplicateException;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +27,7 @@ public class LineDao {
 
     public Line save(Line line) {
         if (hasDuplicateName(line.getName())) {
-            throw new DuplicateException();
+            throw new DuplicateException("동일한 이름을 가지는 line이 이미 존재합니다.");
         }
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -53,7 +50,7 @@ public class LineDao {
         );
     }
 
-    public void update(Line line){
+    public void update(Line line) {
         String query = "update line set name = ?, color = ? where id = ?";
         jdbcTemplate.update(query, line.getName(), line.getColor(), line.getId());
     }

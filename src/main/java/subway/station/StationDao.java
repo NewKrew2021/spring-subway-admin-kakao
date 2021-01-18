@@ -29,7 +29,6 @@ public class StationDao {
         long id = jdbcTemplate.update(con -> {
             PreparedStatement st = con.prepareStatement(sql);
             st.setString(1, station.getName());
-
             return st;
         }, new GeneratedKeyHolder());
 
@@ -41,9 +40,9 @@ public class StationDao {
         return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public Station findById(Long stationId) {
+    public Station findById(Long id) {
         String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, stationId);
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
     public boolean deleteById(Long id) {

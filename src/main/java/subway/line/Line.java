@@ -1,13 +1,11 @@
 package subway.line;
 
 import subway.station.Station;
-import subway.station.StationResponse;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Line {
     private Long id;
@@ -15,6 +13,12 @@ public class Line {
     private String color;
     private int extraFare;
     private List<Section> sections;
+
+    public Line(Long id, String name, String color) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+    }
 
     public Line(String name, String color, int extraFare, List<Section> sections) {
         this.name = name;
@@ -25,12 +29,7 @@ public class Line {
     }
 
     public LineResponse toDto() {
-        List<StationResponse> stationResponses = sections.stream()
-                .map(Section::getStation)
-                .map(Station::toDto)
-                .collect(Collectors.toList());
-
-        return new LineResponse(id, name, color, extraFare, stationResponses);
+        return new LineResponse(id, name, color, extraFare, null);
     }
 
     public boolean insertSection(Station upStation, Station downStation, int distance) {

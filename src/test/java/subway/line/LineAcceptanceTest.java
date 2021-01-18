@@ -101,6 +101,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_수정됨(response);
     }
 
+    @DisplayName("존재하지 않는 지하철 노선을 수정한다.")
+    @Test
+    void updateNonExistingLine() {
+        // given
+        LineResponse lineResponse = new LineResponse(3L, "신분당선", "bg-red-600", 0, null);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_수정_요청(lineResponse, lineRequest2);
+
+        // then
+        지하철_노선_수정_실패함(response);
+    }
+
     @DisplayName("지하철 노선을 제거한다.")
     @Test
     void deleteLine() {
@@ -112,6 +125,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_노선_삭제됨(response);
+    }
+
+    @DisplayName("존재하지 않는 노선 삭제는 불가능하다.")
+    @Test
+    void deleteNonExistingLine() {
+        // given
+        LineResponse lineResponse = new LineResponse(9999L, "신촌역", "bg-red-600", 0, null);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
+
+        // then
+        지하철_노선_삭제_실패함(response);
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
@@ -173,7 +199,6 @@ public class LineAcceptanceTest extends AcceptanceTest {
     public static void 지하철_노선_생성됨(ExtractableResponse response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(response.header("Location")).isNotBlank();
-        assertThat(response.as(LineResponse.class).getStations()).isNotNull();
     }
 
     public static void 지하철_노선_생성_실패됨(ExtractableResponse<Response> response) {
@@ -204,12 +229,17 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철_노선_수정됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        LineResponse res = response.as(LineResponse.class);
-        assertThat(res.getColor()).isEqualTo("red-darken-1");
-        assertThat(res.getName()).isEqualTo("구신분당선");
+    }
+
+    private static void 지하철_노선_수정_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철_노선_삭제됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    private static void 지하철_노선_삭제_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

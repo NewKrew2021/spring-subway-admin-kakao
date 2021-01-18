@@ -3,7 +3,6 @@ package subway.line;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import subway.exceptions.InvalidValueException;
 import subway.section.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import java.util.List;
@@ -28,6 +27,7 @@ public class LineDao {
     public Line save(Line line, LineRequest lineRequest) {
         List<Line> lines = findAll();
         if(lines.stream().anyMatch((Line lineSaved) ->
+                lineSaved.getName().equals(lineRequest.getName()) &&
                 lineSaved.getUpStationId(sectionDao) == lineRequest.getUpStationId() &&
                         lineSaved.getDownStationId(sectionDao) == lineRequest.getDownStationId()
         )){

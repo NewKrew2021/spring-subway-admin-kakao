@@ -1,13 +1,10 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exceptions.BadRequestException;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,9 +28,7 @@ public class LineController {
                 lineRequest.getColor(),
                 lineRequest.getExtraFare());
 
-        // 1 라인 추가
         Line newline = lineDao.save(line, lineRequest);
-        // 2. 섹션 추가
         sectionDao.save(new Section(newline.getId(),
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),

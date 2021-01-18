@@ -4,15 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import subway.exceptions.*;
-import java.util.stream.Collectors;import org.springframework.util.ReflectionUtils;
 import subway.exceptions.InvalidValueException;
-import subway.station.*;
 
 @Repository
 public class SectionDao {
@@ -28,89 +22,20 @@ public class SectionDao {
     }
 
     public Section save(Section newSection) {
-        List<Section> sections = findByLineId(newSection.getLineId());
-
-        // 중복체크
-        if(sections.stream().anyMatch(section ->
-                section.getUpStationId() == newSection.getUpStationId() &&
-                        section.getDownStationId() == newSection.getDownStationId()
-        )){ throw new InvalidValueException(); }
-
-        // 추가하려고 하는 역들이 구간에 있는 역이 아닐 경우
-        if(sections.size() > 0 && sections.stream().allMatch(section ->
-                section.getUpStationId() != newSection.getUpStationId() &&
-                section.getUpStationId() != newSection.getDownStationId() &&
-                section.getDownStationId() != newSection.getUpStationId() &&
-                section.getDownStationId() != newSection.getDownStationId()
-                )){
-            throw new InvalidValueException();
-        }
-
-
-
-        // 추가될때 상행하행 이어붙이기
-        int sectionLength = sections.size();
-        for(int i = 0; i < sectionLength ; i++){
-            Section savedSection = sections.get(i);
-            if(savedSection.getUpStationId() == newSection.getUpStationId()) {
-                if(savedSection.getDistance() <= newSection.getDistance()){
-                    throw new InvalidValueException();
-                }
-                savedSection.setUpStationId(newSection.getDownStationId());
-                savedSection.setDistance(savedSection.getDistance() - newSection.getDistance());
-            }
-            if(savedSection.getDownStationId() == newSection.getDownStationId()){
-                if(savedSection.getDistance() <= newSection.getDistance()){
-                    throw new InvalidValueException();
-                }
-                savedSection.setDownStationId(newSection.getUpStationId());
-                savedSection.setDistance(savedSection.getDistance() - newSection.getDistance());
-            }
-        }
-
-        // 새로운 종점이 생기는 경우 이어붙이기
-        for(int i = 0; i < sectionLength; i++) {
-            if(sections.get(i).getUpStationId() == newSection.getDownStationId()){
-                sections.add(i, newSection);
-                break;
-            }
-            if(sections.get(i).getDownStationId() == newSection.getUpStationId()){
-                sections.add(i+1, newSection);
-                break;
-            }
-        }
-
-
-        // 처음인 녀석
-        if (sections.size() == 0){
-            sections.add(newSection);
-        }
+        AlignSections sections = new AlignSections(findByLineId(newSection.getLineId()));
+        sections.addSection(newSection);
 
         jdbcTemplate.update("delete FROM SECTION WHERE LINE_ID = ?", newSection.getLineId());
-
-        Section returnSection = new Section();
-        for (Section section : sections) {
+        sections.applyToAllSection((Section section) -> {
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue("LINE_ID", section.getLineId())
                     .addValue("UP_STATION_ID", section.getUpStationId())
                     .addValue("DOWN_STATION_ID", section.getDownStationId())
                     .addValue("DISTANCE", section.getDistance());
-            Number id = simpleJdbcInsert.executeAndReturnKey(params);
-            if(section == newSection)
-                returnSection = findById(id.longValue());
-        }
-        return returnSection;
-    }
+            simpleJdbcInsert.executeAndReturnKey(params);
+        });
 
-    public Section findById(Long id) {
-        return jdbcTemplate.queryForObject("select * from SECTION where id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")
-                ),
-                id);
+        return sections.findByStationId(newSection.getUpStationId(), newSection.getDownStationId());
     }
 
     public List<Section> findByStationId(Long stationId) {
@@ -158,7 +83,6 @@ public class SectionDao {
                         sections.get(i).getDistance() + sections.get(i+1).getDistance() // dis
                 ));
 
-
                 deleteById(sections.get(i+1).getId());
                 break;
             }
@@ -203,13 +127,4 @@ public class SectionDao {
         List<Section> sections = findByLineId(lineId);
         return sections.get(0).getUpStationId();
     }
-
-    public int getDistance(Long lineId) {
-        List<Section> sections = findByLineId(lineId);
-        int distance = 0;
-        for (Section section : sections){
-            distance += section.getDistance();
-        }
-        return distance;
     }
-}

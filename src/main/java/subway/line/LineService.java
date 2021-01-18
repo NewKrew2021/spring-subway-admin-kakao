@@ -33,15 +33,15 @@ public class LineService {
         Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId());
         sectionDao.save(section);
 
-        return new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
+        return newLine.makeLineResponse(stations);
     }
 
     private List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
         List<StationResponse> stations = new ArrayList<>();
         Station upStation = stationDao.findById(upStationId);
         Station downStation = stationDao.findById(downStationId);
-        stations.add(new StationResponse(upStation.getId(), upStation.getName()));
-        stations.add(new StationResponse(downStation.getId(), downStation.getName()));
+        stations.add(upStation.makeStationResponse());
+        stations.add(downStation.makeStationResponse());
         return stations;
     }
 

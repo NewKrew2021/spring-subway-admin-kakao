@@ -54,6 +54,7 @@ public class SectionService {
     }
 
     public void addSection(long id, SectionRequest sectionRequest) {
+        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), id);
         Line line = lineDao.findById(id);
         List<StationResponse> stations = getStationsOfLine(line);
 
@@ -65,11 +66,11 @@ public class SectionService {
         validateSection(upStationExist, downStationExist);
 
         if (upStationExist) {
-            addSectionWhenUpStationExist(sectionRequest, line);
+            addSectionWhenUpStationExist(section, line);
             return;
         }
 
-        addSectionWhenDownStationExist(sectionRequest, line);
+        addSectionWhenDownStationExist(section, line);
     }
 
     private void addSectionWhenUpStationExist(Section section, Line line) {
@@ -88,10 +89,8 @@ public class SectionService {
             return;
         }
 
-        Section existingSection = getSectionByDownstationId(sectionRequest.getDownStationId());
-        validateDistance(sectionRequest.getDistance(), existingSection.getDistance());
-
-        addSectionDownward(sectionRequest, existingSection);
+        Section existingSection = getSectionByDownstationId(section.getDownStationId());
+        addSectionDownward(section, existingSection);
     }
 
     private void extendDownwardEdge(Section section, Line line) {
@@ -109,14 +108,9 @@ public class SectionService {
         createSection(section);
     }
 
-    private void addSectionDownward(SectionRequest sectionRequest, Section existingSection) {
-        updateSection(existingSection.getId(), new Section(existingSection.getId(),
-                existingSection.getUpStationId(), sectionRequest.getUpStationId(),
-                existingSection.getDistance() - sectionRequest.getDistance(),
-                existingSection.getLineId()));
-
-        Section newSection = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), existingSection.getLineId());
-        createSection(newSection);
+    private void addSectionDownward(Section section, Section existingSection) {
+        updateSection(existingSection.getId(), existingSection.getSectionDownStationChanged(section));
+        createSection(section);
     }
 
     private void validateSection(boolean upStationExist, boolean downStationExist) {
@@ -126,5 +120,43 @@ public class SectionService {
         if (!upStationExist && !downStationExist) {
             throw new InvalidSectionException("이어진 노선이 존재하지 않습니다.");
         }
+    }
+
+    public void deleteSection(long lineId, long stationId) {
+        Line line = lineDao.findById(lineId);
+        if (line.isStartStation(stationId)) {
+            deleteStartStation(line, stationId);
+            return;
+        }
+        if (line.isEndStation(stationId)) {
+            deleteEndStation(line, stationId);
+            return;
+        }
+        deleteMiddleStation(line, stationId);
+    }
+
+    private void deleteMiddleStation(Line line, long stationId) {
+        Section upSection = sectionDao.findByDownStationId(stationId);
+        Section downSection = sectionDao.findByUpStationId(stationId);
+        sectionDao.updateSection(upSection.getId(), upSection.getMergedSection(downSection));
+        sectionDao.deleteById(downSection.getId());
+    }
+
+    private void deleteStartStation(Line line, long stationId) {
+        Section section = sectionDao.findByUpStationId(stationId);
+        if (line.isEndStation(section.getDownStationId())) {
+            throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
+        }
+        sectionDao.deleteById(section.getId());
+        lineDao.updateById(line.getId(), line.getLineStartStationChanged(section.getDownStationId()));
+    }
+
+    private void deleteEndStation(Line line, long stationId) {
+        Section section = sectionDao.findByDownStationId(stationId);
+        if (line.isStartStation(section.getUpStationId())) {
+            throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
+        }
+        sectionDao.deleteById(section.getId());
+        lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getUpStationId()));
     }
 }

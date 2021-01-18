@@ -29,4 +29,8 @@ public class StationService {
     public void deleteStation(long id) {
         stationDao.deleteById(id);
     }
+
+    public boolean existName(String name) {
+        return stationDao.countByName(name) != 0;
+    }
 }

@@ -23,4 +23,8 @@ public class Station {
     public String getName() {
         return name;
     }
+
+    public StationResponse makeStationResponse() {
+        return new StationResponse(getId(), getName());
+    }
 }

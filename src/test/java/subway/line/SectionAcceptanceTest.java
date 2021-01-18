@@ -46,15 +46,26 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void addLineSection() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 양재역, 3);
+        지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 정자역, 2);
 
         // then
-        지하철_구간_생성됨(response, 신분당선, Arrays.asList(강남역, 양재역, 광교역));
+        지하철_구간_생성됨(response, 신분당선, Arrays.asList(강남역, 양재역, 정자역, 광교역));
     }
 
-    @DisplayName("상행이 새로운 역인 상태로 등록한다")
+    @DisplayName("하행종점이 새로운 역인 상태로 등록한다")
     @Test
-    void addLineSectionReversed() {
+    void addLineSectionRightMost() {
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 광교역, 양재역, 3);
+
+        // then
+        지하철_구간_생성됨(response, 신분당선, Arrays.asList(강남역, 광교역, 양재역));
+    }
+
+    @DisplayName("상행종점이 새로운 역인 상태로 등록한다")
+    @Test
+    void addLineSectionLeftMost() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 강남역, 3);
 
@@ -88,7 +99,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void addLineSectionWithDistanceExcess() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 광교역, 12);
 
         // then
         지하철_구간_등록_실패됨(response);
@@ -98,7 +109,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void addLineSectionWithNoStation() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 양재역, 10);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 정자역, 10);
 
         // then
         지하철_구간_등록_실패됨(response);

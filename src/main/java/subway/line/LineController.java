@@ -69,7 +69,7 @@ public class LineController {
         Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
 
         List<StationResponse> stationResponses = new ArrayList<>();
-        List<Long> stationIds = sectionDao.findSortedIdsByLineId(id);
+        List<Long> stationIds = sectionDao.findSortedStationIdsByLineId(id);
 
         for(Long stationId : stationIds){
             Station station = stationDao.findById(stationId).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));

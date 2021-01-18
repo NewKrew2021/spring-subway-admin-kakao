@@ -161,7 +161,7 @@ public class SectionDao {
         }
     }
 
-    public List<Long> findSortedIdsByLineId(Long lineId) {
+    public List<Long> findSortedStationIdsByLineId(Long lineId) {
         /* 주어진 Line 위에 정의된 모든 section들을 collect */
         List<Section> sections = findAllByLineId(lineId);
 

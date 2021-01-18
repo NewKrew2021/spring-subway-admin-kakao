@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/stations")
 public class StationController {
+    private final StationService stationService;
     private final StationDao stationDao;
 
     @Autowired
-    public StationController(StationDao stationDao) {
+    public StationController(StationService stationService, StationDao stationDao) {
+        this.stationService = stationService;
         this.stationDao = stationDao;
     }
 
@@ -28,15 +30,14 @@ public class StationController {
 
     @PostMapping("")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
+        Station newStation = stationService.createStation(stationRequest);
         StationResponse stationResponse = new StationResponse(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> response = stationDao.findAll().stream()
+        List<StationResponse> response = stationService.findAll().stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(response);
@@ -44,9 +45,8 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        boolean response = stationDao.deleteById(id);
-        if (!response) {
-            throw new InvalidIdException("존재하지 않는 Station ID 입니다. Station ID : " + id);
+        if(stationService.deleteStation(id)) {
+            throw new InvalidIdException("해당하는 ID가 없습니다. : Station ID : " + id);
         }
         return ResponseEntity.noContent().build();
     }

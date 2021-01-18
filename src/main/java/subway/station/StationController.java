@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -16,29 +15,21 @@ public class StationController {
         this.stationDao = stationDao;
     }
 
-    public StationDao getStationDao() {
-        return stationDao;
-    }
-
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.insert(station);
+        Station newStation = stationDao.insert(new Station(stationRequest.getName()));
         if (newStation == null) {
             return ResponseEntity.badRequest().build();
         }
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+
+        StationResponse response = newStation.toDto();
+        return ResponseEntity.created(URI.create("/stations/" + response.getId())).body(response);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> res = stationDao.findAll()
-                .stream()
-                .map(Station::toDto)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(res);
+        Stations stations = new Stations(stationDao.findAll());
+        return ResponseEntity.ok(stations.allToDto());
     }
 
     @GetMapping(value = "/stations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,7 +45,6 @@ public class StationController {
     @DeleteMapping("/stations/{id}")
     public ResponseEntity<?> deleteStation(@PathVariable Long id) {
         boolean deleted = stationDao.deleteById(id);
-
         if (!deleted) {
             return ResponseEntity.badRequest().build();
         }

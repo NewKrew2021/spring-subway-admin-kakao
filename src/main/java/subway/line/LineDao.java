@@ -1,63 +1,72 @@
 package subway.line;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import javax.sql.DataSource;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Repository
 public class LineDao {
-    private Long seq = 0L;
-    private List<Line> lines = new ArrayList<>();
+
+    private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
+
+    public LineDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.insertActor = new SimpleJdbcInsert(dataSource)
+                .withTableName("line")
+                .usingGeneratedKeyColumns("id");
+    }
+
+    private final RowMapper<Line> actorRowMapper = (resultSet, rowNum) -> {
+        Line line = new Line(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("color"),
+                resultSet.getLong("start_station_id"),
+                resultSet.getLong("end_station_id")
+        );
+        return line;
+    };
 
     public Line save(Line line) {
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
-        return persistLine;
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
+        Long id = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Line(id, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId());
     }
 
     public List<Line> findAll() {
-        return lines;
+        String sql = "select id, name, color, start_station_id, end_station_id from line";
+        return jdbcTemplate.query(sql, actorRowMapper);
     }
 
     public Line findById(Long id) {
+        String sql = "select id, name, color, start_station_id, end_station_id from line where id = ?";
         try {
-            return lines.stream().filter(line -> line.getId().equals(id)).findFirst().get();
-        } catch (NoSuchElementException e) {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
-    public boolean existName(String name) {
-        return lines.stream().anyMatch(it -> it.getName().equals(name));
+    public int countByName(String name) {
+        String sql = "select count(*) from line where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 
-    public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+    public int deleteById(Long id) {
+        String sql = "delete from line where id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 
-    public void updateById(Long id, Line line) {
-        int index = -1;
-        for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).getId().equals(id)) {
-                index = i;
-            }
-        }
-        if (index == -1) {
-            return;
-        }
-        System.out.printf("======================%d, %d=========================\n", findById(id).getStartStationId(), findById(id).getEndStationId());
-        lines.set(index, line);
-        System.out.printf("======================%d, %d=========================\n", findById(id).getStartStationId(), findById(id).getEndStationId());
-    }
-
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+    public int updateById(Long id, Line line) {
+        String sql = "update line set name = ?, color = ?, start_station_id = ?, end_station_id = ? where id = ?";
+        return jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId(), id);
     }
 }

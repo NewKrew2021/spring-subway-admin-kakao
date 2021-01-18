@@ -1,49 +1,59 @@
 package subway.station;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import javax.sql.DataSource;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
+
+    public StationDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.insertActor = new SimpleJdbcInsert(dataSource)
+                .withTableName("station")
+                .usingGeneratedKeyColumns("id");
+    }
+
+    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);
+        Long id = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Station(id, station.getName());
     }
 
     public List<Station> findAll() {
-        return stations;
+        String sql = "select id, name from station";
+        return jdbcTemplate.query(sql, actorRowMapper);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(station -> station.getId().equals(id));
+    public int deleteById(Long id) {
+        String sql = "delete from station where id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 
     public Station findById(Long id) {
-//        try {
-//            return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
-//        } catch (NoSuchElementException e) {
-//            throw new NotExistExcepton("해당 역이 존재하지 않습니다.");
-//        }
+        String sql = "select id, name from station where id = ?";
         try {
-            return stations.stream().filter(station -> station.getId().equals(id)).findFirst().get();
-        } catch (NoSuchElementException e) {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
-    }
-
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
     }
 }

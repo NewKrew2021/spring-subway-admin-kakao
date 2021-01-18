@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Line {
     private Long id;
-    private String color;
     private String name;
+    private String color;
     private Long upStationId;
     private Long downStationId;
 
@@ -17,37 +17,25 @@ public class Line {
     public Line() {
     }
 
-    @Override
-    public String toString() {
-        return "Line{" +
-                "id=" + id +
-                ", color='" + color + '\'' +
-                ", name='" + name + '\'' +
-                ", upStationId=" + upStationId +
-                ", downStationId=" + downStationId +
-                ", sections=" + sections +
-                '}';
-    }
-
-    public Line(String color, String name) {
+    public Line(String name, String color) {
         this.color = color;
         this.name = name;
     }
 
-    public Line(Long id, String color, String name) {
+    public Line(Long id, String name, String color) {
         this.id = id;
         this.color = color;
         this.name = name;
     }
 
-    public Line(String color, String name, Long upStationId, Long downStationId) {
+    public Line(String name, String color, Long upStationId, Long downStationId) {
         this.color = color;
         this.name = name;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
     }
 
-    public Line(Long id, String color, String name, Long upStationId, Long downStationId) {
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId) {
         this.id = id;
         this.color = color;
         this.name = name;

@@ -5,14 +5,15 @@ import subway.section.Section;
 import java.util.List;
 
 public interface LineService {
-    public Line save(Line line, Section section);
+    Line save(Line line, Section section);
 
-    public boolean deleteById(Long lineId);
+    boolean deleteById(Long lineId);
 
-    public List<Line> findAll();
+    List<Line> findAll();
 
-    public Line findOne(Long lineId);
+    Line findOne(Long lineId);
 
-    public boolean update(Line line);
+    boolean update(Line line);
 
+    boolean updateAll(Line line);
 }

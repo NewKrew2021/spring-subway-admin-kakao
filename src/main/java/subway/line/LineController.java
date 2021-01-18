@@ -30,7 +30,7 @@ public class LineController {
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.save(
-                new Line(lineRequest.getColor(), lineRequest.getName(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
+                new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
                 new Section(lineRequest.getUpStationId(),
                         lineRequest.getDownStationId(),
                         lineRequest.getDistance()));
@@ -44,7 +44,7 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         return ResponseEntity.ok(lineService.findAll()
                 .stream()
-                .map(line -> new LineResponse(line.getId(), line.getColor(), line.getName()))
+                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
                 .collect(Collectors.toList()));
     }
 
@@ -67,12 +67,12 @@ public class LineController {
                     return new StationResponse(station.getId(), station.getName());
                 }).collect(Collectors.toList());
 
-        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName(), stationResponses));
+        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses));
     }
 
     @PutMapping("/{lineId}")
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        if (!lineService.update(new Line(lineId, lineRequest.getColor(), lineRequest.getName(), lineRequest.getUpStationId(), lineRequest.getDownStationId()))) {
+        if (!lineService.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor()))) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

@@ -73,10 +73,10 @@ public class SectionServiceImpl implements SectionService {
         if (stationId == upId) {
             sections.add(sectionIdx, section);
             save(section);
-            if (sectionIdx == sections.size() - 1) {
-                lineService.update(new Line(line.getId(), line.getColor(), line.getName(), line.getUpStationId(), downId));
+            if (sectionIdx == sections.size() - 2 && section.getUpStationId() == sections.get(sectionIdx+1).getDownStationId()) {
+                lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), downId));
             }
-            if (sectionIdx < sections.size() - 1) {
+            if (sectionIdx < sections.size() - 1 && section.getUpStationId() == sections.get(sectionIdx+1).getUpStationId()) {
                 Long nextStationId = sections.get(sectionIdx + 1).getDownStationId();
                 Integer nextStationDistance = sections.get(sectionIdx + 1).getDistance() - section.getDistance();
                 deleteSectionById(sections.get(sectionIdx + 1).getSectionId());
@@ -89,15 +89,15 @@ public class SectionServiceImpl implements SectionService {
         if (stationId == downId) {
             sections.add(sectionIdx, section);
             save(section);
-            if (sectionIdx == 0) {
-                lineService.update(new Line(line.getId(), line.getColor(), line.getName(), upId, line.getDownStationId()));
+            if (sectionIdx == 0 && section.getDownStationId() == sections.get(sectionIdx+1).getUpStationId()) {
+                lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), upId, line.getDownStationId()));
             }
-            if (sectionIdx > 0) {
-                Long prevStationId = sections.get(sectionIdx - 1).getDownStationId();
-                Integer prevStationDistance = sections.get(sectionIdx - 1).getDistance() - section.getDistance();
-                deleteSectionById(sections.get(sectionIdx - 1).getSectionId());
-                sections.remove(sectionIdx - 1);
-                sections.add(sectionIdx - 1, new Section(prevStationId, upId, prevStationDistance, lineId));
+            if (sectionIdx < sections.size() - 1 && section.getDownStationId() == sections.get(sectionIdx+1).getDownStationId()) {
+                Long prevStationId = sections.get(sectionIdx+1).getUpStationId();
+                Integer prevStationDistance = sections.get(sectionIdx+1).getDistance() - section.getDistance();
+                deleteSectionById(sections.get(sectionIdx+1).getSectionId());
+                sections.remove(sectionIdx+1);
+                sections.add(sectionIdx, new Section(prevStationId, upId, prevStationDistance, lineId));
                 save(new Section(prevStationId, upId, prevStationDistance, lineId));
             }
         }
@@ -106,6 +106,7 @@ public class SectionServiceImpl implements SectionService {
 
     public boolean deleteSection(Long lineId, Long stationId) {
         List<Section> sections = getSectionsByLineId(lineId);
+        Line line = lineService.findOne(lineId);
 
         if (sections.size() == 1) {
             return false;
@@ -141,12 +142,12 @@ public class SectionServiceImpl implements SectionService {
             save(new Section(prevStationId, nextStationId, nextDistance + prevDistance, lineId));
         } else if (upFlag) {
             deleteSectionById(sections.get(upIdx).getSectionId());
-
+            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), sections.get(upIdx).getDownStationId(), line.getDownStationId()));
             sections.remove(upIdx);
         } else if (downFlag) {
             deleteSectionById(sections.get(downIdx).getSectionId());
+            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), sections.get(downIdx).getUpStationId()));
             sections.remove(downIdx);
-
         }
         return true;
     }

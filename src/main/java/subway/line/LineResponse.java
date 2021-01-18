@@ -14,17 +14,15 @@ public class LineResponse {
     public LineResponse() {
     }
 
-    public LineResponse(Long id, String name, String color) {
+    public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
+        this.stations = stations;
     }
 
     public LineResponse(Line line, List<StationResponse> stations) {
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
-        this.stations = stations;
+        this(line.getId(), line.getName(), line.getColor(), stations);
     }
 
     public Long getId() {

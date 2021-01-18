@@ -3,6 +3,9 @@ package subway.line;
 import java.util.Objects;
 
 public class Section {
+
+    public static final int VIRTUAL_DISTANCE = 0;
+
     private Long id;
     private Long lineId;
     private Long upStationId;
@@ -34,6 +37,22 @@ public class Section {
         this.distance = sectionRequest.getDistance();
     }
 
+    public boolean isUpStation(Long stationId) {
+        return getUpStationId() == stationId;
+    }
+
+    public boolean isDownStation(Long stationId) {
+        return getDownStationId() == stationId;
+    }
+
+    public boolean isHeadSection() {
+        return getUpStationId() == Line.HEAD;
+    }
+
+    public boolean isTailSection() {
+        return getDownStationId() == Line.TAIL;
+    }
+
     public Long getId() {
         return id;
     }
@@ -53,6 +72,7 @@ public class Section {
     public int getDistance() {
         return distance;
     }
+
 
     @Override
     public boolean equals(Object o) {

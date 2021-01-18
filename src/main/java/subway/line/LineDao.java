@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -11,56 +12,43 @@ import java.util.List;
 
 @Repository
 public class LineDao {
+
     private final JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<Line> lineRowMapper =
+            (resultSet, rowNum) -> new Line(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("color"));
 
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Line save(LineRequest lineRequest) {
+        String sql = "insert into line (name, color) values (?, ?)";
 
-    public Line save(Line line) {
-        String sql = "insert into line (name, color) values (?,?)";
-
-        KeyHolder keyHoler = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(e -> {
-            PreparedStatement preparedStatement = e.prepareStatement(sql,
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql,
                     Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, line.getName());
-            preparedStatement.setString(2, line.getColor());
-
+            preparedStatement.setString(1, lineRequest.getName());
+            preparedStatement.setString(2, lineRequest.getColor());
             return preparedStatement;
-        }, keyHoler);
+        }, keyHolder);
 
-        Long id = (long) keyHoler.getKey();
-        return new Line(id, line.getName(), line.getColor());
+        Long id = (long) keyHolder.getKey();
+        return new Line(id, lineRequest);
     }
 
     public List<Line> findAll() {
         String sql = "select * from line";
-        return jdbcTemplate.query(
-                sql,
-                (resultSet, rowNum) ->
-                        new Line(
-                                resultSet.getLong("id"),
-                                resultSet.getString("name"),
-                                resultSet.getString("color")
-                        )
-        );
+        return jdbcTemplate.query(sql, lineRowMapper);
     }
-
 
     public Line findById(Long id) {
         String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(
-                sql,
-                (resultSet, rowNum) ->
-                        new Line(
-                                resultSet.getLong("id"),
-                                resultSet.getString("name"),
-                                resultSet.getString("color")
-                        )
-                , id);
+        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
     public void deleteById(Long id) {

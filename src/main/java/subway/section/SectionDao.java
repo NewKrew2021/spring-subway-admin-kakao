@@ -102,14 +102,6 @@ public class SectionDao {
         return returnSection;
     }
 
-    public List<Section> findAll(Long lineId) {
-        return jdbcTemplate.query("select * from SECTION WHERE ", (rs, rowNum) ->
-                new Section(rs.getLong("line_id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")));
-    }
-
     public Section findById(Long id) {
         return jdbcTemplate.queryForObject("select * from SECTION where id = ?",
                 (rs, rowNum) -> new Section(
@@ -189,16 +181,6 @@ public class SectionDao {
                         section.getDistance(),
                         section.getLineId(),
                         sectionId);
-    }
-
-    public boolean contain(Long stationId){
-        return jdbcTemplate.query("select * from section where up_station_id = ? or down_station_id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")
-                ), new Object[]{stationId, stationId}).size() != 0;
     }
 
     public List<Section> findByLineId(Long lineId){

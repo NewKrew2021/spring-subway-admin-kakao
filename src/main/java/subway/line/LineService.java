@@ -1,26 +1,28 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
 import subway.station.Station;
 import subway.station.StationDao;
 
+import javax.annotation.Resource;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class LineService {
 
+    @Resource
     private LineDao lineDao;
-    private StationDao stationDao;
-    private SectionDao sectionDao;
 
-    public LineService() {
-        this.lineDao = LineDao.getInstance();
-        this.stationDao = StationDao.getInstance();
-        this.sectionDao = SectionDao.getInstance();
-    }
+    @Resource
+    private StationDao stationDao;
+
+    @Resource
+    private SectionDao sectionDao;
 
     public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
         Line line = new Line(lineRequest);

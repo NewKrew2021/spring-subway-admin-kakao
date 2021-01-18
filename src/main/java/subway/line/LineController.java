@@ -56,9 +56,7 @@ public class LineController {
 
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id,@RequestBody LineRequest lineRequest){
-        Line line = lineDao.findById(id);
-
-        line.updateAll(lineRequest);
+        lineDao.update(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
@@ -66,11 +64,5 @@ public class LineController {
     public ResponseEntity deleteStation(@PathVariable Long id) {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> badRequestException(){
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("BadRequestException");
-        return ResponseEntity.badRequest().body("BadRequestException");
     }
 }

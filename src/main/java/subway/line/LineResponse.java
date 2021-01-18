@@ -17,6 +17,10 @@ public class LineResponse {
     private List<StationResponse> stations;
     private int extraFare;
 
+    public void setId(Long id){
+        this.id = id;
+    }
+
     public LineResponse(){ }
 
     public LineResponse(Long id, String name, String color, List<StationResponse> stations, int extraFare) {

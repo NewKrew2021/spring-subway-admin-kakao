@@ -47,11 +47,10 @@ public class SectionDao {
         }
 
 
-        jdbcTemplate.update("delete FROM SECTION WHERE LINE_ID = ?", newSection.getLineId());
 
         // 추가될때 상행하행 이어붙이기
         int sectionLength = sections.size();
-        for(int i=0; i < sectionLength ; i++){
+        for(int i = 0; i < sectionLength ; i++){
             Section savedSection = sections.get(i);
             if(savedSection.getUpStationId() == newSection.getUpStationId()) {
                 if(savedSection.getDistance() <= newSection.getDistance()){
@@ -60,8 +59,8 @@ public class SectionDao {
                 savedSection.setUpStationId(newSection.getDownStationId());
                 savedSection.setDistance(savedSection.getDistance() - newSection.getDistance());
             }
-            if(savedSection.getDownStationId() == newSection.getUpStationId()){
-                if(sections.get(i+1).getDistance() <= newSection.getDistance()){
+            if(savedSection.getDownStationId() == newSection.getDownStationId()){
+                if(savedSection.getDistance() <= newSection.getDistance()){
                     throw new InvalidValueException();
                 }
                 savedSection.setDownStationId(newSection.getUpStationId());
@@ -72,8 +71,12 @@ public class SectionDao {
         // 새로운 종점이 생기는 경우 이어붙이기
         for(int i = 0; i < sectionLength; i++) {
             if(sections.get(i).getUpStationId() == newSection.getDownStationId()){
-                    sections.add(i, newSection);
-                    break;
+                sections.add(i, newSection);
+                break;
+            }
+            if(sections.get(i).getDownStationId() == newSection.getUpStationId()){
+                sections.add(i+1, newSection);
+                break;
             }
         }
 
@@ -82,6 +85,8 @@ public class SectionDao {
         if (sections.size() == 0){
             sections.add(newSection);
         }
+
+        jdbcTemplate.update("delete FROM SECTION WHERE LINE_ID = ?", newSection.getLineId());
 
         Section returnSection = new Section();
         for (Section section : sections) {
@@ -97,8 +102,8 @@ public class SectionDao {
         return returnSection;
     }
 
-    public List<Section> findAll() {
-        return jdbcTemplate.query("select * from SECTION", (rs, rowNum) ->
+    public List<Section> findAll(Long lineId) {
+        return jdbcTemplate.query("select * from SECTION WHERE ", (rs, rowNum) ->
                 new Section(rs.getLong("line_id"),
                         rs.getLong("up_station_id"),
                         rs.getLong("down_station_id"),
@@ -114,6 +119,17 @@ public class SectionDao {
                         rs.getInt("distance")
                 ),
                 id);
+    }
+
+    public List<Section> findByStationId(Long stationId) {
+        return jdbcTemplate.query("select * from SECTION where up_station_id = ? or down_station_id = ?",
+                (rs, rowNum) -> new Section(
+                        rs.getLong("id"),
+                        rs.getLong("up_station_id"),
+                        rs.getLong("down_station_id"),
+                        rs.getInt("distance")
+                ),
+                stationId, stationId);
     }
 
     public void deleteById(Long lineId, Long stationId) {
@@ -158,17 +174,21 @@ public class SectionDao {
 
     }
 
+    public void deleteById(Long sectionId){
+        jdbcTemplate.update("delete from section where id = ?", sectionId);
+    }
+
+    public void deleteByLineId(Long lineId){
+        jdbcTemplate.update("delete from section where line_id = ?", lineId);
+    }
+
     public void update(Long sectionId, Section section){
         jdbcTemplate.update("update section set up_station_id = ?, down_station_id = ?, distance = ?, line_id = ? where id = ?",
-                new Object[]{section.getUpStationId(),
+                        section.getUpStationId(),
                         section.getDownStationId(),
                         section.getDistance(),
                         section.getLineId(),
-                        sectionId});
-    }
-
-    public void deleteById(Long sectionId){
-        jdbcTemplate.update("delete from section where id = ?", sectionId);
+                        sectionId);
     }
 
     public boolean contain(Long stationId){
@@ -180,18 +200,6 @@ public class SectionDao {
                         rs.getInt("distance")
                 ), new Object[]{stationId, stationId}).size() != 0;
     }
-
-//    public Long ifDownIdExist(Long downId) {
-//        if (sections.stream().filter(section -> section.getDownStationId() == downId).collect(Collectors.toList()).size() == 0)
-//            return -1L;
-//        return sections.stream().filter(section -> section.getDownStationId() == downId).collect(Collectors.toList()).get(0).getId();
-//    }
-//
-//    public Long ifUpIdExist(Long upId) {
-//        if (sections.stream().filter(section -> section.getUpStationId() == upId).collect(Collectors.toList()).size() == 0)
-//            return -1L;
-//        return sections.stream().filter(section -> section.getUpStationId() == upId).collect(Collectors.toList()).get(0).getId();
-//    }
 
     public List<Section> findByLineId(Long lineId){
         return jdbcTemplate.query("SELECT * FROM SECTION WHERE line_id = ?",

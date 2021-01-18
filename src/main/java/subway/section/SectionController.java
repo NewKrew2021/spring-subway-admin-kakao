@@ -41,9 +41,4 @@ public class SectionController {
         sectionDao.deleteById(lineId, stationId);
         return ResponseEntity.ok().build();
     }
-
-    @ExceptionHandler(InvalidValueException.class)
-    public ResponseEntity<String> handleInvalidValueException(){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
 }

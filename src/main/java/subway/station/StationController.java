@@ -1,8 +1,6 @@
 package subway.station;
 
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.DuplicatesPredicate;
 import subway.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateStationException;
 
-import subway.section.SectionDao;
 
 import java.net.URI;
 import java.util.List;
@@ -43,13 +40,4 @@ public class StationController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(DuplicateStationException.class)
-    public ResponseEntity<String> handleDuplicateException(){
-        return ResponseEntity.badRequest().body("DuplicateStationException");
-    }
-
-    @ExceptionHandler(InvalidValueException.class)
-    public ResponseEntity<String> handleInvalidValueException(){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
 }

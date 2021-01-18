@@ -14,6 +14,7 @@ import subway.exceptions.BadRequestException;
 public class LineDao {
     @Autowired
     SectionDao sectionDao;
+
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert simpleJdbcInsert;
 
@@ -27,7 +28,6 @@ public class LineDao {
     public Line save(Line line, LineRequest lineRequest) {
         List<Line> lines = findAll();
         if(lines.stream().anyMatch((Line lineSaved) ->
-                lineSaved.getName().equals(line.getName()) &&
                 lineSaved.getUpStationId(sectionDao) == lineRequest.getUpStationId() &&
                         lineSaved.getDownStationId(sectionDao) == lineRequest.getDownStationId()
         )){
@@ -40,6 +40,15 @@ public class LineDao {
                 .addValue("extra_fare", line.getExtraFare());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         return findById(id.longValue());
+    }
+
+    public void update(Long lineId, LineRequest lineRequest){
+        jdbcTemplate.update("update line set name = ?, color = ?, extra_fare = ? where id=?",
+                        lineRequest.getName(),
+                        lineRequest.getColor(),
+                        lineRequest.getExtraFare(),
+                        lineId
+                        );
     }
 
     public List<Line> findAll() {
@@ -67,9 +76,11 @@ public class LineDao {
                 }, id);
     }
 
-    public void deleteById(Long id) {
-        jdbcTemplate.update("delete from LINE where id = ?", id);
+    public void deleteById(Long lineId) {
+        if(sectionDao.findByLineId(lineId).size() > 1){
+            throw new BadRequestException();
+        }
+        jdbcTemplate.update("delete from LINE where id = ?", lineId);
+        sectionDao.deleteByLineId(lineId);
     }
-
-
 }

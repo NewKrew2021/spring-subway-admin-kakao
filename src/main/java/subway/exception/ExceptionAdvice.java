@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -39,9 +40,14 @@ public class ExceptionAdvice {
         return ResponseEntity.badRequest().body("잘못된 요청입니다.");
     }
 
-    private void logExceptionInfo(Exception e){
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleMethodArgumentNotValidExceptionException(Exception e) {
+        logExceptionInfo(e);
+        return ResponseEntity.badRequest().body("잘못된 입력입니다.");
+    }
+
+    private void logExceptionInfo(Exception e) {
         logger.warn(e.getMessage());
-        logger.warn(e.getClass().toString());
-        logger.warn(Arrays.toString(e.getSuppressed()));
+        logger.warn(e.getClass().toString() + " / " + Arrays.toString(e.getSuppressed()));
     }
 }

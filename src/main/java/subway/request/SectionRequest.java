@@ -3,10 +3,23 @@ package subway.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import subway.domain.Section;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 public class SectionRequest {
+    @Positive
+    @NotNull
     private final Long lineId;
+    @Positive
+    @NotNull
     private final Long upStationId;
+    @Positive
+    @NotNull
     private final Long downStationId;
+    @Min(1)
+    @Max(100000)
     private final int distance;
 
     public SectionRequest(@JsonProperty("lineId") Long lineId,

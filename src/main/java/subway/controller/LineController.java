@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.domain.OrderedStations;
 import subway.exception.custom.CannotDeleteSectionException;
 import subway.exception.custom.DifferentLineIdException;
+import subway.request.LineChangeRequest;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
 import subway.response.LineResponse;
@@ -15,6 +16,7 @@ import subway.response.SectionResponse;
 import subway.service.LineService;
 import subway.service.SectionService;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class LineController {
 
     @Transactional
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+    public ResponseEntity<LineResponse> createLine(@RequestBody @Valid LineRequest lineRequest) {
         LineResponse lineResponse = lineService.createLine(lineRequest);
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
@@ -48,8 +50,8 @@ public class LineController {
     }
 
     @PutMapping(value = "/{lineId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity modifyLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        return lineService.modifyLine(lineId, lineRequest) ?
+    public ResponseEntity modifyLine(@PathVariable Long lineId, @RequestBody @Valid LineChangeRequest lineChangeRequest) {
+        return lineService.modifyLine(lineId, lineChangeRequest) ?
                 ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
@@ -62,7 +64,7 @@ public class LineController {
 
     @Transactional
     @PostMapping(value = "/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SectionResponse> addSectionToLine(@RequestBody SectionRequest sectionRequest,
+    public ResponseEntity<SectionResponse> addSectionToLine(@RequestBody @Valid SectionRequest sectionRequest,
                                                             @PathVariable Long lineId) {
         validateLineId(lineId, sectionRequest.getLineId());
         SectionResponse sectionResponse = sectionService.addSectionToLine(sectionRequest);

@@ -6,6 +6,7 @@ import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
 import subway.domain.*;
+import subway.request.LineChangeRequest;
 import subway.request.LineRequest;
 import subway.response.LineResponse;
 
@@ -53,8 +54,8 @@ public class LineService {
         return new LineResponse(line, stations);
     }
 
-    public boolean modifyLine(Long id, LineRequest lineRequest) {
-        return lineDao.update(id, new Line(lineRequest.getName(), lineRequest.getColor()));
+    public boolean modifyLine(Long id, LineChangeRequest lineChangeRequest) {
+        return lineDao.update(id, new Line(lineChangeRequest.getName(), lineChangeRequest.getColor()));
     }
 
     public boolean deleteLine(Long id) {

@@ -8,6 +8,7 @@ import subway.request.StationRequest;
 import subway.response.StationResponse;
 import subway.service.StationService;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class StationController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
+    public ResponseEntity<StationResponse> createStation(@RequestBody @Valid StationRequest stationRequest) {
         StationResponse stationResponse = stationService.createStation(stationRequest);
         return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }

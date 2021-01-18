@@ -25,6 +25,9 @@ dependencies {
     // spring jdbc
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
+    // request validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     // database
     runtimeOnly 'com.h2database:h2'
 

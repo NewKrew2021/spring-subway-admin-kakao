@@ -57,4 +57,8 @@ public class SectionDao {
                 .collect(Collectors.toList());
     }
 
+    public void update(Long id, Section updateSection) {
+        Section section = findById(id).get();
+        section.update(updateSection);
+    }
 }

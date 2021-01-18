@@ -43,4 +43,9 @@ public class Section {
         return lineId;
     }
 
+    public void update(Section updateSection) {
+        this.upStationId = updateSection.getUpStationId();
+        this.downStationId = updateSection.getDownStationId();
+        this.distance = updateSection.getDistance();
+    }
 }

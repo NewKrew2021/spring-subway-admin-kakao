@@ -79,11 +79,11 @@ public class LineService {
         return stations;
     }
 
-    public boolean isAddStation(Long sectionRequestStationId , Long lineStationId){
+    public boolean isAddStation(Long sectionRequestStationId, Long lineStationId) {
         return sectionRequestStationId.equals(lineStationId);
     }
 
-    public void addDownStation(Line line, SectionRequest sectionRequest, Section newSection){
+    public void addLastStation(Line line, SectionRequest sectionRequest, Section newSection) {
         // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
                 line.getUpStationId(),
@@ -96,7 +96,7 @@ public class LineService {
         sectionDao.save(newSection);
     }
 
-    public void addUpStation(Line line, SectionRequest sectionRequest, Section newSection){
+    public void addFirstStation(Line line, SectionRequest sectionRequest, Section newSection) {
         // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
                 sectionRequest.getUpStationId(),
@@ -108,6 +108,69 @@ public class LineService {
         // SectionDao에서 구간 추가
         sectionDao.save(newSection);
     }
+
+    public void addDownStation(Map<Long, Section> orderedSections, Line line, SectionRequest sectionRequest) {
+        Long upStationId = sectionRequest.getUpStationId();
+        int distanceSum = 0;
+
+        while (orderedSections.containsKey(upStationId)) {
+            Section section = orderedSections.get(upStationId);
+
+            if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
+                Section newSection = new Section(
+                        line.getId(),
+                        upStationId,
+                        sectionRequest.getDownStationId(),
+                        sectionRequest.getDistance() - distanceSum);
+
+                sectionDao.save(newSection);
+
+                Section updateSection = new Section(
+                        line.getId(),
+                        sectionRequest.getDownStationId(),
+                        section.getDownStationId(),
+                        distanceSum + section.getDistance() - sectionRequest.getDistance());
+
+                sectionDao.update(section.getId(), updateSection);
+                return;
+            }
+
+            upStationId = section.getDownStationId();
+            distanceSum += section.getDistance();
+        }
+    }
+
+    public void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest sectionRequest) {
+        Long downStationId = sectionRequest.getDownStationId();
+        int distanceSum = 0;
+
+        while (reverseOrderedSections.containsKey(downStationId)) {
+            Section section = reverseOrderedSections.get(downStationId);
+
+            if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
+                Section newSection = new Section(
+                        line.getId(),
+                        sectionRequest.getUpStationId(),
+                        downStationId,
+                        sectionRequest.getDistance() - distanceSum);
+
+                sectionDao.save(newSection);
+
+                Section updateSection = new Section(
+                        line.getId(),
+                        section.getUpStationId(),
+                        sectionRequest.getUpStationId(),
+                        distanceSum + section.getDistance() - sectionRequest.getDistance());
+
+                sectionDao.update(section.getId(), updateSection);
+                return;
+            }
+
+            downStationId = section.getUpStationId();
+            distanceSum += section.getDistance();
+        }
+    }
+
 
     public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
         Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
@@ -121,13 +184,28 @@ public class LineService {
 
         // 하행 종점 변경 (A -> B -> (C))
         if (isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
-            addDownStation(line,sectionRequest,newSection);
+            addLastStation(line, sectionRequest, newSection);
+            return ResponseEntity.ok().build();
         }
 
         // 상행 종점 변경 ((C) -> A -> B)
         if (isAddStation(sectionRequest.getDownStationId(), line.getUpStationId())) {
-            addUpStation(line,sectionRequest,newSection);
+            addFirstStation(line, sectionRequest, newSection);
+            return ResponseEntity.ok().build();
         }
+
+        // 하행역 추가
+        if (orderedSections.containsKey(sectionRequest.getUpStationId())) {
+            addDownStation(orderedSections, line, sectionRequest);
+            return ResponseEntity.ok().build();
+        }
+
+        // 상행역 추가
+        if (reverseOrderedSections.containsKey(sectionRequest.getDownStationId())) {
+            addUpStation(reverseOrderedSections, line, sectionRequest);
+            return ResponseEntity.ok().build();
+        }
+
 
         return ResponseEntity.ok().build();
     }

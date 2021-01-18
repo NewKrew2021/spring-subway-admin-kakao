@@ -76,13 +76,12 @@ public class LineController {
         Section newSection = new Section(id, sectionRequest);
 
         if(sections.hasSameSection(newSection)){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new IllegalArgumentException("이미 존재하는 구간입니다.");
         }
 
         if(sections.isNotExistStations(newSection)){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new IllegalArgumentException("요청한 역 중 하나는 노선에 존재해야 합니다.");
         }
-
 
         Section originSection = sections.sameUpStationOrDownStation(newSection);
         Section subSection = originSection.getSubSection(newSection);
@@ -106,7 +105,7 @@ public class LineController {
         int sectionsCount = sectionDao.countByLineId(id);
 
         if(sectionsCount <= 3) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new IllegalArgumentException("마지막 구간은 삭제할 수 없습니다");
         }
 
         Section front = sectionDao.findSectionByLineIdAndDownStationId(id, stationId);

@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,23 +19,26 @@ import java.util.stream.Collectors;
 public class LineController {
     private LineDao lineDao;
     private StationDao stationDao;
+    private SectionService sectionService;
+    private LineService lineService;
 
-    public LineController(){
-        lineDao = LineDao.getInstance();
-        stationDao = StationDao.getInstance();
+    public LineController(LineDao lineDao, StationDao stationDao, SectionService sectionService, LineService lineService){
+        this.lineDao = lineDao;
+        this.stationDao = stationDao;
+        this.sectionService = sectionService;
+        this.lineService = lineService;
     }
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createStation(@RequestBody LineRequest lineRequest) {
-        List<Station> stations = new LinkedList<>(
-                Arrays.asList(stationDao.findById(lineRequest.getUpStationId()),
-                        stationDao.findById(lineRequest.getDownStationId())));
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), stations);
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
         if (newLine == null) {
             return ResponseEntity.badRequest().build();
         }
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getColor(), newLine.getName());
+        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
+        // stations 안만들어줌!!!!!
+        // TO DO
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -50,14 +53,15 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineDao.findById(lineId);
+        Line line = lineDao.findLineById(lineId);
         if (line == null) {
             System.out.println("문제 발생");
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = line.getStations().stream()
+        List<StationResponse> stationResponses = lineService.getStations(line).stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
+
         LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
         return ResponseEntity.ok(lineResponse);
     }
@@ -77,9 +81,9 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         try {
-            lineDao.updateStation(section);
+            sectionService.insert(newSection);
         } catch(IllegalArgumentException illegalArgumentException) {
             System.out.println("섹션 문제 발");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

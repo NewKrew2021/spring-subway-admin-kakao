@@ -1,18 +1,22 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import subway.station.Station;
 import subway.station.StationDao;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Line {
     private Long id;
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
-    private List<Station> stations = new LinkedList<>();
+
+    @Autowired
+    private SectionService sectionService;
+
+    @Autowired
+    private StationDao stationDao;
 
     public Line() {}
 
@@ -24,15 +28,6 @@ public class Line {
         this.id = id;
         this.name = name;
         this.color = color;
-    }
-
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance, List<Station> stations) {
-        this.name = name;
-        this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.stations = stations;
     }
 
     public Long getId() {
@@ -47,45 +42,26 @@ public class Line {
         return color;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
-    }
-
-    public List<Station> getStations() {
-        return stations;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Line line = (Line) o;
-        return distance == line.distance && Objects.equals(id, line.id) && Objects.equals(name, line.name) && Objects.equals(color, line.color) && Objects.equals(upStationId, line.upStationId) && Objects.equals(downStationId, line.downStationId);
+        return Objects.equals(id, line.id) && Objects.equals(name, line.name) && Objects.equals(color, line.color);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, color, upStationId, downStationId, distance);
+        return Objects.hash(id, name, color);
     }
 
-    public void updateDownStationId(Long downStationId) {
-        this.downStationId = downStationId;
-    }
-
-    public void updateUpStationId(Long upStationId) {
-        this.upStationId = upStationId;
-    }
-
-    public void updateDistance(int distance){
-        this.distance = distance;
+    public List<Long> getStationIds(){
+        List<Section> sections = sectionService.showAll(this.id);
+        List<Long> stationIds = sections.stream()
+                .map(Section::getUpStationId)
+                .collect(Collectors.toList());
+        stationIds.add(sections.get(sections.size()-1).getDownStationId());
+        return stationIds;
     }
 
 }

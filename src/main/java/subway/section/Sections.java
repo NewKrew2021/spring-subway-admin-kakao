@@ -1,4 +1,6 @@
-package subway.line;
+package subway.section;
+
+import subway.line.LineRequest;
 
 import java.util.ArrayList;
 import java.util.List;

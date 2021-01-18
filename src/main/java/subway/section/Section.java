@@ -1,10 +1,22 @@
-package subway.line;
+package subway.section;
 
 public class Section {
 
+    private long id;
+    private long lineId;
     private int upDistance;
     private long stationId;
     private int downDistance;
+    private long nextId;
+
+    public Section(long id, long lineId, int upDistance, long stationId, int downDistance, long nextId) {
+        this.id = id;
+        this.lineId = lineId;
+        this.upDistance = upDistance;
+        this.stationId = stationId;
+        this.downDistance = downDistance;
+        this.nextId = nextId;
+    }
 
     public Section(int upDistance, long stationId, int downDistance) {
         this.upDistance = upDistance;

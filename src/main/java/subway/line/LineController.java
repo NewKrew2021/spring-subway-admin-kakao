@@ -20,25 +20,27 @@ public class LineController {
     private final LineDao lineDao;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
+    private LineService lineService;
 
     public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
+        lineService = new LineService(lineDao, sectionDao);
     }
 
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-
-        Line line = new Line(lineRequest); //생성하면, Line에 대한 정보만 있고, station ID도 있으나, 그 id들로 station의 정보도 가져와한다. 그 가져온정보로 lineResponse를 만들어야한다.
-
-        if (lineDao.hasContains(line)) {
+        if( lineDao.hasContainLine(lineRequest.getName()) ) {
             return ResponseEntity.badRequest().build();
         }
-        Line newLine = lineDao.save(line);
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), null);
 
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+        Long id = lineService.requestToLine(lineRequest.getName(), lineRequest.getColor());
+        lineService.createTerminalSections(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), id);
+
+        LineResponse lineResponse = new LineResponse(id, lineRequest.getName(), lineRequest.getColor(), null);
+
+        return ResponseEntity.created(URI.create("/lines/" + id)).body(lineResponse);
     }
 
     @GetMapping("/lines")
@@ -51,17 +53,12 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLineById(@PathVariable long lineId) {
-        Line line = lineDao.getLine(lineId); // 이 단계에서 station id는 line이 갖고 있으나, station 에 각각에 대한 정보는 없다.
-        //Line 은 만든다. Section이 없다.
-        Sections sections = new Sections(sectionDao.getSections(lineId));
-
-        List<Long> stationsId = line.getStationsId();
-        List<StationResponse> stationResponses = stationsId
+        List<StationResponse> stationResponses = lineService.getStationsId(lineId)
                 .stream()
                 .map(stationDao::findById)
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
-        LineResponse lineResponse = new LineResponse(line, stationResponses); // 여기 lineResponse에 Line과 station 정보를 둘다 넣어줘야 한다.
+        LineResponse lineResponse = new LineResponse(lineDao.getLine(lineId), stationResponses); // 여기 lineResponse에 Line과 station 정보를 둘다 넣어줘야 한다.
         return ResponseEntity.ok(lineResponse);
     }
 

@@ -2,11 +2,14 @@ package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,27 +32,33 @@ public class LineDao {
 
      */
 
-    public Line save(Line line) {
+    public Long save(Line line) {
         String SQL = "INSERT INTO line(name,color) VALUES (?,?)";
-        String SELECT_SQL = "SELECT * FROM line where name = ?";
-        jdbcTemplate.update(SQL, line.getName(), line.getColor());
-        return jdbcTemplate.queryForObject(
-                SELECT_SQL,
-                (resultSet, rowNum) -> new Line(resultSet.getLong("id"), resultSet.getString("name"), resultSet.getString("color")),
-                line.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, new String[]{"id"});
+            preparedStatement.setString(1, line.getName());
+            preparedStatement.setString(2, line.getColor());
+            return preparedStatement;
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
-    public boolean hasContains(Line line) {
-        String SQL = "SELECT * FROM line";
-        List<Line> lines = jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Line(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("color")
-                )
-        );
-        return lines.contains(line);
+    public boolean hasContainLine(String name) {
+        String SQL = "SELECT count(*) FROM line WHERE name = ?";
+        int count = jdbcTemplate.queryForObject(SQL, Integer.class, name);
+//        Line line = jdbcTemplate.queryForObject(
+//                SQL,
+//                (resultSet, rowNum) -> new Line(
+//                        resultSet.getLong("id"),
+//                        resultSet.getString("name"),
+//                        resultSet.getString("color")
+//                ),
+//                name
+//        );
+        return count != 0;
     }
 
 

@@ -28,6 +28,12 @@ public class Line {
         this.color = lineRequest.getColor();
 
         this.sections = new Sections(lineRequest);
+
+    }
+
+    public Line(String name, String color) {
+        this.name = name;
+        this.color = color;
     }
 
     public long getId() {

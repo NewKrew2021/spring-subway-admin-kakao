@@ -9,7 +9,7 @@ public class LineRequest {
     private Long downStationId;
     private int distance;
 
-    public LineRequest() {
+    LineRequest() {
     }
 
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
@@ -18,6 +18,14 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line toEntity() {
+        return new Line(name, color);
+    }
+
+    public Line toEntity(Long id) {
+        return new Line(id, name, color);
     }
 
     public SectionRequest getSectionRequest() {

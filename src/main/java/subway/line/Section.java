@@ -34,7 +34,7 @@ public class Section {
     }
 
     private void validateDistance(int distance) {
-        if (distance < 0) {
+        if (distance <= 0) {
             throw new InvalidSectionException(INVALID_DISTANCE_MESSAGE);
         }
     }

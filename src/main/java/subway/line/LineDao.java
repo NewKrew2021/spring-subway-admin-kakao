@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -8,8 +9,12 @@ import org.springframework.stereotype.Repository;
 import subway.section.Section;
 import subway.section.SectionDao;
 
+import javax.sql.RowSet;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class LineDao {
@@ -37,11 +42,13 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        return lines;
+        String sql = "select * from LINE";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("color"), rs.getString("name")));
     }
 
     public Line findOne(Long lineId) {
-        return lines.stream().filter(line -> line.getId().equals(lineId)).findFirst().get();
+        String sql = "select * from LINE where id = ?";
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("color"), rs.getString("name")), lineId);
     }
 
     public void update(Line line) {

@@ -3,33 +3,40 @@ package subway.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Station;
 import subway.query.Sql;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
 public class StationDao {
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate parameterJdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
     private final RowMapper<Station> stationMapper = (rs, rowNum) ->
             new Station(rs.getLong(1), rs.getString(2));
 
     @Autowired
-    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate) {
+    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate,
+                      DataSource dataSource) {
         this.jdbcTemplate = jdbcTemplate;
         this.parameterJdbcTemplate = parameterJdbcTemplate;
+        this.insertActor = new SimpleJdbcInsert(dataSource)
+                .withTableName("station")
+                .usingGeneratedKeyColumns("id");
     }
 
     public Station save(Station station) {
-        this.jdbcTemplate.update(Sql.INSERT_STATION, station.getName());
-        return this.jdbcTemplate.queryForObject(Sql.SELECT_STATION_WITH_NAME,
-                stationMapper,
-                station.getName());
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);
+        Long stationId = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Station(stationId, station.getName());
     }
 
     public Station getById(Long stationId) {

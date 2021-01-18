@@ -3,28 +3,35 @@ package subway.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
 import subway.query.Sql;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
 public class LineDao {
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
     private final RowMapper<Line> lineMapper = (rs, rowNum) ->
             new Line(rs.getLong(1), rs.getString(2), rs.getString(3));
 
     @Autowired
-    public LineDao(JdbcTemplate jdbcTemplate) {
+    public LineDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
         this.jdbcTemplate = jdbcTemplate;
+        this.insertActor = new SimpleJdbcInsert(dataSource)
+                .withTableName("line")
+                .usingGeneratedKeyColumns("id");
     }
 
     public Line save(Line line) {
-        this.jdbcTemplate.update(Sql.INSERT_LINE, line.getName(), line.getColor());
-        return this.jdbcTemplate.queryForObject(Sql.SELECT_LINE_WITH_NAME,
-                lineMapper,
-                line.getName());
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
+        Long lineId = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Line(lineId, line.getName(), line.getColor());
     }
 
     public List<Line> findAll() {

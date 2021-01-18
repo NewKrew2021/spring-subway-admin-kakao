@@ -45,8 +45,8 @@ public class SectionService {
         return sectionDao.findByUpStationId(id);
     }
 
-    public Section getSectionByDownstationId(Long id) {
-        return sectionDao.findByDownStationId(id);
+    public Section getSectionByDownstationIdAndLineId(Long downStationId, Long lineId) {
+        return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
     }
 
     public void updateSection(long id, Section section) {
@@ -89,7 +89,7 @@ public class SectionService {
             return;
         }
 
-        Section existingSection = getSectionByDownstationId(section.getDownStationId());
+        Section existingSection = getSectionByDownstationIdAndLineId(section.getDownStationId(), line.getId());
         addSectionDownward(section, existingSection);
     }
 
@@ -136,14 +136,14 @@ public class SectionService {
     }
 
     private void deleteMiddleStation(Line line, long stationId) {
-        Section upSection = sectionDao.findByDownStationId(stationId);
-        Section downSection = sectionDao.findByUpStationId(stationId);
+        Section upSection = sectionDao.findByDownStationIdAndLineId(stationId, line.getId());
+        Section downSection = sectionDao.findByUpStationIdAndLineId(stationId, line.getId());
         sectionDao.updateSection(upSection.getId(), upSection.getMergedSection(downSection));
         sectionDao.deleteById(downSection.getId());
     }
 
     private void deleteStartStation(Line line, long stationId) {
-        Section section = sectionDao.findByUpStationId(stationId);
+        Section section = sectionDao.findByUpStationIdAndLineId(stationId, line.getId());
         if (line.isEndStation(section.getDownStationId())) {
             throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
         }
@@ -152,7 +152,7 @@ public class SectionService {
     }
 
     private void deleteEndStation(Line line, long stationId) {
-        Section section = sectionDao.findByDownStationId(stationId);
+        Section section = sectionDao.findByDownStationIdAndLineId(stationId, line.getId());
         if (line.isStartStation(section.getUpStationId())) {
             throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
         }

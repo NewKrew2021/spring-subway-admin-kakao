@@ -33,16 +33,13 @@ public class SectionService {
     }
 
     public boolean insertSection(Line nowLine, Section newSection) {
-
         List<Section> sectionListFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
-
         if (isMatchedOnlyUpEndStation(nowLine, newSection)) {
             sectionDao.save(newSection);
             nowLine.setUpStationId(newSection.getUpStationId());
             lineDao.modifyLineStationId(nowLine);
             return true;
         }
-
         if (isMatchedOnlyDownEndStation(nowLine, newSection)) {
             sectionDao.save(newSection);
             nowLine.setDownStationId(newSection.getDownStationId());
@@ -68,28 +65,22 @@ public class SectionService {
 
 
     public boolean deleteStation(Line line, Long stationId) {
-
         List<Section> sectionListFromNowLine = sectionDao.findSectionsByLineId(line.getId());
-
-
         if (sectionListFromNowLine.size() <= MIN_SECTION_SIZE) {
             return false;
         }
-
         if (line.getUpStationId().equals(stationId)) {
             Section removeTargetSection = sectionListFromNowLine.get(0);
             sectionDao.deleteSection(removeTargetSection.getId());
             lineDao.modifyLineUpStationId(line.getId(), removeTargetSection.getDownStationId());
             return true;
         }
-
         if (line.getDownStationId().equals(stationId)) {
             Section removeTargetSection = sectionListFromNowLine.get(sectionListFromNowLine.size() - 1);
             sectionDao.deleteSection(removeTargetSection.getId());
             lineDao.modifyLineDownStationId(line.getId(), removeTargetSection.getUpStationId());
             return true;
         }
-
         int index = 0;
         for (Section section : sectionListFromNowLine) {
             if (section.getDownStationId().equals(stationId)) {

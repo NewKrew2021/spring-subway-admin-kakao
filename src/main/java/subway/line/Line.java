@@ -66,10 +66,10 @@ public class Line {
         distance += sectionRequest.getDistance();
     }
 
-    public List<StationResponse> getStationResponses() {
+    public List<Long> getStationsId() {
         return sections.getSections()
                 .stream()
-                .map(Section::convertStationResponse)
+                .map(Section::getStationId)
                 .collect(Collectors.toList());
     }
 

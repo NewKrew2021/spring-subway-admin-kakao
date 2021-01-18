@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;

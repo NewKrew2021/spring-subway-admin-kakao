@@ -11,7 +11,12 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
-    public LineResponse(Line line) {
+    public LineResponse() {
+        // 없으면 jackson.databind 오류가 발생함. 기본생성자가 있어야 가능하다.
+    }
+
+
+    public LineResponse(Line line, List<StationResponse> stationResponses) {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();

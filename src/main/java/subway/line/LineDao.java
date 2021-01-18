@@ -30,7 +30,6 @@ public class LineDao {
             jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
             lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, lineRequest.getName());
         } catch (Exception e) {
-            e.printStackTrace();
             throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
         }
         return lineId;

@@ -1,6 +1,10 @@
 package subway.line;
 
+import subway.exceptions.InvalidSectionException;
+
 public class Section {
+
+    private static final String INVALID_DISTANCE_MESSAGE = "추가될 구간의 거리가 기존 노선 거리보다 깁니다.";
 
     private Long id;
     private Long lineId;
@@ -14,33 +18,32 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, int distance) {
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this(upStationId, downStationId);
+        validateDistance(distance);
         this.distance = distance;
     }
 
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+        this(upStationId, downStationId, distance);
         this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
     }
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        this(lineId, upStationId, downStationId, distance);
         this.id = id;
-        this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
     }
 
-    private Long getId() {
+    private void validateDistance(int distance) {
+        if (distance < 0) {
+            throw new InvalidSectionException(INVALID_DISTANCE_MESSAGE);
+        }
+    }
+
+    public Long getId() {
         return id;
     }
 
-    private Long getLineId() {
-        return lineId;
-    }
+    public Long getLineId() { return lineId; }
 
     public Long getUpStationId() {
         return upStationId;
@@ -54,7 +57,4 @@ public class Section {
         return distance;
     }
 
-    public boolean contains(Long id) {
-        return upStationId == id || downStationId == id;
-    }
 }

@@ -30,17 +30,9 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineRequest.getDownStationId() == null || lineRequest.getUpStationId() == null || lineRequest.getDistance() == 0) {
-            throw new InvalidLineArgumentException("모든 정보를 입력해주세요.");
-        }
-        if (lineRequest.getDownStationId() == lineRequest.getUpStationId()) {
-            throw new InvalidLineArgumentException("상행종점과 하행종점은 같을 수 없습니다.");
-        }
         Line newLine = lineService.save(lineRequest);
-
         List<StationResponse> stationResponses = lineService.getStationResponsesById(newLine.getId());
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
-
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -52,7 +44,6 @@ public class LineController {
         }
         List<StationResponse> stationResponses = lineService.getStationResponsesById(showLine.getId());
         LineResponse lineResponse = new LineResponse(showLine.getId(), showLine.getName(), showLine.getColor(), stationResponses);
-
         return ResponseEntity.ok().body(lineResponse);
     }
 
@@ -83,12 +74,11 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable(name = "lineId") Long id, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        Line line = lineService.saveSection(id, sectionRequest);
+        lineService.saveSection(id, sectionRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(path = "/lines/{lineId}/sections")
+    @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @RequestParam(name = "stationId") Long stationId) {
         lineService.deleteStationById(lineId, stationId);
         return ResponseEntity.ok().build();

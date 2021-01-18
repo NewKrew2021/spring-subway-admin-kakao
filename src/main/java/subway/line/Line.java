@@ -32,6 +32,14 @@ public class Line {
         this.endStationId = endStationId;
     }
 
+    public boolean isLineStartStation(Long stationId) {
+        return startStationId == stationId;
+    }
+
+    public boolean isLineEndStation(Long stationId) {
+        return endStationId == stationId;
+    }
+
     public Long getId() {
         return id;
     }

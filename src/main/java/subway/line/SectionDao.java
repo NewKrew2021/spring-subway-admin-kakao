@@ -23,6 +23,14 @@ public class SectionDao {
         return section;
     };
 
+    private final RowMapper<Section> stationRowMapper = (resultSet, rowNum) -> {
+        Section section = new Section(
+                resultSet.getLong("up_station_id"),
+                resultSet.getLong("down_station_id")
+        );
+        return section;
+    };
+
     public void save(Long lineId, SectionRequest sectionRequest) {
         String sql = "insert into SECTION(line_id, up_station_id, down_station_id, distance) VALUES(?,?,?,?)";
         try {
@@ -33,7 +41,7 @@ public class SectionDao {
     }
 
     public Section findById(Long id) {
-        return jdbcTemplate.queryForObject("select * from SECTION where id = ?", sectionRowMapper, id);
+        return jdbcTemplate.queryForObject("select id, up_station_id, down_station_id, distance from SECTION where id = ?", sectionRowMapper, id);
     }
 
     public int countByLineId(Long id) {
@@ -69,19 +77,19 @@ public class SectionDao {
         return jdbcTemplate.queryForObject(sql, Integer.class, id);
     }
 
-    public void updateUpStation(Long sectionId, Long newStationId) {
-        String sql = "update section set up_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, newStationId, sectionId);
+    public void updateUpStation(Long sectionId, Long newStationId, int newDistance) {
+        String sql = "update section set up_station_id = ?, distance = ? where id = ?";
+        jdbcTemplate.update(sql, newStationId, newDistance, sectionId);
     }
 
-    public void updateDownStation(Long sectionId, Long newStationId) {
-        String sql = "update section set down_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, newStationId, sectionId);
+    public void updateDownStation(Long sectionId, Long newStationId, int newDistance) {
+        String sql = "update section set down_station_id = ?, distance = ? where id = ?";
+        jdbcTemplate.update(sql, newStationId, newDistance, sectionId);
     }
 
-    public void updateDistance(Long sectionId, int newDistance) {
-        String sql = "update section set distance = ? where id = ?";
-        jdbcTemplate.update(sql, newDistance, sectionId);
+    public void updateSection(Section section) {
+        String sql = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
+        jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
     }
 
     public void deleteByLineIdAndDownStationId(Long lineId, Long stationId) {
@@ -105,14 +113,6 @@ public class SectionDao {
     public int deleteAllByLineId(Long id) {
         return jdbcTemplate.update("delete from section where line_id = ?", id);
     }
-
-    private final RowMapper<Section> stationRowMapper = (resultSet, rowNum) -> {
-        Section section = new Section(
-                resultSet.getLong("up_station_id"),
-                resultSet.getLong("down_station_id")
-        );
-        return section;
-    };
 
     public List<Section> findAllSections(Long lineId, Long startStationId) {
         return jdbcTemplate.query("WITH RECURSIVE findAllSections(up_station_id, down_station_id) AS" +

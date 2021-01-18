@@ -12,46 +12,57 @@ import javax.sql.DataSource;
 
 @Repository
 public class SectionDao {
-    private Long seq = 0L;
-    private List<Section> sections = new ArrayList<>();
+    private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
+
+    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.insertActor = new SimpleJdbcInsert(dataSource)
+                .withTableName("section")
+                .usingGeneratedKeyColumns("id");
+    }
+
+    private final RowMapper<Section> actorRowMapper = (resultSet, rowNum) -> {
+        Section section = new Section(
+                resultSet.getLong("id"),
+                resultSet.getLong("up_station_id"),
+                resultSet.getLong("down_station_id"),
+                resultSet.getInt("distance"),
+                resultSet.getLong("line_id")
+        );
+        return section;
+    };
 
     public Section save(Section section) {
-        Section persistSection = createNewObject(section);
-        sections.add(persistSection);
-        return persistSection;
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
+        Long id = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Section(id, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId());
     }
 
     public Section findByUpStationId(long id) {
+        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where up_station_id = ?";
         try {
-            return sections.stream().filter(section -> section.getUpStationId().equals(id)).findFirst().get();
-        } catch (NoSuchElementException e) {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
             return null;
-//            throw new NotExistException("해당 구간이 존재하지 않습니다.");
         }
     }
-
     public Section findByDownStationId(long id) {
+        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where down_station_id = ?";
         try {
-            return sections.stream().filter(section -> section.getDownStationId().equals(id)).findFirst().get();
-        } catch (NoSuchElementException e) {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
-    public void updateSection(long id, Section section) {
-        int index = -1;
-        for (int i = 0; i < sections.size(); i++) {
-            if (sections.get(i).getId().equals(id)) {
-                index = i;
-            }
-        }
-        if (index == -1) {
-            return;
-        }
-        sections.set(index, new Section(id, section.getUpStationId(), section.getDownStationId(),section.getDistance(),section.getLineId()));
+    public int updateSection(long id, Section section) {
+        String sql = "update section set up_station_id = ?, down_station_id = ? , distance = ?, line_id = ? where id = ?";
+        return jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId() , id);
     }
 
-    public void deleteById(long id) {
-        sections.removeIf(section -> section.getId().equals(id));
+    public int deleteById(long id) {
+        String sql = "delete from section where id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 }

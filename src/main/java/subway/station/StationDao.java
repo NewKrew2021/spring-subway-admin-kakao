@@ -43,8 +43,9 @@ public class StationDao {
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(station -> station.getId().equals(id));
+    public int deleteById(Long id) {
+        String sql = "delete from station where id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 
     public Station findById(Long id) {

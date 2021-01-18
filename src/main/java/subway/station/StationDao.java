@@ -1,42 +1,50 @@
 package subway.station;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        String SQL = "INSERT INTO station (name) VALUES (?)";
+        String SELECT_SQL = "SELECT * FROM station where name = ?";
+        jdbcTemplate.update(SQL, station.getName());
+
+        return jdbcTemplate.queryForObject(SELECT_SQL,
+                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
+                station.getName());
     }
 
     public List<Station> findAll() {
-        return stations;
+        String SQL = "SELECT * FROM station";
+        return jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Station(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name")
+                )
+        );
     }
 
     public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+        String SQL = "DELETE FROM station where id = ?";
+        jdbcTemplate.update(SQL, id);
     }
 
     public Station findById(Long id) {
-        return stations.stream()
-                .filter(it -> it.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        String SELECT_SQL = "SELECT * FROM station where id = ?";
+        return jdbcTemplate.queryForObject(SELECT_SQL,
+                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
+                id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
-    }
 }

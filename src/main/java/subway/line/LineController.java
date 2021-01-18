@@ -59,7 +59,7 @@ public class LineController {
 
         List<StationResponse> stationResponses = getSortedStations(sections)
                 .stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .map(StationResponse::from)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses));
     }

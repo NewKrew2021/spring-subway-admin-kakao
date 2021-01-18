@@ -1,81 +1,78 @@
 package subway.line;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
+@Repository
 public class LineDao {
 
-    private static final LineDao instance = new LineDao();
-    private static final List<Line> lines = new ArrayList<>();
-    private Long seq = 0L;
+    private final JdbcTemplate jdbcTemplate;
 
-    private LineDao() {
-    }
+    private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
+        Line line = new Line(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("color")
+        );
+        return line;
+    };
 
-    public static LineDao getInstance() {
-        return instance;
+    @Autowired
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Line save(Line line) {
-        lines.stream()
-                .filter(value -> value.getName().equals(line.getName()))
-                .findAny()
-                .ifPresent(existed -> {
-                    throw new DuplicateNameException("동일한 이름을 가진 노선이 이미 존재합니다.");
-                });
-        Line persistLine = createNewObject(line);
-        lines.add(persistLine);
-        return persistLine;
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                        "insert into line (name, color) values (?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, line.getName());
+                ps.setString(2, line.getColor());
+                return ps;
+            }, keyHolder);
+
+            Long id = keyHolder.getKey().longValue();
+            return new Line(id, line.getName(), line.getColor());
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateNameException("동일한 이름을 가진 노선이 이미 존재합니다.");
+        }
     }
 
     public Line findOne(Long id) {
-        return lines.stream()
-                .filter(line -> line.getId().equals(id))
-                .findAny()
-                .orElseGet(() -> {
-                    throw new NoContentException("해당 id를 갖는 노선이 존재하지 않습니다.");
-                });
+        try {
+            return jdbcTemplate.queryForObject("select * from line where id = ?", lineRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoContentException("해당 id를 갖는 노선이 존재하지 않습니다.");
+        }
     }
 
     public List<Line> findAll() {
-        return lines;
+        return jdbcTemplate.query("select * from line", lineRowMapper);
     }
 
-    public Line update(Long id, Line sourceLine) {
-        Line destLine = findOne(id);
-        return updateOldObject(sourceLine, destLine);
+    public void update(Line line) {
+        int updateResult = jdbcTemplate.update("update line set name = ?, color = ? where id = ?", line.getName(), line.getColor(), line.getId());
+        if(updateResult == 0){
+            throw new NoContentException("해당 id를 갖는 노선이 존재하지 않습니다.");
+        }
     }
 
     public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
-    }
-
-    public void deleteAll() {
-        lines.clear();
-    }
-
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
-    }
-
-    private Line updateOldObject(Line sourceLine, Line destLine) {
-        Arrays.stream(Line.class.getDeclaredFields())
-                .filter(field -> !field.getName().equals("id"))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    ReflectionUtils.setField(field,
-                            destLine,
-                            ReflectionUtils.getField(field, sourceLine));
-                });
-        return destLine;
+        jdbcTemplate.update("delete from line where id = ?", id);
     }
 }

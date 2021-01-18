@@ -6,8 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.DuplicateException;
-import subway.line.Line;
+import subway.exception.DuplicateException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +14,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+
+import static subway.station.StationQuery.*;
 
 @Repository
 public class StationDao {
@@ -33,13 +34,11 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String selectAllQuery = "select * from station";
         List<Station> stations = jdbcTemplate.query(selectAllQuery, new StationMapper());
         return stations;
     }
 
     public Optional<Station> findById(Long id) {
-        String selectByIdQuery = "select * from station where id = ?";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(selectByIdQuery, new StationMapper(), id));
         } catch (EmptyResultDataAccessException e) {
@@ -48,12 +47,10 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        String deleteByIdQuery = "delete from station where id = ?";
         jdbcTemplate.update(deleteByIdQuery, id);
     }
 
     private boolean hasDuplicateName(String name) {
-        String countByNameQuery = "select count(*) from station where name = ?";
         return jdbcTemplate.queryForObject(countByNameQuery, int.class, name) != 0;
     }
 
@@ -62,7 +59,7 @@ public class StationDao {
 
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
-                    "insert into station (name) values(?)",
+                    insertQuery,
                     Statement.RETURN_GENERATED_KEYS);
             psmt.setString(1, station.getName());
             return psmt;

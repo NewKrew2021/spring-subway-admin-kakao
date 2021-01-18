@@ -1,47 +1,62 @@
 package subway.line;
 
-import subway.station.Station;
-
 public class Section {
 
-    private final Station upStation;
-    private final Station downStation;
+    public static Long VIRTUAL_ENDPOINT_ID = -1L;
+
+    private Long id;
+    private final Long lineId;
+    private final Long upStationId;
+    private final Long downStationId;
     private final int distance;
 
-    public Section(Station upStation, Station downStation, int distance) {
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
         if (distance <= 0) {
             throw new IllegalArgumentException("구간 길이는 0보다 작거나 같은 수 없습니다.");
         }
-        if (upStation == null || downStation == null) {
+        if (upStationId.equals(VIRTUAL_ENDPOINT_ID) || downStationId.equals(VIRTUAL_ENDPOINT_ID)) {
             distance = Integer.MAX_VALUE;
         }
-        this.upStation = upStation;
-        this.downStation = downStation;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
         this.distance = distance;
     }
 
     public boolean shareUpStation(Section counter){
-        return counter.isUpStation(upStation);
+        return counter.isUpStation(upStationId);
     }
 
-    public boolean shareDownStation(Section counter){
-        return counter.isDownStation(downStation);
+    public boolean isUpStation(Long stationId) {
+        return upStationId.equals(stationId);
     }
 
-    public boolean isUpStation(Station station) {
-        return upStation.equals(station);
+    public boolean isDownStation(Long stationId) {
+        return downStationId.equals(stationId);
     }
 
-    public boolean isDownStation(Station station) {
-        return downStation.equals(station);
+    public Long getId() {
+        return id;
     }
 
-    public Station getUpStation() {
-        return upStation;
+    public Long getLineId() {
+        return lineId;
     }
 
-    public Station getDownStation() {
-        return downStation;
+    public Long getUpStationId() {
+        return upStationId;
+    }
+
+    public Long getDownStationId() {
+        return downStationId;
     }
 
     public int getDistance() {

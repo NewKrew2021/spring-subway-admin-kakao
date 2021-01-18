@@ -3,7 +3,6 @@ package subway.line;
 import subway.station.StationResponse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LineResponse {
     private Long id;
@@ -19,9 +18,13 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-        this.stationResponses = line.getStations().stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+    }
+
+    public LineResponse(Line line, List<StationResponse> stationResponses) {
+        this.id = line.getId();
+        this.name = line.getName();
+        this.color = line.getColor();
+        this.stationResponses = stationResponses;
     }
 
     public Long getId() {

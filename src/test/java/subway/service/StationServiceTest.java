@@ -1,25 +1,24 @@
 package subway.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
 import subway.request.StationRequest;
-import subway.utils.TableRefresher;
+import subway.response.LineResponse;
+import subway.response.StationResponse;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DisplayName("지하철역 서비스 관련 기능")
 @SpringBootTest
+@Sql("classpath:/deleteAll.sql")
 public class StationServiceTest {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
     @Autowired
     private StationService stationService;
     @Autowired
@@ -27,24 +26,23 @@ public class StationServiceTest {
     @Autowired
     private LineService lineService;
 
-    @BeforeEach
-    public void setUp() {
-        TableRefresher.refreshTables(jdbcTemplate);
-    }
+    private StationResponse 강남역;
+    private StationResponse 역삼역;
+    private StationResponse 광교역;
 
     @DisplayName("지하철 구간에서 사용 중인 지하철역을 제거한다.")
     @Test
     public void deleteStationTest() {
-        stationService.createStation(new StationRequest("강남역"));
-        stationService.createStation(new StationRequest("역삼역"));
-        stationService.createStation(new StationRequest("광교역"));
+        강남역 = stationService.createStation(new StationRequest("강남역"));
+        역삼역 = stationService.createStation(new StationRequest("역삼역"));
+        광교역 = stationService.createStation(new StationRequest("광교역"));
 
-        lineService.createLine(new LineRequest("분당선", "노랑", 1L, 2L, 3));
-        sectionService.addSectionToLine(new SectionRequest(1L, 2L, 3L, 3));
-        assertThatThrownBy(() -> stationService.deleteStation(2L)).isInstanceOf(DataAccessException.class);
-        assertThatThrownBy(() -> stationService.deleteStation(3L)).isInstanceOf(DataAccessException.class);
+        LineResponse 분당선 = lineService.createLine(new LineRequest("분당선", "노랑", 강남역.getId(), 역삼역.getId(), 3));
+        sectionService.addSectionToLine(new SectionRequest(분당선.getId(), 역삼역.getId(), 광교역.getId(), 3));
+        assertThatThrownBy(() -> stationService.deleteStation(역삼역.getId())).isInstanceOf(DataAccessException.class);
+        assertThatThrownBy(() -> stationService.deleteStation(광교역.getId())).isInstanceOf(DataAccessException.class);
 
-        sectionService.deleteStationFromLine(1L, 2L);
-        assertThat(stationService.deleteStation(2L)).isTrue();
+        sectionService.deleteStationFromLine(분당선.getId(), 역삼역.getId());
+        assertThat(stationService.deleteStation(역삼역.getId())).isTrue();
     }
 }

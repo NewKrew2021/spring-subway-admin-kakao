@@ -5,11 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Station;
-import subway.utils.TableRefresher;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,52 +17,55 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("구간 데이터 엑세스 관련 기능")
 @SpringBootTest
+@Sql("classpath:/deleteAll.sql")
 public class SectionDaoTest {
-    private final Section 섹션1 = new Section(1L, 1L, 2L, 3);
-    private final Section 섹션2 = new Section(1L, 2L, 3L, 4);
-    private final Section 섹션3 = new Section(2L, 2L, 3L, 5);
-
     @Autowired
     private SectionDao sectionDao;
     @Autowired
     private StationDao stationDao;
     @Autowired
     private LineDao lineDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
+    private Line 분당선;
+    private Line 중앙선;
+    private Section 분당선_수서서현;
+    private Section 분당선_서현수내;
+    private Section 중앙선_서현수내;
 
     @BeforeEach
     public void refreshSection() {
-        TableRefresher.refreshTables(jdbcTemplate);
-        stationDao.save(new Station("수서역"));
-        stationDao.save(new Station("서현역"));
-        stationDao.save(new Station("수내역"));
-        lineDao.save(new Line("분당선", "노랑"));
-        lineDao.save(new Line("신분당선", "빨강"));
+        Station 수서역 = stationDao.save(new Station("수서역"));
+        Station 서현역 = stationDao.save(new Station("서현역"));
+        Station 수내역 = stationDao.save(new Station("수내역"));
+        분당선 = lineDao.save(new Line("분당선", "노랑"));
+        중앙선 = lineDao.save(new Line("신분당선", "빨강"));
+        분당선_수서서현 = new Section(분당선.getId(), 수서역.getId(), 서현역.getId(), 3);
+        분당선_서현수내 = new Section(분당선.getId(), 서현역.getId(), 수내역.getId(), 4);
+        중앙선_서현수내 = new Section(중앙선.getId(), 서현역.getId(), 수내역.getId(), 4);
     }
 
     @DisplayName("데이터베이스에 지하철 구간을 생성한다.")
     @Test
     public void saveTest() {
-        assertThat(sectionDao.save(섹션1)).isEqualTo(섹션1);
+        assertThat(sectionDao.save(분당선_수서서현)).isEqualTo(분당선_수서서현);
     }
 
     @DisplayName("데이터베이스의 지하철 구간 목록을 노선 아이디 기준으로 조회한다.")
     @Test
     public void getByLineIdTest() {
-        sectionDao.save(섹션1);
-        sectionDao.save(섹션2);
-        sectionDao.save(섹션3);
-        assertThat(sectionDao.getByLineId(1L)).containsExactlyElementsOf(Arrays.asList(섹션1, 섹션2));
-        assertThat(sectionDao.getByLineId(2L)).containsExactlyElementsOf(Arrays.asList(섹션3));
-        assertThat(sectionDao.getByLineId(3L)).containsExactlyElementsOf(Collections.emptyList());
+        sectionDao.save(분당선_수서서현);
+        sectionDao.save(분당선_서현수내);
+        sectionDao.save(중앙선_서현수내);
+        assertThat(sectionDao.getByLineId(분당선.getId())).containsExactlyElementsOf(Arrays.asList(분당선_수서서현, 분당선_서현수내));
+        assertThat(sectionDao.getByLineId(중앙선.getId())).containsExactlyElementsOf(Arrays.asList(중앙선_서현수내));
+        assertThat(sectionDao.getByLineId(-1L)).containsExactlyElementsOf(Collections.emptyList());
     }
 
     @DisplayName("데이터베이스의 지하철 구간을 제거한다.")
     @Test
     public void deleteByIdTest() {
-        sectionDao.save(섹션1);
-        assertThat(sectionDao.deleteById(1L)).isTrue();
-        assertThat(sectionDao.deleteById(1L)).isFalse();
+        Section 분당선_수내서현_삽입됨 = sectionDao.save(분당선_수서서현);
+        assertThat(sectionDao.deleteById(분당선_수내서현_삽입됨.getId())).isTrue();
+        assertThat(sectionDao.deleteById(분당선_수내서현_삽입됨.getId())).isFalse();
     }
 }

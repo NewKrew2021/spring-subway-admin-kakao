@@ -25,8 +25,8 @@ import static subway.controller.StationControllerTest.지하철역_등록되어_
 public class LineControllerTest extends ControllerTest {
     private StationResponse 강남역;
     private StationResponse 광교역;
-    private LineRequest lineRequest1;
-    private LineRequest lineRequest2;
+    private LineRequest 분당선;
+    private LineRequest 중앙선;
 
     @BeforeEach
     public void setUp() {
@@ -35,15 +35,15 @@ public class LineControllerTest extends ControllerTest {
         강남역 = 지하철역_등록되어_있음("강남역");
         광교역 = 지하철역_등록되어_있음("광교역");
 
-        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), 광교역.getId(), 10);
-        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), 광교역.getId(), 15);
+        분당선 = new LineRequest("분당선", "bg-red-600", 강남역.getId(), 광교역.getId(), 10);
+        중앙선 = new LineRequest("중앙선", "bg-red-600", 강남역.getId(), 광교역.getId(), 15);
     }
 
     @DisplayName("지하철 노선을 생성한다.")
     @Test
     void createLine() {
         // when
-        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
+        ExtractableResponse<Response> response = 지하철_노선_생성_요청(분당선);
 
         // then
         지하철_노선_생성됨(response);
@@ -53,10 +53,10 @@ public class LineControllerTest extends ControllerTest {
     @Test
     void createLineWithDuplicateName() {
         // given
-        지하철_노선_등록되어_있음(lineRequest1);
+        지하철_노선_등록되어_있음(분당선);
 
         // when
-        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
+        ExtractableResponse<Response> response = 지하철_노선_생성_요청(분당선);
 
         // then
         지하철_노선_생성_실패됨(response);
@@ -66,8 +66,8 @@ public class LineControllerTest extends ControllerTest {
     @Test
     void getLines() {
         // given
-        LineResponse lineResponse1 = 지하철_노선_등록되어_있음(lineRequest1);
-        LineResponse lineResponse2 = 지하철_노선_등록되어_있음(lineRequest2);
+        LineResponse lineResponse1 = 지하철_노선_등록되어_있음(분당선);
+        LineResponse lineResponse2 = 지하철_노선_등록되어_있음(중앙선);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_목록_조회_요청();
@@ -82,7 +82,7 @@ public class LineControllerTest extends ControllerTest {
     void getNoneExistingLine() {
         // when
         ExtractableResponse<Response> response = 지하철_노선_조회_요청(
-                new LineResponse(1L, "분당선", "노랑", null));
+                new LineResponse(-1L, "분당선", "노랑", null));
 
         // then
         지하철_노선_목록_응답_실패됨(response);
@@ -92,7 +92,7 @@ public class LineControllerTest extends ControllerTest {
     @Test
     void getLine() {
         // given
-        LineResponse lineResponse = 지하철_노선_등록되어_있음(lineRequest1);
+        LineResponse lineResponse = 지하철_노선_등록되어_있음(분당선);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_조회_요청(lineResponse);
@@ -105,40 +105,40 @@ public class LineControllerTest extends ControllerTest {
     @Test
     void updateLine() {
         // given
-        LineResponse lineResponse = 지하철_노선_등록되어_있음(lineRequest1);
+        LineResponse lineResponse = 지하철_노선_등록되어_있음(분당선);
 
         // when
-        ExtractableResponse<Response> response1 = 지하철_노선_수정_요청(lineResponse, lineRequest2);
+        ExtractableResponse<Response> response1 = 지하철_노선_수정_요청(lineResponse, 중앙선);
         ExtractableResponse<Response> response2 = 지하철_노선_조회_요청(lineResponse);
 
         // then
         지하철_노선_수정됨(response1);
-        assertThat(response2.as(LineResponse.class).getName()).isEqualTo(lineRequest2.getName());
-        assertThat(response2.as(LineResponse.class).getColor()).isEqualTo(lineRequest2.getColor());
+        assertThat(response2.as(LineResponse.class).getName()).isEqualTo(중앙선.getName());
+        assertThat(response2.as(LineResponse.class).getColor()).isEqualTo(중앙선.getColor());
     }
 
     @DisplayName("없는 지하철 노선을 수정한다.")
     @Test
     void updateLineNonExist() {
         // when
-        ExtractableResponse<Response> response1 = 지하철_노선_수정_요청(
-                new LineResponse(10L, "수인선", "빨강", null), lineRequest1);
+        ExtractableResponse<Response> response = 지하철_노선_수정_요청(
+                new LineResponse(-1L, "수인선", "빨강", null), 분당선);
 
         // then
-        지하철_노선_수정_실패됨(response1);
+        지하철_노선_수정_실패됨(response);
     }
 
     @DisplayName("지하철 노선을 제거한다.")
     @Test
     void deleteLine() {
         // given
-        LineResponse lineResponse1 = 지하철_노선_등록되어_있음(lineRequest1);
+        LineResponse lineResponse = 지하철_노선_등록되어_있음(분당선);
 
         // when
-        ExtractableResponse<Response> response1 = 지하철_노선_제거_요청(lineResponse1);
+        ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
 
         // then
-        지하철_노선_삭제됨(response1);
+        지하철_노선_삭제됨(response);
     }
 
     @DisplayName("없는 지하철 노선을 제거한다.")

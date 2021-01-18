@@ -2,6 +2,7 @@ package subway;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import subway.exception.DuplicateException;
 
 import java.util.HashMap;
 import java.util.Map;

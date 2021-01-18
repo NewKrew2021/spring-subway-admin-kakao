@@ -1,10 +1,11 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.SubwayApplication;
 import subway.station.Station;
 import subway.station.StationController;
 
@@ -18,18 +19,25 @@ import java.util.stream.Collectors;
 public class LineController {
     private final int LAST_STATION_HAS_NO_DISTANCE = 0;
     private final LineDao lineDao;
+    private final StationController stationController;
 
-    public LineController() {
+    public LineController(StationController stationController) {
         this.lineDao = new LineDao();
+        this.stationController = stationController;
     }
-
-    @Autowired
-    StationController stationController;
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Station upStation = stationController.getStationDao().findOne(lineRequest.getUpStationId());
-        Station downStation = stationController.getStationDao().findOne(lineRequest.getDownStationId());
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SubwayApplication.class);
+        Station upStation = stationController.getStationDao().findById(lineRequest.getUpStationId());
+        Station downStation = stationController.getStationDao().findById(lineRequest.getDownStationId());
+
+//        Station upStation = context.getBean("stationController", StationController.class)
+//                .getStationDao()
+//                .findOne(lineRequest.getUpStationId());
+//        Station downStation = context.getBean("stationController", StationController.class)
+//                .getStationDao()
+//                .findOne(lineRequest.getDownStationId());
         List<Section> sections = Arrays.asList(
                 new Section(upStation, lineRequest.getDistance()),
                 new Section(downStation, LAST_STATION_HAS_NO_DISTANCE));
@@ -78,8 +86,8 @@ public class LineController {
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<LineResponse> addSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Line line = lineDao.findOne(lineId);
-        Station upStation = stationController.getStationDao().findOne(sectionRequest.getUpStationId());
-        Station downStation = stationController.getStationDao().findOne(sectionRequest.getDownStationId());
+        Station upStation = stationController.getStationDao().findById(sectionRequest.getUpStationId());
+        Station downStation = stationController.getStationDao().findById(sectionRequest.getDownStationId());
         int distance = sectionRequest.getDistance();
 
         boolean isDone = line.insertSection(upStation, downStation, distance);

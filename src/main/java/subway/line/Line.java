@@ -16,8 +16,6 @@ public class Line {
     private int extraFare;
     private List<Section> sections;
 
-    public Line() { }
-
     public Line(String name, String color, int extraFare, List<Section> sections) {
         this.name = name;
         this.color = color;
@@ -73,7 +71,16 @@ public class Line {
             return false;
         }
 
-        return sections.removeIf(it -> it.getStation().getId().equals(id));
+        Section section = sections.stream()
+                .filter(sec -> sec.getStation().getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if (section == null) {
+            return false;
+        }
+
+        return sections.removeIf(sec -> sec.equals(section));
     }
 
     public Long getId() {

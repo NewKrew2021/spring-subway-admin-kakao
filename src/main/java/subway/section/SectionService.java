@@ -31,18 +31,18 @@ public class SectionService {
     public List<StationResponse> getStationsOfLine(Line line) {
         List<StationResponse> stations = new ArrayList<>();
         Station curStation = stationDao.findById(line.getStartStationId());
-        Section curSection = sectionDao.findByUpStationId(curStation.getId());
+        Section curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
         while (curSection != null) {
             stations.add(new StationResponse(curStation.getId(), curStation.getName()));
             curStation = stationDao.findById(curSection.getDownStationId());
-            curSection = sectionDao.findByUpStationId(curStation.getId());
+            curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
         }
         stations.add(new StationResponse(curStation.getId(), curStation.getName()));
         return stations;
     }
 
-    public Section getSectionByUpstationId(Long id) {
-        return sectionDao.findByUpStationId(id);
+    public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {
+        return sectionDao.findByUpStationIdAndLineId(upStationId, lineId);
     }
 
     public Section getSectionByDownstationIdAndLineId(Long downStationId, Long lineId) {
@@ -79,7 +79,7 @@ public class SectionService {
             return;
         }
 
-        Section existingSection = getSectionByUpstationId(section.getUpStationId());
+        Section existingSection = getSectionByUpstationIdAndLineId(section.getUpStationId(), line.getId());
         addSectionUpward(section, existingSection);
     }
 

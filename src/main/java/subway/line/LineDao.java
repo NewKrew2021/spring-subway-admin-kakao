@@ -90,16 +90,18 @@ public class LineDao {
                     stations.add(i, stationDao.findById(section.getDownStationId()));
                     line.updateDownStationId(section.getDownStationId());
                     line.updateDistance(line.getDistance() + section.getDistance());
+                    return;
                 }
                 stations.add(i + 1, stationDao.findById(section.getDownStationId()));
                 return;
             }
             if (stations.get(i).getId() == section.getDownStationId()) {
                 sectionDao.addSection(i, stations.get(i).getId(), section);
-                if (i - 1 < 0) {
+                if (i == 0) {
                     stations.add(0, stationDao.findById(section.getUpStationId()));
                     line.updateUpStationId(section.getUpStationId());
                     line.updateDistance(line.getDistance() + section.getDistance());
+                    return;
                 }
                 stations.add(i - 1, stationDao.findById(section.getUpStationId()));
                 return;

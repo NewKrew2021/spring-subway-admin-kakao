@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import subway.dao.SectionDao;
 import subway.domain.OrderedSections;
 import subway.domain.Section;
+import subway.exception.custom.CannotAddSectionException;
+import subway.exception.custom.IllegalDistanceException;
+import subway.exception.custom.SameUpstationDownStationException;
 import subway.request.SectionRequest;
 import subway.response.SectionResponse;
 
@@ -80,7 +83,7 @@ public class SectionService {
 
     private static void validateSectionAddRequest(List<Long> stationIds, SectionRequest sectionRequest) {
         if (sectionRequest.getUpStationId().equals(sectionRequest.getDownStationId())) {
-            throw new IllegalArgumentException();
+            throw new SameUpstationDownStationException();
         }
 
         int containedNumber = (int) stationIds.stream()
@@ -89,13 +92,13 @@ public class SectionService {
                 .count();
 
         if (containedNumber != 1) {
-            throw new IllegalArgumentException();
+            throw new CannotAddSectionException();
         }
     }
 
     private static void validateDistance(int distance, int requestedDistance) {
         if (distance <= requestedDistance) {
-            throw new IllegalArgumentException();
+            throw new IllegalDistanceException();
         }
     }
 

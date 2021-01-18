@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.OrderedStations;
+import subway.exception.custom.CannotDeleteSectionException;
+import subway.exception.custom.DifferentLineIdException;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
 import subway.response.LineResponse;
@@ -78,13 +80,13 @@ public class LineController {
 
     private static void validateLineId(Long id, Long lineId) {
         if (!id.equals(lineId)) {
-            throw new IllegalArgumentException();
+            throw new DifferentLineIdException();
         }
     }
 
     private static void validateDeletable(Long stationId, OrderedStations orderedStations) {
         if (!orderedStations.hasStation(stationId) || orderedStations.size() <= 2) {
-            throw new IllegalArgumentException();
+            throw new CannotDeleteSectionException();
         }
     }
 }

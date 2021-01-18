@@ -58,6 +58,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_삭제됨(response);
     }
 
+    @DisplayName("이미 존재하는 지하철 역을 추가한다.")
+    @Test
+    void createDuplicateStation() {
+        // given
+        지하철역_생성_요청(강남역);
+
+        //when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+
+        //then
+        지하철역_생성_실패됨(response);
+    }
+
     public static StationResponse 지하철역_등록되어_있음(String name) {
         return 지하철역_생성_요청(name).as(StationResponse.class);
     }
@@ -113,5 +126,9 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static void 지하철역_생성_실패됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
+import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
 import subway.station.Station;
 import subway.station.StationDao;
@@ -243,6 +244,11 @@ public class LineService {
         // 2. 해당 역이 상행, 하행 종점일 경우 구간 삭제 + 노선의 상행, 하행 업데이트 (sectionDao, LineDao)
         // 3. 중간에 갈래길일 경우, 두개의 구간을 하나의 구간으로 통합
         // 4. 역애 대한 정보 삭제 (stationDao)
+
+        List<Section> sections = sectionDao.findByLineId(id);
+        if (sections.size() == 1) {
+            throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
+        }
 
         // 1.
         List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId,id);

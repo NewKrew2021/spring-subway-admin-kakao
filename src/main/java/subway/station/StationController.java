@@ -5,12 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
-    private StationDao stationDao = new StationDao();
+    private StationDao stationDao;
+
+    public StationController(){
+        stationDao = StationDao.getInstance();
+    }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
@@ -22,10 +27,11 @@ public class StationController {
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> stationResponses = stationDao.findAll().stream()
+        List<StationResponse> responses = stationDao.findAll().stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(stationResponses);
+
+        return ResponseEntity.ok(responses);
     }
 
     @DeleteMapping("/stations/{id}")

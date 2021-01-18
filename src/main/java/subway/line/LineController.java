@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
@@ -7,8 +8,11 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.*;
 import java.util.stream.Collectors;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 @RestController
 public class LineController {
@@ -32,11 +36,11 @@ public class LineController {
         Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
 
         sectionDao.save(
-                new Section(newLine.getId(), 0L, lineRequest.getUpStationId(), 0));
+                new Section(newLine.getId(), Line.HEAD, lineRequest.getUpStationId(), Line.INF));
         sectionDao.save(
                 new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
         sectionDao.save(
-                new Section(newLine.getId(), lineRequest.getDownStationId(), -1L, 0));
+                new Section(newLine.getId(), lineRequest.getDownStationId(), Line.TAIL, Line.INF));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(
                 new LineResponse(newLine, findStationsByLineId(newLine.getId()))
@@ -68,63 +72,26 @@ public class LineController {
     @PostMapping("/lines/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         Line line = lineDao.findById(id);
-        List<Section> sections = sectionDao.findSectionsByLineId(line.getId());
+        Sections sections = new Sections(sectionDao.findSectionsByLineId(line.getId()));
+        Section newSection = new Section(id, sectionRequest);
 
-        Section head = findHeadSection(sections);
-        Section tail = findTailSection(sections);
-
-        // 상행 종점 등록
-        if(head.getDownStationId() == sectionRequest.getDownStationId()) {
-            sectionDao.save(new Section(id, Line.HEAD, sectionRequest.getUpStationId(), 0));
-            sectionDao.save(new Section(id, sectionRequest));
-            sectionDao.deleteById(head.getId());
-            return ResponseEntity.ok().build();
+        if(sections.hasSameSection(newSection)){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-       // 하행 종점 등록
-        if(tail.getUpStationId() == sectionRequest.getUpStationId()) {
-            sectionDao.save(new Section(id, sectionRequest.getDownStationId(), Line.TAIL, 0));
-            sectionDao.save(new Section(id, sectionRequest));
-            sectionDao.deleteById(tail.getId());
-            return ResponseEntity.ok().build();
+        if(sections.isNotExistStations(newSection)){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        // 갈래길
-        if(sections.contains(new Section(id, sectionRequest))){
-            return ResponseEntity.status(500).build();
-        }
 
-        for (Section section : sections) {
+        Section originSection = sections.sameUpStationOrDownStation(newSection);
+        Section subSection = originSection.getSubSection(newSection);
 
-            if(section.getUpStationId() == sectionRequest.getUpStationId()) {
-                if(section.getDistance() <= sectionRequest.getDistance()){
-                    return ResponseEntity.status(500).build();
-                }
+        sectionDao.save(newSection);
+        sectionDao.save(subSection);
+        sectionDao.deleteById(originSection.getId());
 
-                sectionDao.save(new Section(id, sectionRequest.getDownStationId(), section.getDownStationId(),
-                        section.getDistance()- sectionRequest.getDistance()));
-                sectionDao.save(new Section(id, sectionRequest));
-                sectionDao.deleteById(section.getId());
-
-
-                return ResponseEntity.ok().build();
-            }
-
-            if(section.getDownStationId() == sectionRequest.getDownStationId()){
-                if(section.getDistance() <= sectionRequest.getDistance()){
-                    return ResponseEntity.status(500).build();
-                }
-
-                sectionDao.save(new Section(id, section.getUpStationId(), sectionRequest.getUpStationId(),
-                        section.getDistance() - sectionRequest.getDistance()));
-                sectionDao.save(new Section(id, sectionRequest));
-                sectionDao.deleteById(section.getId());
-
-                return ResponseEntity.ok().build();
-            }
-        }
-
-        return ResponseEntity.status(500).build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/lines/{id}")
@@ -134,12 +101,35 @@ public class LineController {
         return ResponseEntity.ok().body(new LineResponse(line, findStationsByLineId(id)));
     }
 
+    @DeleteMapping("/lines/{id}/sections")
+    public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
+        int sectionsCount = sectionDao.countByLineId(id);
+
+        if(sectionsCount <= 3) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        Section front = sectionDao.findSectionByLineIdAndDownStationId(id, stationId);
+        Section rear = sectionDao.findSectionByLineIdAndUpStationId(id, stationId);
+        sectionDao.deleteById(front.getId());
+        sectionDao.deleteById(rear.getId());
+
+        int distance = front.getDistance() + rear.getDistance();
+
+        sectionDao.save(new Section(id,
+                front.getUpStationId(),
+                rear.getDownStationId(),
+                distance));
+
+        return ResponseEntity.ok().build();
+    }
+
     private List<StationResponse> findStationsByLineId(Long id) {
         Line line = lineDao.findById(id);
 
         List<Section> sections = sectionDao.findSectionsByLineId(line.getId());
 
-        Section currentSection = findHeadSection(sections);
+        Section currentSection = sectionDao.findSectionByLineIdAndUpStationId(id, Line.HEAD);
 
         List<Station> stations = new ArrayList<>();
         while (currentSection.getDownStationId() != Line.TAIL) {
@@ -152,48 +142,6 @@ public class LineController {
                 .collect(Collectors.toList());
     }
 
-
-    @DeleteMapping("/lines/{id}/sections")
-    public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
-        List<Section> sections = sectionDao.findSectionsByLineId(id);
-
-        if(sections.size() <= 3) {
-            return ResponseEntity.status(500).build();
-        }
-
-        List<Section> delSections = sectionDao.findSectionsForDelete(stationId);
-        Section front = null;
-        Section rear = null;
-        for (Section delSection : delSections) {
-            if (delSection.getDownStationId() == stationId) front = delSection;
-            else if (delSection.getUpStationId() == stationId) rear = delSection;
-            sectionDao.deleteById(delSection.getId());
-        }
-
-        int distance = Math.min(front.getDistance(), rear.getDistance()) == 0
-                ? 0 : front.getDistance() + rear.getDistance();
-
-        sectionDao.save(new Section(id,
-                front.getUpStationId(),
-                rear.getDownStationId(),
-                distance));
-
-        return ResponseEntity.ok().build();
-    }
-
-    private Section findHeadSection(List<Section> sections) {
-        return sections.stream()
-                .filter(s -> s.getUpStationId() == Line.HEAD)
-                .findAny()
-                .get();
-    }
-
-    private Section findTailSection(List<Section> sections) {
-        return sections.stream()
-                .filter(s -> s.getDownStationId() == Line.TAIL)
-                .findAny()
-                .get();
-    }
 
     private Section findNextSection(List<Section> sections, Section currentSection) {
         return sections.stream()

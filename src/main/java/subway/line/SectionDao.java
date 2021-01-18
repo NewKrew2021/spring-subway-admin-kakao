@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,17 @@ public class SectionDao {
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    private final RowMapper<Section> sectionRowMapper = (resultSet, rowNum) -> {
+        Section section = new Section(
+                resultSet.getLong("id"),
+                resultSet.getLong("line_id"),
+                resultSet.getLong("up_station_id"),
+                resultSet.getLong("down_station_id"),
+                resultSet.getInt("distance")
+        );
+        return section;
+    };
 
     public Section save(Section section){
         String sql = "insert into section (line_id, up_station_id, down_station_id, distance) values (?,?,?,?)";
@@ -41,31 +53,22 @@ public class SectionDao {
 
     public List<Section> findSectionsByLineId(Long lineId){
         String sql = "select * from section where line_id = ?";
-        return jdbcTemplate.query(
-                sql,
-                (resultSet,rowNum)->
-                    new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("up_station_id"),
-                        resultSet.getLong("down_station_id"),
-                        resultSet.getInt("distance")
-                    )
-                ,lineId);
+        return jdbcTemplate.query(sql, sectionRowMapper, lineId);
     }
 
-    public List<Section> findSectionsForDelete (Long stationId) {
-        String sql = "select * from section where up_station_id = ? OR down_station_id = ?";
-        return jdbcTemplate.query(
-                sql,
-                (resultSet,rowNum)->
-                        new Section(
-                                resultSet.getLong("id"),
-                                resultSet.getLong("line_id"),
-                                resultSet.getLong("up_station_id"),
-                                resultSet.getLong("down_station_id"),
-                                resultSet.getInt("distance")
-                        )
-                ,stationId, stationId);
+
+    public Section findSectionByLineIdAndDownStationId(Long lineId, Long stationId) {
+        String sql = "select * from section where line_id = ? and down_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, stationId);
+    }
+
+    public Section findSectionByLineIdAndUpStationId(Long lineId, Long stationId) {
+        String sql = "select * from section where line_id = ? and up_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, stationId);
+    }
+
+    public int countByLineId(Long id) {
+        String sql = "select count(*) from section where line_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, id);
     }
 }

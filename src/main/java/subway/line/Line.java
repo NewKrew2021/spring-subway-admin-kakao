@@ -3,6 +3,7 @@ package subway.line;
 public class Line {
     public static final long HEAD = 0;
     public static final long TAIL = -1;
+    public static final int INF = Integer.MAX_VALUE;
     private Long id;
     private String name;
     private String color;

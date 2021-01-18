@@ -11,18 +11,24 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
+    private final StationDao stationDao;
+
+    public StationController(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
+
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName()); // 여기상태에서는 id가 없다.
-        Station newStation = StationDao.save(station);
+        Station newStation = stationDao.save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<Station> stations = StationDao.findAll();
+        List<Station> stations = stationDao.findAll();
         List<StationResponse> stationResponses = stations.stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
@@ -31,7 +37,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        StationDao.deleteById(id);
+        stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

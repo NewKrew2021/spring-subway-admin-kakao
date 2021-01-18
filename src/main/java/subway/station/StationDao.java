@@ -1,37 +1,39 @@
 package subway.station;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private static Long seq = 0L;
-    private static List<Station> stations = new ArrayList<>();
+    private Long seq = 0L;
+    private List<Station> stations = new ArrayList<>();
 
-    public static Station save(Station station) {
+    public Station save(Station station) {
         Station persistStation = createNewObject(station);
         stations.add(persistStation);
         return persistStation;
     }
 
-    public static List<Station> findAll() {
+    public List<Station> findAll() {
         return stations;
     }
 
-    public static void deleteById(Long id) {
+    public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
     }
 
-    public static Station findById(Long id) {
+    public Station findById(Long id) {
         return stations.stream()
                 .filter(it -> it.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
-    private static Station createNewObject(Station station) {
+    private Station createNewObject(Station station) {
         Field field = ReflectionUtils.findField(Station.class, "id");
         field.setAccessible(true);
         ReflectionUtils.setField(field, station, ++seq);

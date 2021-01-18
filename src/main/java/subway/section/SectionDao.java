@@ -39,18 +39,18 @@ public class SectionDao {
         return new Section(id, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId());
     }
 
-    public Section findByUpStationId(long id) {
-        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where up_station_id = ?";
+    public Section findByUpStationIdAndLineId(long upstationId, long lineId) {
+        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where up_station_id = ? and line_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, upstationId, lineId);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
-    public Section findByDownStationId(long id) {
-        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where down_station_id = ?";
+    public Section findByDownStationIdAndLineId(long downStationId, long lineId) {
+        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where down_station_id = ? and line_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, downStationId , lineId);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

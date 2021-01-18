@@ -105,7 +105,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void updateNonExistingLine() {
         // given
-        LineResponse lineResponse = new LineResponse(3L, "신분당선", "bg-red-600", 0, null);
+        LineResponse lineResponse = new LineResponse(3L, "신분당선", "bg-red-600", null);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_수정_요청(lineResponse, lineRequest2);
@@ -131,7 +131,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteNonExistingLine() {
         // given
-        LineResponse lineResponse = new LineResponse(9999L, "신촌역", "bg-red-600", 0, null);
+        LineResponse lineResponse = new LineResponse(9999L, "신촌역", "bg-red-600", null);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);

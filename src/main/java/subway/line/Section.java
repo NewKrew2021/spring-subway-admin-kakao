@@ -1,32 +1,44 @@
 package subway.line;
 
-import subway.station.Station;
-
 import java.util.Objects;
 
 public class Section {
-    private Station station;
+    private final long id;
+    private final long lineId;
+    private final long upStationId;
+    private final long downStationId;
     private int distance;
 
-    public Section(Station station, int distance) {
-        this.station = station;
+    public Section(long id, long lineId, long upStationId, long downStationId, int distance) {
+        this.id = id;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
         this.distance = distance;
     }
 
-    public void setDistance(int newDistance) {
-        distance = newDistance;
+    public long getId() {
+        return id;
     }
 
-    public SectionResponse toDto() {
-        return new SectionResponse(station.toDto(), distance);
+    public long getLineId() {
+        return lineId;
     }
 
-    public Station getStation() {
-        return station;
+    public long getUpStationId() {
+        return upStationId;
+    }
+
+    public long getDownStationId() {
+        return downStationId;
     }
 
     public int getDistance() {
         return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
 
     @Override
@@ -34,11 +46,11 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(station, section.station);
+        return Objects.equals(id, section.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(station);
+        return (int) id;
     }
 }

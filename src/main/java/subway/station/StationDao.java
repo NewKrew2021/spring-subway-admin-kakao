@@ -1,8 +1,10 @@
 package subway.station;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
@@ -26,12 +28,19 @@ public class StationDao {
 
     public Station insert(Station station) {
         String sql = "insert into station (name) values(?)";
-        long id = jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql);
-            st.setString(1, station.getName());
-            return st;
-        }, new GeneratedKeyHolder());
+        Long id;
 
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(con -> {
+                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+                st.setString(1, station.getName());
+                return st;
+            }, keyHolder);
+            id = keyHolder.getKey().longValue();
+        } catch(DataAccessException ignored) {
+            return null;
+        }
         return new Station(id, station.getName());
     }
 

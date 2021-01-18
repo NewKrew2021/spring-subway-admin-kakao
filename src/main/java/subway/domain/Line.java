@@ -1,4 +1,6 @@
-package subway.line;
+package subway.domain;
+
+import subway.request.LineRequest;
 
 public class Line {
     private Long id;

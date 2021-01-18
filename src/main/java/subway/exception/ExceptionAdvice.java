@@ -9,7 +9,7 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(DuplicateNameException.class)
     public ResponseEntity handleDuplicate() {
-        return ResponseEntity.status(400).body("Duplicate Exception");
+        return ResponseEntity.status(500).body("Duplicate Exception");
     }
 
     @ExceptionHandler(NoContentException.class)

@@ -59,8 +59,8 @@ public class Section {
         return "Section{" +
                 "id=" + id +
                 ", lineId=" + lineId +
-                ", upStation=" + upStation +
-                ", downStation=" + downStation +
+                ", upStation=" +( upStation!=null? upStation.toString(): "null")+
+                ", downStation=" + ( downStation!=null? downStation.toString(): "null") +
                 ", distance=" + distance +
                 '}';
     }

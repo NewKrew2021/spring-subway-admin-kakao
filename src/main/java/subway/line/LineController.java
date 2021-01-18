@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.DuplicateNameException;
 import subway.station.StationDao;
 
 import java.net.URI;
@@ -11,24 +12,34 @@ import java.util.stream.Collectors;
 @RestController
 public class LineController {
 
+    private final LineService lineService;
     private final LineDao lineDao;
     private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    public LineController(LineDao lineDao, StationDao stationDao) {
+    public LineController(LineService lineService,
+                          LineDao lineDao,
+                          StationDao stationDao,
+                          SectionDao sectionDao) {
+        this.lineService = lineService;
         this.lineDao = lineDao;
         this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
     }
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor(),
+        Line line = lineDao.save(new Line(lineRequest.getName(),
+                lineRequest.getColor()
+        ));
+        sectionDao.save(new Section(
+                line.getId(),
                 stationDao.findOne(lineRequest.getUpStationId()),
                 stationDao.findOne(lineRequest.getDownStationId()),
-                lineRequest.getDistance());
-        Line newLine = lineDao.save(line);
-        LineResponse lineResponse = new LineResponse(newLine);
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+                lineRequest.getDistance()
+        ));
+        LineResponse lineResponse = new LineResponse(line);
+        return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(lineResponse);
     }
 
     @GetMapping("/lines")
@@ -48,11 +59,7 @@ public class LineController {
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor(),
-                stationDao.findOne(lineRequest.getUpStationId()),
-                stationDao.findOne(lineRequest.getDownStationId()),
-                lineRequest.getDistance());
+        Line line = lineDao.findOne(id);
         LineResponse response = new LineResponse(lineDao.update(id, line));
         return ResponseEntity.ok().body(response);
     }
@@ -66,18 +73,37 @@ public class LineController {
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> deleteStationOnLine(@PathVariable Long lineId, @RequestParam("stationId") Long stationId) {
         Line line = lineDao.findOne(lineId);
+        Section previous = sectionDao.findOneByLineIdAndStationId(lineId, stationId, false);
+        Section next = sectionDao.findOneByLineIdAndStationId(lineId, stationId, true);
+        sectionDao.update(new Section(
+                previous.getId(),
+                previous.getLineId(),
+                previous.getUpStation(),
+                next.getDownStation(),
+                previous.getDistance() + next.getDistance()
+        ));
+        sectionDao.deleteById(next.getId());
+        stationDao.deleteById(stationId);
         line.deleteStation(stationId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/lines/{id}/sections")
-    public ResponseEntity<SectionResponse> createSectionOnLine(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        Line line = lineDao.findOne(id);
-        SectionResponse response = new SectionResponse(line.addSection(stationDao.findOne(sectionRequest.getUpStationId()),
+    @PostMapping(value = "/lines/{lineId}/sections")
+    public ResponseEntity<SectionResponse> createSectionOnLine(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+        Line line = lineDao.findOne(lineId);
+        if (sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getUpStationId(), true) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getUpStationId(), false) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getDownStationId(), true) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getDownStationId(), false) == null
+        ) {
+            throw new DuplicateNameException(sectionRequest.getUpStationId() + ", " + sectionRequest.getDownStationId());
+        }
+        Section section = new Section(line.getId(),
+                stationDao.findOne(sectionRequest.getUpStationId()),
                 stationDao.findOne(sectionRequest.getDownStationId()),
-                sectionRequest.getDistance()));
+                sectionRequest.getDistance());
+        lineService.addSection(line, section);
+        SectionResponse response = new SectionResponse(section);
         return ResponseEntity.ok().body(response);
     }
-
-
 }

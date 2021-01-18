@@ -16,10 +16,6 @@ public class LineService {
 
     public Section addSection(Line line, Section section) {
         List<Section> sections = line.getSections();
-        for(Section s:sections){
-            System.out.println("여기");
-            System.out.println(s);
-        }
         int targetIndex = -1;
 
         int upIndex = IntStream.range(1, sections.size())
@@ -44,7 +40,9 @@ public class LineService {
             Section present = sections.get(upIndex);
             Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
             Section updateSection = new Section(present.getId(), line.getId(), section.getDownStation(), present.getDownStation(), present.getDistance() - section.getDistance());
-            sectionDao.update(updateSection);
+            if(present.getId()!=null){
+                sectionDao.update(updateSection);
+            }
             sectionDao.save(newSection);
             targetIndex = upIndex;
         }
@@ -53,7 +51,9 @@ public class LineService {
             Section present = sections.get(downIndex);
             Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
             Section updateSection = new Section(present.getId(), line.getId(), present.getUpStation(), section.getUpStation(), present.getDistance() - section.getDistance());
-            sectionDao.update(updateSection);
+            if(present.getId()!=null){
+                sectionDao.update(updateSection);
+            }
             sectionDao.save(newSection);
             targetIndex = downIndex + 1;
         }

@@ -98,7 +98,7 @@ public class SectionDao {
         if (!isUpStation) {
             sql = "select id, line_id, up_station_id, down_station_id, distance from section where down_station_id = ? and line_id = ?";
         }
-        return jdbcTemplate.queryForObject(
+        List<Section> ret = jdbcTemplate.query(
                 sql,
                 (resultSet, rowNum) -> new Section(
                         resultSet.getLong("id"),
@@ -107,5 +107,9 @@ public class SectionDao {
                         stationDao.findOne(resultSet.getLong("down_station_id")),
                         resultSet.getInt("distance")
                 ), stationId, lineId);
+        if(ret.size()==0){
+            return null;
+        }
+        return ret.get(0);
     }
 }

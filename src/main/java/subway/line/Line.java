@@ -28,61 +28,59 @@ public class Line {
         this.id = id;
     }
 
-    public Line(String name, String color, Station upStation, Station downStation, int distance) {
-        this(name, color);
-        sections.add(new Section(null, upStation, Integer.MAX_VALUE / 2));
-        sections.add(new Section(upStation, downStation, distance));
-        sections.add(new Section(downStation, null, Integer.MAX_VALUE / 2));
+    public Line(Long id, String name, String color, List<Section> sections) {
+        this(id, name, color);
+        Map<Station, List<Section>> countMap = new HashMap<>();
+        sections.forEach(section -> {
+            countMap.computeIfAbsent(section.getUpStation(), (key)->new ArrayList<>());
+            countMap.get(section.getUpStation()).add(section);
+            countMap.computeIfAbsent(section.getDownStation(),(key)->new ArrayList<>());
+            countMap.get(section.getDownStation()).add(section);
+        });
+        Section firstSection = getFirstSection(countMap);
+        Section lastSection = getLastSection(countMap);
+        Section present = firstSection;
+        this.sections.add(present);
+        while(true){
+            Section finalPresent = present;
+            if(finalPresent.getDownStation()==lastSection.getUpStation()){
+                break;
+            }
+            present = countMap.get(present.getDownStation()).stream()
+                    .filter(section -> {
+                        return finalPresent.getDownStation().getId().equals(section.getUpStation().getId());})
+                    .findAny()
+                    .orElseThrow(()->{
+                        throw new NoContentException("섹션이 도중에 없습니다.");
+                    });
+            this.sections.add(present);
+
+        }
+        this.sections.add(lastSection);
     }
 
-    public Section addSection(Station upStation, Station downStation, int distance) {
-        if (sections.isEmpty()) {
-            Section section = new Section(upStation, downStation, distance);
-            sections.add(new Section(null, upStation, Integer.MAX_VALUE / 2));
-            sections.add(section);
-            sections.add(new Section(downStation, null, Integer.MAX_VALUE / 2));
-            return section;
-        }
-
-        return makeAndInsertSection(upStation, downStation, distance);
+    private Section getLastSection(Map<Station, List<Section>> countMap) {
+        List<Section> ret = new ArrayList<>();
+        countMap.forEach((station, sections) -> {
+            if (sections.size() == 1 &&
+                    sections.stream()
+                            .anyMatch(section -> section.getDownStation() == station)) {
+                ret.add(new Section(station, null, Integer.MAX_VALUE / 2));
+            }
+        });
+        return ret.get(0);
     }
 
-    private Section makeAndInsertSection(Station upStation, Station downStation, int distance) {
-        int targetIndex = -1;
-
-        int upIndex = IntStream.range(1, sections.size())
-                .filter(i -> sections.get(i).getUpStation().getId().equals(upStation.getId()))
-                .findAny()
-                .orElse(-1);
-
-        int downIndex = IntStream.range(0, sections.size() - 1)
-                .filter(i -> sections.get(i).getDownStation().getId().equals(downStation.getId()))
-                .findAny()
-                .orElse(-1);
-
-        if ((upIndex == -1) == (downIndex == -1)) {
-            throw new NoContentException("둘 중 하나만 -1이여야함!");
-        }
-
-        if (distance >= sections.get(upIndex * downIndex * -1).getDistance()) {
-            throw new NoContentException("길이가 맞지 않음");
-        }
-
-        if (upIndex != -1) {
-            Section present = sections.get(upIndex);
-            sections.set(upIndex, new Section(downStation, present.getDownStation(), present.getDistance() - distance));
-            sections.add(upIndex, new Section(upStation, downStation, distance));
-            targetIndex = upIndex;
-        }
-
-        if (downIndex != -1) {
-            Section present = sections.get(downIndex);
-            sections.set(downIndex, new Section(upStation, downStation, distance));
-            sections.add(downIndex, new Section(present.getUpStation(), upStation, present.getDistance() - distance));
-            targetIndex = downIndex + 1;
-        }
-
-        return sections.get(targetIndex);
+    private Section getFirstSection(Map<Station, List<Section>> countMap) {
+        List<Section> ret = new ArrayList<>();
+        countMap.forEach((station, sections) -> {
+            if (sections.size() == 1 &&
+                    sections.stream()
+                            .anyMatch(section -> section.getUpStation() == station)) {
+                ret.add(new Section(null, station, Integer.MAX_VALUE / 2));
+            }
+        });
+        return ret.get(0);
     }
 
     public void deleteStation(Long stationId) {

@@ -187,6 +187,10 @@ public class LineService {
         Map<Long, Section> reverseOrderedSections = sections.stream()
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
 
+        if (hasDuplicatedStation(id, sectionRequest)) {
+            throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
+        }
+
         // 하행 종점 변경 (A -> B -> (C))
         if (isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
             addLastStation(line, sectionRequest, newSection);
@@ -212,7 +216,14 @@ public class LineService {
         }
 
 
-        return ResponseEntity.ok().build();
+        throw new SectionDistanceExceedException("생성 실패");
+    }
+
+    private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest) {
+        List<Station> stations = getStations(id);
+
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
+                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
     }
 
     public ResponseEntity deleteSection(Long id, Long stationId) {

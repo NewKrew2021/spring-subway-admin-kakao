@@ -18,30 +18,21 @@ public class StationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
-        Station station = new Station(
-                resultSet.getLong("id"),
-                resultSet.getString("name")
-        );
-        return station;
-    };
-
     public Station insert(Station station) {
         String sql = "insert into station (name) values(?)";
-        Long id;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
         try {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(con -> {
                 PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
                 st.setString(1, station.getName());
                 return st;
             }, keyHolder);
-            id = keyHolder.getKey().longValue();
-        } catch(DataAccessException ignored) {
+        } catch (DataAccessException ignored) {
             return null;
         }
-        return new Station(id, station.getName());
+
+        return new Station(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {
@@ -58,4 +49,10 @@ public class StationDao {
         String sql = "delete from station where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
+
+    private final RowMapper<Station> stationRowMapper =
+            (resultSet, rowNum) -> new Station(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name")
+            );
 }

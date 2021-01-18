@@ -9,9 +9,7 @@ import subway.station.StationResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -98,8 +96,6 @@ public class LineController {
 
     @DeleteMapping("/{id}/sections")
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
-        Line line = lineDao.findById(id);
-
         boolean deleted = sectionDao.delete(id, stationId);
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -114,18 +110,6 @@ public class LineController {
         Long lineId = line.getId();
         Section firstSection = sectionDao.findFirstStation2(lineId);
         Long firstStationId = firstSection.getUpStationId();
-
-//        Map<Long, Long> m = new HashMap<>();
-//        for (Section section : sectionDao.findByLineId(lineId)) {
-//            m.put(section.getUpStationId(), section.getDownStationId());
-//        }
-//
-//        stationResponses.add(stationDao.findById(firstStationId).toDto());
-//        Long val = firstStationId;
-//        while (m.containsKey(val)) {
-//            val = m.get(val);
-//            stationResponses.add(stationDao.findById(val).toDto());
-//        }
 
         stationResponses.add(stationDao.findById(firstStationId).toDto());
         Long stationId = firstStationId;

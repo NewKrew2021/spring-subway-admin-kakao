@@ -12,9 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static subway.Container.*;
-
+@Service
 public class LineService {
+    private final LineDao lineDao;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
+
+    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
+    }
 
     public LineResponse createLine(LineRequest lineRequest) {
         List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());

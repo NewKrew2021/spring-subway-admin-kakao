@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Repository
 public class LineDao {
     private Long seq = 0L;
     private List<Line> lines = new ArrayList<>();

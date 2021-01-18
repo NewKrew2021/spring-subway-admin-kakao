@@ -11,11 +11,6 @@ import java.util.List;
 import static subway.Container.*;
 
 public class SectionService {
-    private final StationService stationService;
-
-    public SectionService() {
-        this.stationService = new StationService();
-    }
 
     public void createSection(Section section) {
         sectionDao.save(section);

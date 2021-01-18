@@ -10,7 +10,7 @@ public class Line {
     public Line() {
     }
 
-    public Line(Long id, String name, String color, Long startStationId) {
+    public Line(Long id, String name, String color, Long startStationId, Long endStationId) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -39,5 +39,9 @@ public class Line {
 
     public Long getStartStationId() {
         return startStationId;
+    }
+
+    public Long getEndStationId() {
+        return endStationId;
     }
 }

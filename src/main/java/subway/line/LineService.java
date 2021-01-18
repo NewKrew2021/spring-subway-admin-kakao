@@ -16,14 +16,6 @@ import static subway.Container.*;
 
 public class LineService {
 
-    private final SectionService sectionService;
-    private final StationService stationService;
-
-    public LineService() {
-        this.sectionService = new SectionService();
-        this.stationService = new StationService();
-    }
-
     public LineResponse createLine(LineRequest lineRequest) {
         List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());
 
@@ -53,7 +45,9 @@ public class LineService {
         lineDao.deleteById(id);
     }
 
-    public void updateLine(long id, Line line) {
+    public void updateLine(long id, LineRequest lineRequest) {
+        Line originalLine = lineDao.findById(id);
+        Line line = new Line(id, lineRequest.getName(), lineRequest.getColor(), originalLine.getStartStationId(), originalLine.getEndStationId());
         lineDao.updateById(id, line);
     }
 

@@ -72,11 +72,11 @@ public class LineService {
                 .collect(Collectors.toMap(Section::getUpStationId, section -> section));
         Long upStationId = line.getUpStationId();
 
-        stations.add(stationDao.findById(upStationId).get());
+        stations.add(stationDao.findById(upStationId));
 
         while (orderedSections.containsKey(upStationId)) {
             Section section = orderedSections.get(upStationId);
-            stations.add(stationDao.findById(section.getDownStationId()).get());
+            stations.add(stationDao.findById(section.getDownStationId()));
             upStationId = section.getDownStationId();
         }
 
@@ -229,15 +229,15 @@ public class LineService {
     private boolean containsEndStation(Long id, SectionRequest sectionRequest) {
         List<Station> stations = getStations(id);
 
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
-                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
+                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
     private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest) {
         List<Station> stations = getStations(id);
 
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
-                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
+                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
     public ResponseEntity deleteSection(Long id, Long stationId) {

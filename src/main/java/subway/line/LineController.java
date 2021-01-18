@@ -25,7 +25,7 @@ public class LineController {
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
 
-        Line line = new Line(lineRequest);
+        Line line = new Line(lineRequest); //생성하면, Line에 대한 정보만 있고, station ID도 있으나, 그 id들로 station의 정보도 가져와한다. 그 가져온정보로 lineResponse를 만들어야한다.
 
         if (lineDao.hasContains(line)) {
             return ResponseEntity.badRequest().build();

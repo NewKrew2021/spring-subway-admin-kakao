@@ -1,5 +1,7 @@
 package subway.line;
 
+import java.beans.ConstructorProperties;
+
 public class LineRequest {
     private String name;
     private String color;
@@ -8,8 +10,7 @@ public class LineRequest {
     private int distance;
     private int extraFare;
 
-    public LineRequest() { }
-
+    @ConstructorProperties({"name", "color", "upStationId", "downStationId", "distance"})
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
         this.name = name;
         this.color = color;

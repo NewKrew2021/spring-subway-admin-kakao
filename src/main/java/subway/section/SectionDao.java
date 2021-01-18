@@ -53,24 +53,20 @@ public class SectionDao {
         List<Section> sections = findByLineId(lineId);
 
         int sectionsLength = sections.size();
-        // 구간이 1개인 노선인 경우
         if (sections.size() == 1){
             throw new InvalidValueException();
         }
 
-        // 가장 왼쪽인 경우
         if (sections.get(0).getUpStationId() == stationId){
             deleteById(sections.get(0).getId());
             return;
         }
 
-        // 가장 오른쪽인 경우
         if (sections.get(sections.size()-1).getDownStationId() == stationId){
             deleteById(sections.get(sections.size()-1).getId());
             return;
         }
 
-        // 중간에 있는 경우
         for (int i = 0; i < sectionsLength; i++) {
             if (sections.get(i).getDownStationId() == stationId) {
                 Section leftSection = sections.get(i);

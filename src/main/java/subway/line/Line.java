@@ -39,22 +39,20 @@ public class Line {
         });
         Section firstSection = getFirstSection(countMap);
         Section lastSection = getLastSection(countMap);
-        Section present = firstSection;
+        fillSections(countMap, lastSection, firstSection);
+    }
+
+    private void fillSections(Map<Station, List<Section>> countMap, Section lastSection, Section present) {
         this.sections.add(present);
-        while(true){
+        while(present.getDownStation()!= lastSection.getUpStation()){
             Section finalPresent = present;
-            if(finalPresent.getDownStation()==lastSection.getUpStation()){
-                break;
-            }
             present = countMap.get(present.getDownStation()).stream()
-                    .filter(section -> {
-                        return finalPresent.getDownStation().getId().equals(section.getUpStation().getId());})
+                    .filter(section -> finalPresent.getDownStation().getId().equals(section.getUpStation().getId()))
                     .findAny()
                     .orElseThrow(()->{
                         throw new NoContentException("섹션이 도중에 없습니다.");
                     });
             this.sections.add(present);
-
         }
         this.sections.add(lastSection);
     }

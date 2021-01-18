@@ -28,6 +28,40 @@ public class LineService {
                 .findAny()
                 .orElse(-1);
 
+        checkValidCondition(section, sections, upIndex, downIndex);
+
+        targetIndex = getTargetIndexIfUpIndex(line, section, sections, targetIndex, upIndex);
+
+        targetIndex = getTargetIndexIfDownIndex(line, section, sections, targetIndex, downIndex);
+
+        return sections.get(targetIndex);
+    }
+
+    private int getTargetIndexIfDownIndex(Line line, Section section, List<Section> sections, int targetIndex, int downIndex) {
+        if (downIndex != -1) {
+            Section present = sections.get(downIndex);
+            Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
+            Section updateSection = new Section(present.getId(), line.getId(), present.getUpStation(), section.getUpStation(), present.getDistance() - section.getDistance());
+            updateSectionIfRealSection(present, updateSection);
+            sectionDao.save(newSection);
+            targetIndex = downIndex + 1;
+        }
+        return targetIndex;
+    }
+
+    private int getTargetIndexIfUpIndex(Line line, Section section, List<Section> sections, int targetIndex, int upIndex) {
+        if (upIndex != -1) {
+            Section present = sections.get(upIndex);
+            Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
+            Section updateSection = new Section(present.getId(), line.getId(), section.getDownStation(), present.getDownStation(), present.getDistance() - section.getDistance());
+            updateSectionIfRealSection(present, updateSection);
+            sectionDao.save(newSection);
+            targetIndex = upIndex;
+        }
+        return targetIndex;
+    }
+
+    private void checkValidCondition(Section section, List<Section> sections, int upIndex, int downIndex) {
         if ((upIndex == -1) == (downIndex == -1)) {
             throw new NoContentException("둘 중 하나만 -1이여야함!");
         }
@@ -35,29 +69,11 @@ public class LineService {
         if (section.getDistance() >= sections.get(upIndex * downIndex * -1).getDistance()) {
             throw new NoContentException("길이가 맞지 않음");
         }
+    }
 
-        if (upIndex != -1) {
-            Section present = sections.get(upIndex);
-            Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
-            Section updateSection = new Section(present.getId(), line.getId(), section.getDownStation(), present.getDownStation(), present.getDistance() - section.getDistance());
-            if(present.getId()!=null){
-                sectionDao.update(updateSection);
-            }
-            sectionDao.save(newSection);
-            targetIndex = upIndex;
+    private void updateSectionIfRealSection(Section present, Section updateSection) {
+        if (present.getId() != null) {
+            sectionDao.update(updateSection);
         }
-
-        if (downIndex != -1) {
-            Section present = sections.get(downIndex);
-            Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
-            Section updateSection = new Section(present.getId(), line.getId(), present.getUpStation(), section.getUpStation(), present.getDistance() - section.getDistance());
-            if(present.getId()!=null){
-                sectionDao.update(updateSection);
-            }
-            sectionDao.save(newSection);
-            targetIndex = downIndex + 1;
-        }
-
-        return sections.get(targetIndex);
     }
 }

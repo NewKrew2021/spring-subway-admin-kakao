@@ -1,8 +1,12 @@
 package subway.line;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Line {
+
+    private final int END_STATION_SECTION_SIZE = 1;
+
     private Long id;
     private String name;
     private String color;
@@ -110,5 +114,19 @@ public class Line {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, color, extraFare, upStationId, downStationId, distance);
+    }
+
+    public boolean isEndStation(int sectionListSize) {
+        return sectionListSize == END_STATION_SECTION_SIZE;
+    }
+
+    public void updateEndStation(Section endSection, Long stationId) {
+        if(stationId == this.upStationId){
+            this.upStationId = endSection.getDownStationId();
+        }
+
+        if(stationId == this.downStationId){
+            this.downStationId = endSection.getUpStationId();
+        }
     }
 }

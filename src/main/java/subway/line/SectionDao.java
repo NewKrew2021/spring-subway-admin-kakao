@@ -4,7 +4,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,5 +59,16 @@ public class SectionDao {
     public void update(Long id, Section updateSection) {
         Section section = findById(id).get();
         section.update(updateSection);
+    }
+
+    public List<Section> findByStationIdAndLineId(Long stationId, Long lineId) {
+        return sections.stream()
+                .filter(section -> isSameStationIdAndLineId(section,stationId,lineId))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isSameStationIdAndLineId(Section section, Long stationId, Long lineId) {
+        return section.getLineId() == lineId &&
+                (section.getUpStationId() == stationId || section.getDownStationId() == stationId);
     }
 }

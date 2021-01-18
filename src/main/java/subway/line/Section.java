@@ -48,4 +48,16 @@ public class Section {
         this.downStationId = updateSection.getDownStationId();
         this.distance = updateSection.getDistance();
     }
+
+    public Section merge(Section section, Long stationId) {
+        if(this.upStationId == stationId){
+            this.upStationId = section.getUpStationId();
+        }
+
+        if(this.downStationId == stationId){
+            this.downStationId = section.getDownStationId();
+        }
+
+        return this;
+    }
 }

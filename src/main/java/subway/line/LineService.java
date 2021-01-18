@@ -210,4 +210,34 @@ public class LineService {
         return ResponseEntity.ok().build();
     }
 
+    public ResponseEntity deleteSection(Long id, Long stationId) {
+        //@TODO 삭제
+        // 1. stationId로 구간 조회
+        // 2. 해당 역이 상행, 하행 종점일 경우 구간 삭제 + 노선의 상행, 하행 업데이트 (sectionDao, LineDao)
+        // 3. 중간에 갈래길일 경우, 두개의 구간을 하나의 구간으로 통합
+        // 4. 역애 대한 정보 삭제 (stationDao)
+
+        // 1.
+        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId,id);
+        Line line = lineDao.findById(id).get();
+
+        // 2.
+        if(line.isEndStation(sectionList.size())){
+            Section endSection = sectionList.get(0);
+            line.updateEndStation(endSection,stationId);
+            sectionDao.deleteById(endSection.getId());
+        }
+
+        // 3.
+        if(!line.isEndStation(sectionList.size())){
+            Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
+            sectionDao.deleteById(sectionList.get(1).getId());
+        }
+
+        // 4.
+        stationDao.deleteById(stationId);
+
+
+        return ResponseEntity.ok().build();
+    }
 }

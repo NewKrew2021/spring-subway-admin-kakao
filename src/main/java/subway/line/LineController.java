@@ -1,48 +1,52 @@
 package subway.line;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.SubwayApplication;
-import subway.station.Station;
-import subway.station.StationController;
+import subway.station.StationDao;
+import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lines")
 public class LineController {
-    private final int LAST_STATION_HAS_NO_DISTANCE = 0;
     private final LineDao lineDao;
-    private final StationController stationController;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
 
-    public LineController(LineDao lineDao, StationController stationController) {
+    public LineController(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
         this.lineDao = lineDao;
-        this.stationController = stationController;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SubwayApplication.class);
-        Station upStation = stationController.getStationDao().findById(lineRequest.getUpStationId());
-        Station downStation = stationController.getStationDao().findById(lineRequest.getDownStationId());
+        Line line = new Line(0L, lineRequest.getName(), lineRequest.getColor());
+        Section section = new Section(0,
+                line.getId(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance());
 
-        List<Section> sections = Arrays.asList(
-                new Section(upStation, lineRequest.getDistance()),
-                new Section(downStation, LAST_STATION_HAS_NO_DISTANCE));
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getExtraFare(), sections);
-
-        Line newLine = lineDao.insert(line);
-        if (newLine == null) {
+        if (!lineDao.isValid(line) || !sectionDao.isValid(section)) {
             return ResponseEntity.badRequest().build();
         }
 
-        LineResponse lineResponse = newLine.toDto();
+        Line newLine = lineDao.insert(line);
+        sectionDao.insertDirectly(newLine.getId(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance());
+
+        LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
 
@@ -50,7 +54,7 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> res = lineDao.findAll()
                 .stream()
-                .map(Line::toDto)
+                .map(line -> line.toDto(getStationsByLine(line)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(res);
@@ -58,7 +62,8 @@ public class LineController {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return ResponseEntity.ok(lineDao.findById(id).toDto());
+        Line line = lineDao.findById(id);
+        return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
     }
 
     @PutMapping("/{id}")
@@ -83,28 +88,53 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<LineResponse> addSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Line line = lineDao.findById(lineId);
-        Station upStation = stationController.getStationDao().findById(sectionRequest.getUpStationId());
-        Station downStation = stationController.getStationDao().findById(sectionRequest.getDownStationId());
-        int distance = sectionRequest.getDistance();
-
-        boolean isDone = line.insertSection(upStation, downStation, distance);
+        boolean isDone = sectionDao.insert(lineId, sectionRequest);
         if (!isDone) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return ResponseEntity.ok(line.toDto());
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/sections")
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
         Line line = lineDao.findById(id);
 
-        boolean isDone = line.deleteById(stationId);
-        if (!isDone) {
+        boolean deleted = sectionDao.delete(id, stationId);
+        if (!deleted) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    private List<StationResponse> getStationsByLine(Line line) {
+        List<StationResponse> stationResponses = new ArrayList<>();
+
+        Long lineId = line.getId();
+        Section firstSection = sectionDao.findFirstStation2(lineId);
+        Long firstStationId = firstSection.getUpStationId();
+
+//        Map<Long, Long> m = new HashMap<>();
+//        for (Section section : sectionDao.findByLineId(lineId)) {
+//            m.put(section.getUpStationId(), section.getDownStationId());
+//        }
+//
+//        stationResponses.add(stationDao.findById(firstStationId).toDto());
+//        Long val = firstStationId;
+//        while (m.containsKey(val)) {
+//            val = m.get(val);
+//            stationResponses.add(stationDao.findById(val).toDto());
+//        }
+
+        stationResponses.add(stationDao.findById(firstStationId).toDto());
+        Long stationId = firstStationId;
+        for (int i = 0; i < sectionDao.findByLineId(lineId).size(); i++) {
+            Section section = sectionDao.findByUpStationId(lineId, stationId);
+            stationResponses.add(stationDao.findById(section.getDownStationId()).toDto());
+            stationId = section.getDownStationId();
+        }
+
+        return stationResponses;
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
@@ -29,18 +30,19 @@ public class LineDao {
     public Line insert(Line line) {
         String sql = "insert into line (name, color) values(?, ?)";
 
-        if (findByName(line.getName()) != null) {
+        if (!isValid(line)) {
             return null;
         }
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         long id = jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql);
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
             st.setString(1, line.getName());
             st.setString(2, line.getColor());
             return st;
-        }, new GeneratedKeyHolder());
+        }, keyHolder);
 
-        return new Line(id, line.getName(), line.getColor());
+        return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
 
     public Line findById(Long id) {
@@ -74,5 +76,9 @@ public class LineDao {
     public boolean deleteById(Long id) {
         String sql = "delete from line where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    public boolean isValid(Line line) {
+        return findByName(line.getName()) == null;
     }
 }

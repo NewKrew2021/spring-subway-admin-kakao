@@ -8,9 +8,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class LineDao {
-
+    private static LineDao lineDao = null;
     private Long seq = 0L;
     private List<Line> lines = new ArrayList<>();
+
+    private LineDao() {}
+
+    public static LineDao getInstance() {
+        if (lineDao == null) {
+            lineDao = new LineDao();
+        }
+
+        return lineDao;
+    }
 
     public Line save(Line line) {
         Line persistStation = createNewObject(line);
@@ -45,5 +55,10 @@ public class LineDao {
     public void update(Long id, LineRequest lineRequest) {
         Line line = findById(id).get();
         line.update(lineRequest);
+    }
+
+    public void update(Line updateLine) {
+        Line line = findById(updateLine.getId()).get();
+        line.update(updateLine);
     }
 }

@@ -1,11 +1,12 @@
 package subway.line;
 
-import subway.station.StationResponse;
-
 import java.util.List;
 import java.util.Objects;
 
 public class Line {
+
+    private final int END_STATION_SECTION_SIZE = 1;
+
     private Long id;
     private String name;
     private String color;
@@ -13,20 +14,25 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private List<StationResponse> stations;
-
 
     public Line(String name, String color) {
         this.name = name;
         this.color = color;
     }
 
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
-        this.name = name;
-        this.color = color;
+    public Line(Long id, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+        this.upStationId = lineRequest.getUpStationId();
+        this.downStationId = lineRequest.getDownStationId();
+        this.distance = lineRequest.getDistance();
     }
 
     public Long getId() {
@@ -85,17 +91,16 @@ public class Line {
         this.distance = distance;
     }
 
-    public List<StationResponse> getStations() {
-        return stations;
-    }
-
-    public void setStations(List<StationResponse> stations) {
-        this.stations = stations;
-    }
-
     public void update(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
+    }
+
+    public void update(Line line) {
+        this.upStationId = line.getUpStationId();
+        this.downStationId = line.getDownStationId();
+        this.distance = line.getDistance();
+
     }
 
     @Override
@@ -109,5 +114,19 @@ public class Line {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, color, extraFare, upStationId, downStationId, distance);
+    }
+
+    public boolean isEndStation(int sectionListSize) {
+        return sectionListSize == END_STATION_SECTION_SIZE;
+    }
+
+    public void updateEndStation(Section endSection, Long stationId) {
+        if(stationId == this.upStationId){
+            this.upStationId = endSection.getDownStationId();
+        }
+
+        if(stationId == this.downStationId){
+            this.downStationId = endSection.getUpStationId();
+        }
     }
 }

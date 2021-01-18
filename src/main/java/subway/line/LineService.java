@@ -1,20 +1,28 @@
 package subway.line;
 
+import org.springframework.stereotype.Service;
 import subway.exception.NotExistException;
 import subway.section.Section;
-import subway.section.SectionService;
+import subway.section.SectionDao;
 import subway.station.Station;
+import subway.station.StationDao;
 import subway.station.StationResponse;
-import subway.station.StationService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import static subway.Container.*;
-
+@Service
 public class LineService {
+    private final LineDao lineDao;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
+
+    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
+    }
 
     public LineResponse createLine(LineRequest lineRequest) {
         List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());

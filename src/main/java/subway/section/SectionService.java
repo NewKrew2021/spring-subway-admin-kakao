@@ -1,16 +1,28 @@
 package subway.section;
 
+import org.springframework.stereotype.Service;
 import subway.exception.InvalidSectionException;
 import subway.line.Line;
+import subway.line.LineDao;
 import subway.station.Station;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static subway.Container.*;
-
+@Service
 public class SectionService {
+
+    private final LineDao lineDao;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
+
+    public SectionService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
+    }
 
     public void createSection(Section section) {
         sectionDao.save(section);
@@ -104,12 +116,12 @@ public class SectionService {
 
     private void extendDownwardEdge(SectionRequest sectionRequest, Line line) {
         createSection(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), line.getId()));
-        lineDao.updateById(line.getId(), new Line(line.getName(), line.getColor(), line.getStartStationId(), sectionRequest.getDownStationId()));
+        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), line.getStartStationId(), sectionRequest.getDownStationId()));
     }
 
     private void extendUpwardEdge(SectionRequest sectionRequest, Line line) {
         createSection(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), line.getId()));
-        lineDao.updateById(line.getId(), new Line(line.getName(), line.getColor(), sectionRequest.getUpStationId(), line.getEndStationId()));
+        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), sectionRequest.getUpStationId(), line.getEndStationId()));
     }
 
     private void addSectionWhenUpStationExist(SectionRequest sectionRequest, Line line) {

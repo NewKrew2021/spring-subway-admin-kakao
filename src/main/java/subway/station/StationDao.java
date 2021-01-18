@@ -1,13 +1,14 @@
 package subway.station;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
-import subway.exception.NotExistException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Repository
 public class StationDao {
     private Long seq = 0L;
     private List<Station> stations = new ArrayList<>();

@@ -2,23 +2,14 @@ package subway.line;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.InvalidSectionException;
 import subway.exception.NotExistException;
-import subway.section.Section;
-import subway.section.SectionDao;
 import subway.section.SectionRequest;
 import subway.section.SectionService;
-import subway.station.Station;
 import subway.station.StationResponse;
-import subway.station.StationService;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
-
-import static subway.Container.*;
 
 @RestController
 public class LineController {
@@ -26,9 +17,9 @@ public class LineController {
     private final LineService lineService;
     private final SectionService sectionService;
 
-    public LineController() {
-        this.lineService = new LineService();
-        this.sectionService = new SectionService();
+    public LineController(LineService lineService, SectionService sectionService) {
+        this.lineService = lineService;
+        this.sectionService = sectionService;
     }
 
     @PostMapping("/lines")

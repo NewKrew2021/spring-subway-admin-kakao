@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DirtiesContext
 @SpringBootTest
 public class SectionDaoTest {
     private final Section 섹션1 = new Section(1L, 1L, 2L, 3);
@@ -22,6 +24,7 @@ public class SectionDaoTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+//    @AfterEach
     @BeforeEach
     public void dropTable() {
         jdbcTemplate.execute("DROP TABLE section IF EXISTS");

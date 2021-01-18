@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import subway.station.Station;
-import subway.station.StationDao;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+@DirtiesContext
 @SpringBootTest
 public class StationDaoTest {
     private final Station 강남역 = new Station("강남역");

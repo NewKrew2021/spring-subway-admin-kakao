@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+@DirtiesContext
 @SpringBootTest
 public class LineDaoTest {
     private final Line 분당선 = new Line("분당선", "노랑");
@@ -22,6 +24,7 @@ public class LineDaoTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+//    @AfterEach
     @BeforeEach
     public void dropTable() {
         jdbcTemplate.execute("DROP TABLE line IF EXISTS");

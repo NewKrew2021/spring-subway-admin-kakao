@@ -8,37 +8,34 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
 public class StationDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
-        Station station = new Station(
-                resultSet.getLong("id"),
-                resultSet.getString("name")
-        );
-        return station;
-    };
+    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> Station.of(
+            resultSet.getLong("id"),
+            resultSet.getString("name")
+    );
 
     public Station save(Station station) {
         String sql = "insert into STATION (name) values (?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "id" });
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, station.getName());
             return ps;
         }, keyHolder);
-        Station persistStation = new Station(keyHolder.getKey().longValue(), station.getName());
 
-        return persistStation;
+        return Station.of(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {

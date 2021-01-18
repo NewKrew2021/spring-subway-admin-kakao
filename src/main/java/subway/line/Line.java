@@ -1,6 +1,9 @@
 package subway.line;
 
-import subway.station.StationResponse;
+import subway.section.Section;
+import subway.section.SectionRequest;
+import subway.section.SectionType;
+import subway.section.Sections;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,18 +14,18 @@ public class Line {
     private long id;
     private String name;
     private String color;
-    private long upStationId;
-    private long downStationId;
-    private int distance;
 
     private Sections sections;
+
+    public Line(long id, String name, String color) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+    }
 
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
-        this.upStationId = lineRequest.getUpStationId();
-        this.downStationId = lineRequest.getDownStationId();
-        this.distance = lineRequest.getDistance();
 
         this.sections = new Sections(lineRequest);
     }
@@ -50,20 +53,7 @@ public class Line {
         }
 
         sections.addTerminalSection(sectionType, sectionRequest);
-        updateTerminalStation(sectionType, sectionRequest);
         return true;
-    }
-
-    private void updateTerminalStation(SectionType sectionType, SectionRequest sectionRequest) {
-        if (sectionType == SectionType.INSERT_FIRST_STATION) {
-            upStationId = sectionRequest.getUpStationId();
-        }
-
-        if (sectionType == SectionType.INSERT_LAST_STATION) {
-            downStationId = sectionRequest.getDownStationId();
-        }
-
-        distance += sectionRequest.getDistance();
     }
 
     public List<Long> getStationsId() {
@@ -85,15 +75,6 @@ public class Line {
     @Override
     public int hashCode() {
         return Objects.hash(name);
-    }
-
-    public void editLine(String name, String color) {
-        if (name != null) {
-            this.name = name;
-        }
-        if (color != null) {
-            this.color = color;
-        }
     }
 
     @Override

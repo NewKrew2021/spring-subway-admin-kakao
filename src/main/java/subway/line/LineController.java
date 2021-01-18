@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.section.SectionDao;
+import subway.section.SectionRequest;
+import subway.section.Sections;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -16,10 +19,12 @@ public class LineController {
 
     private final LineDao lineDao;
     private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    public LineController(LineDao lineDao, StationDao stationDao) {
+    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
     }
 
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -30,10 +35,10 @@ public class LineController {
         if (lineDao.hasContains(line)) {
             return ResponseEntity.badRequest().build();
         }
-        lineDao.save(line);
-        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), null);
+        Line newLine = lineDao.save(line);
+        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), null);
 
-        return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(lineResponse);
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @GetMapping("/lines")
@@ -47,6 +52,9 @@ public class LineController {
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLineById(@PathVariable long lineId) {
         Line line = lineDao.getLine(lineId); // 이 단계에서 station id는 line이 갖고 있으나, station 에 각각에 대한 정보는 없다.
+        //Line 은 만든다. Section이 없다.
+        Sections sections = new Sections(sectionDao.getSections(lineId));
+
         List<Long> stationsId = line.getStationsId();
         List<StationResponse> stationResponses = stationsId
                 .stream()
@@ -72,7 +80,7 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         Line line = lineDao.getLine(lineId);
-
+        sectionDao.save(sectionRequest,lineId);
         if (line.insertSection(sectionRequest)) {
             return ResponseEntity.ok().build();
         }

@@ -1,5 +1,7 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import subway.section.SectionDao;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class LineResponse {
+
     private Long id;
     private String name;
     private String color;
@@ -24,12 +27,12 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line) {
+    public LineResponse(Line line, StationDao stationDao, SectionDao sectionDao) {
         this(line.getId(),
                 line.getName(),
                 line.getColor(),
-                line.getStationInfo().stream()
-                        .map(stationId -> new StationResponse(stationId, StationDao.getInstance().findById(stationId).getName()))
+                line.getStationInfo(stationDao, sectionDao).stream()
+                        .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
                         .collect(Collectors.toList()),
                 line.getExtraFare());
     }

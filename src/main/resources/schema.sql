@@ -9,6 +9,7 @@ create table if not exists LINE
 (
     id bigint auto_increment not null,
     name varchar(255) not null unique,
+    extra_fare bigint not null,
     color varchar(20) not null,
     primary key(id)
     );

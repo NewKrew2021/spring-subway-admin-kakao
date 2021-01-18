@@ -1,8 +1,11 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exceptions.BadRequestException;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 import java.net.URI;
@@ -14,39 +17,46 @@ import subway.section.SectionDao;
 
 @RestController
 public class LineController {
+    @Autowired
+    LineDao lineDao;
+    @Autowired
+    SectionDao sectionDao;
+    @Autowired
+    StationDao stationDao;
+
 
     @PostMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(),
                 lineRequest.getColor(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance(),
                 lineRequest.getExtraFare());
 
         // 1 라인 추가
-        Line newline = LineDao.getInstance().save(line);
+        Line newline = lineDao.save(line, lineRequest);
         // 2. 섹션 추가
-        SectionDao.getInstance().save(new Section(newline.getId(), newline.getUpStationId(), newline.getDownStationId(), newline.getDistance()));
-        LineResponse lineResponse = new LineResponse(newline);
+        sectionDao.save(new Section(newline.getId(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance()));
+        LineResponse lineResponse = new LineResponse(newline, stationDao, sectionDao);
         return ResponseEntity.created(URI.create(("/lines/" + newline.getId()))).body(lineResponse);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok().body(LineDao.getInstance().findAll().stream()
-                .map((Line line) -> new LineResponse(line))
+        return ResponseEntity.ok().body(lineDao.findAll().stream()
+                .map((Line line) -> new LineResponse(line, stationDao, sectionDao))
                 .collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
-        return ResponseEntity.ok().body(new LineResponse(LineDao.getInstance().findById(id)));
+        return ResponseEntity.ok().body(new LineResponse(lineDao.findById(id), stationDao, sectionDao));
     }
 
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id,@RequestBody LineRequest lineRequest){
-        Line line = LineDao.getInstance().findById(id);
+        Line line = lineDao.findById(id);
 
         line.updateAll(lineRequest);
         return ResponseEntity.ok().build();
@@ -54,7 +64,13 @@ public class LineController {
 
     @DeleteMapping("/lines/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        LineDao.getInstance().deleteById(id);
+        lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> badRequestException(){
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("BadRequestException");
+        return ResponseEntity.badRequest().body("BadRequestException");
     }
 }

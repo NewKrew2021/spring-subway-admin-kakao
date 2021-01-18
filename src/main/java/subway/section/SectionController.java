@@ -1,32 +1,33 @@
 package subway.section;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.*;
+import subway.exceptions.InvalidValueException;
 import subway.line.Line;
 import subway.line.LineDao;
-import subway.station.StationDao;
-import org.springframework.web.bind.annotation.RequestParam;
-import javax.websocket.server.PathParam;
-import java.net.URI;
 
 @RestController
 public class SectionController {
 
+    @Autowired
+    SectionDao sectionDao;
+
+    @Autowired
+    LineDao lineDao;
+
     @PostMapping(value = "/lines/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId,
                                                          @RequestBody SectionRequest sectionRequest){
-        Line line = LineDao.getInstance().findById(lineId);
+        Line line = lineDao.findById(lineId);
         Section section = new Section(line.getId(),
                 sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(),
                 sectionRequest.getDistance());
 
-        Section newSection = SectionDao.getInstance().save(section);
+        Section newSection = sectionDao.save(section);
         SectionResponse sectionResponse = new SectionResponse(
                 newSection.getUpStationId(),
                 newSection.getDownStationId(),
@@ -37,7 +38,12 @@ public class SectionController {
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity deleteStation(@PathVariable Long lineId, @RequestParam("stationId") Long stationId) {
-        SectionDao.getInstance().deleteById(lineId, stationId);
+        sectionDao.deleteById(lineId, stationId);
         return ResponseEntity.ok().build();
+    }
+
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity<String> handleInvalidValueException(){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }

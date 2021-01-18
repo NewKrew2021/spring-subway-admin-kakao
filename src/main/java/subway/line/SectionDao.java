@@ -28,13 +28,6 @@ public class SectionDao {
         return section;
     };
 
-    public Section findByStationId(Long lineId, Long stationId) {
-        Section upSection = findByUpStationId(lineId, stationId);
-        Section downSection = findByDownStationId(lineId, stationId);
-
-        return upSection == null ? downSection : upSection;
-    }
-
     public boolean insert(Long lineId, SectionRequest request) {
         Long upStationId = request.getUpStationId();
         Long downStationId = request.getDownStationId();
@@ -118,23 +111,24 @@ public class SectionDao {
 
         if (upSection != null && downSection != null) {
             int distance = upSection.getDistance() + downSection.getDistance();
+            Section section = new Section(lineId, upSection.getUpStationId(), downSection.getDownStationId(), distance);
 
-            insertDirectly(lineId, upSection.getUpStationId(), downSection.getDownStationId(), distance);
+            insertDirectly(lineId, section);
         }
 
         deleteById(upSection.getId());
         deleteById(downSection.getId());
-        System.out.println("1111"+findByLineId(1L).get(0).getDownStationId());
-        System.out.println("1111"+findByLineId(1L).get(0).getUpStationId());
-        System.out.println("1111"+findByLineId(1L).get(1).getDownStationId());
-        System.out.println("1111"+findByLineId(1L).get(1).getUpStationId());
 
         return true;
     }
 
-    public boolean insertDirectly(Long lineId, Long upStationId, Long downStationId, int distance) {
+    public void insertDirectly(Long lineId, Section newSection) {
         String sql = "insert into section (line_id, up_station_id, down_station_id, distance) values(?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, lineId, upStationId, downStationId, distance) > 0;
+        jdbcTemplate.update(sql,
+                lineId,
+                newSection.getUpStationId(),
+                newSection.getDownStationId(),
+                newSection.getDistance());
     }
 
     public List<Section> findByLineId(Long lineId) {
@@ -168,10 +162,6 @@ public class SectionDao {
     public boolean deleteById(Long id) {
         String sql = "delete from section where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
-    }
-
-    public boolean isValid(Section section) {
-        return section.getDownStationId() != section.getUpStationId();
     }
 
     private boolean isDuplicateSection(Long upStationId, Long downStationId) {

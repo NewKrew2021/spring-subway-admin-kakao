@@ -58,9 +58,9 @@ public class SectionService {
         List<StationResponse> stations = getStationsOfLine(line);
 
         boolean upStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(sectionRequest.getUpStationId()));
+                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getUpStationId()));
         boolean downStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(sectionRequest.getDownStationId()));
+                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getDownStationId()));
 
         validateSection(upStationExist, downStationExist);
 
@@ -72,73 +72,19 @@ public class SectionService {
         addSectionWhenDownStationExist(sectionRequest, line);
     }
 
-    public void deleteSection(long lineId, long stationId) {
-        Line line = lineDao.findById(lineId);
-        if (stationId == line.getStartStationId()) {
-            deleteStartStation(line, stationId);
-            return;
-        }
-        if (stationId == line.getEndStationId()) {
-            deleteEndStation(line, stationId);
-            return;
-        }
-        deleteMiddleStation(line, stationId);
-    }
-
-    private void deleteMiddleStation(Line line, long stationId) {
-        Section upSection = sectionDao.findByDownStationId(stationId);
-        Section downSection = sectionDao.findByUpStationId(stationId);
-        sectionDao.updateSection(upSection.getId(), new Section(upSection.getId(),
-                upSection.getUpStationId(),
-                downSection.getDownStationId(),
-                upSection.getDistance() + downSection.getDistance(),
-                line.getId()));
-        sectionDao.deleteById(downSection.getId());
-    }
-
-    private void deleteStartStation(Line line, long stationId) {
-        Section section = sectionDao.findByUpStationId(stationId);
-        if (section.getDownStationId().equals(line.getEndStationId())) {
-            throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
-        }
-        sectionDao.deleteById(section.getId());
-        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), section.getDownStationId(), line.getEndStationId()));
-    }
-
-    private void deleteEndStation(Line line, long stationId) {
-        Section section = sectionDao.findByDownStationId(stationId);
-        if (section.getUpStationId().equals(line.getStartStationId())) {
-            throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
-        }
-        sectionDao.deleteById(section.getId());
-        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), line.getStartStationId(), section.getUpStationId()));
-    }
-
-    private void extendDownwardEdge(SectionRequest sectionRequest, Line line) {
-        createSection(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), line.getId()));
-        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), line.getStartStationId(), sectionRequest.getDownStationId()));
-    }
-
-    private void extendUpwardEdge(SectionRequest sectionRequest, Line line) {
-        createSection(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), line.getId()));
-        lineDao.updateById(line.getId(), new Line(line.getId(), line.getName(), line.getColor(), sectionRequest.getUpStationId(), line.getEndStationId()));
-    }
-
-    private void addSectionWhenUpStationExist(SectionRequest sectionRequest, Line line) {
-        if (sectionRequest.getUpStationId().equals(line.getEndStationId())) {
-            extendDownwardEdge(sectionRequest, line);
+    private void addSectionWhenUpStationExist(Section section, Line line) {
+        if (section.getUpStationId().equals(line.getEndStationId())) {
+            extendDownwardEdge(section, line);
             return;
         }
 
-        Section existingSection = getSectionByUpstationId(sectionRequest.getUpStationId());
-        validateDistance(sectionRequest.getDistance(), existingSection.getDistance());
-
-        addSectionUpward(sectionRequest, existingSection);
+        Section existingSection = getSectionByUpstationId(section.getUpStationId());
+        addSectionUpward(section, existingSection);
     }
 
-    private void addSectionWhenDownStationExist(SectionRequest sectionRequest, Line line) {
-        if (sectionRequest.getDownStationId().equals(line.getStartStationId())) {
-            extendUpwardEdge(sectionRequest, line);
+    private void addSectionWhenDownStationExist(Section section, Line line) {
+        if (section.getDownStationId().equals(line.getStartStationId())) {
+            extendUpwardEdge(section, line);
             return;
         }
 
@@ -148,20 +94,19 @@ public class SectionService {
         addSectionDownward(sectionRequest, existingSection);
     }
 
-    private void validateDistance(int newDistance, int existingDistance) {
-        if (newDistance >= existingDistance) {
-            throw new InvalidSectionException("기존 구간보다 거리가 크거나 같습니다.");
-        }
+    private void extendDownwardEdge(Section section, Line line) {
+        createSection(section);
+        lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getDownStationId()));
     }
 
-    private void addSectionUpward(SectionRequest sectionRequest, Section existingSection) {
-        updateSection(existingSection.getId(), new Section(existingSection.getId(),
-                sectionRequest.getDownStationId(), existingSection.getDownStationId(),
-                existingSection.getDistance() - sectionRequest.getDistance(),
-                existingSection.getLineId()));
+    private void extendUpwardEdge(Section section, Line line) {
+        createSection(section);
+        lineDao.updateById(line.getId(), line.getLineStartStationChanged(section.getUpStationId()));
+    }
 
-        Section newSection = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), existingSection.getLineId());
-        createSection(newSection);
+    private void addSectionUpward(Section section, Section existingSection) {
+        updateSection(existingSection.getId(), existingSection.getSectionUpStationChanged(section));
+        createSection(section);
     }
 
     private void addSectionDownward(SectionRequest sectionRequest, Section existingSection) {

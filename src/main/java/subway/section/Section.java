@@ -4,7 +4,7 @@ public class Section {
     private Long id;
     private Long upStationId;
     private Long downStationId;
-    private int distance;
+    private Integer distance;
     private Long lineId;
 
     public Section() {
@@ -19,6 +19,7 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
+        validateDistance(distance);
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;

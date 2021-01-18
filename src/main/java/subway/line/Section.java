@@ -7,7 +7,6 @@ public class Section {
     private Long upStationId;
     private Long downStationId;
     private int distance;
-    private Long priority;
 
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
         this.lineId = lineId;
@@ -44,11 +43,4 @@ public class Section {
         return lineId;
     }
 
-    public Long getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Long priority) {
-        this.priority = priority;
-    }
 }

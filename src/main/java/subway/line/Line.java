@@ -16,6 +16,13 @@ public class Line {
         this.color = color;
     }
 
+    public Line(Long id, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
     public Line(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
@@ -83,6 +90,13 @@ public class Line {
     public void update(LineRequest lineRequest) {
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
+    }
+
+    public void update(Line line) {
+        this.upStationId = line.getUpStationId();
+        this.downStationId = line.getDownStationId();
+        this.distance = line.getDistance();
+
     }
 
     @Override

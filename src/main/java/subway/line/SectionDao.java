@@ -24,8 +24,8 @@ public class SectionDao {
         return sectionDao;
     }
 
-    public Section save(Section section, Long priority) {
-        Section persistSection = createNewObject(section,priority);
+    public Section save(Section section) {
+        Section persistSection = createNewObject(section);
         sections.add(persistSection);
         return persistSection;
     }
@@ -34,13 +34,10 @@ public class SectionDao {
         return sections;
     }
 
-    private Section createNewObject(Section section, Long priority) {
+    private Section createNewObject(Section section) {
         Field idField = ReflectionUtils.findField(Section.class, "id");
         idField.setAccessible(true);
         ReflectionUtils.setField(idField, section, ++seq);
-        Field priorityField = ReflectionUtils.findField(Section.class, "priority");
-        priorityField.setAccessible(true);
-        ReflectionUtils.setField(priorityField, section, priority);
         return section;
     }
 
@@ -57,7 +54,6 @@ public class SectionDao {
     public List<Section> findByLineId(Long lineId){
         return sections.stream()
                 .filter(section -> section.getLineId() == lineId)
-                .sorted(Comparator.comparingLong(Section::getPriority))
                 .collect(Collectors.toList());
     }
 

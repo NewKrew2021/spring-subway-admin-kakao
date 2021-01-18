@@ -56,4 +56,9 @@ public class LineDao {
         Line line = findById(id).get();
         line.update(lineRequest);
     }
+
+    public void update(Line updateLine) {
+        Line line = findById(updateLine.getId()).get();
+        line.update(updateLine);
+    }
 }

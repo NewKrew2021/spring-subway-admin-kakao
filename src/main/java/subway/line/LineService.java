@@ -5,10 +5,7 @@ import subway.station.Station;
 import subway.station.StationDao;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LineService {
@@ -34,7 +31,7 @@ public class LineService {
         }
 
         Section section = new Section(newLine);
-        sectionDao.save(section,1L);
+        sectionDao.save(section);
 //        LineResponse lineResponse = new LineResponse(newLine.getId(),newLine.getName(),newLine.getColor(),newLine.getStations());
         LineResponse lineResponse = new LineResponse(newLine, getStations(newLine.getId()));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
@@ -63,29 +60,75 @@ public class LineService {
     }
 
     public List<Station> getStations(Long id) {
+        Line line = lineDao.findById(id).get();
         List<Section> sections = sectionDao.findByLineId(id);
         List<Station> stations = new ArrayList<>();
-        Long stationId = sections.get(0).getUpStationId();
-        stations.add(stationDao.findById(stationId).get());
-        sections.stream()
-                .sorted(Comparator.comparingLong(Section::getPriority))
-                .forEach(section -> stations.add(stationDao.findById(section.getDownStationId()).get()));
+
+        Map<Long, Section> orderedSections = sections.stream()
+                .collect(Collectors.toMap(Section::getUpStationId, section -> section));
+        Long upStationId = line.getUpStationId();
+
+        stations.add(stationDao.findById(upStationId).get());
+
+        while (orderedSections.containsKey(upStationId)) {
+            Section section = orderedSections.get(upStationId);
+            stations.add(stationDao.findById(section.getDownStationId()).get());
+            upStationId = section.getDownStationId();
+        }
+
         return stations;
     }
 
+    public boolean isAddStation(Long sectionRequestStationId , Long lineStationId){
+        return sectionRequestStationId.equals(lineStationId);
+    }
+
+    public void addDownStation(Line line, SectionRequest sectionRequest, Section newSection){
+        // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
+        Line updateLine = new Line(line.getId(),
+                line.getUpStationId(),
+                sectionRequest.getDownStationId(),
+                line.getDistance() + sectionRequest.getDistance());
+
+        lineDao.update(updateLine);
+
+        // SectionDao에서 구간 추가
+        sectionDao.save(newSection);
+    }
+
+    public void addUpStation(Line line, SectionRequest sectionRequest, Section newSection){
+        // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
+        Line updateLine = new Line(line.getId(),
+                sectionRequest.getUpStationId(),
+                line.getDownStationId(),
+                line.getDistance() + sectionRequest.getDistance());
+
+        lineDao.update(updateLine);
+
+        // SectionDao에서 구간 추가
+        sectionDao.save(newSection);
+    }
+
     public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
-        Section section = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         List<Section> sections = sectionDao.findByLineId(id);
-        Long priority = 0L;
+        Line line = lineDao.findById(id).get();
 
-        if (section.getDownStationId() == sections.get(0).getUpStationId()) {
-            priority = sections.get(0).getPriority() - 1;
-        }
-        if (section.getUpStationId() == sections.get(sections.size()-1).getDownStationId()) {
-            priority = sections.get(sections.size()-1).getPriority() + 1;
+        Map<Long, Section> orderedSections = sections.stream()
+                .collect(Collectors.toMap(Section::getUpStationId, section -> section));
+        Map<Long, Section> reverseOrderedSections = sections.stream()
+                .collect(Collectors.toMap(Section::getDownStationId, section -> section));
+
+        // 하행 종점 변경 (A -> B -> (C))
+        if (isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
+            addDownStation(line,sectionRequest,newSection);
         }
 
-        sectionDao.save(section,priority);
+        // 상행 종점 변경 ((C) -> A -> B)
+        if (isAddStation(sectionRequest.getDownStationId(), line.getUpStationId())) {
+            addUpStation(line,sectionRequest,newSection);
+        }
+
         return ResponseEntity.ok().build();
     }
 

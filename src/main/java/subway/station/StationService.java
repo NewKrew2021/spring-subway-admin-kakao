@@ -2,19 +2,19 @@ package subway.station;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class StationService {
 
-    public static StationDao stationDao;
-
-    public StationService(){
-        stationDao = StationDao.getInstance();
-    }
+    @Resource
+    public StationDao stationDao;
 
     public ResponseEntity<StationResponse> createStation(StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());

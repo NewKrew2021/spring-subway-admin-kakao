@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -8,20 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component
 public class SectionDao {
-    private static SectionDao sectionDao = null;
+
     private Long seq = 0L;
     private List<Section> sections = new ArrayList<>();
 
-    private SectionDao() {}
-
-    public static SectionDao getInstance() {
-        if (sectionDao == null) {
-            sectionDao = new SectionDao();
-        }
-
-        return sectionDao;
-    }
 
     public Section save(Section section) {
         Section persistSection = createNewObject(section);

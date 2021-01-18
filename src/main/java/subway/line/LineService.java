@@ -1,26 +1,28 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
 import subway.station.Station;
 import subway.station.StationDao;
 
+import javax.annotation.Resource;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class LineService {
 
+    @Resource
     private LineDao lineDao;
-    private StationDao stationDao;
-    private SectionDao sectionDao;
 
-    public LineService() {
-        this.lineDao = LineDao.getInstance();
-        this.stationDao = StationDao.getInstance();
-        this.sectionDao = SectionDao.getInstance();
-    }
+    @Resource
+    private StationDao stationDao;
+
+    @Resource
+    private SectionDao sectionDao;
 
     public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
         Line line = new Line(lineRequest);
@@ -70,11 +72,11 @@ public class LineService {
                 .collect(Collectors.toMap(Section::getUpStationId, section -> section));
         Long upStationId = line.getUpStationId();
 
-        stations.add(stationDao.findById(upStationId).get());
+        stations.add(stationDao.findById(upStationId));
 
         while (orderedSections.containsKey(upStationId)) {
             Section section = orderedSections.get(upStationId);
-            stations.add(stationDao.findById(section.getDownStationId()).get());
+            stations.add(stationDao.findById(section.getDownStationId()));
             upStationId = section.getDownStationId();
         }
 
@@ -227,15 +229,15 @@ public class LineService {
     private boolean containsEndStation(Long id, SectionRequest sectionRequest) {
         List<Station> stations = getStations(id);
 
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
-                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
+                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
     private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest) {
         List<Station> stations = getStations(id);
 
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
-                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
+                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
     public ResponseEntity deleteSection(Long id, Long stationId) {

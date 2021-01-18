@@ -191,6 +191,10 @@ public class LineService {
             throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
         }
 
+        if (!containsEndStation(id, sectionRequest)) {
+            throw new IllegalArgumentException("상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음");
+        }
+
         // 하행 종점 변경 (A -> B -> (C))
         if (isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
             addLastStation(line, sectionRequest, newSection);
@@ -217,6 +221,13 @@ public class LineService {
 
 
         throw new SectionDistanceExceedException("생성 실패");
+    }
+
+    private boolean containsEndStation(Long id, SectionRequest sectionRequest) {
+        List<Station> stations = getStations(id);
+
+        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()).get())
+                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()).get());
     }
 
     private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest) {

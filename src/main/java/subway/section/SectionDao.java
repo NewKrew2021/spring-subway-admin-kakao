@@ -1,12 +1,14 @@
 package subway.section;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import javax.sql.DataSource;
 
 @Repository
 public class SectionDao {
@@ -51,12 +53,5 @@ public class SectionDao {
 
     public void deleteById(long id) {
         sections.removeIf(section -> section.getId().equals(id));
-    }
-
-    private Section createNewObject(Section section) {
-        Field field = ReflectionUtils.findField(Section.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, section, ++seq);
-        return section;
     }
 }

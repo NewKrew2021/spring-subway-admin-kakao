@@ -30,7 +30,7 @@ public class LineService {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
         Line newLine = lineDao.save(line);
 
-        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(),line.getId());
+        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId());
         sectionDao.save(section);
 
         return new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
@@ -46,7 +46,7 @@ public class LineService {
     }
 
     public boolean existName(String name) {
-        return lineDao.existName(name);
+        return lineDao.countByName(name) != 0;
     }
 
     public void deleteLine(long id) {

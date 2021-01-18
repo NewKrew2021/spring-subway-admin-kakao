@@ -10,9 +10,10 @@ import java.util.List;
 @Service
 public class LineService {
     private final LineDao lineDao;
+
     @Autowired
-    public LineService(LineDao lineDao){
-        this.lineDao=lineDao;
+    public LineService(LineDao lineDao) {
+        this.lineDao = lineDao;
     }
 
     public boolean insertLine(Line line) {

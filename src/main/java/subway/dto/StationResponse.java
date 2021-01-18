@@ -1,7 +1,5 @@
 package subway.dto;
 
-import subway.dto.Station;
-
 public class StationResponse {
     private Long id;
     private String name;

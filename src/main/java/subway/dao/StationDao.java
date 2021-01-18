@@ -6,13 +6,16 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.dto.Station;
 
-import java.util.*;
+import java.util.List;
 
 @Repository
 public class StationDao {
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
         Station station = new Station(
@@ -23,25 +26,25 @@ public class StationDao {
     };
 
     public int save(Station station) {
-        String sql="insert into station (name) values (?)";
-        return jdbcTemplate.update(sql,station.getName());
+        String sql = "insert into station (name) values (?)";
+        return jdbcTemplate.update(sql, station.getName());
     }
 
-    public Station findById(Long id){
-        String sql="select * from station where id=?";
+    public Station findById(Long id) {
+        String sql = "select * from station where id=?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
-    public Station findByName(String name){
+    public Station findByName(String name) {
         System.out.println(name);
         String sql = "Select * from station where name=?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, name);
 
     }
 
-    public boolean hasSameStationName(String name){
-        int cnt=jdbcTemplate.queryForObject("Select count(*) From station where name=?",Integer.class,name);
-        return cnt!=0;
+    public boolean hasSameStationName(String name) {
+        int cnt = jdbcTemplate.queryForObject("Select count(*) From station where name=?", Integer.class, name);
+        return cnt != 0;
     }
 
 
@@ -52,7 +55,7 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-       jdbcTemplate.update("delete from station where id=?",id);
+        jdbcTemplate.update("delete from station where id=?", id);
     }
 
 

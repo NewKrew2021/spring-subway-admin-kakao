@@ -18,14 +18,14 @@ public class StationController {
     private final StationService stationService;
 
     @Autowired
-    public StationController(StationService stationService){
-        this.stationService=stationService;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if(!stationService.insertStation(station)){
+        if (!stationService.insertStation(station)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -37,7 +37,7 @@ public class StationController {
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> StationResponses=new ArrayList<>();
+        List<StationResponse> StationResponses = new ArrayList<>();
         List<Station> stations = stationService.findAllStations();
         for (Station station : stations) {
             StationResponses.add(new StationResponse(station.getId(), station.getName()));

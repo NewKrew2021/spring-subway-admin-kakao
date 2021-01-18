@@ -35,6 +35,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_생성됨(response);
     }
 
+    @DisplayName("중복된 지하철역 이름은 허용하지 않는다.")
+    @Test
+    void createExistingStation() {
+        // given
+        지하철역_생성_요청(강남역);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+
+        // then
+       지하철역_생성_실패함(response);
+    }
+
     @DisplayName("지하철역을 조회한다.")
     @Test
     void getStations() {
@@ -50,9 +63,9 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
     }
 
-    @DisplayName("지하철역을 제거한다.")
+    @DisplayName("존재하는 지하철역을 제거한다.")
     @Test
-    void deleteStation() {
+    void deleteExistingStation() {
         // given
         StationResponse stationResponse = 지하철역_등록되어_있음(강남역);
 
@@ -61,6 +74,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_삭제됨(response);
+    }
+
+    @DisplayName("존재하지 않는 지하철역을 제거한다.")
+    @Test
+    void deleteNonExistingStation() {
+        // given
+        StationResponse stationResponse = new StationResponse(99999L, 강남역);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
+
+        // then
+        지하철역_삭제_실패함(response);
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {
@@ -100,12 +126,20 @@ public class StationAcceptanceTest extends AcceptanceTest {
         assertThat(response.header("Location")).isNotBlank();
     }
 
+    private static void 지하철역_생성_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
     public static void 지하철역_목록_응답됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     public static void 지하철역_삭제됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    public static void 지하철역_삭제_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {

@@ -122,7 +122,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
     }
 
     private static void 지하철역_생성_실패함(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철역_목록_응답됨(ExtractableResponse<Response> response) {

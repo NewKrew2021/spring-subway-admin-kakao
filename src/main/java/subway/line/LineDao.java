@@ -1,65 +1,78 @@
 package subway.line;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
-import java.util.LinkedList;
+import java.sql.PreparedStatement;
 import java.util.List;
 
+@Repository
 public class LineDao {
-    private Long seq = 0L;
-    private final List<Line> lines = new LinkedList<>();
+    private final JdbcTemplate jdbcTemplate;
 
-    public Line save(Line line) {
-        if (lines.contains(line)) {
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
+        Line line = new Line(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("color")
+        );
+        return line;
+    };
+
+    public Line insert(Line line) {
+        String sql = "insert into line (name, color) values(?, ?)";
+
+        if (findByName(line.getName()) != null) {
             return null;
         }
 
-        Line persistStation = createNewObject(line);
-        lines.add(persistStation);
-        return persistStation;
+        long id = jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql);
+            st.setString(1, line.getName());
+            st.setString(2, line.getColor());
+            return st;
+        }, new GeneratedKeyHolder());
+
+        return new Line(id, line.getName(), line.getColor());
     }
 
-    public Line findOne(Long findId) {
-        return lines.stream()
-                .filter(line -> line.getId().equals(findId))
-                .findFirst()
-                .orElse(null);
+    public Line findById(Long id) {
+        String sql = "select * from line where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
+    public Line findByName(String name) {
+        String sql = "select * from line where name = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
+        } catch (DataAccessException e) {
+            return null;
+        }
     }
 
     public List<Line> findAll() {
-        return lines;
+        String sql = "select * from line";
+        return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line update(Long id, LineRequest lineRequest) {
-        Line line = lines.stream()
-                .filter(it -> it.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-
-        if (line == null) {
-            return null;
-        }
-
-        Field field1 = ReflectionUtils.findField(Line.class, "name");
-        field1.setAccessible(true);
-        ReflectionUtils.setField(field1, line, lineRequest.getName());
-
-        Field field2 = ReflectionUtils.findField(Line.class, "color");
-        field2.setAccessible(true);
-        ReflectionUtils.setField(field2, line, lineRequest.getColor());
-
-        return line;
+    public boolean update(Long id, LineRequest lineRequest) {
+        String sql = "update line set name = ?, color = ? where id = ?";
+        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
     }
 
-    public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
-    }
-
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+    public boolean deleteById(Long id) {
+        String sql = "delete from line where id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
 }

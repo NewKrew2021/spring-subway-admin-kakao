@@ -21,8 +21,8 @@ public class LineController {
     private final LineDao lineDao;
     private final StationController stationController;
 
-    public LineController(StationController stationController) {
-        this.lineDao = new LineDao();
+    public LineController(LineDao lineDao, StationController stationController) {
+        this.lineDao = lineDao;
         this.stationController = stationController;
     }
 
@@ -32,18 +32,12 @@ public class LineController {
         Station upStation = stationController.getStationDao().findById(lineRequest.getUpStationId());
         Station downStation = stationController.getStationDao().findById(lineRequest.getDownStationId());
 
-//        Station upStation = context.getBean("stationController", StationController.class)
-//                .getStationDao()
-//                .findOne(lineRequest.getUpStationId());
-//        Station downStation = context.getBean("stationController", StationController.class)
-//                .getStationDao()
-//                .findOne(lineRequest.getDownStationId());
         List<Section> sections = Arrays.asList(
                 new Section(upStation, lineRequest.getDistance()),
                 new Section(downStation, LAST_STATION_HAS_NO_DISTANCE));
         Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getExtraFare(), sections);
 
-        Line newLine = lineDao.save(line);
+        Line newLine = lineDao.insert(line);
         if (newLine == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -64,28 +58,32 @@ public class LineController {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return ResponseEntity.ok(lineDao.findOne(id).toDto());
+        return ResponseEntity.ok(lineDao.findById(id).toDto());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        Line updatedLine = lineDao.update(id, lineRequest);
-        if (updatedLine == null) {
+        boolean updated = lineDao.update(id, lineRequest);
+        if (!updated) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(updatedLine.toDto());
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteLine(@PathVariable Long id) {
-        lineDao.deleteById(id);
+        boolean deleted = lineDao.deleteById(id);
+        if (!deleted) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<LineResponse> addSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Line line = lineDao.findOne(lineId);
+        Line line = lineDao.findById(lineId);
         Station upStation = stationController.getStationDao().findById(sectionRequest.getUpStationId());
         Station downStation = stationController.getStationDao().findById(sectionRequest.getDownStationId());
         int distance = sectionRequest.getDistance();
@@ -100,7 +98,7 @@ public class LineController {
 
     @DeleteMapping("/{id}/sections")
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
-        Line line = lineDao.findOne(id);
+        Line line = lineDao.findById(id);
 
         boolean isDone = line.deleteById(stationId);
         if (!isDone) {

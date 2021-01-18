@@ -3,6 +3,7 @@ package subway.station;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,11 @@ public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
 
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+    }
+
     @DisplayName("지하철역을 생성한다.")
     @Test
     void createStation() {
@@ -28,6 +34,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_생성됨(response);
+    }
+
+    @DisplayName("중복된 지하철역이 주어지면 지하철역을 생성할 수 없다.")
+    @Test
+    void createStationWithDuplicatedName() {
+        // given
+        지하철역_등록되어_있음(강남역);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+
+        // then
+        지하철역_생성_실패(response);
     }
 
     @DisplayName("지하철역을 조회한다.")
@@ -105,7 +124,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {
         List<Long> expectedLineIds = createdResponses.stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         List<Long> resultLineIds = response.jsonPath().getList(".", StationResponse.class).stream()
@@ -113,5 +132,10 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static void 지하철역_생성_실패(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.body().asString()).isEqualTo("이미 등록된 지하철역 입니다.");
     }
 }

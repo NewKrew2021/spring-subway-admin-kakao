@@ -29,8 +29,8 @@ public class LineServiceImpl implements LineService {
         return lineDao.findOne(lineId);
     }
 
-    public void update(Line line) {
-        lineDao.update(line);
+    public boolean update(Line line) {
+        return lineDao.update(line) != 0;
     }
 
     public boolean saveSection(Long lineId, Section section) {

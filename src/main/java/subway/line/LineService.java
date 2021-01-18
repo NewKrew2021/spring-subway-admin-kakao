@@ -13,7 +13,7 @@ public interface LineService {
 
     public Line findOne(Long lineId);
 
-    public void update(Line line);
+    public boolean update(Line line);
 
     public boolean saveSection(Long lineId, Section section);
 

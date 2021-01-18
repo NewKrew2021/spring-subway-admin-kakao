@@ -51,9 +51,9 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("color"), rs.getString("name")), lineId);
     }
 
-    public void update(Line line) {
-        lines.remove(findOne(line.getId()));
-        lines.add(line);
+    public int update(Line line) {
+        String sql = "update LINE set color = ?, name = ? where id = ?";
+        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId());
     }
 
     public boolean saveSection(Long lineId, Section section) {

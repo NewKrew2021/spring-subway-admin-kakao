@@ -107,7 +107,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
         List<Long> expectedLineIds = createdResponses.stream()
                 .map(it -> it.getId())
                 .collect(Collectors.toList());
-
+        System.out.println(response);
         List<Long> resultLineIds = response.jsonPath().getList(".", StationResponse.class).stream()
                 .map(StationResponse::getId)
                 .collect(Collectors.toList());

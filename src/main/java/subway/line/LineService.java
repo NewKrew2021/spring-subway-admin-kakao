@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
+import subway.exception.SectionDistanceExceedException;
 import subway.station.Station;
 import subway.station.StationDao;
 
@@ -138,6 +139,7 @@ public class LineService {
             upStationId = section.getDownStationId();
             distanceSum += section.getDistance();
         }
+        throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
     }
 
     public void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest sectionRequest) {
@@ -169,10 +171,13 @@ public class LineService {
             downStationId = section.getUpStationId();
             distanceSum += section.getDistance();
         }
+        throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
     }
 
 
     public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
+        //
+
         Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         List<Section> sections = sectionDao.findByLineId(id);
         Line line = lineDao.findById(id).get();

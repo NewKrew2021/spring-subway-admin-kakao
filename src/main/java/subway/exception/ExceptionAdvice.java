@@ -17,11 +17,6 @@ public class ExceptionAdvice {
         return ResponseEntity.status(500).body("No Content");
     }
 
-    @ExceptionHandler(TwoStationException.class)
-    public ResponseEntity handleTwoStationException() {
-        return ResponseEntity.status(500).body("TwoStation Exception");
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity handleIllegalArgumentException() {
         return ResponseEntity.status(500).body("Invalid Argument Exception");

@@ -31,7 +31,7 @@ public class Section {
         this.distance = distance;
     }
 
-    public boolean shareUpStation(Section counter){
+    public boolean shareUpStation(Section counter) {
         return counter.isUpStation(upStationId);
     }
 

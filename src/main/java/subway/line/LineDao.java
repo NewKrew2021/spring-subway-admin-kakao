@@ -67,7 +67,7 @@ public class LineDao {
 
     public void update(Line line) {
         int updateResult = jdbcTemplate.update("update line set name = ?, color = ? where id = ?", line.getName(), line.getColor(), line.getId());
-        if(updateResult == 0){
+        if (updateResult == 0) {
             throw new NoContentException("해당 id를 갖는 노선이 존재하지 않습니다.");
         }
     }

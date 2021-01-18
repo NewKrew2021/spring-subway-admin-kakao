@@ -68,7 +68,7 @@ public class SectionDao {
     public void update(Section section) {
         int updateResult = jdbcTemplate.update("update section set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
                 section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
-        if(updateResult == 0){
+        if (updateResult == 0) {
             throw new NoContentException("해당 id를 갖는 구이 존재하지 않습니다.");
         }
     }

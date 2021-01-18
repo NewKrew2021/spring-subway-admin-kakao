@@ -102,7 +102,7 @@ public class SectionGroup {
                 section.getDownStationId()));
 
         List<Long> stationIds = new ArrayList<>();
-        for(Long upStationId = chain.get(VIRTUAL_ENDPOINT_ID); !upStationId.equals(VIRTUAL_ENDPOINT_ID); upStationId = chain.get(upStationId)){
+        for (Long upStationId = chain.get(VIRTUAL_ENDPOINT_ID); !upStationId.equals(VIRTUAL_ENDPOINT_ID); upStationId = chain.get(upStationId)) {
             stationIds.add(upStationId);
         }
         return stationIds;

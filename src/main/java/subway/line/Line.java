@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 public class Line {
-    public static final Long NULL_SECTION_POINT = 0L;
+    public static final Long NULL_SECTION_POINT = 0L; // 일급 컬렉션으로 만드는 것이 좋아보임.
     private Long id;
     private String name;
     private String color;
     private int extraFare;
     private Long upStationEndPointId;
     private Long downStationEndPointId;
-    private Map<Long, Section> sections;
+    private Map<Long, Section> sections; //일급 컬렉션으로 만드는 것이 좋아보임.
 
     public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
         this.name = name;
@@ -41,25 +41,40 @@ public class Line {
     }
 
     public void makeSection(Long upStationId, Long downStationId, int distance) {
-        if (sections.containsKey(upStationId) && sections.containsKey(downStationId)) {
+        if (isThereTwoStations(upStationId, downStationId)) {
             throw new SectionSameStationException();
         }
 
-        if (sections.containsKey(upStationId) && sections.get(upStationId).validDownDistance(distance)) {
+        if (canMakeDownSection(upStationId, distance)) {
             sections.put(downStationId, new Section(downStationId));
-            Section.connectStations(sections.get(upStationId), sections.get(downStationId), distance);
-            updateEndPoints();
+            connect(upStationId, downStationId, distance);
             return;
         }
 
-        if (sections.containsKey(downStationId) && sections.get(downStationId).validUpDistance(distance)) {
+        if (canMakeUpSection(downStationId, distance)) {
             sections.put(upStationId, new Section(upStationId));
-            Section.connectStations(sections.get(upStationId), sections.get(downStationId), distance);
-            updateEndPoints();
+            connect(upStationId, downStationId, distance);
             return;
         }
 
         throw new SectionNoStationException();
+    }
+
+    private boolean canMakeUpSection(Long downStationId, int distance) {
+        return sections.containsKey(downStationId) && sections.get(downStationId).validUpDistance(distance);
+    }
+
+    private boolean canMakeDownSection(Long upStationId, int distance) {
+        return sections.containsKey(upStationId) && sections.get(upStationId).validDownDistance(distance);
+    }
+
+    private boolean isThereTwoStations(Long stationId1, Long stationId2) {
+        return sections.containsKey(stationId1) && sections.containsKey(stationId2);
+    }
+
+    private void connect(Long upStationId, Long downStationId, int distance) {
+        Section.connectStations(sections.get(upStationId), sections.get(downStationId), distance);
+        updateEndPoints();
     }
 
 
@@ -77,6 +92,19 @@ public class Line {
         }
     }
 
+    public void deleteSection(Long stationId) {
+        if (!sections.containsKey(stationId) || areThereOnlyTwoStations()) {
+            throw new SectionDeleteException();
+        }
+        sections.get(stationId).deleteSection();
+        sections.remove(stationId);
+        updateEndPoints();
+    }
+
+    private boolean areThereOnlyTwoStations() {
+        return sections.get(upStationEndPointId).getDownStationId().equals(downStationEndPointId);
+    }
+
     public List<StationResponse> getStationResponses() {
         Long nowId = upStationEndPointId;
         List<StationResponse> stationResponses = new ArrayList<>();
@@ -89,15 +117,6 @@ public class Line {
 
     private boolean stationIsEnd(Long nowId) {
         return nowId.equals(NULL_SECTION_POINT);
-    }
-
-    public void deleteSection(Long stationId) {
-        if (!sections.containsKey(stationId) || sections.get(upStationEndPointId).getDownStationId() == downStationEndPointId) {
-            throw new SectionDeleteException();
-        }
-        sections.get(stationId).deleteSection(); // 소멸자도 만들어야 할까?
-        sections.remove(stationId);
-        updateEndPoints();
     }
 
     public Long getId() {
@@ -121,4 +140,5 @@ public class Line {
                 ", extraFare=" + extraFare +
                 '}';
     }
+
 }

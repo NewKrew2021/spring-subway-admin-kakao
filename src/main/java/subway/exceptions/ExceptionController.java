@@ -20,6 +20,7 @@ public class ExceptionController {
     @ExceptionHandler(SectionNoStationException.class)
     public ResponseEntity SectionNoStationException() {
         return ResponseEntity.badRequest().body("상행역과 하행역이 모두 노선에 포함되어 있습니다.");
+        //ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @ExceptionHandler(SectionSameStationException.class)
@@ -31,4 +32,5 @@ public class ExceptionController {
     public ResponseEntity SectionDeleteException() {
         return ResponseEntity.badRequest().body("노선에 역이 존재하지 않거나, 노선에 역이 현재 2개뿐이 없습니다.");
     }
+
 }

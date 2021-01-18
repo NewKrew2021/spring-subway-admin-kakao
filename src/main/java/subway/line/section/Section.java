@@ -11,27 +11,43 @@ public class Section {
     private Distance upDistance;
     private Distance downDistance;
 
+    public Section(Long stationId) {
+        this.stationId = stationId;
+        this.myUpStation = null;
+        this.myDownStation = null;
+        this.upDistance = new Distance();
+        this.downDistance = new Distance();
+    }
+
     static public void connectStations(Section upSection, Section downSection, int distance) {
 
-        if (upSection.myDownStation != null && downSection.myUpStation != null) {
+        if (upSection.hasDownStation() && downSection.hasUpStation()) {
             throw new SectionSameStationException();
         }
 
-        if (upSection.myDownStation == null && downSection.myUpStation == null) {
+        if (!upSection.hasDownStation() && !downSection.hasUpStation()) {
             directConnect(upSection, downSection, distance);
             return;
         }
 
-        if (upSection.myDownStation != null) {
+        if (upSection.hasDownStation()) {
             directConnect(downSection, upSection.myDownStation, upSection.downDistance.calculateDistance(distance));
             directConnect(upSection, downSection, distance);
             return;
         }
 
-        if (downSection.myUpStation != null) {
+        if (downSection.hasUpStation()) {
             directConnect(downSection.myUpStation, upSection, downSection.upDistance.calculateDistance(distance));
             directConnect(upSection, downSection, distance);
         }
+    }
+
+    private boolean hasUpStation() {
+        return this.myUpStation != null;
+    }
+
+    private boolean hasDownStation() {
+        return this.myDownStation != null;
     }
 
     static private void directConnect(Section upSection, Section downSection, int distance) {
@@ -41,15 +57,10 @@ public class Section {
         downSection.upDistance.setDistance(distance);
     }
 
-
-    public Section(Long stationId) {
-        this.stationId = stationId;
-        this.myUpStation = null;
-        this.myDownStation = null;
-        this.upDistance = new Distance();
-        this.downDistance = new Distance();
+    public void deleteSection() {
+        int distance = Distance.addDistance(upDistance, downDistance);
+        directConnect(myUpStation, myDownStation, distance);
     }
-
 
     public boolean validDownDistance(int distance) {
         return this.downDistance.validateDistance(distance);
@@ -71,8 +82,4 @@ public class Section {
         return stationId;
     }
 
-    public void deleteSection() {
-        int distance = Distance.addDistance(upDistance, downDistance);
-        directConnect(myUpStation, myDownStation, distance);
-    }
 }

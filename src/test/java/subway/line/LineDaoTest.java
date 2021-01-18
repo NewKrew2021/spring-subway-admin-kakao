@@ -5,11 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class LineDaoTest {
@@ -40,12 +38,10 @@ public class LineDaoTest {
     }
 
     @Test
-    @DisplayName("id가 일치하는 노선이 존재하지 않으면 예외 발생.")
+    @DisplayName("id가 일치하는 노선이 존재하지 않으면 null을 반환한다.")
     public void findById_ifNotExist() {
         lineDao.save(new Line(1L, "신분당선", "빨간색",1L, 2L));
-        assertThatExceptionOfType(EmptyResultDataAccessException.class).isThrownBy(() -> {
-            lineDao.findById(3L).getId();
-        });
+        assertThat(lineDao.findById(3L)).isNull();
     }
 
     @Test

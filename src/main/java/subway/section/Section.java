@@ -1,16 +1,16 @@
 package subway.section;
 
+import subway.exception.InvalidSectionException;
+
 public class Section {
     private Long id;
     private Long upStationId;
     private Long downStationId;
-    private int distance;
+    private Integer distance;
     private Long lineId;
 
-    public Section() {
-    }
-
     public Section(Long id, Long upStationId, Long downStationId, int distance, Long lineId) {
+        validateDistance(distance);
         this.id = id;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
@@ -19,6 +19,7 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
+        validateDistance(distance);
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
@@ -43,5 +44,23 @@ public class Section {
 
     public Long getLineId() {
         return lineId;
+    }
+
+    public Section getSectionDownStationChanged(Section newSection) {
+        return new Section(getId(), getUpStationId(), newSection.upStationId, getDistance() - newSection.distance, getLineId());
+    }
+
+    public Section getSectionUpStationChanged(Section newSection) {
+        return new Section(getId(), newSection.downStationId, getDownStationId(), getDistance() - newSection.distance, getLineId());
+    }
+
+    public Section getMergedSection(Section otherSection) {
+        return new Section(getId(), getUpStationId(), otherSection.downStationId,getDistance() + otherSection.distance, getLineId());
+    }
+
+    private void validateDistance(int distance) {
+        if(distance <= 0) {
+            throw new InvalidSectionException("구간의 길이는 0보다 커야 합니다.");
+        }
     }
 }

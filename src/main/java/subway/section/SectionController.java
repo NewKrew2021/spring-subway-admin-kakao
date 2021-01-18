@@ -8,18 +8,16 @@ import subway.line.LineService;
 @RestController
 @RequestMapping("/lines")
 public class SectionController {
-    private final LineService lineService;
     private final SectionService sectionService;
 
-    public SectionController(LineService lineService, SectionService sectionService) {
-        this.lineService = lineService;
+    public SectionController(SectionService sectionService) {
         this.sectionService = sectionService;
     }
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        if (!lineService.saveSection(lineId, section)) {
+        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), lineId);
+        if (!sectionService.saveSection(lineId, section)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();
@@ -27,7 +25,7 @@ public class SectionController {
 
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        if (!lineService.deleteSection(lineId, stationId)) {
+        if (!sectionService.deleteSection(lineId, stationId)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();

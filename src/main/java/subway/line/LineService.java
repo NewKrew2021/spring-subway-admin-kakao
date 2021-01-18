@@ -15,7 +15,4 @@ public interface LineService {
 
     public boolean update(Line line);
 
-    public boolean saveSection(Long lineId, Section section);
-
-    public boolean deleteSection(Long lineId, Long stationId);
 }

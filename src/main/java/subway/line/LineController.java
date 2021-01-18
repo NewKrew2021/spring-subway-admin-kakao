@@ -4,9 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.Section;
+import subway.section.SectionService;
 import subway.station.Station;
-import subway.station.StationDao;
 import subway.station.StationResponse;
+import subway.station.StationService;
 
 import java.net.URI;
 import java.util.*;
@@ -17,17 +18,19 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineService lineService;
-    private final StationDao stationDao;
+    private final StationService stationService;
+    private final SectionService sectionService;
 
-    public LineController(LineService lineService, StationDao stationDao) {
+    public LineController(LineService lineService, StationService stationService, SectionService sectionService) {
         this.lineService = lineService;
-        this.stationDao = stationDao;
+        this.stationService = stationService;
+        this.sectionService = sectionService;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.save(
-                new Line(lineRequest.getColor(), lineRequest.getName()),
+                new Line(lineRequest.getColor(), lineRequest.getName(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
                 new Section(lineRequest.getUpStationId(),
                         lineRequest.getDownStationId(),
                         lineRequest.getDistance()));
@@ -49,7 +52,8 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         Line newLine = lineService.findOne(lineId);
 
-        List<Section> sections = newLine.getSections();
+        List<Section> sections = sectionService.getSectionsByLineId(lineId);
+
         Set<Long> stationIds = new LinkedHashSet<>();
 
         for (Section section : sections) {
@@ -59,7 +63,7 @@ public class LineController {
 
         List<StationResponse> stationResponses = stationIds.stream()
                 .map(id -> {
-                    Station station = stationDao.findOne(id);
+                    Station station = stationService.findOne(id);
                     return new StationResponse(station.getId(), station.getName());
                 }).collect(Collectors.toList());
 
@@ -68,7 +72,7 @@ public class LineController {
 
     @PutMapping("/{lineId}")
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        if (!lineService.update(new Line(lineId, lineRequest.getColor(), lineRequest.getName()))) {
+        if (!lineService.update(new Line(lineId, lineRequest.getColor(), lineRequest.getName(), lineRequest.getUpStationId(), lineRequest.getDownStationId()))) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

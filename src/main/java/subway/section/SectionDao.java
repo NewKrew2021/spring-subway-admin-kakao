@@ -5,6 +5,9 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import subway.line.Line;
+
+import java.util.List;
 
 @Repository
 public class SectionDao {
@@ -20,5 +23,19 @@ public class SectionDao {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
         Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
         return new Section(id, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId());
+    }
+
+    public List<Section> getSectionsByLineId(Long lineId) {
+        String sql = "select * from SECTION where line_id = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
+                rs.getLong("up_station_id"),
+                rs.getLong("down_station_id"),
+                rs.getInt("distance"),
+                rs.getLong("line_id")), lineId);
+    }
+
+    public int deleteSectionById(Long sectionId) {
+        String sql = "delete from SECTION where id = ?";
+        return jdbcTemplate.update(sql, sectionId);
     }
 }

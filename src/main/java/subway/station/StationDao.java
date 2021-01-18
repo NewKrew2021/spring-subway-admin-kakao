@@ -1,33 +1,45 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+    private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Station> stationMapper = (rs, rowNum) ->
+            new Station(rs.getLong(1), rs.getString(2));
+
+    @Autowired
+    public StationDao(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        this.jdbcTemplate.update("insert into station (name) values (?)", station.getName());
+        return this.jdbcTemplate.queryForObject("select * from station where name = ?",
+                stationMapper,
+                station.getName());
+    }
+
+    public Station getById(Long id) {
+        return this.jdbcTemplate.queryForObject(
+                "select * from station where id = ?",
+                stationMapper,
+                id);
     }
 
     public List<Station> findAll() {
-        return stations;
+        return this.jdbcTemplate.query(
+                "select * from station",
+                stationMapper
+        );
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
-    }
-
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public boolean deleteById(Long id) {
+        return this.jdbcTemplate.update("delete from station where id = ?", id) > 0;
     }
 }

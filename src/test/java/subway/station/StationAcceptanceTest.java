@@ -3,6 +3,7 @@ package subway.station;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,11 @@ public class StationAcceptanceTest extends AcceptanceTest {
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
 
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+    }
+
     @DisplayName("지하철역을 생성한다.")
     @Test
     void createStation() {
@@ -28,6 +34,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_생성됨(response);
+    }
+
+    @DisplayName("기존에 존재하는 지하철역 이름으로 지하철역을 생성한다.")
+    @Test
+    void createStationWithDuplicateName() {
+        // given
+        지하철역_등록되어_있음(강남역);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+
+        // then
+        지하철역_생성_실패됨(response);
     }
 
     @DisplayName("지하철역을 조회한다.")
@@ -49,13 +68,17 @@ public class StationAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteStation() {
         // given
-        StationResponse stationResponse = 지하철역_등록되어_있음(강남역);
+        StationResponse stationResponse1 = 지하철역_등록되어_있음(강남역);
 
         // when
-        ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
+        ExtractableResponse<Response> response1 = 지하철역_제거_요청(stationResponse1);
+
+        StationResponse stationResponse2 = new StationResponse(new Station(10L, "역삼역"));
+        ExtractableResponse<Response> response2 = 지하철역_제거_요청(stationResponse2);
 
         // then
-        지하철역_삭제됨(response);
+        지하철역_삭제됨(response1);
+        지하철역_삭제됨_없음(response2);
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {
@@ -95,6 +118,10 @@ public class StationAcceptanceTest extends AcceptanceTest {
         assertThat(response.header("Location")).isNotBlank();
     }
 
+    public static void 지하철역_생성_실패됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
     public static void 지하철역_목록_응답됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
@@ -103,9 +130,13 @@ public class StationAcceptanceTest extends AcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
+    public static void 지하철역_삭제됨_없음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {
         List<Long> expectedLineIds = createdResponses.stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         List<Long> resultLineIds = response.jsonPath().getList(".", StationResponse.class).stream()

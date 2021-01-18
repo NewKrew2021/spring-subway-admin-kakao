@@ -1,12 +1,8 @@
 package subway.line;
 
-import subway.station.Station;
 import subway.station.StationResponse;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,10 +27,6 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-//        this.stations = line.getSections().stream()
-//                .flatMap(section -> Arrays.asList(section.getUpStation(), section.getDownStation()))
-//                .distinct()
-//                .collect(Collectors.toList());
 
         this.stations = IntStream.range(1, line.getSections().size())
                 .mapToObj(line.getSections()::get)
@@ -56,5 +48,16 @@ public class LineResponse {
 
     public List<StationResponse> getStations() {
         return stations;
+    }
+
+    @Override
+    public String toString() {
+        return "LineResponse{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", extraFare=" + extraFare +
+                ", stations=" + stations +
+                '}';
     }
 }

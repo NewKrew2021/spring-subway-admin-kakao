@@ -36,10 +36,14 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Autowired
     LineDao lineDao;
 
+    @Autowired
+    SectionDao sectionDao;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
         lineDao.deleteAll();
+        sectionDao.deleteAll();
         stationDao.deleteAll();
 
 

@@ -26,5 +26,13 @@ public class Station implements Serializable {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "Station{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
 

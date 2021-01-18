@@ -8,8 +8,6 @@ public class Section {
     private Station station;
     private int distance;
 
-    public Section() { }
-
     public Section(Station station, int distance) {
         this.station = station;
         this.distance = distance;

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("lines")
 public class LineController {
     @Autowired
     private LineService lineService;
@@ -28,7 +29,7 @@ public class LineController {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    @PostMapping(value = "/lines")
+    @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.save(lineRequest);
         List<StationResponse> stationResponses = lineService.getStationResponsesById(newLine.getId());
@@ -36,7 +37,32 @@ public class LineController {
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
-    @GetMapping("/lines/{lineId}")
+    @GetMapping
+    public ResponseEntity<List<LineResponse>> showLines() {
+        List<Line> lines = lineService.findAll();
+        List<LineResponse> lineResponses = new ArrayList<>();
+        for (Line line : lines) {
+            lineResponses.add(new LineResponse(line.getId(), line.getName(), line.getColor()));
+        }
+        return ResponseEntity.ok().body(lineResponses);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+        lineService.updateLine(id, lineRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<LineResponse> deleteLine(@PathVariable Long id) {
+        boolean isLineDeleted = lineService.deleteById(id);
+        if (isLineDeleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable(name = "lineId") Long id) {
         Line showLine = lineService.findById(id);
         if (showLine == null) {
@@ -47,38 +73,13 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponse);
     }
 
-    @GetMapping("/lines")
-    public ResponseEntity<List<LineResponse>> showLines() {
-        List<Line> lines = lineService.findAll();
-        List<LineResponse> lineResponses = new ArrayList<>();
-        for (Line line : lines) {
-            lineResponses.add(new LineResponse(line.getId(), line.getName(), line.getColor()));
-        }
-        return ResponseEntity.ok().body(lineResponses);
-    }
-
-    @PutMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        lineService.updateLine(id, lineRequest);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> deleteLine(@PathVariable Long id) {
-        boolean isLineDeleted = lineService.deleteById(id);
-        if (isLineDeleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
-    @PostMapping("/lines/{lineId}/sections")
+    @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable(name = "lineId") Long id, @RequestBody SectionRequest sectionRequest) {
         lineService.saveSection(id, sectionRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{lineId}/sections")
+    @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @RequestParam(name = "stationId") Long stationId) {
         lineService.deleteStationById(lineId, stationId);
         return ResponseEntity.ok().build();

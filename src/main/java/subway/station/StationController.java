@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("stations")
 public class StationController {
     @Autowired
     private StationService stationService;
@@ -20,14 +21,14 @@ public class StationController {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    @PostMapping("/stations")
+    @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station newStation = stationService.save(new Station(stationRequest.getName()));
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
-    @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> responses = new ArrayList<>();
         for (Station station : stationService.findAll()) {
@@ -36,7 +37,7 @@ public class StationController {
         return ResponseEntity.ok().body(responses);
     }
 
-    @DeleteMapping("/stations/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         if (stationService.deleteById(id)) {
             return ResponseEntity.noContent().build();

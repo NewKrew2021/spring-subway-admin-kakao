@@ -26,7 +26,7 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        if (hasDuplicateName(line.getName())) {
+        if (isExist(line.getName())) {
             throw new DuplicateException("동일한 이름을 가지는 line이 이미 존재합니다.");
         }
 
@@ -48,6 +48,12 @@ public class LineDao {
                 line.getName(),
                 line.getColor()
         );
+    }
+
+    private boolean isExist(String name) {
+        String sqlQuery = "select count(*) from line where name = ?";
+        int count = jdbcTemplate.queryForObject(sqlQuery, int.class, name);
+        return count != 0;
     }
 
     public void update(Line line) {
@@ -72,12 +78,6 @@ public class LineDao {
     public void deleteById(Long id) {
         String sqlQuery = "delete from line where id = ?";
         jdbcTemplate.update(sqlQuery, id);
-    }
-
-    public boolean hasDuplicateName(String name) {
-        String sqlQuery = "select count(*) from line where name = ?";
-        int count = jdbcTemplate.queryForObject(sqlQuery, int.class, name);
-        return count != 0;
     }
 
     private final static class LineMapper implements RowMapper<Line> {

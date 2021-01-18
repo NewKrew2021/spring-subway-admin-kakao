@@ -92,7 +92,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_구간_등록_실패됨(response);
     }
 
-    @DisplayName("지하철 노선에 등록된 지하철역을 제외한다.")
+    @DisplayName("지하철 노선에 등록된 지하철역(노선 중간에 있는)을 제외한다.")
     @Test
     void removeLineSection1() {
         // given
@@ -108,7 +108,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철 노선에 등록된 지하철역이 두개일 때 한 역을 제외한다.")
     @Test
-    void removeLineSection2() {
+    void removeLineSection4() {
         // when
         ExtractableResponse<Response> removeResponse = 지하철_노선에_지하철역_제외_요청(신분당선, 강남역);
 

@@ -1,16 +1,27 @@
 package subway.section;
 
+import org.springframework.stereotype.Service;
 import subway.exception.InvalidSectionException;
 import subway.line.Line;
+import subway.line.LineDao;
 import subway.station.Station;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static subway.Container.*;
-
 public class SectionService {
+
+    private final LineDao lineDao;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
+
+    public SectionService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
+    }
 
     public void createSection(Section section) {
         sectionDao.save(section);

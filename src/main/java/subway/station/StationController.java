@@ -5,19 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
-import static subway.Container.stationDao;
-
 @RestController
-//@RequestMapping("/stations")
 public class StationController {
 
     private final StationService stationService;
 
-    public StationController() {
-        this.stationService = new StationService();
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping("/stations")

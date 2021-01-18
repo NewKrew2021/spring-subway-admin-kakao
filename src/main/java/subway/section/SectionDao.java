@@ -1,13 +1,14 @@
 package subway.section;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
-import subway.exception.NotExistException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Repository
 public class SectionDao {
     private Long seq = 0L;
     private List<Section> sections = new ArrayList<>();

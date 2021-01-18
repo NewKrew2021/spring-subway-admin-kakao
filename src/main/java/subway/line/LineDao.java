@@ -1,7 +1,7 @@
 package subway.line;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
-import subway.exception.NotExistException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

@@ -1,13 +1,19 @@
 package subway.station;
 
+import org.springframework.stereotype.Service;
 import subway.exception.NotExistException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static subway.Container.stationDao;
-
+@Service
 public class StationService {
+
+    private final StationDao stationDao;
+
+    public StationService(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
 
     public StationResponse createStation(StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());

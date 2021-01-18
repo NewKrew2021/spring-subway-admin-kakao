@@ -28,7 +28,7 @@ public class StationDao {
     };
 
     public Station save(Station station) {
-        String sql = "insert into station (name) values (?)";
+        String sql = "insert into STATION (name) values (?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -42,17 +42,17 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station";
+        String sql = "select id, name from STATION";
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
     public void deleteById(Long id) {
-        String sql = "delete from station where id = ?";
+        String sql = "delete from STATION where id = ?";
         jdbcTemplate.update(sql, id);
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from station where id = ?";
+        String sql = "select id, name from STATION where id = ?";
         return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 }

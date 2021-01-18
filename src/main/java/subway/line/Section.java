@@ -44,8 +44,4 @@ public class Section {
     public int getDistance() {
         return distance;
     }
-
-    public void add(Section section) {
-
-    }
 }

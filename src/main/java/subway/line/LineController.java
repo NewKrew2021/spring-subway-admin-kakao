@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
     LineDao lineDao;
     SectionDao sectionDao;
@@ -32,7 +33,7 @@ public class LineController {
         this.sectionDao = sectionDao;
     }
 
-    @PostMapping("/lines")
+    @PostMapping("")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
         Line newLine = lineDao.save(line);
@@ -45,7 +46,7 @@ public class LineController {
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
-    @PostMapping("/lines/{lineId}/sections")
+    @PostMapping("/lineId}/sections")
     public ResponseEntity createSection(@RequestBody SectionRequest sectionRequest,
                                         @PathVariable Long lineId) {
         lineDao.findById(lineId).orElseThrow(() -> new NotFoundException());
@@ -55,7 +56,7 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResponses =
                 lineDao.findAll()
@@ -66,7 +67,7 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponses);
     }
 
-    @GetMapping(value = "/lines/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException());
 
@@ -90,20 +91,20 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponse);
     }
 
-    @PutMapping(value = "/lines/{id}")
+    @PutMapping(value = "/{id}")
     public ResponseEntity modifyLine(@RequestBody LineRequest lineRequest,
                                      @PathVariable Long id) {
         lineDao.update(new Line(id, lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/lines/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(value = "/lines/{lineId}/sections")
+    @DeleteMapping(value = "/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId,
                                         @RequestParam Long stationId) {
 

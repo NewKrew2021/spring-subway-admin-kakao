@@ -10,9 +10,31 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static subway.section.Section.TERMINAL_ID;
 
 class SectionsTest {
+
+    @DisplayName("한 구간이 주어지면 그 구간의 상/하행역을 종점 구간으로 하는 구간을 포함해서 총 3개의 초기구간(종점-구간-종점)을 생성한다")
+    @Test
+    void createInitialSections() {
+        // given
+        Section section = new Section(1L, 2L, 3L, 10);
+
+        // when
+        Sections sections = Sections.createInitialSections(section);
+
+        // then
+        assertAll(
+                () -> assertThat(sections.getSections()).hasSize(3),
+                () -> assertThat(sections.getSections())
+                        .extracting(Section::getUpStationId)
+                        .containsExactlyInAnyOrder(TERMINAL_ID, 2L, 3L),
+                () -> assertThat(sections.getSections())
+                        .extracting(Section::getDownStationId)
+                        .containsExactlyInAnyOrder(TERMINAL_ID, 2L, 3L)
+        );
+    }
 
     @DisplayName("구간을 이루는 갯수가 3개 미만일 경우 예외가 발생한다")
     @Test

@@ -1,6 +1,6 @@
 package subway.section;
 
-public class Section {
+class Section {
 
     static final long TERMINAL_ID = -1;
     static final int INF = Integer.MAX_VALUE;
@@ -45,10 +45,11 @@ public class Section {
     public Section subtractWith(Section other) {
         validateSubtract(other);
 
+        int differenceOfDistance = calculateDistanceDifference(other);
         if (upStationId == other.upStationId) {
-            return new Section(lineId, other.downStationId, downStationId, distance - other.distance);
+            return new Section(lineId, other.downStationId, downStationId, differenceOfDistance);
         }
-        return new Section(lineId, upStationId, other.upStationId, distance - other.distance);
+        return new Section(lineId, upStationId, other.upStationId, differenceOfDistance);
     }
 
     private void validateSubtract(Section other) {
@@ -66,13 +67,21 @@ public class Section {
         }
     }
 
+    private int calculateDistanceDifference(Section other) {
+        if (distance == INF || other.distance == INF) {
+            return INF;
+        }
+        return distance - other.distance;
+    }
+
     public Section mergeWith(Section other) {
         validateMerge(other);
 
+        int totalDistance = calculateTotalDistance(other);
         if (downStationId == other.upStationId) {
-            return new Section(lineId, upStationId, other.downStationId, distance + other.distance);
+            return new Section(lineId, upStationId, other.downStationId, totalDistance);
         }
-        return new Section(lineId, other.upStationId, downStationId, distance + other.distance);
+        return new Section(lineId, other.upStationId, downStationId, totalDistance);
     }
 
     private void validateMerge(Section other) {
@@ -82,6 +91,13 @@ public class Section {
         if (downStationId != other.upStationId && upStationId != other.downStationId) {
             throw new IllegalArgumentException("연속된 구간이어야 합니다.");
         }
+    }
+
+    private int calculateTotalDistance(Section other) {
+        if (distance == INF || other.distance == INF) {
+            return INF;
+        }
+        return distance + other.distance;
     }
 
     public boolean hasSameUpStation(Section other) {

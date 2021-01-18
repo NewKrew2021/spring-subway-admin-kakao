@@ -3,10 +3,7 @@ package subway.section;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,6 +47,15 @@ public class Sections {
                 .noneMatch(Section::isDownTerminal);
     }
 
+    public static Sections createInitialSections(Section section) {
+        return new Sections(
+                Arrays.asList(
+                        section,
+                        new Section(section.getLineId(), Section.TERMINAL_ID, section.getUpStationId(), Section.INF),
+                        new Section(section.getLineId(), section.getDownStationId(), Section.TERMINAL_ID, Section.INF)
+                ));
+    }
+
     public List<Long> getSortedStationIds() {
         Map<Long, Section> sectionCache = sections.stream()
                 .collect(Collectors.toMap(Section::getUpStationId, Function.identity()));
@@ -90,5 +96,9 @@ public class Sections {
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalArgumentException(NOT_CONTAINED_STATION_EXCEPTION_MESSAGE);
         }
+    }
+
+    public List<Section> getSections() {
+        return sections;
     }
 }

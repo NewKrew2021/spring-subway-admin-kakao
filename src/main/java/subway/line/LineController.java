@@ -1,14 +1,13 @@
 package subway.line;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exception.LineNotFoundException;
-import subway.exception.StationNotFoundException;
-import subway.section.*;
-import subway.station.Station;
+import subway.section.SectionRequest;
+import subway.section.SectionService;
+import subway.section.Sections;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -20,13 +19,11 @@ import java.util.stream.Collectors;
 @RestController
 public class LineController {
     private final LineDao lineDao;
-    private final StationDao stationDao;
-    private final SectionDao sectionDao;
+    private final SectionService sectionService;
 
-    public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
+    public LineController(LineDao lineDao, SectionService sectionService) {
         this.lineDao = lineDao;
-        this.stationDao = stationDao;
-        this.sectionDao = sectionDao;
+        this.sectionService = sectionService;
     }
 
     @PostMapping("/lines")
@@ -37,16 +34,7 @@ public class LineController {
 
         Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
 
-        List<Section> sections = SectionFactory.createInitialSections(
-                newLine.getId(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance()
-        );
-
-        for (Section section : sections) {
-            sectionDao.save(section);
-        }
+        sectionService.save(Sections.createInitialSections(lineRequest.getSectionRequest().toEntity(newLine.getId())));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), Collections.emptyList()));
@@ -55,21 +43,8 @@ public class LineController {
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id).orElseThrow(() -> new LineNotFoundException(id));
-        Sections sections = new Sections(sectionDao.findByLineId(line.getId()));
-
-        List<StationResponse> stationResponses = getSortedStations(sections)
-                .stream()
-                .map(StationResponse::from)
-                .collect(Collectors.toList());
+        List<StationResponse> stationResponses = sectionService.findStationsOf(line.getId());
         return ResponseEntity.ok(new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses));
-    }
-
-    private List<Station> getSortedStations(Sections sections) {
-        return sections.getSortedStationIds()
-                .stream()
-                .map(stationId -> stationDao.findById(stationId)
-                        .orElseThrow(() -> new StationNotFoundException(stationId)))
-                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -98,40 +73,14 @@ public class LineController {
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Sections sections = new Sections(sectionDao.findByLineId(lineId));
-
-        Section newSection = new Section(
-                lineId,
-                sectionRequest.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                sectionRequest.getDistance()
-        );
-
-        Section insertTargetSection = sections.findBySameUpOrDownStationWith(newSection);
-        Section residualSection = insertTargetSection.subtractWith(newSection);
-        sectionDao.delete(insertTargetSection);
-        sectionDao.save(newSection);
-        sectionDao.save(residualSection);
-
+    public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
+        sectionService.createSection(lineId, request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<Void> deleteSections(@PathVariable Long lineId, @RequestParam Long stationId) {
-        Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        if (sections.isInitialState()) {
-            throw new IllegalStateException("해당 노선은 지하철역을 삭제할 수 없습니다.");
-        }
-
-        Pair<Section, Section> connectedSections = sections.findByStationId(stationId);
-        Section first = connectedSections.getLeft();
-        Section second = connectedSections.getRight();
-        Section joinedSection = first.mergeWith(second);
-
-        sectionDao.delete(first);
-        sectionDao.delete(second);
-        sectionDao.save(joinedSection);
+        sectionService.removeSection(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 }

@@ -5,13 +5,17 @@ public class SectionRequest {
     private Long downStationId;
     private int distance;
 
-    public SectionRequest() {
+    SectionRequest() {
     }
 
     public SectionRequest(Long upStationId, Long downStationId, int distance) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Section toEntity(long lineId) {
+        return new Section(lineId, upStationId, downStationId, distance);
     }
 
     public Long getUpStationId() {

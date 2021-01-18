@@ -1,5 +1,7 @@
 package subway.line;
 
+import subway.section.SectionRequest;
+
 public class LineRequest {
     private String name;
     private String color;
@@ -16,6 +18,10 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public SectionRequest getSectionRequest() {
+        return new SectionRequest(upStationId, downStationId, distance);
     }
 
     public String getName() {

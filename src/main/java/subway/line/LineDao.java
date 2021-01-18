@@ -2,19 +2,23 @@ package subway.line;
 
 import org.springframework.util.ReflectionUtils;
 import subway.station.Station;
+import subway.station.StationDao;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LineDao {
+    private static LineDao lineDao;
     private Long seq = 0L;
     private List<Line> lines = new ArrayList<>();
-    private static LineDao lineDao;
+    private StationDao stationDao;
+    private SectionDao sectionDao;
 
-    private LineDao() {}
+    private LineDao() {
+        stationDao = StationDao.getInstance();
+        sectionDao = SectionDao.getInstance();
+    }
 
     public static LineDao getInstance() {
         if (lineDao == null) {
@@ -24,9 +28,7 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        System.out.println(line.getName());
         if (isExist(line)) {
-            System.out.println("이미 존재함.");
             return null;
         }
         Line persistLine = createNewObject(line);
@@ -34,11 +36,10 @@ public class LineDao {
         return persistLine;
     }
 
+
     private boolean isExist(Line line) {
         return lines.stream()
-                .map(Line::getName)
-                .collect(Collectors.toList())
-                .contains(line.getName());
+                .anyMatch(line1 -> line1.getName().equals(line.getName()));
     }
 
     private Line createNewObject(Line line) {
@@ -70,6 +71,38 @@ public class LineDao {
     }
 
     public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+        lines.removeIf(line -> line.getId().equals(id));
+    }
+
+    public void updateStation(Section section){
+        Line line = lines.stream()
+                .filter(line1 -> line1.getId().equals(section.getLineId()))
+                .findFirst()
+                .orElse(null);
+        List<Station> stations = line.getStations();
+
+        for(int i = 0 ; i< stations.size(); i++){
+            if(stations.get(i).getId() == section.getUpStationId()){
+                sectionDao.addSection(i, stations.get(i).getId(), section);
+                if(i == stations.size() -1){
+                    stations.add(i, stationDao.findById(section.getDownStationId()));
+                    line.updateDownStationId(section.getDownStationId());
+                    line.updateDistance(line.getDistance() + section.getDistance());
+                }
+                stations.add(i + 1, stationDao.findById(section.getDownStationId()));
+                return;
+            }
+            if (stations.get(i).getId() == section.getDownStationId()) {
+                sectionDao.addSection(i, stations.get(i).getId(), section);
+                if (i - 1 < 0) {
+                    stations.add(0, stationDao.findById(section.getUpStationId()));
+                    line.updateUpStationId(section.getUpStationId());
+                    line.updateDistance(line.getDistance() + section.getDistance());
+                }
+                stations.add(i - 1, stationDao.findById(section.getUpStationId()));
+                return;
+            }
+        }
+        throw new IllegalArgumentException();
     }
 }

@@ -44,6 +44,13 @@ public class StationDao {
         return stations;
     }
 
+    public Station findById(Long id) {
+        return stations.stream()
+                .filter(station -> station.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void deleteById(Long id) {
         stations.removeIf(it -> it.getId().equals(id));
     }

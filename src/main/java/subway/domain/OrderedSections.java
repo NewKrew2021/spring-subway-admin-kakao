@@ -1,5 +1,8 @@
 package subway.domain;
 
+import subway.exception.custom.CannotAddSectionException;
+import subway.exception.custom.IllegalSectionException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +36,7 @@ public class OrderedSections {
 
         return optionalSection.orElseGet(() -> orderedSections.stream()
                 .filter(section -> section.getDownStationId().equals(sectionToAdd.getDownStationId()))
-                .findFirst().orElseThrow(IllegalArgumentException::new));
+                .findFirst().orElseThrow(CannotAddSectionException::new));
     }
 
     public boolean isAddToEdgeCase(Section section) {
@@ -58,7 +61,7 @@ public class OrderedSections {
                 .collect(Collectors.toList());
         return upStations.stream().filter(station -> !downStations.contains(station))
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(IllegalSectionException::new);
     }
 
     private static Map<Long, Section> generateConnection(List<Section> sections) {

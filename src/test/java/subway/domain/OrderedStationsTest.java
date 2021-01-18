@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("상행부터 하행 순으로 나열된 역 테스트")
 public class OrderedStationsTest {
     private OrderedStations orderedStations;
 

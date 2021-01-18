@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,14 +12,17 @@ import java.util.stream.Collectors;
 public class StationController {
     private StationDao stationDao;
 
-    public StationController(){
-        stationDao = StationDao.getInstance();
+    public StationController(StationDao stationDao){
+        this.stationDao = stationDao;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation = stationDao.save(station);
+        if(newStation == null){
+            return ResponseEntity.badRequest().build();
+        }
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
@@ -36,7 +38,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+        stationDao.deleteStationById(id);
         return ResponseEntity.noContent().build();
     }
 }

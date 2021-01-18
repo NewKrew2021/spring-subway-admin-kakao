@@ -18,29 +18,23 @@ public class LineDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
-        Line line = new Line(
-                resultSet.getLong("id"),
-                resultSet.getString("name"),
-                resultSet.getString("color")
-        );
-        return line;
-    };
-
     public Line insert(Line line) {
-        String sql = "insert into line (name, color) values(?, ?)";
-
-        if (!isValid(line)) {
+        if (isDuplicatedName(line)) {
             return null;
         }
 
+        String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        long id = jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-            st.setString(1, line.getName());
-            st.setString(2, line.getColor());
-            return st;
-        }, keyHolder);
+        try {
+            jdbcTemplate.update(con -> {
+                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+                st.setString(1, line.getName());
+                st.setString(2, line.getColor());
+                return st;
+            }, keyHolder);
+        } catch (DataAccessException ignored) {
+            return null;
+        }
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
@@ -78,7 +72,14 @@ public class LineDao {
         return jdbcTemplate.update(sql, id) > 0;
     }
 
-    public boolean isValid(Line line) {
-        return findByName(line.getName()) == null;
+    public boolean isDuplicatedName(Line line) {
+        return findByName(line.getName()) != null;
     }
+
+    private final RowMapper<Line> lineRowMapper =
+            (resultSet, rowNum) -> new Line(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("color")
+            );
 }

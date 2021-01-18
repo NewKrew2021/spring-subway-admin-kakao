@@ -4,8 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.station.Stations;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -27,22 +28,18 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(0L, lineRequest.getName(), lineRequest.getColor());
-        Section section = new Section(0,
-                line.getId(),
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+        Section section = new Section(line.getId(),
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance());
 
-        if (!lineDao.isValid(line) || !sectionDao.isValid(section)) {
+        if (lineDao.isDuplicatedName(line)) {
             return ResponseEntity.badRequest().build();
         }
 
         Line newLine = lineDao.insert(line);
-        sectionDao.insertDirectly(newLine.getId(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance());
+        sectionDao.insertDirectly(newLine.getId(), section);
 
         LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
@@ -104,21 +101,21 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    private List<StationResponse> getStationsByLine(Line line) {
-        List<StationResponse> stationResponses = new ArrayList<>();
+    private Stations getStationsByLine(Line line) {
+        List<Station> stations = new ArrayList<>();
 
         Long lineId = line.getId();
         Section firstSection = sectionDao.findFirstStation2(lineId);
         Long firstStationId = firstSection.getUpStationId();
 
-        stationResponses.add(stationDao.findById(firstStationId).toDto());
+        stations.add(stationDao.findById(firstStationId));
         Long stationId = firstStationId;
         for (int i = 0; i < sectionDao.findByLineId(lineId).size(); i++) {
             Section section = sectionDao.findByUpStationId(lineId, stationId);
-            stationResponses.add(stationDao.findById(section.getDownStationId()).toDto());
+            stations.add(stationDao.findById(section.getDownStationId()));
             stationId = section.getDownStationId();
         }
 
-        return stationResponses;
+        return new Stations(stations);
     }
 }

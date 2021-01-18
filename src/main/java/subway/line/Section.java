@@ -7,9 +7,21 @@ public class Section {
     private final long lineId;
     private final long upStationId;
     private final long downStationId;
-    private int distance;
+    private final int distance;
+
+    public Section(long lineId, long upStationId, long downStationId, int distance) {
+        this(0L, lineId, upStationId, downStationId, distance);
+    }
 
     public Section(long id, long lineId, long upStationId, long downStationId, int distance) {
+        if (isInvalid(upStationId, downStationId)) {
+            throw new IllegalArgumentException("Up and down stations cannot be the same");
+        }
+
+        if (isNegative(distance)) {
+            throw new IllegalArgumentException("Distance cannot be negative");
+        }
+
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -37,10 +49,6 @@ public class Section {
         return distance;
     }
 
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,5 +60,13 @@ public class Section {
     @Override
     public int hashCode() {
         return (int) id;
+    }
+
+    private boolean isInvalid(Long upStationId, Long downStationId) {
+        return upStationId.equals(downStationId);
+    }
+
+    private boolean isNegative(int distance) {
+        return distance < 0;
     }
 }

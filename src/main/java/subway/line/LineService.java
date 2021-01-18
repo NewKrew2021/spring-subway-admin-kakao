@@ -11,12 +11,16 @@ import java.util.List;
 
 @Service
 public class LineService {
-    @Autowired
+
     private LineDao lineDao;
-    @Autowired
     private SectionDao sectionDao;
-    @Autowired
     private StationDao stationDao;
+
+    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+        this.lineDao = lineDao;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
+    }
 
     public Line save(LineRequest lineRequest) {
         Long lineId = lineDao.save(lineRequest);

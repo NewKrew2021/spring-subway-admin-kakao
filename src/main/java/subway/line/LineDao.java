@@ -1,25 +1,22 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.exception.DuplicateNameException;
-import subway.exception.NoContentException;
-import subway.station.Station;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
 public class LineDao {
+    private final SectionDao sectionDao;
+
     private final JdbcTemplate jdbcTemplate;
 
-    public LineDao(JdbcTemplate jdbcTemplate) {
+    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate) {
+        this.sectionDao = sectionDao;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -36,18 +33,6 @@ public class LineDao {
                 keyHolder.getKey().longValue(),
                 line.getName(),
                 line.getColor());
-    }
-
-    private Line updateOldObject(Line sourceLine, Line destLine) {
-        Arrays.stream(Line.class.getDeclaredFields())
-                .filter(field -> !field.getName().equals("id"))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    ReflectionUtils.setField(field,
-                            destLine,
-                            ReflectionUtils.getField(field, sourceLine));
-                });
-        return destLine;
     }
 
 
@@ -69,7 +54,8 @@ public class LineDao {
                 (resultSet, rowNum) -> new Line(
                         resultSet.getLong("id"),
                         resultSet.getString("name"),
-                        resultSet.getString("color")
+                        resultSet.getString("color"),
+                        sectionDao.findAll(id)
                 ), id);
     }
 

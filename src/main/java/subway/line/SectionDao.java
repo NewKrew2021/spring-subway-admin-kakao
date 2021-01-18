@@ -16,6 +16,10 @@ public class SectionDao {
         return sectionDao;
     }
 
+    public void save(Long id, Section section) {
+        sections.put(id, new LinkedList<>(Arrays.asList(section)));
+    }
+
 
     private void checkSameStations(Section newSection, Section oldSection) {
         if (newSection.getUpStationId() == oldSection.getUpStationId() && newSection.getDownStationId() == oldSection.getDownStationId()) {

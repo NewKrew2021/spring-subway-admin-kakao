@@ -32,6 +32,8 @@ public class LineDao {
             return null;
         }
         Line persistLine = createNewObject(line);
+        Section newSection = new Section(persistLine.getId(), persistLine.getUpStationId(), persistLine.getDownStationId(), persistLine.getDistance());
+        sectionDao.save(persistLine.getId(), newSection);
         lines.add(persistLine);
         return persistLine;
     }

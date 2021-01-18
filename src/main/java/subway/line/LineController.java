@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.Station;
 import subway.station.StationDao;
+import subway.station.StationResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -54,7 +55,10 @@ public class LineController {
             System.out.println("문제 발생");
             return ResponseEntity.badRequest().build();
         }
-        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor());
+        List<StationResponse> stationResponses = line.getStations().stream()
+                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .collect(Collectors.toList());
+        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
         return ResponseEntity.ok(lineResponse);
     }
 

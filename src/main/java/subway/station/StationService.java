@@ -19,30 +19,17 @@ public class StationService {
 
     @Resource
     public StationDao stationDao;
-
     @Resource
     public LineDao lineDao;
-
     @Resource
     public SectionDao sectionDao;
 
-    public ResponseEntity<StationResponse> create(StationRequest stationRequest) {
-        try {
-            stationDao.save(new Station(stationRequest.getName()));
-        } catch (DuplicateKeyException e) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Station newStation = stationDao.findByName(stationRequest.getName());
-
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId()))
-                .body(new StationResponse(newStation.getId(), newStation.getName()));
+    public Long create(Station station) {
+        return stationDao.save(station);
     }
 
-    public ResponseEntity<List<StationResponse>> getStations() {
-        List<Station> stations = stationDao.findAll();
-
-        return ResponseEntity.ok().body(StationResponse.getStationResponses(stations));
+    public List<Station> getStations() {
+        return stationDao.findAll();
     }
 
     public List<Station> getStations(Long lineId) {
@@ -63,9 +50,7 @@ public class StationService {
         return stations;
     }
 
-    public ResponseEntity delete(Long id) {
-        stationDao.deleteById(id);
-
-        return ResponseEntity.noContent().build();
+    public void delete(Long stationId) {
+        stationDao.deleteById(stationId);
     }
 }

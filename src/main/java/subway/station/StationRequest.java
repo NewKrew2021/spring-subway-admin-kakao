@@ -13,4 +13,8 @@ public class StationRequest {
     public String getName() {
         return name;
     }
+
+    public Station getStation() {
+        return new Station(name);
+    }
 }

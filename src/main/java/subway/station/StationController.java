@@ -9,7 +9,6 @@ import subway.exception.InvalidIdException;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")
@@ -37,9 +36,7 @@ public class StationController {
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> response = stationService.findAll().stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+        List<StationResponse> response = stationService.findAll().toResponse();
         return ResponseEntity.ok().body(response);
     }
 

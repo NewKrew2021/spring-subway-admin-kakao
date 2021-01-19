@@ -19,8 +19,8 @@ public class StationService {
         return stationDao.save(station);
     }
 
-    public List<Station> findAll() {
-        return stationDao.findAll();
+    public Stations findAll() {
+        return new Stations(stationDao.findAll());
     }
 
     public Station find(Long id) {

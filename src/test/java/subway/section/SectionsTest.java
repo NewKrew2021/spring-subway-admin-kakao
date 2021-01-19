@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.station.Station;
+import subway.station.Stations;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,16 +35,23 @@ public class SectionsTest {
     @Test
     @DisplayName("섹션에 포함된 지점 테스트")
     public void getAllStationTest() {
-        assertThat(sections.getAllStations()).contains(강남역, 역삼역, 광교역);
+        assertThat(sections.getAllStations().contain(강남역.getId())).isTrue();
+        assertThat(sections.getAllStations().contain(역삼역.getId())).isTrue();
+        assertThat(sections.getAllStations().contain(광교역.getId())).isTrue();
+        assertThat(sections.getAllStations().contain(망포역.getId())).isFalse();
     }
 
     @Test
     @DisplayName("섹션 생성 시 정렬 테스트")
     public void orderSectionTest() {
-        assertThat(sections.getAllStations()).containsExactly(강남역, 역삼역, 광교역);
+        Stations expectedStations = new Stations(Arrays.asList(강남역, 역삼역, 광교역));
+        Stations unorderedStations = new Stations(Arrays.asList(강남역, 광교역, 역삼역));
+        assertThat(sections.getAllStations()).isEqualTo(expectedStations);
+        assertThat(sections.getAllStations()).isNotEqualTo(unorderedStations);
 
         List<Section> sectionList = Arrays.asList(역삼_광교, 강남_역삼);
-        assertThat(new Sections(sectionList).getAllStations()).containsExactly(강남역, 역삼역, 광교역);
+        assertThat(new Sections(sectionList).getAllStations()).isEqualTo(expectedStations);
+        assertThat(new Sections(sectionList).getAllStations()).isNotEqualTo(unorderedStations);
     }
 
     @Test

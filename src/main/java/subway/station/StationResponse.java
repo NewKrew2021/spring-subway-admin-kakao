@@ -1,5 +1,7 @@
 package subway.station;
 
+import java.util.Objects;
+
 public class StationResponse {
     private Long id;
     private String name;
@@ -19,5 +21,18 @@ public class StationResponse {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StationResponse response = (StationResponse) o;
+        return Objects.equals(id, response.id) && Objects.equals(name, response.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

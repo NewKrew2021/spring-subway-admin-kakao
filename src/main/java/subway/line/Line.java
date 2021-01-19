@@ -1,9 +1,8 @@
 package subway.line;
 
 import subway.section.Sections;
-import subway.station.Station;
+import subway.station.Stations;
 
-import java.util.List;
 import java.util.Objects;
 
 public class Line {
@@ -31,7 +30,7 @@ public class Line {
         this.sections = sections;
     }
 
-    public List<Station> getAllStations() {
+    public Stations getAllStations() {
         return sections.getAllStations();
     }
 

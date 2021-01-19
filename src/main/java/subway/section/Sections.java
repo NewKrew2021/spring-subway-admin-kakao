@@ -1,6 +1,7 @@
 package subway.section;
 
 import subway.station.Station;
+import subway.station.Stations;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,21 +40,18 @@ public class Sections {
         return connection;
     }
 
-    public List<Station> getAllStations() {
+    public Stations getAllStations() {
         List<Station> stations = sections.stream()
                 .map(Section::getUpStation)
                 .collect(Collectors.toList());
         Station lastStation = sections.get(sections.size() - 1).getDownStation();
         stations.add(lastStation);
-        return stations;
+        return new Stations(stations);
     }
 
     public void validateSectionRequest(Section section) {
-        long containedNumber = getAllStations().stream()
-                .map(Station::getId)
-                .filter(id -> id.equals(section.getUpStationId()) || id.equals(section.getDownStationId()))
-                .count();
-        if (containedNumber != 1) {
+        Stations stations = getAllStations();
+        if (stations.contain(section.getUpStationId()) == stations.contain(section.getDownStationId())) {
             throw new IllegalArgumentException();
         }
     }
@@ -72,8 +70,7 @@ public class Sections {
     }
 
     public boolean contain(Long stationId) {
-        return getAllStations().stream()
-                .anyMatch(station -> station.getId().equals(stationId));
+        return getAllStations().contain(stationId);
     }
 
     public Section getSectionFromUpStationId(Long stationId) {

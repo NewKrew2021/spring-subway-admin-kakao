@@ -1,11 +1,9 @@
 package subway.line;
 
-import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LineResponse {
     private Long id;
@@ -21,7 +19,7 @@ public class LineResponse {
         this.name = line.getName();
         this.color = line.getColor();
 
-        List<StationResponse> stationResponses = line.getAllStations().stream().map(StationResponse::new).collect(Collectors.toList());
+        List<StationResponse> stationResponses = line.getAllStations().toResponse();
         this.stations = Collections.unmodifiableList(stationResponses);
     }
 

@@ -26,6 +26,14 @@ public class Section {
         this.distance = distance;
     }
 
+    public void setUpStation(Station upStation) {
+        this.upStation = upStation;
+    }
+
+    public void setDownStation(Station downStation) {
+        this.downStation = downStation;
+    }
+
     public Long getId() {
         return id;
     }

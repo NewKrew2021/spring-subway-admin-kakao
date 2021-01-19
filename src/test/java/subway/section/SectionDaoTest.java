@@ -59,7 +59,7 @@ public class SectionDaoTest {
         Section newSection2 = sectionDao.save(new Section(이호선, 사당역, 방배역, 10));
 
         sectionDao.deleteById(newSection2.getId());
-        assertEquals(1, sectionDao.findAllByLine(이호선, stationDao, lineDao).getSize());
+        assertEquals(1, sectionDao.findAllByLine(이호선).getSize());
     }
 
 }

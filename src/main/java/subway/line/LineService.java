@@ -15,6 +15,8 @@ import java.util.List;
 @Service
 public class LineService {
 
+    public static final String CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE = "두 역이 모두 포함되어 있거나, 두 역 모두 포함되어 있지 않습니다.";
+    public static final String SECTIONS_SIZE_ERROR_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
     private LineDao lineDao;
     private SectionDao sectionDao;
     private StationDao stationDao;
@@ -64,7 +66,7 @@ public class LineService {
         Line line = lineDao.findById(lineId);
         Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
         if(sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
-            throw new InvalidSectionException("두 역이 모두 포함되어 있거나, 두 역 모두 포함되어 있지 않습니다.");
+            throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
         }
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         if (line.isLineStartStation(sectionRequest.getDownStationId())) {
@@ -99,7 +101,7 @@ public class LineService {
         Line line = lineDao.findById(lineId);
         Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
         if (sections.getSize() == 1) {
-            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
+            throw new InvalidSectionException(SECTIONS_SIZE_ERROR_MESSAGE);
         }
         if (line.isLineStartStation(stationId)) {
             deleteStartStation(sections, stationId);

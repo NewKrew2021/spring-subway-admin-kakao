@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public class SectionDao {
 
+    public static final String SECTION_SAVE_ERROR_MESSAGE = "구간 저장 오류가 발생했습니다.";
     private JdbcTemplate jdbcTemplate;
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
@@ -33,7 +34,7 @@ public class SectionDao {
         try {
             jdbcTemplate.update(sql, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
         } catch (Exception e) {
-            throw new InvalidSectionException("구간 저장 오류가 발생했습니다.");
+            throw new InvalidSectionException(SECTION_SAVE_ERROR_MESSAGE);
         }
     }
 

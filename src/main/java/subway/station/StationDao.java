@@ -18,6 +18,8 @@ public class StationDao {
     public static final String SELECT_ALL_ID_NAME_FROM_STATION = "select id, name from station";
     public static final String DELETE_STATION_BY_ID = "delete from station where id = ?";
     public static final String SELECT_STATION_BY_ID = "select id, name from station where id = ?";
+    public static final String DUPLICATE_STATION_NAME_ERROR_MESSAGE = "중복된 역 이름입니다.";
+    public static final String NO_MATCHING_STATION_ERROR_MESSAGE = "해당되는 역이 존재하지 않습니다.";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -37,7 +39,7 @@ public class StationDao {
         try {
             jdbcTemplate.update(INSERT_STATION, station.getName());
         } catch (Exception e) {
-            throw new DuplicateStationNameException("중복된 역 이름입니다.");
+            throw new DuplicateStationNameException(DUPLICATE_STATION_NAME_ERROR_MESSAGE);
         }
         return jdbcTemplate.queryForObject(SELECT_STATION_BY_NAME, stationRowMapper, station.getName());
     }
@@ -49,7 +51,7 @@ public class StationDao {
     public void deleteById(Long id) {
         int deletedRow = jdbcTemplate.update(DELETE_STATION_BY_ID, Long.valueOf(id));
         if(deletedRow == NO_DELETE_ROW) {
-            throw new InvalidStationArgumentException("해당되는 역이 존재하지 않습니다.");
+            throw new InvalidStationArgumentException(NO_MATCHING_STATION_ERROR_MESSAGE);
         }
     }
 

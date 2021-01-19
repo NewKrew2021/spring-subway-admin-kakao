@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Sections {
 
+    public static final String NO_MATCHING_SECTION_ERROR_MESSAGE = "구간이 존재하지 않습니다.";
+
     private List<Section> sections = new ArrayList<>();
 
     public Sections(List<Section> sections, Long startStationId) {
@@ -15,7 +17,7 @@ public class Sections {
                 .findFirst()
                 .orElse(null);
         if (startSection == null) {
-            throw new InvalidSectionException("노선의 시작 역이 존재하지 않습니다.");
+            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
         }
         this.sections.add(startSection);
         while (this.sections.size() < sections.size()) {
@@ -30,7 +32,7 @@ public class Sections {
                 .orElse(null);
 
         if (findSection == null) {
-            throw new InvalidSectionException("구간이 존재하지 않습니다.");
+            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
         }
         this.sections.add(findSection);
     }
@@ -50,7 +52,7 @@ public class Sections {
                 .orElse(null);
 
         if (resultSection == null) {
-            throw new InvalidSectionException("해당 구간이 존재하지 않습니다.");
+            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
         }
         return resultSection;
     }
@@ -62,7 +64,7 @@ public class Sections {
                 .orElse(null);
 
         if (resultSection == null) {
-            throw new InvalidSectionException("해당 구간이 존재하지 않습니다.");
+            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
         }
         return resultSection;
     }

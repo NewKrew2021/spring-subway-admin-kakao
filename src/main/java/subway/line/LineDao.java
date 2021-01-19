@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public class LineDao {
 
+    public static final String DUPLICATE_LINE_ERROR_MESSAGE = "중복된 이름의 노선입니다.";
+    public static final String NO_MATCHING_LINE_ERROR_MESSAGE = "해당하는 노선이 존재하지 않습니다.";
     private JdbcTemplate jdbcTemplate;
 
     public LineDao(JdbcTemplate jdbcTemplate) {
@@ -36,7 +38,7 @@ public class LineDao {
             jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId());
             lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, line.getName());
         } catch (Exception e) {
-            throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
+            throw new DuplicateLineNameException(DUPLICATE_LINE_ERROR_MESSAGE);
         }
         return lineId;
     }
@@ -45,7 +47,7 @@ public class LineDao {
         String sql = "select * from line where id = ?";
         Line line = jdbcTemplate.queryForObject(sql, lineRowMapper, id);
         if(line == null) {
-            throw new InvalidLineArgumentException("해당하는 노선이 존재하지 않습니다.");
+            throw new InvalidLineArgumentException(NO_MATCHING_LINE_ERROR_MESSAGE);
         }
         return line;
     }

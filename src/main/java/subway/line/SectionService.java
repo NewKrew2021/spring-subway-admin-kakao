@@ -107,7 +107,7 @@ public class SectionService {
     }
 
     private boolean isNotValidDelete(List<Section> sections, Section upStationMatch, Section downStationMatch) {
-        return sections.size() == 1 && upStationMatch != null || downStationMatch != null;
+        return sections.size() == 1 && (upStationMatch != null || downStationMatch != null);
     }
 
     private boolean isTerminalStation(Section upStationMatch, Section downStationMatch) {

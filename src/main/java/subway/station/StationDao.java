@@ -23,27 +23,23 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        String sqlQuery = "insert into station(name) values (?)";
         try {
-            jdbcTemplate.update(sqlQuery, station.getName());
+            jdbcTemplate.update(stationQuery.insert, station.getName());
         } catch (Exception e) {
             throw new DuplicateException("동일한 이름을 가지는 station이 이미 존재합니다.");
         }
-        return jdbcTemplate.queryForObject("select id, name from station where name = ?", stationRowMapper, station.getName());
+        return jdbcTemplate.queryForObject(stationQuery.selectIdAndNameByName, stationRowMapper, station.getName());
     }
 
     public List<Station> findAll() {
-        String sqlQuery = "select * from station";
-        return jdbcTemplate.query(sqlQuery, stationRowMapper);
+        return jdbcTemplate.query(stationQuery.selectIdAndNameOfAll, stationRowMapper);
     }
 
     public Station findById(Long id) {
-        String sqlQuery = "select * from station where id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, stationRowMapper, id);
+        return jdbcTemplate.queryForObject(stationQuery.selectIdAndNameById, stationRowMapper, id);
     }
 
     public void deleteById(Long id) {
-        String sqlQuery = "delete from station where id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update(stationQuery.deleteById, id);
     }
 }

@@ -41,7 +41,7 @@ public class StationController {
     public ResponseEntity deleteStation(@PathVariable Long stationId) {
         if (!stationService.deleteById(stationId))
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
 

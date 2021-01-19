@@ -83,6 +83,6 @@ public class LineController {
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
         if (!lineService.deleteById(lineId))
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

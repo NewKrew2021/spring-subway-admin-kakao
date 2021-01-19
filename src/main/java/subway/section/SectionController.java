@@ -27,6 +27,6 @@ public class SectionController {
         if (!sectionService.deleteSection(lineId, stationId)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

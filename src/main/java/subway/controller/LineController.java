@@ -32,7 +32,7 @@ public class LineController {
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         try{
-            lineService.insertLine(new Line(lineRequest));
+            lineService.insertLine(lineRequest.toLine());
             Line newLine = lineService.findLineByName(lineRequest.getName());
             sectionService.insertFirstSection(new Section(newLine.getId(), newLine.getUpStationId(), newLine.getDownStationId(), lineRequest.getDistance()));
             List<Station> stations = sectionService.getStationsByLine(newLine);
@@ -69,8 +69,7 @@ public class LineController {
 
     @PutMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        lineService.modifyLine(new Line(lineId, lineRequest.getName(), lineRequest.getColor(),
-                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
+        lineService.modifyLine(lineRequest.toLine(lineId));
         return ResponseEntity.ok().build();
     }
 

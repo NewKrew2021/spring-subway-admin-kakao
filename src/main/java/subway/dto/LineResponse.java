@@ -48,5 +48,4 @@ public class LineResponse {
     public int getExtraFare() {
         return extraFare;
     }
-
 }

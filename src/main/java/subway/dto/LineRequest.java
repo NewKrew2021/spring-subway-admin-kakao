@@ -1,5 +1,7 @@
 package subway.dto;
 
+import subway.domain.Line;
+
 public class LineRequest {
     private String name;
     private String color;
@@ -17,6 +19,13 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line toLine(){
+        return new Line(this);
+    }
+    public Line toLine(Long id){
+        return new Line(id, this);
     }
 
     public String getName() {

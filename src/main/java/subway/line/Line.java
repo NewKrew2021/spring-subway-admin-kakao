@@ -1,22 +1,11 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import subway.station.Station;
-import subway.station.StationDao;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class Line {
     private Long id;
     private String name;
     private String color;
-
-//    @Autowired
-//    private SectionService sectionService;
-//
-//    @Autowired
-//    private StationDao stationDao;
 
     public Line(String name, String color) {
         this(0L, name, color);
@@ -52,14 +41,5 @@ public class Line {
     public int hashCode() {
         return Objects.hash(id, name, color);
     }
-
-//    public List<Long> getStationIds(){
-//        List<Section> sections = sectionService.showAll(this.id);
-//        List<Long> stationIds = sections.stream()å
-//                .map(Section::getUpStationId)
-//                .collect(Collectors.toList());
-//        stationIds.add(sections.get(sections.size()-1).getDownStationId());
-//        return stationIds;
-//    }
 
 }

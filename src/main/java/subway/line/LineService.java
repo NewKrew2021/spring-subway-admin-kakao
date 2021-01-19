@@ -13,18 +13,18 @@ public class LineService {
     private StationDao stationDao;
     private SectionService sectionService;
 
-    public LineService(LineDao lineDao, StationDao stationDao, SectionService sectionService){
+    public LineService(LineDao lineDao, StationDao stationDao, SectionService sectionService) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
         this.sectionService = sectionService;
     }
 
-    public List<Station> getStations(Line line){
+    public List<Station> getStations(Line line) {
         List<Section> sections = sectionService.showAll(line.getId());
         List<Long> stationIds = sections.stream()
                 .map(Section::getUpStationId)
                 .collect(Collectors.toList());
-        stationIds.add(sections.get(sections.size()-1).getDownStationId());
+        stationIds.add(sections.get(sections.size() - 1).getDownStationId());
         return stationIds.stream()
                 .map(stationDao::findStationById)
                 .collect(Collectors.toList());

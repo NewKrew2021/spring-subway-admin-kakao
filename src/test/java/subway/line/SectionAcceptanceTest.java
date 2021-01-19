@@ -27,6 +27,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     private StationResponse 양재역;
     private StationResponse 정자역;
     private StationResponse 광교역;
+    private StationResponse 미금역;
 
     @BeforeEach
     public void setUp() {
@@ -36,6 +37,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         양재역 = 지하철역_등록되어_있음("양재역");
         정자역 = 지하철역_등록되어_있음("정자역");
         광교역 = 지하철역_등록되어_있음("광교역");
+        미금역 = 지하철역_등록되어_있음("미금역");
 
         신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 강남역, 광교역, 10);
     }
@@ -59,6 +61,16 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_구간_생성됨(response, 신분당선, Arrays.asList(정자역, 강남역, 양재역, 광교역));
+    }
+
+    @DisplayName("지하철 노선에 같거나 긴 거리의 역을 등록한다.")
+    @Test
+    void addLineSectionLongerDistance() {
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 미금역, 10);
+
+        // then
+        지하철_구간_등록_실패됨(response);
     }
 
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다.")

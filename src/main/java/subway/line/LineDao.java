@@ -55,11 +55,6 @@ public class LineDao {
         }
     }
 
-    public int countByName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
-    }
-
     public int deleteById(Long id) {
         String sql = "delete from line where id = ?";
         return jdbcTemplate.update(sql, id);

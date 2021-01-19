@@ -25,10 +25,6 @@ public class LineService {
         return newLine;
     }
 
-    public boolean existName(String name) {
-        return lineDao.countByName(name) != 0;
-    }
-
     public void deleteLine(long id) {
         lineDao.deleteById(id);
     }

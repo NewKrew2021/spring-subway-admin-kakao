@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +32,13 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineService.existName(lineRequest.getName())) {
+        Line newLine;
+        List<StationResponse> stationResponses = new ArrayList<>();
+        try {
+            newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()));
+        } catch (DuplicateKeyException e) {
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = new ArrayList<>();
-        Line newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()));
         sectionService.createSection(new Section(newLine.getStartStationId(), newLine.getEndStationId(), lineRequest.getDistance(), newLine.getId()));
 
         Station upStation = stationService.getStation(lineRequest.getUpStationId());

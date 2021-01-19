@@ -57,10 +57,4 @@ public class StationDao {
         }
     }
 
-    public int countByName(String name) {
-        String sql = "select count(*) from station where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
-    }
-
-
 }

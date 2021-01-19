@@ -37,7 +37,4 @@ public class StationService {
         stationDao.deleteById(id);
     }
 
-    public boolean existName(String name) {
-        return stationDao.countByName(name) != 0;
-    }
 }

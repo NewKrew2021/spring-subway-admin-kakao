@@ -1,5 +1,6 @@
 package subway.station;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,12 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        if (stationService.existName(stationRequest.getName())) {
+        Station newStation;
+        try {
+            newStation = stationService.createStation(new Station(stationRequest.getName()));
+        } catch (DuplicateKeyException e) {
             return ResponseEntity.badRequest().build();
         }
-        Station newStation = stationService.createStation(new Station(stationRequest.getName()));
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(new StationResponse(newStation.getId(), newStation.getName()));
     }
 

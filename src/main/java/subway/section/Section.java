@@ -20,7 +20,7 @@ public class Section implements Comparable<Section> {
     }
 
     public int distanceDiff(Section downSection) {
-        return distance - downSection.distance;
+        return Math.abs(distance - downSection.distance);
     }
 
     public boolean isUpperThan(Section newSection) {

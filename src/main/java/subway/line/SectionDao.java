@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -59,6 +60,18 @@ public class SectionDao {
                             section.getDownStationId(),
                             section.getDistance());
                 });
+    }
+
+    public Section findOne(Long id) {
+        try {
+            return jdbcTemplate.queryForObject("select * from section where id = ?", sectionRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoContentException("해당 id를 갖는 구간이 존재하지 않습니다.");
+        }
+    }
+
+    public List<Section> findAll() {
+        return jdbcTemplate.query("select * from section", sectionRowMapper);
     }
 
     public List<Section> findAllByLineId(Long lineId) {

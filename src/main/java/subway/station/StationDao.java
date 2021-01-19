@@ -13,6 +13,11 @@ import java.util.List;
 public class StationDao {
 
     public static final int NO_DELETE_ROW = 0;
+    public static final String INSERT_STATION = "insert into STATION(name) VALUES (?)";
+    public static final String SELECT_STATION_BY_NAME = "select id, name from STATION where name = ?";
+    public static final String SELECT_ALL_ID_NAME_FROM_STATION = "select id, name from station";
+    public static final String DELETE_STATION_BY_ID = "delete from station where id = ?";
+    public static final String SELECT_STATION_BY_ID = "select id, name from station where id = ?";
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -25,30 +30,26 @@ public class StationDao {
     };
 
     public Station save(Station station) {
-        String sql = "insert into STATION(name) VALUES (?)";
         try {
-            jdbcTemplate.update(sql, station.getName());
+            jdbcTemplate.update(INSERT_STATION, station.getName());
         } catch (Exception e) {
             throw new DuplicateStationNameException("중복된 역 이름입니다.");
         }
-        return jdbcTemplate.queryForObject("select id, name from STATION where name = ?", stationRowMapper, station.getName());
+        return jdbcTemplate.queryForObject(SELECT_STATION_BY_NAME, stationRowMapper, station.getName());
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        return jdbcTemplate.query(SELECT_ALL_ID_NAME_FROM_STATION, stationRowMapper);
     }
 
     public void deleteById(Long id) {
-        String sql = "delete from station where id = ?";
-        int deletedRow = jdbcTemplate.update(sql, Long.valueOf(id));
+        int deletedRow = jdbcTemplate.update(DELETE_STATION_BY_ID, Long.valueOf(id));
         if(deletedRow == NO_DELETE_ROW) {
             throw new InvalidStationArgumentException("해당되는 역이 존재하지 않습니다.");
         }
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, Long.valueOf(id));
+        return jdbcTemplate.queryForObject(SELECT_STATION_BY_ID, stationRowMapper, Long.valueOf(id));
     }
 }

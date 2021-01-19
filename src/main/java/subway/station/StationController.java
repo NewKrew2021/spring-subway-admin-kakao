@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateStationNameException;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

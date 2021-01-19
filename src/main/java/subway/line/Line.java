@@ -42,7 +42,9 @@ public class Line {
         return color;
     }
 
-    public long getStartStationId() { return startStationId; }
+    public long getStartStationId() {
+        return startStationId;
+    }
 
     @Override
     public boolean equals(Object o) {

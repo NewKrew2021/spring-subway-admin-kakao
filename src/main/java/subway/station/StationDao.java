@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public class StationDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -43,7 +43,10 @@ public class StationDao {
     }
 
     public int countByName(String stationName) {
-        return jdbcTemplate.queryForObject("select count(*) from STATION where name = ?", Integer.class, stationName);
+        return jdbcTemplate.queryForObject(
+                "select count(*) from STATION where name = ?",
+                Integer.class, stationName
+        );
     }
 
     public List<Station> findAll() {

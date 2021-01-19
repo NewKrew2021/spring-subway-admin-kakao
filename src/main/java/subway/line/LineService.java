@@ -9,7 +9,6 @@ import subway.section.SectionDao;
 import subway.section.SectionRequest;
 import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class LineService {
         lineRequest.validateLineRequest();
         validateDuplicateLineName(lineRequest.getName());
         long lineId = lineDao.save(lineRequest);
-        sectionDao.save(lineId, new SectionRequest(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
+        sectionDao.save(lineId, SectionRequest.of(lineRequest));
         return findById(lineId);
     }
 
@@ -58,16 +57,18 @@ public class LineService {
     }
 
     public List<Station> getStationsById(long id) {
-        List<Station> stations = new ArrayList<>();
-        List<Section> sections = sectionDao.findAllSections(id, lineDao.findById(id).getStartStationId());
+        List<Section> sections = sectionDao.findAllSectionsById(id);
         if (sections.size() == 0) {
             throw new EmptySectionException("라인 내에 구간이 존재하지 않습니다.");
         }
-        for (Section section : sections) {
-            stations.add(new Station(section.getUpStationId(), stationDao.findById(section.getUpStationId()).getName()));
+        List<Station> stations = new ArrayList<>();
+        long stationId = lineDao.findById(id).getStartStationId();
+        int sectionCount = sectionDao.countByLineId(id);
+        for (int i = 0; i < sectionCount; i++) {
+            stations.add(stationDao.findById(stationId));
+            stationId = sectionDao.findDownStationIdByLineAndUpStationId(id, stationId);
         }
-        long endStationId = sections.get(sections.size() - 1).getDownStationId();
-        stations.add(new Station(endStationId, stationDao.findById(endStationId).getName()));
+        stations.add(stationDao.findById(stationId));
         return stations;
     }
 

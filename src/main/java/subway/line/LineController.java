@@ -11,7 +11,6 @@ import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +40,7 @@ public class LineController {
         List<StationResponse> stationResponses = stations.stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
-        LineResponse lineResponse = LineResponse.of(newLine, stationResponses);
+        LineResponse lineResponse = new LineResponse(newLine, stationResponses);
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -55,7 +54,7 @@ public class LineController {
         List<StationResponse> stationResponses = stations.stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
-        LineResponse lineResponse = LineResponse.of(showLine, stationResponses);
+        LineResponse lineResponse = new LineResponse(showLine, stationResponses);
         return ResponseEntity.ok().body(lineResponse);
     }
 

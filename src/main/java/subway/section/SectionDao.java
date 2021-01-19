@@ -66,7 +66,7 @@ public class SectionDao {
     }
 
     public int countByLineId(long id) {
-        return jdbcTemplate.queryForObject("select count(*) from section where line_id = ?", Integer.class, id);
+        return jdbcTemplate.queryForObject("select count(*) from SECTION where line_id = ?", Integer.class, id);
     }
 
     public int countByLineIdAndStationId(long lineId, long stationId) {
@@ -79,7 +79,7 @@ public class SectionDao {
     public long findSectionIdByUpStationId(long lineId, long upStationId) {
         try {
             return jdbcTemplate.queryForObject(
-                    "select id from section where line_id = ? and up_station_id = ?",
+                    "select id from SECTION where line_id = ? and up_station_id = ?",
                     Long.class, lineId, upStationId
             );
         } catch (EmptyResultDataAccessException e) {
@@ -90,7 +90,7 @@ public class SectionDao {
     public long findSectionIdByDownStationId(long lineId, long downStationId) {
         try {
             return jdbcTemplate.queryForObject(
-                    "select id from section where line_id = ? and down_station_id = ?",
+                    "select id from SECTION where line_id = ? and down_station_id = ?",
                     Long.class, lineId, downStationId
             );
         } catch (EmptyResultDataAccessException e) {
@@ -126,25 +126,24 @@ public class SectionDao {
         jdbcTemplate.update("delete from SECTION where line_id = ? and up_station_id = ?", lineId, stationId);
         jdbcTemplate.update("delete from SECTION where line_id = ? and down_station_id = ?", lineId, stationId);
         jdbcTemplate.update(
-                "insert into SECTION(line_id, up_station_id, down_station_id, distance) VALUES(?,?,?,?)",
+                "insert into SECTION(line_id, up_station_id, down_station_id, distance) VALUES(?, ?, ?, ?)",
                 lineId, downStationSection.getUpStationId(), upStationSection.getDownStationId(),
                 upStationSection.getDistance() + downStationSection.getDistance()
         );
     }
 
     public int deleteAllByLineId(long id) {
-        return jdbcTemplate.update("delete from section where line_id = ?", id);
+        return jdbcTemplate.update("delete from SECTION where line_id = ?", id);
     }
 
-    public List<Section> findAllSections(long lineId, long startStationId) {
-        return jdbcTemplate.query("WITH RECURSIVE findAllSections(up_station_id, down_station_id) AS" +
-                " (SELECT up_station_id, down_station_id from SECTION " +
-                "where line_id = ? and up_station_id = ? " +
-                "union all " +
-                "select s.up_station_id, s.down_station_id from SECTION s " +
-                "inner join findAllSections on findAllSections.down_station_id = s.up_station_id) " +
-                "select * from findAllSections",
-                sectionOnlyStationRowMapper, lineId, startStationId
+    public List<Section> findAllSectionsById(long lineId) {
+        return jdbcTemplate.query("select * from SECTION where line_id = ?", sectionRowMapper, lineId);
+    }
+
+    public long findDownStationIdByLineAndUpStationId(long lineId, long upStationId) {
+        return jdbcTemplate.queryForObject(
+                "select down_station_id from SECTION where line_id = ? and up_station_id = ?",
+                Long.class, lineId, upStationId
         );
     }
 }

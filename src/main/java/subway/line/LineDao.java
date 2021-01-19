@@ -50,35 +50,32 @@ public class LineDao {
     }
 
     public Line findById(long id) {
-        String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        return jdbcTemplate.queryForObject("select * from LINE where id = ?", lineRowMapper, id);
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line limit 10";
-        return jdbcTemplate.query(sql, lineRowMapper);
+        return jdbcTemplate.query("select * from LINE limit 10", lineRowMapper);
     }
 
     public Line updateLine(long id, LineRequest lineRequest) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id);
+        jdbcTemplate.update(
+                "update LINE set name = ?, color = ? where id = ?",
+                lineRequest.getName(), lineRequest.getColor(), id
+        );
         return findById(id);
     }
 
     public Line updateLineStartStation(long lineId, long stationId) {
-        String sql = "update line set start_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, stationId, lineId);
+        jdbcTemplate.update("update LINE set start_station_id = ? where id = ?", stationId, lineId);
         return findById(lineId);
     }
 
     public Line updateLineEndStation(long lineId, long stationId) {
-        String sql = "update line set end_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, stationId, lineId);
+        jdbcTemplate.update("update LINE set end_station_id = ? where id = ?", stationId, lineId);
         return findById(lineId);
     }
 
     public int deleteById(long id) {
-        String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update("delete from LINE where id = ?", id);
     }
 }

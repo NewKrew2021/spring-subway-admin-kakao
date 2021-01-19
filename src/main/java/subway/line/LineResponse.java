@@ -5,6 +5,7 @@ import subway.station.StationResponse;
 import java.util.List;
 
 public class LineResponse {
+
     private long id;
     private String name;
     private String color;
@@ -31,8 +32,8 @@ public class LineResponse {
         this.stations = stations;
     }
 
-    public static LineResponse of(Line newLine, List<StationResponse> stations) {
-        return new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
+    public LineResponse(Line line, List<StationResponse> stations) {
+        this(line.getId(), line.getName(), line.getColor(), stations);
     }
 
     public long getId() {

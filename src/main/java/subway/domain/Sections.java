@@ -1,4 +1,4 @@
-package subway.section;
+package subway.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,11 +7,11 @@ import java.util.List;
 public class Sections {
     List<Section> sections;
 
-    Sections() {
+    public Sections() {
         sections = new ArrayList<>();
     }
 
-    Sections(List<Section> sections) {
+    public Sections(List<Section> sections) {
         this.sections = Collections.unmodifiableList(sections);
     }
 

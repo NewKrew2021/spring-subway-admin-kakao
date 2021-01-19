@@ -1,4 +1,6 @@
-package subway.station;
+package subway.domain;
+
+import subway.dto.StationRequest;
 
 public class Station {
     private Long id;

@@ -1,18 +1,15 @@
-package subway.line;
+package subway.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.Section;
-import subway.section.SectionService;
-import subway.section.Sections;
-import subway.station.Station;
-import subway.station.StationResponse;
-import subway.station.StationService;
+import subway.domain.Line;
+import subway.dto.LineRequest;
+import subway.dto.LineResponse;
+import subway.service.LineService;
 
 import java.net.URI;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lines")

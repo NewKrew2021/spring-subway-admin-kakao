@@ -1,13 +1,12 @@
-package subway.section;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import subway.line.Line;
-
-import java.util.List;
+import subway.domain.Section;
+import subway.domain.Sections;
 
 @Repository
 public class SectionDao {

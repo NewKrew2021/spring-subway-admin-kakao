@@ -1,9 +1,10 @@
-package subway.section;
+package subway.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.LineService;
+import subway.dto.SectionRequest;
+import subway.service.SectionService;
 
 @RestController
 @RequestMapping("/lines")

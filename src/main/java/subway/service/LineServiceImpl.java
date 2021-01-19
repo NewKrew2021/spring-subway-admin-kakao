@@ -1,14 +1,13 @@
-package subway.line;
+package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.section.SectionService;
-import subway.section.Sections;
-import subway.station.Station;
-import subway.station.StationResponse;
-import subway.station.StationService;
-import subway.station.StationServiceImpl;
+import subway.dao.LineDao;
+import subway.domain.*;
+import subway.dto.LineRequest;
+import subway.dto.LineResponse;
+import subway.dto.StationResponse;
+import subway.exception.DataEmptyException;
+import subway.dao.SectionDao;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,11 +39,19 @@ public class LineServiceImpl implements LineService {
     }
 
     public List<Line> findAll() {
-        return lineDao.findAll();
+        List<Line> lines = lineDao.findAll();
+        if(lines.size() == 0){
+            throw new DataEmptyException();
+        }
+        return lines;
     }
 
     public Line findOne(Long lineId) {
-        return lineDao.findOne(lineId);
+        Line line = lineDao.findOne(lineId);
+        if(line == null){
+            throw new DataEmptyException();
+        }
+        return line;
     }
 
     public boolean update(Line line) {

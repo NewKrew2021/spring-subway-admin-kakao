@@ -2,6 +2,8 @@ package subway.section;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import subway.domain.Section;
+import subway.domain.Sections;
 
 import java.util.Arrays;
 

@@ -1,6 +1,11 @@
-package subway.station;
+package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.StationDao;
+import subway.domain.Station;
+import subway.dto.StationRequest;
+import subway.dto.StationResponse;
+import subway.exception.DataEmptyException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,11 +24,19 @@ public class StationServiceImpl implements StationService {
     }
 
     public List<Station> findAll() {
-        return stationDao.findAll();
+        List<Station> stations = stationDao.findAll();
+        if(stations.size() == 0){
+            throw new DataEmptyException();
+        }
+        return stations;
     }
 
     public Station findOne(Long stationId) {
-        return stationDao.findOne(stationId);
+        Station station = stationDao.findOne(stationId);
+        if(station == null){
+            throw new DataEmptyException();
+        }
+        return station;
     }
 
     public boolean deleteById(Long stationId) {

@@ -1,6 +1,9 @@
-package subway.line;
+package subway.service;
 
-import subway.section.Section;
+import subway.domain.Line;
+import subway.dto.LineRequest;
+import subway.dto.LineResponse;
+import subway.domain.Section;
 
 import java.util.List;
 

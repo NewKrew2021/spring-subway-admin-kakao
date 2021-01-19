@@ -1,8 +1,11 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.line.Line;
-import subway.line.LineService;
+import subway.dao.SectionDao;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.dto.SectionRequest;
+import subway.domain.Sections;
 
 import java.util.LinkedList;
 import java.util.List;

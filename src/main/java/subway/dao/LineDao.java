@@ -1,11 +1,11 @@
-package subway.line;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import subway.section.SectionDao;
+import subway.domain.Line;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class LineDao {
                     .usingGeneratedKeyColumns("id");
             SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
             Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-            return new Line(id, line.getName(), line.getColor());
+            return new Line(id, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
 
         } catch (Exception e) {
             return null;

@@ -1,6 +1,6 @@
-package subway.line;
+package subway.domain;
 
-import subway.section.Section;
+import subway.exception.IllegalStationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +12,6 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
 
-    private List<Section> sections = new ArrayList<>();
-
     public Line() {
     }
 
@@ -24,6 +22,9 @@ public class Line {
     }
 
     public Line(String name, String color, Long upStationId, Long downStationId) {
+        if (checkProblemStationId(upStationId, downStationId)) {
+            throw new IllegalStationException();
+        }
         this.color = color;
         this.name = name;
         this.upStationId = upStationId;
@@ -31,11 +32,18 @@ public class Line {
     }
 
     public Line(Long id, String name, String color, Long upStationId, Long downStationId) {
+        this(name, color, upStationId, downStationId);
         this.id = id;
-        this.color = color;
-        this.name = name;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+    }
+
+    private boolean checkProblemStationId(Long upStationId, Long downStationId) {
+        if (upStationId < 0) {
+            return true;
+        }
+        if (downStationId < 0) {
+            return true;
+        }
+        return upStationId.equals(downStationId);
     }
 
     public Long getId() {
@@ -58,7 +66,4 @@ public class Line {
         return downStationId;
     }
 
-    public List<Section> getSections() {
-        return sections;
-    }
 }

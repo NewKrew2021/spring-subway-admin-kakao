@@ -1,4 +1,8 @@
-package subway.station;
+package subway.service;
+
+import subway.domain.Station;
+import subway.dto.StationRequest;
+import subway.dto.StationResponse;
 
 import java.util.List;
 

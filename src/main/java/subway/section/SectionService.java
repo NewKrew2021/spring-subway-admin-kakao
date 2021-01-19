@@ -17,7 +17,7 @@ public class SectionService {
     private static final int MIN_SECTION_SIZE = 1;
     private static final int SECOND_INDEX = 1;
 
-    private SectionDao sectionDao;
+    private final SectionDao sectionDao;
     private List<Section> sections;
 
     @Autowired

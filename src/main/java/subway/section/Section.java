@@ -13,6 +13,10 @@ public class Section implements Comparable<Section> {
     }
 
     public Section(long id, long lineID, long stationID, int distance) {
+        if (isNegative(id)) {
+            throw new IllegalArgumentException("Line ID cannot be negative");
+        }
+
         this.id = id;
         this.lineID = lineID;
         this.stationID = stationID;
@@ -69,5 +73,9 @@ public class Section implements Comparable<Section> {
     @Override
     public int compareTo(Section that) {
         return distance - that.getDistance();
+    }
+
+    private boolean isNegative(Long id) {
+        return id < 0;
     }
 }

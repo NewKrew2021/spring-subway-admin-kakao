@@ -3,13 +3,14 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionService;
 import subway.section.SectionRequest;
+import subway.section.SectionService;
 
 import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
     private final LineService lineService;
     private final SectionService sectionService;
@@ -19,42 +20,42 @@ public class LineController {
         this.sectionService = sectionService;
     }
 
-    @PostMapping("/lines")
+    @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
         LineResponse response = lineService.create(request);
         return ResponseEntity.created(URI.create("/lines/" + response.getId()))
                 .body(response);
     }
 
-    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         return ResponseEntity.ok(lineService.findBy(id));
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         return ResponseEntity.ok(lineService.findAll());
     }
 
-    @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateLine(@RequestBody LineRequest request, @PathVariable Long id) {
         lineService.update(request, id);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLine(@PathVariable Long id) {
         lineService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/lines/{lineId}/sections")
+    @PostMapping("/{lineId}/sections")
     public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
         sectionService.createSection(lineId, request);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{lineId}/sections")
+    @DeleteMapping("/{lineId}/sections")
     public ResponseEntity<Void> deleteSections(@PathVariable Long lineId, @RequestParam Long stationId) {
         sectionService.removeSection(lineId, stationId);
         return ResponseEntity.ok().build();

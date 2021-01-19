@@ -12,7 +12,11 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insertOnCreateLine(Section upSection, Section downSection) {
+    public boolean insertOnCreateLine(Long lineId, LineRequest request) {
+
+        Section upSection = new Section(lineId, request.getUpStationId(), 0);
+        Section downSection = new Section(lineId, request.getDownStationId(), request.getDistance());
+
         if (upSection.equals(downSection)) {
             return false;
         }
@@ -23,10 +27,10 @@ public class SectionDao {
         return true;
     }
 
-    public boolean insert(Section upSection, Section downSection) {
-        Sections sections = findByLineId(upSection.getLineId());
+    public boolean insert(Long lineId, SectionRequest request) {
+        Sections sections = findByLineId(lineId);
 
-        Section newSection = sections.insert(upSection, downSection);
+        Section newSection = sections.insert(request);
         if (newSection == null) {
             return false;
         }
@@ -56,7 +60,7 @@ public class SectionDao {
     }
 
     public Sections findByLineId(Long lineId) {
-        String sql = "select * from section where line_id = ? order by distance";
+        String sql = "select * from section where line_id = ?";
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
     }
 

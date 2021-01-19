@@ -12,7 +12,7 @@ public class LineResponse {
     private List<StationResponse> stations;
 
     public LineResponse() {
-        // 없으면 jackson.databind 오류가 발생함. 기본생성자가 있어야 가능하다.
+
     }
 
 

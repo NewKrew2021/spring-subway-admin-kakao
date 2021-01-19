@@ -56,7 +56,6 @@ public enum SectionUpdateType {
         return prevSection;
     }
 
-
 }
 
 

@@ -25,14 +25,9 @@ public class StationAcceptanceTest extends AcceptanceTest {
     void createStation() {
         // when
         ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
-//        ExtractableResponse<Response> response2 = 지하철역_생성_요청(강남역);
-//        ExtractableResponse<Response> response3 = 지하철역_생성_요청(강남역);
-
 
         // then
         지하철역_생성됨(response);
-//        지하철역_생성됨(response2);
-//        지하철역_생성됨(response3);
     }
 
 

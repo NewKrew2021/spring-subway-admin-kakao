@@ -1,16 +1,11 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.station.Station;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -21,16 +16,6 @@ public class LineDao {
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    /*
-        create table if not exists LINE
-        (
-        id bigint auto_increment not null,
-        name varchar(255) not null unique,
-        color varchar(20) not null,
-        primary key(id)
-        );
-
-     */
 
     public Long save(Line line) {
         String SQL = "INSERT INTO line(name,color) VALUES (?,?)";

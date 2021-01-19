@@ -17,14 +17,12 @@ public class LineController {
 
     private final LineDao lineDao;
     private final StationDao stationDao;
-    private final SectionDao sectionDao;
     private LineService lineService;
     private SectionService sectionService;
 
     public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
-        this.sectionDao = sectionDao;
         lineService = new LineService(lineDao, sectionDao);
         sectionService = new SectionService(sectionDao);
     }

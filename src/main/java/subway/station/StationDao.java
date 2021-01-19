@@ -1,8 +1,11 @@
 package subway.station;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -14,14 +17,17 @@ public class StationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Station save(Station station) {
+    public Long save(Station station) {
         String SQL = "INSERT INTO station (name) VALUES (?)";
-        String SELECT_SQL = "SELECT * FROM station where name = ?";
-        jdbcTemplate.update(SQL, station.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        return jdbcTemplate.queryForObject(SELECT_SQL,
-                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
-                station.getName());
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL, new String[]{"id"});
+            preparedStatement.setString(1, station.getName());
+            return preparedStatement;
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public List<Station> findAll() {
@@ -36,14 +42,15 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        String SQL = "DELETE FROM station where id = ?";
+        String SQL = "DELETE FROM station WHERE id = ?";
         jdbcTemplate.update(SQL, id);
     }
 
     public Station findById(Long id) {
-        String SELECT_SQL = "SELECT * FROM station where id = ?";
-        return jdbcTemplate.queryForObject(SELECT_SQL,
-                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
+        String SQL = "SELECT * FROM station WHERE id = ?";
+        return jdbcTemplate.queryForObject(SQL,
+                (resultSet, rowNum) ->
+                        new Station(resultSet.getLong("id"), resultSet.getString("name")),
                 id);
     }
 

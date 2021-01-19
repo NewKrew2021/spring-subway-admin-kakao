@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import subway.line.Line;
 import subway.line.LineService;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SectionService{
@@ -30,12 +32,17 @@ public class SectionService{
         Long cur = line.getUpStationId();
         Long dest = line.getDownStationId();
         List<Section> orderedSections = new LinkedList();
+        Set<Long> visit = new HashSet<>();
 
-        while (!cur.equals(dest)) {
+        while (!cur.equals(dest) && visit.add(cur)) {
             Section section = sections.findSectionByUpStationId(cur);
             orderedSections.add(section);
             cur = section.getDownStationId();
         }
+
+        if(visit.contains(cur))
+            throw new RuntimeException("반복되는 구간이 존재합니다.");
+
         return new Sections(orderedSections);
     }
 

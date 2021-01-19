@@ -13,20 +13,21 @@ public class Line {
     private Sections sections;
 
     public Line(Long id, String name, String color) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
+        this(id, name, color, null);
     }
 
     public Line(String name, String color) {
-        this.name = name;
-        this.color = color;
+        this(null, name, color, null);
     }
 
     public Line(Line line, Sections sections) {
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
+        this(line.getId(), line.getName(), line.getColor(), sections);
+    }
+
+    public Line(Long id, String name, String color, Sections sections) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
         this.sections = sections;
     }
 

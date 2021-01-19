@@ -39,13 +39,19 @@ public class Section {
     }
 
     public Section split(Section section) {
-        if(getUpStationId().equals(section.getUpStationId())) {
-            return new Section(null, lineId, section.getDownStationId(), getDownStationId(), distance - section.distance);
+        if(!getUpStationId().equals(section.getUpStationId()) && !getDownStationId().equals(section.getDownStationId())) {
+            throw new IllegalArgumentException();
         }
-        return new Section(null, lineId, getUpStationId(), section.getUpStationId(), distance - section.distance);
+        if(getUpStationId().equals(section.getUpStationId())) {
+            return new Section(null, lineId, section.downStation, downStation, distance - section.distance);
+        }
+        return new Section(null, lineId, upStation, section.upStation, distance - section.distance);
     }
 
     public Section attach(Section other) {
+        if(!downStation.getId().equals(other.getUpStationId())) {
+            throw new IllegalArgumentException();
+        }
         return new Section(null, lineId, upStation, other.downStation, distance + other.distance);
     }
 
@@ -88,5 +94,16 @@ public class Section {
     @Override
     public int hashCode() {
         return Objects.hash(lineId, upStation, downStation, distance, id);
+    }
+
+    @Override
+    public String toString() {
+        return "Section{" +
+                "lineId=" + lineId +
+                ", upStation=" + upStation +
+                ", downStation=" + downStation +
+                ", distance=" + distance +
+                ", id=" + id +
+                '}';
     }
 }

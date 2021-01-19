@@ -40,7 +40,7 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station";
+        String sql = "select * from station";
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
@@ -50,7 +50,7 @@ public class StationDao {
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from station where id = ?";
+        String sql = "select * from station where id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
         } catch (EmptyResultDataAccessException e) {

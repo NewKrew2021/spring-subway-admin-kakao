@@ -1,6 +1,5 @@
 package subway.controller;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +34,10 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()));
+        Line newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor()));
         List<StationResponse> stationResponses = new ArrayList<>();
-        sectionService.createSection(new Section(newLine.getStartStationId(), newLine.getEndStationId(), lineRequest.getDistance(), newLine.getId()));
+        sectionService.createSection(new Section(lineRequest.getUpStationId(), 0, newLine.getId()));
+        sectionService.createSection(new Section(lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId()));
 
         Station upStation = stationService.getStation(lineRequest.getUpStationId());
         Station downStation = stationService.getStation(lineRequest.getDownStationId());
@@ -56,7 +56,7 @@ public class LineController {
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
         Line line = lineService.getLine(id);
-        List<Station> stations = sectionService.getStationsOfLine(line);
+        List<Station> stations = sectionService.getStationsOfLine(id);
         List<StationResponse> stationResponses = stations.stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
@@ -78,8 +78,7 @@ public class LineController {
 
     @PostMapping(value = "/lines/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        Section newSection = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), id);
-        sectionService.addSection(id, newSection);
+        sectionService.addSection(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         return ResponseEntity.ok().build();
     }
 

@@ -29,9 +29,7 @@ public class LineDao {
         Line line = new Line(
                 resultSet.getLong("id"),
                 resultSet.getString("name"),
-                resultSet.getString("color"),
-                resultSet.getLong("start_station_id"),
-                resultSet.getLong("end_station_id")
+                resultSet.getString("color")
         );
         return line;
     };
@@ -39,16 +37,16 @@ public class LineDao {
     public Line save(Line line) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         Long id = insertActor.executeAndReturnKey(parameters).longValue();
-        return new Line(id, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId());
+        return new Line(id, line.getName(), line.getColor());
     }
 
     public List<Line> findAll() {
-        String sql = "select id, name, color, start_station_id, end_station_id from line";
+        String sql = "select * from line";
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
     public Line findById(Long id) {
-        String sql = "select id, name, color, start_station_id, end_station_id from line where id = ?";
+        String sql = "select * from line where id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
@@ -62,7 +60,7 @@ public class LineDao {
     }
 
     public int updateById(Long id, Line line) {
-        String sql = "update line set name = ?, color = ?, start_station_id = ?, end_station_id = ? where id = ?";
-        return jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId(), id);
+        String sql = "update line set name = ?, color = ? where id = ?";
+        return jdbcTemplate.update(sql, line.getName(), line.getColor(), id);
     }
 }

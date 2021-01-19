@@ -9,6 +9,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import subway.dao.SectionDao;
 import subway.domain.section.Section;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -25,43 +29,43 @@ public class SectionDaoTest {
         jdbcTemplate.execute("CREATE TABLE section(\n" +
                 "    id bigint auto_increment not null,\n" +
                 "    line_id bigint not null,\n" +
-                "    up_station_id bigint not null,\n" +
-                "    down_station_id bigint not null,\n" +
+                "    station_id bigint not null,\n" +
                 "    distance int,\n" +
                 "    primary key(id)\n" +
                 "    )");
     }
 
     @Test
-    @DisplayName("상행역과 하행역의 id, 그리고 노선의 id로 db 내에 존재하는 구간을 찾는다.")
-    public void findByUpStationAndDownStation_ifExist() {
-        Section newSection = sectionDao.save(new Section(1L,2L,10,1L));
-        assertThat(sectionDao.findByUpStationIdAndLineId(1L,1L).getId()).isEqualTo(newSection.getId());
-        assertThat(sectionDao.findByDownStationIdAndLineId(2L,1L).getId()).isEqualTo(newSection.getId());
+    @DisplayName("해당 노선에 대한 구간들을 상행-하행 순으로 출력한다.")
+    public void findAllStation() {
+        //given
+        sectionDao.save(new Section(1L,10,2L));
+        sectionDao.save(new Section(2L,-5,2L));
+        sectionDao.save(new Section(3L,62,2L));
+        sectionDao.save(new Section(4L,-75,2L));
+        sectionDao.save(new Section(5L,2563,2L));
+
+        //when
+        List<Section> sections = sectionDao.findAllStationsByLineId(2L);
+
+        //then
+        assertThat(sections.stream().map(section -> section.getStationId())
+                .collect(Collectors.toList()))
+                .isEqualTo(Arrays.asList(4L,2L,1L,3L,5L));
+
     }
 
     @Test
-    @DisplayName("상행역과 하행역의 id, 그리고 노선의 id로 db 내에 존재하지 않는 구간을 찾는다.")
-    public void findByUpStationAndDownStation_ifNotExist() {
-        assertThat(sectionDao.findByUpStationIdAndLineId(1L,1L)).isEqualTo(null);
-        assertThat(sectionDao.findByDownStationIdAndLineId(2L,1L)).isEqualTo(null);
-    }
-
-    @Test
-    @DisplayName("구간을 업데이트 한다.")
-    public void updateSection() {
-        Section section = sectionDao.save(new Section(1L,2L,10,1L));
-        Section expected = new Section(3L,4L,1000,2L);
-        sectionDao.updateSection(section.getId(),expected);
-        assertThat(sectionDao.findByUpStationIdAndLineId(3L,2L).getDistance()).isEqualTo(1000);
-    }
-
-    @Test
-    @DisplayName("구간을 id값으로 삭제한다.")
+    @DisplayName("구간을 stationId값으로 삭제한다.")
     public void deleteById() {
-        Section section = sectionDao.save(new Section(1L,2L,10,1L));
-        sectionDao.deleteById(section.getId());
-        assertThat(sectionDao.findByUpStationIdAndLineId(1L,1L)).isNull();
+        //given
+        sectionDao.save(new Section(1L,10,2L));
+
+        //when
+        sectionDao.deleteByStationId(1L);
+
+        //then
+        assertThat(sectionDao.findAllStationsByLineId(2L).size()).isZero();
     }
 
 }

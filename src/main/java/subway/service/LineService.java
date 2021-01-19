@@ -5,9 +5,6 @@ import subway.dao.LineDao;
 import subway.domain.line.Line;
 import subway.domain.line.LineResponse;
 import subway.exception.NotExistException;
-import subway.dao.SectionDao;
-import subway.dao.StationDao;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +26,7 @@ public class LineService {
     }
 
     public void updateLine(long id, String newName, String newColor) {
-        Line originalLine = lineDao.findById(id);
-        Line line = new Line(id, newName, newColor, originalLine.getStartStationId(), originalLine.getEndStationId());
+        Line line = new Line(id, newName, newColor);
         lineDao.updateById(id, line);
     }
 

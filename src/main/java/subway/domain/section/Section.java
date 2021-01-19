@@ -1,41 +1,30 @@
 package subway.domain.section;
 
-import subway.exception.InvalidSectionException;
+import java.util.Objects;
 
 public class Section {
     private Long id;
-    private Long upStationId;
-    private Long downStationId;
+    private Long stationId;
     private Integer distance;
     private Long lineId;
 
-    public Section(Long id, Long upStationId, Long downStationId, int distance, Long lineId) {
-        validateDistance(distance);
+    public Section(Long id, Long stationId, int distance, Long lineId) {
         this.id = id;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this.stationId = stationId;
         this.distance = distance;
         this.lineId = lineId;
     }
 
-    public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
-        validateDistance(distance);
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.lineId = lineId;
+    public Section(Long stationId, int distance, Long lineId) {
+        this(null, stationId, distance, lineId);
     }
 
     public Long getId() {
         return id;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
+    public Long getStationId() {
+        return stationId;
     }
 
     public int getDistance() {
@@ -46,21 +35,20 @@ public class Section {
         return lineId;
     }
 
-    public Section getSectionDownStationChanged(Section newSection) {
-        return new Section(getId(), getUpStationId(), newSection.upStationId, getDistance() - newSection.distance, getLineId());
+    public int calculateDistance(Section upSection) {
+        return this.distance - upSection.distance;
     }
 
-    public Section getSectionUpStationChanged(Section newSection) {
-        return new Section(getId(), newSection.downStationId, getDownStationId(), getDistance() - newSection.distance, getLineId());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return Objects.equals(id, section.id) && Objects.equals(stationId, section.stationId) && Objects.equals(distance, section.distance) && Objects.equals(lineId, section.lineId);
     }
 
-    public Section getMergedSection(Section otherSection) {
-        return new Section(getId(), getUpStationId(), otherSection.downStationId,getDistance() + otherSection.distance, getLineId());
-    }
-
-    private void validateDistance(int distance) {
-        if(distance <= 0) {
-            throw new InvalidSectionException("구간의 길이는 0보다 커야 합니다.");
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, stationId, distance, lineId);
     }
 }

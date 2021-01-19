@@ -1,6 +1,7 @@
 package subway.line;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import java.util.Objects;
 
 public class Line {
@@ -15,13 +16,10 @@ public class Line {
     private Long downStationId;
     private int distance;
 
-    public Line(String name, String color) {
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
         this.name = name;
         this.color = color;
-    }
-
-    public Line(Long id, Long upStationId, Long downStationId, int distance) {
-        this.id = id;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
@@ -39,68 +37,28 @@ public class Line {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getColor() {
         return color;
     }
 
-    public void setColor(String color) {
-        this.color = color;
-    }
-
     public int getExtraFare() {
         return extraFare;
-    }
-
-    public void setExtraFare(int extraFare) {
-        this.extraFare = extraFare;
     }
 
     public Long getUpStationId() {
         return upStationId;
     }
 
-    public void setUpStationId(Long upStationId) {
-        this.upStationId = upStationId;
-    }
-
     public Long getDownStationId() {
         return downStationId;
     }
 
-    public void setDownStationId(Long downStationId) {
-        this.downStationId = downStationId;
-    }
-
     public int getDistance() {
         return distance;
-    }
-
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-
-    public void update(LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-    }
-
-    public void update(Line line) {
-        this.upStationId = line.getUpStationId();
-        this.downStationId = line.getDownStationId();
-        this.distance = line.getDistance();
-
     }
 
     @Override
@@ -121,12 +79,17 @@ public class Line {
     }
 
     public void updateEndStation(Section endSection, Long stationId) {
-        if(stationId == this.upStationId){
+        if (stationId == this.upStationId) {
             this.upStationId = endSection.getDownStationId();
         }
 
-        if(stationId == this.downStationId){
+        if (stationId == this.downStationId) {
             this.downStationId = endSection.getUpStationId();
         }
+    }
+
+    public static Line getLineToLineRequest(Long id, LineRequest lineRequest) {
+        return new Line(id, lineRequest.getName(), lineRequest.getColor(),
+                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
     }
 }

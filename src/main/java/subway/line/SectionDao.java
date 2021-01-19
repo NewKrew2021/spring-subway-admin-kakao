@@ -1,67 +1,57 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Repository
 public class SectionDao {
 
-    private Long seq = 0L;
-    private List<Section> sections = new ArrayList<>();
+    @Resource
+    JdbcTemplate jdbcTemplate;
 
+    @Resource
+    SectionMapper sectionMapper;
 
-    public Section save(Section section) {
-        Section persistSection = createNewObject(section);
-        sections.add(persistSection);
-        return persistSection;
+    public void save(Section section) {
+        jdbcTemplate.update("insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)",
+                section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
     public List<Section> findAll() {
-        return sections;
-    }
-
-    private Section createNewObject(Section section) {
-        Field idField = ReflectionUtils.findField(Section.class, "id");
-        idField.setAccessible(true);
-        ReflectionUtils.setField(idField, section, ++seq);
-        return section;
+        String sql = "select * from SECTION";
+        return jdbcTemplate.query(sql, sectionMapper);
     }
 
     public void deleteById(Long id) {
-        sections.removeIf(it -> it.getId().equals(id));
+        jdbcTemplate.update("delete from SECTION where id = ?",id);
     }
 
-    public Optional<Section> findById(Long id) {
-        return sections.stream()
-                .filter(it -> it.getId() == id)
-                .findFirst();
+    public Section findById(Long id) {
+        String sql = "select * from SECTION where id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionMapper, id);
     }
 
     public List<Section> findByLineId(Long lineId){
-        return sections.stream()
-                .filter(section -> section.getLineId() == lineId)
-                .collect(Collectors.toList());
+        String sql = "select * from SECTION where line_id = ?";
+        return jdbcTemplate.query(sql, sectionMapper, lineId);
     }
 
-    public void update(Long id, Section updateSection) {
-        Section section = findById(id).get();
-        section.update(updateSection);
+    public void update(Section updateSection) {
+        jdbcTemplate.update("update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
+                updateSection.getUpStationId(), updateSection.getDownStationId(), updateSection.getDistance(), updateSection.getId());
     }
 
     public List<Section> findByStationIdAndLineId(Long stationId, Long lineId) {
-        return sections.stream()
-                .filter(section -> isSameStationIdAndLineId(section,stationId,lineId))
-                .collect(Collectors.toList());
-    }
-
-    private boolean isSameStationIdAndLineId(Section section, Long stationId, Long lineId) {
-        return section.getLineId() == lineId &&
-                (section.getUpStationId() == stationId || section.getDownStationId() == stationId);
+        String sql = "select * from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
+        return jdbcTemplate.query(sql, sectionMapper, lineId, stationId, stationId);
     }
 }

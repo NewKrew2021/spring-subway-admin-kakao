@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.dto.Line;
-import subway.dto.Section;
-import subway.dto.SectionRequest;
-import subway.dto.SectionResponse;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.SectionRequest;
+import subway.domain.SectionResponse;
 import subway.service.LineService;
 import subway.service.SectionService;
 

@@ -1,4 +1,4 @@
-package subway.dto;
+package subway.domain;
 
 public class Section {
 
@@ -26,6 +26,9 @@ public class Section {
         this.downStationId = downStationId;
         this.distance = distance;
     }
+
+
+
 
     public Long getId() {
         return this.id;

@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
-import subway.dto.Line;
-import subway.dto.Section;
-import subway.dto.Station;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Sections;
+import subway.domain.Station;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,39 +34,16 @@ public class SectionService {
     }
 
     public boolean insertSection(Line nowLine, Section newSection) {
-        List<Section> sectionListFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
-        if (isMatchedOnlyUpEndStation(nowLine, newSection)) {
-            sectionDao.save(newSection);
-            nowLine.setUpStationId(newSection.getUpStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
-        }
-        if (isMatchedOnlyDownEndStation(nowLine, newSection)) {
-            sectionDao.save(newSection);
-            nowLine.setDownStationId(newSection.getDownStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
-        }
-        for (Section oldSection : sectionListFromNowLine) {
-            if (canInsertMatchingUpStation(oldSection, newSection)) {
-                Section modifiedSection = new Section(oldSection.getId(), oldSection.getLineId(), newSection.getDownStationId(), oldSection.getDownStationId(), oldSection.getDistance() - newSection.getDistance());
-                sectionDao.modifySection(modifiedSection);
-                sectionDao.save(newSection);
-                return true;
-            }
-            if (canInsertMatchingDownStation(oldSection, newSection)) {
-                Section modifiedSection = new Section(oldSection.getId(), oldSection.getLineId(), oldSection.getUpStationId(), newSection.getUpStationId(), oldSection.getDistance() - newSection.getDistance());
-                sectionDao.modifySection(modifiedSection);
-                sectionDao.save(newSection);
-                return true;
-            }
-        }
+        Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
+        if (extracted(nowLine, newSection, sectionListFromNowLine)) return true;
         return false;
     }
 
 
+
+
     public boolean deleteStation(Line line, Long stationId) {
-        List<Section> sectionListFromNowLine = sectionDao.findSectionsByLineId(line.getId());
+        Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(line.getId());
         if (sectionListFromNowLine.size() <= MIN_SECTION_SIZE) {
             return false;
         }
@@ -96,7 +74,7 @@ public class SectionService {
     }
 
     public List<Station> getStationsByLine(Line line) {
-        List<Section> sections = sectionDao.findSectionsByLineId(line.getId());
+        Sections sections = sectionDao.findSectionsByLineId(line.getId());
         List<Station> result = new ArrayList<>();
         Map<Long, Long> sectionMap = new HashMap<>();
         for (Section section : sections) {

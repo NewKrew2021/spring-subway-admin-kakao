@@ -4,7 +4,7 @@ package subway.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.dto.*;
+import subway.domain.*;
 import subway.service.LineService;
 import subway.service.SectionService;
 

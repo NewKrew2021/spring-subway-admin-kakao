@@ -41,7 +41,7 @@ public class LineController {
     }
 
     @GetMapping("/lines/{lineId}")
-    public ResponseEntity<LineResponse> showLine(@PathVariable(name = "lineId") Long id) {
+    public ResponseEntity<LineResponse> showLine(@PathVariable(name = "lineId") long id) {
         Line showLine = lineService.findById(id);
         if (showLine == null) {
             return ResponseEntity.badRequest().build();
@@ -62,13 +62,13 @@ public class LineController {
     }
 
     @PutMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+    public ResponseEntity<LineResponse> updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
         lineService.updateLine(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> deleteLine(@PathVariable Long id) {
+    public ResponseEntity<LineResponse> deleteLine(@PathVariable long id) {
         boolean isLineDeleted = lineService.deleteById(id);
         if (isLineDeleted) {
             return ResponseEntity.noContent().build();
@@ -77,13 +77,13 @@ public class LineController {
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity createSection(@PathVariable(name = "lineId") Long id, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity createSection(@PathVariable(name = "lineId") long id, @RequestBody SectionRequest sectionRequest) {
         lineService.saveSection(id, sectionRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") Long lineId, @RequestParam(name = "stationId") Long stationId) {
+    public ResponseEntity deleteStationInLine(@PathVariable(name = "lineId") long lineId, @RequestParam(name = "stationId") long stationId) {
         lineService.deleteStationById(lineId, stationId);
         return ResponseEntity.ok().build();
     }

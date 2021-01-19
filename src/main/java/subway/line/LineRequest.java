@@ -9,14 +9,14 @@ public class LineRequest {
 
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
+    private long upStationId;
+    private long downStationId;
     private int distance;
 
     public LineRequest() {
     }
 
-    public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
+    public LineRequest(String name, String color, long upStationId, long downStationId, int distance) {
         this.name = name;
         this.color = color;
         this.upStationId = upStationId;
@@ -30,7 +30,7 @@ public class LineRequest {
     }
 
     private void validateNonemptyArgument() {
-        if (upStationId == null || downStationId == null || distance == 0) {
+        if (upStationId == 0 || downStationId == 0 || distance == 0) {
             throw new InvalidLineArgumentException(NONEMPTY_ARGUMENT_MESSAGE);
         }
     }
@@ -49,11 +49,11 @@ public class LineRequest {
         return color;
     }
 
-    public Long getUpStationId() {
+    public long getUpStationId() {
         return upStationId;
     }
 
-    public Long getDownStationId() {
+    public long getDownStationId() {
         return downStationId;
     }
 

@@ -95,13 +95,13 @@ public class LineService {
     }
 
     private Line saveBetweenSections(Long lineId, SectionRequest sectionRequest) {
-        Section newSection = updateSection(lineId, sectionRequest);
+        Section newSection = makeUpdatedSection(lineId, sectionRequest);
         sectionDao.updateSection(newSection);
         sectionDao.save(lineId, sectionRequest);
         return lineDao.findById(lineId);
     }
 
-    private Section updateSection(Long lineId, SectionRequest sectionRequest) {
+    private Section makeUpdatedSection(Long lineId, SectionRequest sectionRequest) {
         Long sectionId = sectionDao.findSectionIdByUpStationId(lineId, sectionRequest.getUpStationId());
         if (sectionId == 0L) {
             sectionId = sectionDao.findSectionIdByDownStationId(lineId, sectionRequest.getDownStationId());

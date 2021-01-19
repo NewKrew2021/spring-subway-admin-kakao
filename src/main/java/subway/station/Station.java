@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class Station {
 
-    private Long id;
+    private long id;
     private final String name;
 
-    public Station(Long id, String name) {
+    public Station(long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -16,7 +16,7 @@ public class Station {
         this.name = name;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

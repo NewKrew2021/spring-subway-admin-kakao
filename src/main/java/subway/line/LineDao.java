@@ -26,9 +26,9 @@ public class LineDao {
         return line;
     };
 
-    public Long save(LineRequest lineRequest) {
+    public long save(LineRequest lineRequest) {
         String sql = "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?,?,?,?)";
-        Long lineId;
+        long lineId;
         try {
             jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
             lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, lineRequest.getName());
@@ -38,9 +38,9 @@ public class LineDao {
         return lineId;
     }
 
-    public Line findById(Long id) {
+    public Line findById(long id) {
         String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, Long.valueOf(id));
+        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
     public List<Line> findAll() {
@@ -48,26 +48,26 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line updateLine(Long id, LineRequest lineRequest) {
+    public Line updateLine(long id, LineRequest lineRequest) {
         String sql = "update line set name = ?, color = ? where id = ?";
-        jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), Long.valueOf(id));
+        jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id);
         return findById(id);
     }
 
-    public Line updateLineStartStation(Long lineId, Long stationId) {
+    public Line updateLineStartStation(long lineId, long stationId) {
         String sql = "update line set start_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, Long.valueOf(stationId), Long.valueOf(lineId));
+        jdbcTemplate.update(sql, stationId, lineId);
         return findById(lineId);
     }
 
-    public Line updateLineEndStation(Long lineId, Long stationId) {
+    public Line updateLineEndStation(long lineId, long stationId) {
         String sql = "update line set end_station_id = ? where id = ?";
-        jdbcTemplate.update(sql, Long.valueOf(stationId), Long.valueOf(lineId));
+        jdbcTemplate.update(sql, stationId, lineId);
         return findById(lineId);
     }
 
-    public int deleteById(Long id) {
+    public int deleteById(long id) {
         String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, Long.valueOf(id));
+        return jdbcTemplate.update(sql, id);
     }
 }

@@ -66,7 +66,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void createLineInvalidArguments() {
         // given
-        lineRequest1 = new LineRequest("신분당선", "bg-red-600", null, null, 0);
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 0, 0, 0);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);

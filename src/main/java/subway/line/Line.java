@@ -4,33 +4,33 @@ import java.util.Objects;
 
 public class Line {
 
-    private Long id;
+    private long id;
     private final String name;
     private final String color;
-    private final Long startStationId;
-    private final Long endStationId;
+    private final long startStationId;
+    private final long endStationId;
 
-    public Line(String name, String color, Long startStationId, Long endStationId) {
+    public Line(String name, String color, long startStationId, long endStationId) {
         this.name = name;
         this.color = color;
         this.startStationId = startStationId;
         this.endStationId = endStationId;
     }
 
-    public Line(Long id, String name, String color, Long startStationId, Long endStationId) {
+    public Line(long id, String name, String color, long startStationId, long endStationId) {
         this(name, color, startStationId, endStationId);
         this.id = id;
     }
 
-    public boolean isLineStartStation(Long stationId) {
+    public boolean isLineStartStation(long stationId) {
         return startStationId == stationId;
     }
 
-    public boolean isLineEndStation(Long stationId) {
+    public boolean isLineEndStation(long stationId) {
         return endStationId == stationId;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -42,7 +42,7 @@ public class Line {
         return color;
     }
 
-    public Long getStartStationId() { return startStationId; }
+    public long getStartStationId() { return startStationId; }
 
     @Override
     public boolean equals(Object o) {

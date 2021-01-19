@@ -1,13 +1,13 @@
 package subway.station;
 
 public class StationResponse {
-    private Long id;
+    private long id;
     private String name;
 
     public StationResponse() {
     }
 
-    public StationResponse(Long id, String name) {
+    public StationResponse(long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -17,7 +17,7 @@ public class StationResponse {
         this.name = station.getName();
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

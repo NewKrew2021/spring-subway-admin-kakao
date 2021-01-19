@@ -21,15 +21,14 @@ public class StationService {
         return stationDao.findAll();
     }
 
-    public Station findById(Long id) {
+    public Station findById(long id) {
         return stationDao.findById(id);
     }
 
-    public boolean deleteById(Long id) {
+    public boolean deleteById(long id) {
         if(stationDao.deleteById(id) == 1) {
             return true;
         }
         return false;
     }
-
 }

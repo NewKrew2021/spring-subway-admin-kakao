@@ -6,4 +6,5 @@ public class stationQuery {
     public static final String selectIdAndNameById = "select id, name from station where id = ?";
     public static final String selectIdAndNameOfAll = "select id, name from station";
     public static final String deleteById = "delete from station where id = ?";
+    public static final String countByName = "select count(*) from station where name = ?";
 }

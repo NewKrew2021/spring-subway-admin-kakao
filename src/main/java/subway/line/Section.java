@@ -28,6 +28,9 @@ public class Section {
         this(null, lineId, upStationId, downStationId, distance);
     }
 
+    public Section(Long upStationId, Long downStationId, int distance) {
+        this(null, null, upStationId, downStationId, distance);
+    }
     public boolean shareUpStation(Section counter) {
         return counter.isUpStation(upStationId);
     }

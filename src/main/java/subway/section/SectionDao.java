@@ -35,12 +35,6 @@ public class SectionDao {
         return sections.isEmpty() ? null : sections.get(0);
     }
 
-    public Section getSectionById(Long id) {
-        String SQL = "SELECT * FROM section WHERE id = ?";
-        List<Section> sections = jdbcTemplate.query( SQL, new SelectSectionMapper(), id);
-        return sections.isEmpty() ? null : sections.get(0);
-    }
-
     public Section getSectionByNextId(Long nextId) {
         if( nextId == null ) {
             return null;
@@ -50,17 +44,22 @@ public class SectionDao {
         return sections.isEmpty() ? null : sections.get(0);
     }
 
-    public List<Section> getReqSection(Long upStationId, Long downStationId, Long lineId) {
-        String SQL = "SELECT * FROM section WHERE line_id = ? AND (station_id = ? OR station_id = ?)";
-        return jdbcTemplate.query( SQL, new SelectSectionMapper(), lineId, upStationId, downStationId);
-    }
-
     public void update(Section prevSection) {
         if(  prevSection == null) {
             return;
         }
         String SQL = "UPDATE section SET next_id = ?, distance = ? WHERE id = ?";
         jdbcTemplate.update(SQL, prevSection.getNextStationId(), prevSection.getDistance(), prevSection.getId());
+    }
+
+    public int countOfSections(Long lineId) {
+        String SQL = "SELECT count(*) FROM section WHERE line_id = ?";
+        return jdbcTemplate.queryForObject(SQL, Integer.class, lineId);
+    }
+
+    public void delete(Section section) {
+        String SQL = "DELETE FROM section WHERE id = ?";
+        jdbcTemplate.update(SQL, section.getId());
     }
 
     private final static class SelectSectionMapper implements RowMapper<Section> {

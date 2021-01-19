@@ -22,5 +22,4 @@ public class SectionDto {
         return distance;
     }
 
-
 }

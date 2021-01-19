@@ -66,22 +66,11 @@ public class Sections {
         return sections.isEmpty();
     }
 
-    private Section findSection(Section section) {
-        return sections.stream()
-                .filter(sec -> sec.equals(section))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private boolean areValidSections(Section upSection, Section downSection) {
+    protected boolean areValidSections(Section upSection, Section downSection) {
         return sectionExists(upSection) != sectionExists(downSection);
     }
 
-    private boolean sectionExists(Section sectionParameters) {
-        return findSection(sectionParameters) != null;
-    }
-
-    private boolean haveValidDistance(Section existingSection, Section newSection) {
+    protected boolean haveValidDistance(Section existingSection, Section newSection) {
         Section nextSection = getNextSection(existingSection, newSection);
         if (isHighestOrLowestSection(nextSection)) {
             return true;
@@ -90,7 +79,7 @@ public class Sections {
         return existingSection.isCloserFromThan(newSection, nextSection);
     }
 
-    private Section getNextSection(Section existingSection, Section newSection) {
+    protected Section getNextSection(Section existingSection, Section newSection) {
         try {
             return sections.get(getNextSectionIdx(existingSection, newSection));
         } catch (IndexOutOfBoundsException ignored) {
@@ -98,7 +87,7 @@ public class Sections {
         }
     }
 
-    private int getNextSectionIdx(Section existingSection, Section newSection) {
+    protected int getNextSectionIdx(Section existingSection, Section newSection) {
         if (existingSection.isUpperThan(newSection)) {
             return sections.indexOf(existingSection) + 1;
         }
@@ -106,8 +95,19 @@ public class Sections {
         return sections.indexOf(existingSection) - 1;
     }
 
-    private boolean isHighestOrLowestSection(Section nextSection) {
-        return nextSection == null;
+    protected Section findSection(Section section) {
+        return sections.stream()
+                .filter(sec -> sec.equals(section))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean sectionExists(Section sectionParameters) {
+        return findSection(sectionParameters) != null;
+    }
+
+    private boolean isHighestOrLowestSection(Section section) {
+        return section == null;
     }
 
     private boolean sorted(List<Section> sections) {

@@ -38,10 +38,10 @@ public class SectionService {
     }
 
     private SectionUpdateType decideSectionTypeAndThrowException(Section upSection, Section downSection, SectionDto sectionDto ) {
-        if( upSection == null && downSection == null ) {
+        if( upSection == Section.DO_NOT_EXIST_SECTION && downSection == Section.DO_NOT_EXIST_SECTION ) {
             throw new NotExistSectionInsertException();
         }
-        if( upSection != null && downSection != null ) {
+        if( upSection != Section.DO_NOT_EXIST_SECTION && downSection != Section.DO_NOT_EXIST_SECTION ) {
             throw new BothExistSectionException();
         }
 

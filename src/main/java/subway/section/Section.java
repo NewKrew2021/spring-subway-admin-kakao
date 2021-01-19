@@ -2,6 +2,9 @@ package subway.section;
 
 public class Section {
 
+    public static final Long WRONG_ID = -1L;
+    public static final Section DO_NOT_EXIST_SECTION = null;
+
     private Long id;
     private Long lineId;
     private Long stationId;

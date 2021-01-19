@@ -11,7 +11,7 @@ public enum SectionUpdateType {
     private Section prevSection;
 
     public boolean invalidateDistanceAsInsert() {
-        if( targetSection.getNextStationId() == -1 || prevSection == null ){
+        if( targetSection.getNextStationId().equals(Section.WRONG_ID) || prevSection == Section.DO_NOT_EXIST_SECTION ){
             return false;
         }
         return targetSection.getDistance() >= prevSection.getDistance();
@@ -23,19 +23,19 @@ public enum SectionUpdateType {
             targetSection.setDistance((prevSection.getDistance() == 0) ? 0 :  prevSection.getDistance() - targetSection.getDistance());
             prevSection.setDistance(distance);
         }
-        if( this == INSERT_UP_SECTION && prevSection != null ) {
+        if( this == INSERT_UP_SECTION && prevSection != Section.DO_NOT_EXIST_SECTION ) {
             prevSection.setDistance(prevSection.getDistance() - targetSection.getDistance());
         }
     }
 
     public void updatePrevSectionAsInsert() {
-        if( this.prevSection != null ) {
+        if( this.prevSection != Section.DO_NOT_EXIST_SECTION ) {
             this.prevSection.setNextStation(this.targetSection.getStationId());
         }
     }
 
     public void updatePrevSectionAsDelete() {
-        if( this.prevSection != null ) {
+        if( this.prevSection != Section.DO_NOT_EXIST_SECTION ) {
             this.prevSection.setNextStation(this.targetSection.getNextStationId());
         }
     }

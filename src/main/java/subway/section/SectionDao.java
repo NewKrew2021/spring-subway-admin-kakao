@@ -32,7 +32,7 @@ public class SectionDao {
         String SQL = "SELECT * FROM section WHERE station_id = ? AND line_id = ?";
         List<Section> sections = jdbcTemplate.query(
                 SQL, new SelectSectionMapper(), stationId, lineId);
-        return sections.isEmpty() ? null : sections.get(0);
+        return sections.isEmpty() ? Section.DO_NOT_EXIST_SECTION : sections.get(0);
     }
 
     public Section getSectionByNextId(Long nextId) {
@@ -41,11 +41,11 @@ public class SectionDao {
         }
         String SQL = "SELECT * FROM section WHERE next_id = ?";
         List<Section> sections = jdbcTemplate.query( SQL, new SelectSectionMapper(), nextId);
-        return sections.isEmpty() ? null : sections.get(0);
+        return sections.isEmpty() ? Section.DO_NOT_EXIST_SECTION : sections.get(0);
     }
 
     public void update(Section prevSection) {
-        if(  prevSection == null) {
+        if(  prevSection == Section.DO_NOT_EXIST_SECTION) {
             return;
         }
         String SQL = "UPDATE section SET next_id = ?, distance = ? WHERE id = ?";

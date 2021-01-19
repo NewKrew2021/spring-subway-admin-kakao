@@ -25,7 +25,7 @@ public class LineService {
 
     public void createTerminalSections(LineDto lineDto, Long lineId) {
         Section upTerminalSection = new Section(lineId, lineDto.getUpStationId(), lineDto.getDistance(), lineDto.getDownStationId());
-        Section downTerminalSection = new Section(lineId, lineDto.getDownStationId(), 0, -1L);
+        Section downTerminalSection = new Section(lineId, lineDto.getDownStationId(), 0, Section.WRONG_ID);
         sectionDao.save( upTerminalSection );
         sectionDao.save( downTerminalSection );
     }
@@ -39,7 +39,7 @@ public class LineService {
 
     private LinkedList<Long> sortSections(List<Section> sections) {
         LinkedList<Long> linkedList = new LinkedList<>();
-        Section currentSection = findSectionByNextId(sections, -1L);
+        Section currentSection = findSectionByNextId(sections, Section.WRONG_ID);
         while(linkedList.size() != sections.size()) {
             linkedList.addFirst(currentSection.getStationId());
             currentSection = findSectionByNextId(sections, currentSection.getStationId());

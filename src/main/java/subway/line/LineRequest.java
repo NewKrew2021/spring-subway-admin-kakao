@@ -18,6 +18,10 @@ public class LineRequest {
         this.distance = distance;
     }
 
+    public Line toLine() {
+        return new Line(name, color);
+    }
+
     public String getName() {
         return name;
     }

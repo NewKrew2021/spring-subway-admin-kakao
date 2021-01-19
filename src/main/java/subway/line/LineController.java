@@ -21,7 +21,6 @@ public class LineController {
     private final LineDao lineDao;
     private final SectionService sectionService;
 
-    @Autowired
     public LineController(StationDao stationDao, LineDao lineDao, SectionService sectionService) {
         this.stationDao = stationDao;
         this.lineDao = lineDao;

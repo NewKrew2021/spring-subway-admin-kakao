@@ -15,7 +15,6 @@ import java.util.List;
 public class SectionDao {
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

@@ -20,7 +20,6 @@ public class SectionService {
     private final SectionDao sectionDao;
     private List<Section> sections;
 
-    @Autowired
     SectionService(SectionDao sectionDao) {
         this.sectionDao = sectionDao;
     }

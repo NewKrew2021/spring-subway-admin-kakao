@@ -23,7 +23,6 @@ public class LineDao {
                     resultSet.getString("color")
             );
 
-    @Autowired
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

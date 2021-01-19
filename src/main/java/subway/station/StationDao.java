@@ -15,7 +15,6 @@ import java.util.List;
 public class StationDao {
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

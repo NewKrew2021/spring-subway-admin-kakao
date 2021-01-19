@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class StationController {
     public StationDao stationDao;
 
-    @Autowired
     public StationController(StationDao stationDao) {
         this.stationDao = stationDao;
     }

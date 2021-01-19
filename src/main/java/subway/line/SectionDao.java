@@ -10,7 +10,7 @@ import java.util.List;
 public class SectionDao {
     public static final String SAVE_SQL = "insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)";
     public static final String DELETE_SQL = "delete from SECTION where id = ?";
-    public static final String FIND_BY_LINE_ID_SQL = "select * from SECTION where line_id = ?";
+    public static final String FIND_BY_LINE_ID_SQL = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?";
     public static final String UPDATE_SQL = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
     public static final String FIND_BY_STATION_ID_AND_LINE_ID_SQL = "select * from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
     public static final String COUNT_BY_LINE_ID_SQL = "select count(*) from SECTION where line_id = ?";

@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public class StationDao {
     public static final String SAVE_SQL = "insert into STATION (name) values (?)";
-    public static final String FIND_ALL_SQL = "select * from STATION";
-    public static final String FIND_BY_ID_SQL = "select * from STATION where id = ?";
-    public static final String FIND_BY_NAME_SQL = "select * from STATION where name = ?";
+    public static final String FIND_ALL_SQL = "select id, name from STATION";
+    public static final String FIND_BY_ID_SQL = "select id, name from STATION where id = ?";
+    public static final String FIND_BY_NAME_SQL = "select id, name from STATION where name = ?";
     public static final String DELETE_SQL = "delete from STATION where id = ?";
 
     @Resource

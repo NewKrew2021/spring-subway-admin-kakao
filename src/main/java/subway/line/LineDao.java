@@ -9,10 +9,10 @@ import java.util.List;
 @Repository
 public class LineDao {
     public static final String SAVE_SQL = "insert into LINE (name, color, up_station_id, down_station_id, distance) values (?, ?, ?, ?, ?)";
-    public static final String FIND_ALL_SQL = "select * from LINE";
+    public static final String FIND_ALL_SQL = "select id, name, color, up_station_id, down_station_id, distance from LINE";
     public static final String DELETE_SQL = "delete from LINE where id = ?";
-    public static final String FIND_BY_ID_SQL = "select * from LINE where id = ?";
-    public static final String FIND_BY_NAME_SQL = "select * from LINE where name = ?";
+    public static final String FIND_BY_ID_SQL = "select id, name, color, up_station_id, down_station_id, distance from LINE where id = ?";
+    public static final String FIND_BY_NAME_SQL = "select id, name, color, up_station_id, down_station_id, distance from LINE where name = ?";
     public static final String UPDATE_SQL = "update LINE set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
 
     @Resource

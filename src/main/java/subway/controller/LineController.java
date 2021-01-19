@@ -66,7 +66,7 @@ public class LineController {
         List<LineResponse> lineResponses =
                 lineDao.findAll()
                         .stream()
-                        .map(Line::mapToResponse)
+                        .map(LineResponse::from)
                         .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(lineResponses);
@@ -81,7 +81,7 @@ public class LineController {
                 .map(Station::mapToResponse)
                 .collect(Collectors.toList());
 
-        LineResponse lineResponse = line.mapToResponse(stationResponses);
+        LineResponse lineResponse = LineResponse.from(line, stationResponses);
 
         return ResponseEntity.ok().body(lineResponse);
     }

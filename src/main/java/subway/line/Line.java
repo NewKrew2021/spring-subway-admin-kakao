@@ -1,8 +1,10 @@
 package subway.line;
 
+import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Line {
     private Long id;
@@ -50,8 +52,15 @@ public class Line {
         return endStationId;
     }
 
-    public LineResponse toResponse(List<StationResponse> stations) {
-        return new LineResponse(getId(), getName(), getColor(), stations);
+    public LineResponse toResponse(List<Station> stations) {
+        List<StationResponse> stationResponses = stations.stream()
+                .map(Station::toResponse)
+                .collect(Collectors.toList());
+        return new LineResponse(getId(), getName(), getColor(), stationResponses);
+    }
+
+    public LineResponse toResponseWithoutStation() {
+        return new LineResponse(getId(), getName(), getColor(), null);
     }
 
     public Line getLineEndStationChanged(long newEndStationId) {

@@ -4,11 +4,8 @@ import org.springframework.stereotype.Service;
 import subway.exception.InvalidSectionException;
 import subway.line.Line;
 import subway.line.LineDao;
-import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,17 +25,9 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public List<StationResponse> getStationsOfLine(Line line) {
-        List<StationResponse> stations = new ArrayList<>();
-        Station curStation = stationDao.findById(line.getStartStationId());
-        Section curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
-        while (curSection != null) {
-            stations.add(new StationResponse(curStation.getId(), curStation.getName()));
-            curStation = stationDao.findById(curSection.getDownStationId());
-            curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
-        }
-        stations.add(new StationResponse(curStation.getId(), curStation.getName()));
-        return stations;
+    public List<Long> getStationIdsOfLine(Line line) {
+        Sections sections = new Sections(sectionDao.findAllByLineId(line.getId()));
+        return sections.getSortedStationIds(line.getStartStationId());
     }
 
     public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {
@@ -55,12 +44,12 @@ public class SectionService {
 
     public void addSection(long id, Section section) {
         Line line = lineDao.findById(id);
-        List<StationResponse> stations = getStationsOfLine(line);
+        List<Long> stationIds = getStationIdsOfLine(line);
 
-        boolean upStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getUpStationId()));
-        boolean downStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getDownStationId()));
+        boolean upStationExist = stationIds.stream()
+                .anyMatch(section.getUpStationId()::equals);
+        boolean downStationExist = stationIds.stream()
+                .anyMatch(section.getDownStationId()::equals);
 
         validateSection(upStationExist, downStationExist);
 

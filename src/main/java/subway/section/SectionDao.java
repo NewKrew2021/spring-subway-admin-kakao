@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Repository
 public class SectionDao {
@@ -54,6 +55,11 @@ public class SectionDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    public List<Section> findAllByLineId(long lineId) {
+        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where line_id = ?";
+        return jdbcTemplate.query(sql, actorRowMapper, lineId);
     }
 
     public int updateSection(long id, Section section) {

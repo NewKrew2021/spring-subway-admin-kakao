@@ -24,6 +24,12 @@ public class StationService {
                 .collect(Collectors.toList());
     }
 
+    public List<Station> convertIdsToStations(List<Long> ids) {
+        return ids.stream()
+                .map(stationDao::findById)
+                .collect(Collectors.toList());
+    }
+
     public void deleteStation(long id) {
         stationDao.deleteById(id);
     }

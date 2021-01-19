@@ -4,13 +4,9 @@ import org.springframework.stereotype.Service;
 import subway.exception.NotExistException;
 import subway.section.Section;
 import subway.section.SectionDao;
-import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LineService {
@@ -33,15 +29,6 @@ public class LineService {
         return newLine;
     }
 
-    public List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
-        List<StationResponse> stations = new ArrayList<>();
-        Station upStation = stationDao.findById(upStationId);
-        Station downStation = stationDao.findById(downStationId);
-        stations.add(upStation.toResponse());
-        stations.add(downStation.toResponse());
-        return stations;
-    }
-
     public boolean existName(String name) {
         return lineDao.countByName(name) != 0;
     }
@@ -55,10 +42,8 @@ public class LineService {
         lineDao.updateById(id, originalLine.getLineNameAndColorChanged(line.getName(), line.getColor()));
     }
 
-    public List<LineResponse> getAllLines() {
-        return lineDao.findAll().stream()
-                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor(), null))
-                .collect(Collectors.toList());
+    public List<Line> getAllLines() {
+        return lineDao.findAll();
     }
 
     public Line getLine(long id) {

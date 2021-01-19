@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Line {
 
-    private final int END_STATION_SECTION_SIZE = 1;
+    public static final int END_STATION_SECTION_SIZE = 1;
 
     private Long id;
     private String name;
@@ -79,11 +79,11 @@ public class Line {
     }
 
     public void updateEndStation(Section endSection, Long stationId) {
-        if (stationId == this.upStationId) {
+        if (stationId == endSection.getUpStationId()) {
             this.upStationId = endSection.getDownStationId();
         }
 
-        if (stationId == this.downStationId) {
+        if (stationId == endSection.getDownStationId()) {
             this.downStationId = endSection.getUpStationId();
         }
     }

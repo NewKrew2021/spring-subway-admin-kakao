@@ -24,6 +24,12 @@ public class SectionDao {
         jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(),id);
     }
 
+    public void deleteBySectionList(List<Section> sectionList) {
+        for (Section section : sectionList) {
+            jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(),section.getId());
+        }
+    }
+
     public List<Section> findByLineId(Long lineId){
         return jdbcTemplate.query(SectionQuery.FIND_BY_LINE_ID.getQuery(), sectionMapper, lineId);
     }

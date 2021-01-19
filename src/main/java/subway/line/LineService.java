@@ -261,7 +261,7 @@ public class LineService {
         // 4. 역애 대한 정보 삭제 (stationDao)
 
         List<Section> sections = sectionDao.findByLineId(id);
-        if (sections.size() == 1) {
+        if (sections.size() == Line.END_STATION_SECTION_SIZE) {
             throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
         }
 
@@ -280,15 +280,14 @@ public class LineService {
         // 3.
         if(!line.isEndStation(sectionList.size())){
             Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
-            sectionDao.deleteById(sectionList.get(0).getId());
-            sectionDao.deleteById(sectionList.get(1).getId());
+            sectionDao.deleteBySectionList(sectionList);
             sectionDao.save(mergeSection);
         }
 
         // 4.
         stationDao.deleteById(stationId);
-
-
+        lineDao.update(line);
+        
         return ResponseEntity.ok().build();
     }
 }

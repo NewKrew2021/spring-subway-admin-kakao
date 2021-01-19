@@ -6,15 +6,16 @@ public class Station {
     private Long id;
     private String name;
 
-    public Station(){}
-
-    public Station(Long id, String name) {
-        this.id = id;
-        this.name = name;
+    public Station() {
     }
 
     public Station(String name) {
         this.name = name;
+    }
+
+    public Station(Long id, String name) {
+        this(name);
+        this.id = id;
     }
 
     public Long getId() {
@@ -30,7 +31,7 @@ public class Station {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Station station = (Station) o;
-        return name.equals(station.name);
+        return Objects.equals(id, station.id) && Objects.equals(name, station.name);
     }
 
     @Override
@@ -38,4 +39,3 @@ public class Station {
         return Objects.hash(id, name);
     }
 }
-

@@ -26,17 +26,24 @@ public class LineService {
     private SectionDao sectionDao;
 
     public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
-        Line line = new Line(lineRequest);
+        Line line = new Line(lineRequest.getName(),
+                lineRequest.getColor(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance());
 
         try {
             lineDao.save(line);
-        } catch (DuplicateKeyException dke){
+        } catch (DuplicateKeyException dke) {
             return ResponseEntity.badRequest().build();
         }
 
         Line newLine = lineDao.findByName(line.getName());
 
-        sectionDao.save(new Section(newLine));
+        sectionDao.save(new Section(newLine.getId(),
+                newLine.getUpStationId(),
+                newLine.getDownStationId(),
+                newLine.getDistance()));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(new LineResponse(newLine, getStations(newLine.getId())));
@@ -60,7 +67,7 @@ public class LineService {
     }
 
     public ResponseEntity updateLine(Long id, LineRequest lineRequest) {
-        lineDao.update(Line.getLineToLineRequest(id,lineRequest));
+        lineDao.update(Line.getLineToLineRequest(id, lineRequest));
         return ResponseEntity.ok().build();
     }
 
@@ -189,7 +196,7 @@ public class LineService {
 
 
     public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
-        sectionValidator(id,sectionRequest);
+        sectionValidator(id, sectionRequest);
 
         Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         List<Section> sections = sectionDao.findByLineId(id);
@@ -233,7 +240,7 @@ public class LineService {
                 || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
-    private void sectionValidator(Long id, SectionRequest sectionRequest){
+    private void sectionValidator(Long id, SectionRequest sectionRequest) {
         if (hasDuplicatedStation(id, sectionRequest)) {
             throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
         }
@@ -263,19 +270,19 @@ public class LineService {
         }
 
         // 1.
-        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId,id);
+        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId, id);
 
         Line line = lineDao.findById(id);
 
         // 2.
-        if(line.isEndStation(sectionList.size())){
+        if (line.isEndStation(sectionList.size())) {
             Section endSection = sectionList.get(0);
-            line.updateEndStation(endSection,stationId);
+            line.updateEndStation(endSection, stationId);
             sectionDao.deleteById(endSection.getId());
         }
 
         // 3.
-        if(!line.isEndStation(sectionList.size())){
+        if (!line.isEndStation(sectionList.size())) {
             Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
             sectionDao.deleteById(sectionList.get(0).getId());
             sectionDao.deleteById(sectionList.get(1).getId());

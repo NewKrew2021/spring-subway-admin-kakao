@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.dto.LineResponse;
+import subway.dto.SectionRequest;
+import subway.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +34,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     public void setUp() {
         super.setUp();
 
+
         강남역 = 지하철역_등록되어_있음("강남역");
         양재역 = 지하철역_등록되어_있음("양재역");
         정자역 = 지하철역_등록되어_있음("정자역");
@@ -53,6 +56,9 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 노선에 여러개의 역을 순서 상관 없이 등록한다.")
     @Test
     void addLineSection2() {
+        // 강남 - 광교
+        // 강남 -양재-광교
+        // 정자- 강남 -양재-광교
         // when
         지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 강남역, 5);
@@ -76,7 +82,6 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     void addLineSectionWithNoStation() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 양재역, 3);
-
         // then
         지하철_구간_등록_실패됨(response);
     }

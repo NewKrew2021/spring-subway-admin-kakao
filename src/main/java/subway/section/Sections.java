@@ -7,7 +7,7 @@ import java.util.List;
 public class Sections {
     List<Section> sections;
 
-    private final Long NOT_EXIST = -1L;
+    public static final Long NOT_EXIST = -1L;
 
     Sections() {
         sections = new ArrayList<>();

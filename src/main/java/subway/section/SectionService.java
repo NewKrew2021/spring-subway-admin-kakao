@@ -51,24 +51,27 @@ public class SectionService{
     }
 
     public boolean saveSection(Section section) {
-        if (sectionDao.existSection(section)) {
-            return false;
-        }
-        return checkAndAddSection(section);
-    }
-
-    private boolean checkAndAddSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
         Long existStationId = sections.findStationExistBySection(section);
-        if (existStationId == -1) {
+
+        if(!checkSectionExist(section, existStationId))
             return false;
-        }
+
         save(section);
+
         if (section.getUpStationId() == existStationId) {
             addSectionBack(sections, section);
             return true;
         }
+        
         addSectionFront(sections, section);
+        return true;
+    }
+
+    private boolean checkSectionExist(Section section, Long existStationId){
+        if (sectionDao.existSection(section) || existStationId == Sections.NOT_EXIST) {
+            return false;
+        }
         return true;
     }
 

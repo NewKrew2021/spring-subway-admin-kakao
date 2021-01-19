@@ -44,7 +44,7 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
+        String sql = "select * from line limit 10";
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 

@@ -33,7 +33,7 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station";
+        String sql = "select id, name from station limit 20";
         return jdbcTemplate.query(sql, stationRowMapper);
     }
 

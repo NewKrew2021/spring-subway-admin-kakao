@@ -1,4 +1,4 @@
-package subway.exceptions;
+package subway.exception.exceptions;
 
 public class DuplicateStationNameException extends RuntimeException {
 

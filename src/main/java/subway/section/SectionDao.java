@@ -6,13 +6,16 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exceptions.InvalidSectionException;
+import subway.exception.exceptions.InvalidSectionException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
 public class SectionDao {
+
+    private static final String NOT_FOUND_SECTION_MESSAGE = "구간을 찾을 수 없습니다.";
+    private static final String NOT_INCLUDED_STATION_MESSAGE = "두 역 모두 해당 노선에 포함된 역이 아닙니다.";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -61,7 +64,7 @@ public class SectionDao {
                     sectionRowMapper, id
             );
         } catch (EmptyResultDataAccessException e) {
-            throw new InvalidSectionException("구간을 찾을 수 없습니다: " + e.getMessage());
+            throw new InvalidSectionException(NOT_FOUND_SECTION_MESSAGE+" : "+e.getMessage());
         }
     }
 
@@ -94,7 +97,7 @@ public class SectionDao {
                     Long.class, lineId, downStationId
             );
         } catch (EmptyResultDataAccessException e) {
-            throw new InvalidSectionException("두 역 모두 해당 노선에 포함된 역이 아닙니다: " + e.getMessage());
+            throw new InvalidSectionException(NOT_INCLUDED_STATION_MESSAGE+" : "+e.getMessage());
         }
     }
 

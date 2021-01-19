@@ -1,12 +1,14 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateStationNameException;
+import subway.exception.exceptions.DuplicateStationNameException;
 
 import java.util.List;
 
 @Service
 public class StationService {
+
+    private static final int MIN_DUPLICATE_STATION_NAME_COUNT = 1;
 
     private final StationDao stationDao;
 
@@ -20,7 +22,7 @@ public class StationService {
     }
 
     private void validateDuplicateStationName(String name) {
-        if (stationDao.countByName(name) > 0) {
+        if (stationDao.countByName(name) >= MIN_DUPLICATE_STATION_NAME_COUNT) {
             throw new DuplicateStationNameException("중복된 역 이름입니다.");
         }
     }

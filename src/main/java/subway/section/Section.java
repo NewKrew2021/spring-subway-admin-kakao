@@ -1,6 +1,6 @@
 package subway.section;
 
-import subway.exceptions.InvalidSectionException;
+import subway.exception.exceptions.InvalidSectionException;
 
 public class Section {
 

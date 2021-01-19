@@ -1,9 +1,9 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateLineNameException;
-import subway.exceptions.EmptySectionException;
-import subway.exceptions.InvalidSectionException;
+import subway.exception.exceptions.DuplicateLineNameException;
+import subway.exception.exceptions.EmptySectionException;
+import subway.exception.exceptions.InvalidSectionException;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;
@@ -15,6 +15,13 @@ import java.util.List;
 
 @Service
 public class LineService {
+
+    private static final int MIN_DUPLICATE_LINE_NAME_COUNT = 1;
+
+    private static final String DUPLICATE_LINE_NAME_MESSAGE = "중복된 노선 이름입니다.";
+    private static final String EMPTY_SECTION_MESSAGE = "라인 내에 구간이 존재하지 않습니다.";
+    private static final String UNABLE_STATION_MESSAGE = "두 역 모두 이미 존재하거나, 모두 포함되어 있지 않습니다.";
+    private static final String ALONE_SECTION_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
 
     private final LineDao lineDao;
     private final SectionDao sectionDao;
@@ -35,8 +42,8 @@ public class LineService {
     }
 
     private void validateDuplicateLineName(String name) {
-        if (lineDao.countByName(name) > 0) {
-            throw new DuplicateLineNameException("중복된 노선 이름입니다.");
+        if (lineDao.countByName(name) >= MIN_DUPLICATE_LINE_NAME_COUNT) {
+            throw new DuplicateLineNameException(DUPLICATE_LINE_NAME_MESSAGE);
         }
     }
 
@@ -59,7 +66,7 @@ public class LineService {
     public List<Station> getStationsById(long id) {
         List<Section> sections = sectionDao.findAllSectionsById(id);
         if (sections.size() == 0) {
-            throw new EmptySectionException("라인 내에 구간이 존재하지 않습니다.");
+            throw new EmptySectionException(EMPTY_SECTION_MESSAGE);
         }
         List<Station> stations = new ArrayList<>();
         long stationId = lineDao.findById(id).getStartStationId();
@@ -88,7 +95,7 @@ public class LineService {
         int upStationCount = sectionDao.countByLineIdAndStationId(lineId, sectionRequest.getUpStationId());
         int downStationCount = sectionDao.countByLineIdAndStationId(lineId, sectionRequest.getDownStationId());
         if ((upStationCount > 0) == (downStationCount > 0)) {
-            throw new InvalidSectionException("두 역 모두 이미 존재하거나, 모두 포함되어 있지 않습니다.");
+            throw new InvalidSectionException(UNABLE_STATION_MESSAGE);
         }
     }
 
@@ -140,7 +147,7 @@ public class LineService {
 
     private void validateLineContainsOnlyOneSection(long lineId) {
         if (sectionDao.countByLineId(lineId) == 1) {
-            throw new InvalidSectionException("구간이 하나이기 때문에 삭제할 수 없습니다.");
+            throw new InvalidSectionException(ALONE_SECTION_MESSAGE);
         }
     }
 

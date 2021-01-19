@@ -2,7 +2,7 @@ package subway.line;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.exceptions.InvalidLineArgumentException;
+import subway.exception.exceptions.InvalidLineArgumentException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

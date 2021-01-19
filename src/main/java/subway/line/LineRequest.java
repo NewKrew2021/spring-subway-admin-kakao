@@ -1,6 +1,6 @@
 package subway.line;
 
-import subway.exceptions.InvalidLineArgumentException;
+import subway.exception.exceptions.InvalidLineArgumentException;
 
 public class LineRequest {
 

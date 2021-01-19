@@ -3,7 +3,7 @@ package subway.station;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exceptions.DuplicateStationNameException;
+import subway.exception.exceptions.DuplicateStationNameException;
 
 import java.net.URI;
 import java.util.List;

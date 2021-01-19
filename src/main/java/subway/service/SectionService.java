@@ -1,11 +1,14 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.domain.Line;
+import subway.dao.LineDao;
+import subway.domain.Section;
+import subway.dao.SectionDao;
+import subway.domain.SectionsInLine;
+import subway.domain.Station;
+import subway.dao.StationDao;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package subway.section;
+package subway.query;
 
 public class SectionQuery {
     public static final String insertQuery = "insert into section (line_id, up_station_id, down_station_id, distance) values(?, ?, ?, ?)";

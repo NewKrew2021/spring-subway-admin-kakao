@@ -1,7 +1,4 @@
-package subway.section;
-
-import subway.line.Line;
-import subway.station.Station;
+package subway.domain;
 
 public class Section {
     private Long id;

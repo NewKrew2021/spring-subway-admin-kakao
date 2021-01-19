@@ -33,7 +33,7 @@ public class Line {
     }
 
     public LineResponse toDto(Stations stations) {
-        return new LineResponse(id, name, color, stations.allToDto());
+        return new LineResponse(id, name, color, stations.toDto());
     }
 
     public Long getId() {

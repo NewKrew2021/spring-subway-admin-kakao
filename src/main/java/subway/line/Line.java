@@ -12,8 +12,6 @@ public class Line {
     private Long upStationId;
     private Long downStationId;
 
-    private List<Section> sections = new ArrayList<>();
-
     public Line() {
     }
 
@@ -63,7 +61,4 @@ public class Line {
         return downStationId;
     }
 
-    public List<Section> getSections() {
-        return sections;
-    }
 }

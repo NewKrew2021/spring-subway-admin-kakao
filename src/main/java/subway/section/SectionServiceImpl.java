@@ -52,7 +52,7 @@ public class SectionServiceImpl implements SectionService {
 
     private boolean checkAndAddSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
-        Long existStationId = sections.findStationExist(section);
+        Long existStationId = sections.findStationExistBySection(section);
         if (existStationId == -1) {
             return false;
         }

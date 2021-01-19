@@ -15,6 +15,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
 
     private LineDao lineDao;
@@ -27,7 +28,7 @@ public class LineController {
         this.sectionDao = sectionDao;
     }
 
-    @PostMapping(value = "/lines")
+    @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         if (lineDao.findByName(lineRequest.getName()) != 0){
             return ResponseEntity.badRequest().build();
@@ -47,7 +48,7 @@ public class LineController {
         );
     }
 
-    @GetMapping("/lines")
+    @GetMapping
     public ResponseEntity<List<LineResponse>> showStationsOfLine(){
 
         return ResponseEntity.ok().body(lineDao.findAll()
@@ -56,20 +57,20 @@ public class LineController {
                 .collect(Collectors.toList()));
     }
 
-    @PutMapping("lines/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest){
         lineDao.modify(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteLineById(@PathVariable Long id) {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
 
-    @PostMapping("/lines/{id}/sections")
+    @PostMapping("/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         Line line = lineDao.findById(id);
         Sections sections = new Sections(sectionDao.findSectionsByLineId(line.getId()));
@@ -93,14 +94,14 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/lines/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<LineResponse> getLineStations(@PathVariable Long id) {
         Line line = lineDao.findById(id);
 
         return ResponseEntity.ok().body(new LineResponse(line, findStationsByLineId(id)));
     }
 
-    @DeleteMapping("/lines/{id}/sections")
+    @DeleteMapping("/{id}/sections")
     public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
         int sectionsCount = sectionDao.countByLineId(id);
 

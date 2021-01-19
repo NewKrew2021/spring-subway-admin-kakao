@@ -2,6 +2,9 @@ package subway.line;
 
 import org.springframework.stereotype.Service;
 import subway.exceptions.InvalidSectionException;
+import subway.section.Section;
+import subway.section.SectionDao;
+import subway.section.SectionRequest;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -11,9 +14,9 @@ import java.util.List;
 @Service
 public class LineService {
 
-    private LineDao lineDao;
-    private SectionDao sectionDao;
-    private StationDao stationDao;
+    private final LineDao lineDao;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
 
     public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
         this.lineDao = lineDao;

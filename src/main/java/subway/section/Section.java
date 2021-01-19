@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import subway.exceptions.InvalidSectionException;
 
@@ -8,8 +8,8 @@ public class Section {
 
     private Long id;
     private Long lineId;
-    private Long upStationId;
-    private Long downStationId;
+    private final Long upStationId;
+    private final Long downStationId;
     private int distance;
 
     public Section(Long upStationId, Long downStationId) {
@@ -42,8 +42,6 @@ public class Section {
     public Long getId() {
         return id;
     }
-
-    public Long getLineId() { return lineId; }
 
     public Long getUpStationId() {
         return upStationId;

@@ -1,6 +1,5 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -9,8 +8,12 @@ import java.util.List;
 
 @Repository
 public class LineDao {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
         Line line = new Line(

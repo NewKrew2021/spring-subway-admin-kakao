@@ -1,6 +1,5 @@
-package subway.line;
+package subway.section;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -10,8 +9,12 @@ import java.util.List;
 
 @Repository
 public class SectionDao {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public SectionDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Section> sectionRowMapper = (resultSet, rowNum) -> {
         Section section = new Section(

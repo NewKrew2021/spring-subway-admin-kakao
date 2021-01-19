@@ -1,12 +1,12 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateLineNameException;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
+import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.net.URI;
@@ -15,8 +15,12 @@ import java.util.List;
 
 @RestController
 public class LineController {
-    @Autowired
-    private LineService lineService;
+
+    private final LineService lineService;
+
+    public LineController(LineService lineService) {
+        this.lineService = lineService;
+    }
 
     @ExceptionHandler(InvalidSectionException.class)
     public ResponseEntity<String> internalServerErrorHandler(InvalidSectionException e) {

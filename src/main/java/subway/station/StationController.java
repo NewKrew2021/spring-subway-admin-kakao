@@ -1,6 +1,5 @@
 package subway.station;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +11,12 @@ import java.util.List;
 
 @RestController
 public class StationController {
-    @Autowired
-    private StationService stationService;
+
+    private final StationService stationService;
+
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
+    }
 
     @ExceptionHandler(DuplicateStationNameException.class)
     public ResponseEntity<String> errorHandler(DuplicateStationNameException e) {

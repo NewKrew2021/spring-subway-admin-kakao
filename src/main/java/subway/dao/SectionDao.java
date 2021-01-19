@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Section;
 import subway.query.Sql;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
@@ -22,9 +21,9 @@ public class SectionDao {
                     rs.getLong(4), rs.getInt(5));
 
     @Autowired
-    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+    public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.insertActor = new SimpleJdbcInsert(dataSource)
+        this.insertActor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("section")
                 .usingGeneratedKeyColumns("id");
     }

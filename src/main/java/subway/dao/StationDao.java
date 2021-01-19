@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Station;
 import subway.query.Sql;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
@@ -24,11 +23,10 @@ public class StationDao {
             new Station(rs.getLong(1), rs.getString(2));
 
     @Autowired
-    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate,
-                      DataSource dataSource) {
+    public StationDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate parameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.parameterJdbcTemplate = parameterJdbcTemplate;
-        this.insertActor = new SimpleJdbcInsert(dataSource)
+        this.insertActor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("station")
                 .usingGeneratedKeyColumns("id");
     }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Line;
 import subway.query.Sql;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
@@ -21,9 +20,9 @@ public class LineDao {
             new Line(rs.getLong(1), rs.getString(2), rs.getString(3));
 
     @Autowired
-    public LineDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.insertActor = new SimpleJdbcInsert(dataSource)
+        this.insertActor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("line")
                 .usingGeneratedKeyColumns("id");
     }

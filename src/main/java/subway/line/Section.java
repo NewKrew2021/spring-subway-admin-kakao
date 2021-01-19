@@ -11,6 +11,12 @@ public class Section {
     private final int distance;
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        if (distance <= 0) {
+            throw new IllegalArgumentException("구간 길이는 0보다 작거나 같은 수 없습니다.");
+        }
+        if (upStationId.equals(VIRTUAL_ENDPOINT_ID) || downStationId.equals(VIRTUAL_ENDPOINT_ID)) {
+            distance = Integer.MAX_VALUE;
+        }
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -19,16 +25,7 @@ public class Section {
     }
 
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
-        if (distance <= 0) {
-            throw new IllegalArgumentException("구간 길이는 0보다 작거나 같은 수 없습니다.");
-        }
-        if (upStationId.equals(VIRTUAL_ENDPOINT_ID) || downStationId.equals(VIRTUAL_ENDPOINT_ID)) {
-            distance = Integer.MAX_VALUE;
-        }
-        this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
+        this(null, lineId, upStationId, downStationId, distance);
     }
 
     public boolean shareUpStation(Section counter) {

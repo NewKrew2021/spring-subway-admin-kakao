@@ -1,5 +1,9 @@
 package subway.line;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class Section {
 
     private Long id;
@@ -65,5 +69,19 @@ public class Section {
         this.distance += section.getDistance();
 
         return this;
+    }
+
+    public static Map<Long, Section> getOrderedSections(List<Section> sections){
+        return sections.stream()
+                .collect(Collectors.toMap(Section::getUpStationId, section -> section));
+    }
+
+    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections){
+        return sections.stream()
+                .collect(Collectors.toMap(Section::getDownStationId, section -> section));
+    }
+
+    public static boolean isAddStation(Long sectionRequestStationId, Long lineStationId) {
+        return sectionRequestStationId.equals(lineStationId);
     }
 }

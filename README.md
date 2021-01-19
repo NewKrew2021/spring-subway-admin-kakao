@@ -72,9 +72,9 @@ npm run dev
 
 ### 프레임워크 적용
 - [x] 스프링 빈 활용하기
-- [ ] Dao 객체가 아닌 DB에서 데이터를 관리하기
-- [ ] DB에 접근하기 위한 spring jdbc 라이브러리를 활용하기
-- [ ] H2 DB를 통해 저장된 값 확인하기
+- [x] Dao 객체가 아닌 DB에서 데이터를 관리하기
+- [x] DB에 접근하기 위한 spring jdbc 라이브러리를 활용하기
+- [x] H2 DB를 통해 저장된 값 확인하기
 
 ## ✏️ Code Review Process
 [텍스트와 이미지로 살펴보는 온라인 코드 리뷰 과정](https://github.com/next-step/nextstep-docs/tree/master/codereview)

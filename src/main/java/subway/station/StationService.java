@@ -18,10 +18,6 @@ public class StationService {
         return stationDao.findAll();
     }
 
-    public Station findById(Long id) {
-        return stationDao.findById(id);
-    }
-
     public boolean deleteById(Long id) {
         if(stationDao.deleteById(id) == 1) {
             return true;

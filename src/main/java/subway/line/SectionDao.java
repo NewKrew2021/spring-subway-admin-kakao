@@ -72,21 +72,6 @@ public class SectionDao {
         }
     }
 
-    public int findDistanceById(Long id) {
-        String sql = "select distance from section where id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, id);
-    }
-
-    public void updateUpStation(Long sectionId, Long newStationId, int newDistance) {
-        String sql = "update section set up_station_id = ?, distance = ? where id = ?";
-        jdbcTemplate.update(sql, newStationId, newDistance, sectionId);
-    }
-
-    public void updateDownStation(Long sectionId, Long newStationId, int newDistance) {
-        String sql = "update section set down_station_id = ?, distance = ? where id = ?";
-        jdbcTemplate.update(sql, newStationId, newDistance, sectionId);
-    }
-
     public void updateSection(Section section) {
         String sql = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
         jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());

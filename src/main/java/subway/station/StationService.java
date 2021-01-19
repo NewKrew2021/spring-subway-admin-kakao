@@ -18,7 +18,8 @@ public class StationService {
 
     public ResponseEntity<StationResponse> createStation(StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
+        stationDao.save(station);
+        Station newStation = stationDao.findByName(stationRequest.getName());
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }

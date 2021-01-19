@@ -1,49 +1,38 @@
 package subway.station;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
 
-@Component
+@Repository
 public class StationDao {
 
-    @Autowired
+    @Resource
     JdbcTemplate jdbcTemplate;
 
     @Resource
     StationMapper stationMapper;
 
-    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
-        Station station = new Station(
-                resultSet.getLong("id"),
-                resultSet.getString("name")
-        );
-        return station;
-    };
-
     public Station save(Station station) {
-//        if(ObjectUtils.isEmpty(findById(station.getId()))){
-//            throw new IllegalArgumentException("역이 중복됩니다.");
-//        }
         jdbcTemplate.update("insert into STATION (name) values (?)",station.getName());
         return station;
     }
 
     public List<Station> findAll() {
-//        return jdbcTemplate.queryForList("select * from STATION",Station.class, stationMapper);
-        String sql = "select id, name from STATION";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        String sql = "select * from STATION";
+        return jdbcTemplate.query(sql, stationMapper);
     }
 
     public Station findById(Long id) {
-//        return jdbcTemplate.queryForObject("select * from STATION where id = ?",Station.class,id, stationMapper);
-        String sql = "select id, name from STATION where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        String sql = "select * from STATION where id = ?";
+        return jdbcTemplate.queryForObject(sql,stationMapper, id);
+    }
+
+    public Station findByName(String name) {
+        String sql = "select * from STATION where name = ?";
+        return jdbcTemplate.queryForObject(sql,stationMapper, name);
     }
 
     public void deleteById(Long id) {

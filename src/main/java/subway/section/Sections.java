@@ -7,6 +7,8 @@ import java.util.List;
 public class Sections {
     List<Section> sections;
 
+    private final Long NOT_EXIST = -1L;
+
     Sections() {
         sections = new ArrayList<>();
     }
@@ -36,7 +38,7 @@ public class Sections {
                 .orElse(null);
     }
 
-    public Long findStationExist(Section section) {
+    public Long findStationExistBySection(Section section) {
         for (Section sec : sections) {
             if (sec.getUpStationId().equals(section.getUpStationId()) || sec.getDownStationId().equals(section.getUpStationId())) {
                 return section.getUpStationId();
@@ -46,7 +48,7 @@ public class Sections {
             }
         }
 
-        return -1L;
+        return NOT_EXIST;
     }
 
     public boolean isPossibleToDelete() {

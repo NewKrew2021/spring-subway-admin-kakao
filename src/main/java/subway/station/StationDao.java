@@ -1,6 +1,5 @@
 package subway.station;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,7 +14,7 @@ public class StationDao {
     public static final int NO_DELETE_ROW = 0;
     public static final String INSERT_STATION = "insert into STATION(name) VALUES (?)";
     public static final String SELECT_STATION_BY_NAME = "select id, name from STATION where name = ?";
-    public static final String SELECT_ALL_ID_NAME_FROM_STATION = "select id, name from station";
+    public static final String SELECT_ALL_STATIONS = "select id, name from station";
     public static final String DELETE_STATION_BY_ID = "delete from station where id = ?";
     public static final String SELECT_STATION_BY_ID = "select id, name from station where id = ?";
     public static final String DUPLICATE_STATION_NAME_ERROR_MESSAGE = "중복된 역 이름입니다.";
@@ -45,12 +44,12 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        return jdbcTemplate.query(SELECT_ALL_ID_NAME_FROM_STATION, stationRowMapper);
+        return jdbcTemplate.query(SELECT_ALL_STATIONS, stationRowMapper);
     }
 
     public void deleteById(Long id) {
         int deletedRow = jdbcTemplate.update(DELETE_STATION_BY_ID, Long.valueOf(id));
-        if(deletedRow == NO_DELETE_ROW) {
+        if (deletedRow == NO_DELETE_ROW) {
             throw new InvalidStationArgumentException(NO_MATCHING_STATION_ERROR_MESSAGE);
         }
     }

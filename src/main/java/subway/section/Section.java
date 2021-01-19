@@ -39,7 +39,9 @@ public class Section {
         return id;
     }
 
-    public Long getLineId() { return lineId; }
+    public Long getLineId() {
+        return lineId;
+    }
 
     public Long getUpStationId() {
         return upStationId;

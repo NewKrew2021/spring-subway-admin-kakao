@@ -12,6 +12,11 @@ import java.util.List;
 public class SectionDao {
 
     public static final String SECTION_SAVE_ERROR_MESSAGE = "구간 저장 오류가 발생했습니다.";
+    public static final String INSERT_SECTION = "insert into SECTION(line_id, up_station_id, down_station_id, distance) VALUES(?,?,?,?)";
+    public static final String UPDATE_SECTION_BY_ID = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
+    public static final String DELETE_SECTION_BY_LINE_ID = "delete from section where line_id = ?";
+    public static final String DELETE_SECTION_BY_ID = "delete from SECTION where id = ?";
+    public static final String SELECT_SECTIONS_BY_LINE_ID = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?";
     private JdbcTemplate jdbcTemplate;
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
@@ -30,30 +35,27 @@ public class SectionDao {
     };
 
     public void save(Section section) {
-        String sql = "insert into SECTION(line_id, up_station_id, down_station_id, distance) VALUES(?,?,?,?)";
         try {
-            jdbcTemplate.update(sql, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
+            jdbcTemplate.update(INSERT_SECTION, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
         } catch (Exception e) {
             throw new InvalidSectionException(SECTION_SAVE_ERROR_MESSAGE);
         }
     }
 
     public void updateById(Section section) {
-        String sql = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
-        jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
+        jdbcTemplate.update(UPDATE_SECTION_BY_ID, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
     }
 
     public int deleteAllByLineId(Long lineId) {
-        return jdbcTemplate.update("delete from section where line_id = ?", lineId);
+        return jdbcTemplate.update(DELETE_SECTION_BY_LINE_ID, lineId);
     }
 
     public int deleteById(Long id) {
-        return jdbcTemplate.update("delete from SECTION where id = ?", id);
+        return jdbcTemplate.update(DELETE_SECTION_BY_ID, id);
     }
 
     public List<Section> findAllSectionsByLineId(Long lineId) {
-        return jdbcTemplate.query("select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?",
-                sectionRowMapper, lineId);
+        return jdbcTemplate.query(SELECT_SECTIONS_BY_LINE_ID, sectionRowMapper, lineId);
     }
 
 }

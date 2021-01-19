@@ -30,10 +30,10 @@ public class LineService {
     public Line save(LineRequest lineRequest) {
         lineRequest.checkLineRequest();
         Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
-        Long lineId = lineDao.save(line);
-        Section section = new Section(lineId, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        Line newLine = lineDao.save(line);
+        Section section = new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
         sectionDao.save(section);
-        return findById(lineId);
+        return findById(newLine.getId());
     }
 
     public List<Line> findAll() {
@@ -49,7 +49,7 @@ public class LineService {
     }
 
     public Line updateLine(Long id, LineRequest lineRequest) {
-        return lineDao.updateLine(new Line(id, lineRequest.getName(), lineRequest.getColor()));
+        return lineDao.updateLineNameAndColor(new Line(id, lineRequest.getName(), lineRequest.getColor()));
     }
 
     public List<StationResponse> getStationResponsesById(Long lineId) {
@@ -65,27 +65,29 @@ public class LineService {
     public Line saveSection(Long lineId, SectionRequest sectionRequest) {
         Line line = lineDao.findById(lineId);
         Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if(sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
+        if (sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
             throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
         }
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         if (line.isLineStartStation(sectionRequest.getDownStationId())) {
-            return saveSectionsHead(newSection);
+            return saveSectionsHead(newSection, line);
         }
         if (line.isLineEndStation(sectionRequest.getUpStationId())) {
-            return saveSectionsTail(newSection);
+            return saveSectionsTail(newSection, line);
         }
         return saveBetweenSections(sections, newSection);
     }
 
-    private Line saveSectionsHead(Section newSection) {
-        lineDao.updateLineStartStation(newSection.getLineId(), newSection.getUpStationId());
+    private Line saveSectionsHead(Section newSection, Line line) {
+        Line newLine = new Line(line.getId(), newSection.getUpStationId(), line.getEndStationId());
+        lineDao.updateLineStartEndStations(newLine);
         sectionDao.save(newSection);
         return lineDao.findById(newSection.getLineId());
     }
 
-    private Line saveSectionsTail(Section newSection) {
-        lineDao.updateLineEndStation(newSection.getLineId(), newSection.getDownStationId());
+    private Line saveSectionsTail(Section newSection, Line line) {
+        Line newLine = new Line(line.getId(), line.getStartStationId(), newSection.getDownStationId());
+        lineDao.updateLineStartEndStations(newLine);
         sectionDao.save(newSection);
         return lineDao.findById(newSection.getLineId());
     }
@@ -104,11 +106,11 @@ public class LineService {
             throw new InvalidSectionException(SECTIONS_SIZE_ERROR_MESSAGE);
         }
         if (line.isLineStartStation(stationId)) {
-            deleteStartStation(sections, stationId);
+            deleteStartStation(sections, stationId, line);
             return;
         }
         if (line.isLineEndStation(stationId)) {
-            deleteEndStation(sections, stationId);
+            deleteEndStation(sections, stationId, line);
             return;
         }
         mergeAndDeleteStation(sections, stationId);
@@ -122,15 +124,17 @@ public class LineService {
         sectionDao.deleteById(deletedSection.getId());
     }
 
-    private void deleteStartStation(Sections sections, Long stationId) {
+    private void deleteStartStation(Sections sections, Long stationId, Line line) {
         Section section = sections.findByUpStationId(stationId);
-        lineDao.updateLineStartStation(section.getLineId(), section.getDownStationId());
+        Line newLine = new Line(line.getId(), section.getDownStationId(), line.getEndStationId());
+        lineDao.updateLineStartEndStations(newLine);
         sectionDao.deleteById(section.getId());
     }
 
-    private void deleteEndStation(Sections sections, Long stationId) {
+    private void deleteEndStation(Sections sections, Long stationId, Line line) {
         Section section = sections.findByDownStationId(stationId);
-        lineDao.updateLineEndStation(section.getLineId(), section.getUpStationId());
+        Line newLine = new Line(line.getId(), line.getStartStationId(), section.getUpStationId());
+        lineDao.updateLineStartEndStations(newLine);
         sectionDao.deleteById(section.getId());
     }
 }

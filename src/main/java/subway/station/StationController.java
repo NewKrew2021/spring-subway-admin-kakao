@@ -17,7 +17,7 @@ public class StationController {
     @Autowired
     private StationService stationService;
 
-    @ExceptionHandler({ DuplicateStationNameException.class, InvalidStationArgumentException.class })
+    @ExceptionHandler({DuplicateStationNameException.class, InvalidStationArgumentException.class})
     public ResponseEntity<String> errorHandler(Exception e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }

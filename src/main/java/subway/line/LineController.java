@@ -31,12 +31,12 @@ public class LineController {
         if (lineDao.isDuplicatedName(line)) {
             return ResponseEntity.badRequest().build();
         }
-        final Line newLine = lineDao.insert(line);
+        Line newLine = lineDao.insert(line);
+        if (newLine == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        final Section upSection = new Section(newLine.getId(), request.getUpStationId(), 0);
-        final Section downSection = new Section(newLine.getId(), request.getDownStationId(), request.getDistance());
-
-        boolean created = sectionDao.insertOnCreateLine(upSection, downSection);
+        boolean created = sectionDao.insertOnCreateLine(newLine.getId(), request);
         if (!created) {
             return ResponseEntity.badRequest().build();
         }
@@ -83,11 +83,7 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<?> addSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
-//        boolean created = sectionDao.insert(lineId, request);
-        final Section upSection = new Section(lineId, request.getUpStationId(), 0);
-        final Section downSection = new Section(lineId, request.getDownStationId(), request.getDistance());
-
-        boolean created = sectionDao.insert(upSection, downSection);
+        boolean created = sectionDao.insert(lineId, request);
         if (!created) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

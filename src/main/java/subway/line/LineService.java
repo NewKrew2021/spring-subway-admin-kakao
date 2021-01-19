@@ -279,15 +279,14 @@ public class LineService {
 
         // 3.
         if(!line.isEndStation(sectionList.size())){
-            Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
             sectionDao.deleteBySectionList(sectionList);
-            sectionDao.save(mergeSection);
+            sectionDao.save(Section.merge(sectionList,stationId));
         }
 
         // 4.
         stationDao.deleteById(stationId);
         lineDao.update(line);
-        
+
         return ResponseEntity.ok().build();
     }
 }

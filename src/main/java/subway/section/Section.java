@@ -59,18 +59,21 @@ public class Section {
         return lineId;
     }
 
-    public Section merge(Section section, Long stationId) {
-        if(this.upStationId == stationId){
-            this.upStationId = section.getUpStationId();
+    public static Section merge(List<Section> sectionList, Long stationId) {
+        Section frontSection = sectionList.get(0);
+        Section backSection = sectionList.get(1);
+
+        if(frontSection.upStationId == stationId){
+            frontSection.upStationId = backSection.getUpStationId();
         }
 
-        if(this.downStationId == stationId){
-            this.downStationId = section.getDownStationId();
+        if(frontSection.downStationId == stationId){
+            frontSection.downStationId = backSection.getDownStationId();
         }
 
-        this.distance += section.getDistance();
+        frontSection.distance += backSection.getDistance();
 
-        return this;
+        return frontSection;
     }
 
     public static Map<Long, Section> getOrderedSections(List<Section> sections){

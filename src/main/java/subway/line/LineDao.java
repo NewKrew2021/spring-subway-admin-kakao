@@ -49,15 +49,6 @@ public class LineDao {
     public boolean hasContainLine(String name) {
         String SQL = "SELECT count(*) FROM line WHERE name = ?";
         int count = jdbcTemplate.queryForObject(SQL, Integer.class, name);
-//        Line line = jdbcTemplate.queryForObject(
-//                SQL,
-//                (resultSet, rowNum) -> new Line(
-//                        resultSet.getLong("id"),
-//                        resultSet.getString("name"),
-//                        resultSet.getString("color")
-//                ),
-//                name
-//        );
         return count != 0;
     }
 

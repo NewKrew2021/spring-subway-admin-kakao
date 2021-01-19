@@ -4,9 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionDao;
-import subway.section.SectionDto;
-import subway.section.SectionRequest;
+import subway.section.*;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -21,24 +19,28 @@ public class LineController {
     private final StationDao stationDao;
     private final SectionDao sectionDao;
     private LineService lineService;
+    private SectionService sectionService;
 
     public LineController(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
         lineService = new LineService(lineDao, sectionDao);
+        sectionService = new SectionService(sectionDao);
     }
 
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if( lineDao.hasContainLine(lineRequest.getName()) ) {
+        LineDto lineDto = new LineDto(lineRequest);
+
+        if( lineDao.hasContainLine(lineDto.getName()) ) {
             return ResponseEntity.badRequest().build();
         }
 
-        Long id = lineService.requestToLine(lineRequest.getName(), lineRequest.getColor());
-        lineService.createTerminalSections(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), id);
+        Long id = lineService.requestToLine(lineDto);
+        lineService.createTerminalSections(lineDto, id);
 
-        LineResponse lineResponse = new LineResponse(id, lineRequest.getName(), lineRequest.getColor(), null);
+        LineResponse lineResponse = new LineResponse(id, lineDto.getName(), lineDto.getColor(), null);
 
         return ResponseEntity.created(URI.create("/lines/" + id)).body(lineResponse);
     }
@@ -53,7 +55,7 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLineById(@PathVariable long lineId) {
-        List<StationResponse> stationResponses = lineService.getStationsId(lineId)
+        List<StationResponse> stationResponses = lineService.getStationsIdOfLine(lineId)
                 .stream()
                 .map(stationDao::findById)
                 .map(StationResponse::new)
@@ -77,7 +79,7 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         SectionDto sectionDto = new SectionDto(sectionRequest);
-        if (lineService.insertSection( sectionDto, lineId)) {
+        if (sectionService.insertSection( sectionDto, lineId)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -85,7 +87,9 @@ public class LineController {
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-
+        if (sectionService.deleteSection(lineId, stationId)) {
+            return ResponseEntity.ok().build();
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 

@@ -9,6 +9,7 @@ import subway.station.StationDao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
@@ -28,16 +29,18 @@ public class SectionService {
     }
 
     public List<Station> getStationsOfLine(Line line) {
-        List<Station> stations = new ArrayList<>();
-        Station curStation = stationDao.findById(line.getStartStationId());
-        Section curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
+        List<Long> stations = new ArrayList<>();
+        Long curStationId = line.getStartStationId();
+        Section curSection = sectionDao.findByUpStationIdAndLineId(curStationId, line.getId());
         while (curSection != null) {
-            stations.add(curStation);
-            curStation = stationDao.findById(curSection.getDownStationId());
-            curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
+            stations.add(curStationId);
+            curStationId = curSection.getDownStationId();
+            curSection = sectionDao.findByUpStationIdAndLineId(curStationId, line.getId());
         }
-        stations.add(curStation);
-        return stations;
+        stations.add(curStationId);
+        return stations.stream()
+                .map(id -> stationDao.findById(id))
+                .collect(Collectors.toList());
     }
 
     public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {

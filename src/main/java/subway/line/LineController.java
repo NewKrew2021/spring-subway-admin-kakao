@@ -3,8 +3,8 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionRequest;
 import subway.section.SectionService;
+import subway.section.SectionRequest;
 
 import java.net.URI;
 import java.util.List;

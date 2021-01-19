@@ -1,104 +1,119 @@
 package subway.section;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public class Sections {
 
-    private static final int MIN_SECTIONS_SIZE = 3;
-    private static final String MIN_SECTIONS_SIZE_EXCEPTION_MESSAGE = "구간은 최소 3개로 이루어져야 합니다.";
-    private static final String TERMINAL_INCLUDE_EXCEPTION_MESSAGE = "상/하행 종점이 모두 포함되어야 합니다.";
-    private static final String UP_TERMINAL_NOT_EXIST_EXCEPTION_MESSAGE = "상행 종점이 존재하지 않습니다.";
-    private static final String NOT_MATCHED_STATION_EXCEPTION_MESSAGE = "상/하행 중 일치하는 역이 없습니다.";
-    private static final String NOT_CONTAINED_STATION_EXCEPTION_MESSAGE = "구간에 포함되지 않은 지하철역 입니다.";
+    private static final String MINIMUM_SECTION_STATION_EXCEPTION_MESSAGE = "구간에 포함되는 역의 갯수는 두개 이상이어야 합니다";
+    private static final String DISTANCE_INVALID_EXCEPTION_MESSAGE = "기존 구간보다 새로 생긴 구간의 거리가 더 짧아야합니다";
+    private static final String UP_OR_DOWN_ONLY_ONE_EXCEPTION_MESSAGE = "상/하행역 중 하나만 일치해야합니다";
+    private static final String CANNOT_REMOVE_INITIAL_SECTIONS_EXCEPTION_MESSAGE = "해당 노선은 지하철역을 삭제할 수 없습니다";
+
+    private static final int INITIAL_SIZE = 2;
+    private static final int NEXT_INDEX = 1;
 
     private final List<Section> sections;
 
-    public Sections(List<Section> sections) {
-        validate(sections);
+    private Sections(List<Section> sections) {
+        validateSize(sections);
 
         this.sections = Collections.unmodifiableList(sections);
     }
 
-    private void validate(List<Section> sections) {
-        if (sections.size() < MIN_SECTIONS_SIZE) {
-            throw new IllegalArgumentException(MIN_SECTIONS_SIZE_EXCEPTION_MESSAGE);
-        }
-
-        if (notHaveUpTerminal(sections) || notHaveDownTerminal(sections)) {
-            throw new IllegalArgumentException(TERMINAL_INCLUDE_EXCEPTION_MESSAGE);
+    private void validateSize(List<Section> sections) {
+        if (sections.size() < INITIAL_SIZE) {
+            throw new IllegalArgumentException(MINIMUM_SECTION_STATION_EXCEPTION_MESSAGE);
         }
     }
 
-    private boolean notHaveUpTerminal(List<Section> sections) {
-        return sections.stream()
-                .noneMatch(Section::isUpTerminal);
+    public static Sections from(List<Section> sections) {
+        return new Sections(sections);
     }
 
-    private boolean notHaveDownTerminal(List<Section> sections) {
-        return sections.stream()
-                .noneMatch(Section::isDownTerminal);
-    }
-
-    public static Sections createInitialSections(Section section) {
-        return new Sections(
-                Arrays.asList(
-                        section,
-                        new Section(section.getLineId(), Section.TERMINAL_ID, section.getUpStationId(), Section.INF),
-                        new Section(section.getLineId(), section.getDownStationId(), Section.TERMINAL_ID, Section.INF)
-                ));
-    }
-
-    public List<Long> getSortedStationIds() {
-        Map<Long, Section> sectionCache = sections.stream()
-                .collect(Collectors.toMap(Section::getUpStationId, Function.identity()));
-
-        List<Long> stationIds = new ArrayList<>();
-        Section section = findUpTerminalSection();
-        while (!section.isDownTerminal()) {
-            long nextStationId = section.getDownStationId();
-            stationIds.add(nextStationId);
-            section = sectionCache.get(nextStationId);
+    public Section createNewSection(long upStationId, long downStationId, int distance) {
+        Optional<Section> upSection = findSectionByStation(upStationId);
+        Optional<Section> downSection = findSectionByStation(downStationId);
+        if ((upSection.isPresent() && downSection.isPresent())
+                || (!upSection.isPresent() && !downSection.isPresent())) {
+            throw new IllegalArgumentException(UP_OR_DOWN_ONLY_ONE_EXCEPTION_MESSAGE);
         }
-        return stationIds;
+
+        return upSection.map(section ->
+                createNextDownSectionOf(section, downStationId, distance)
+        ).orElseGet(() ->
+                createNextUpSectionOf(downSection.get(), upStationId, distance)
+        );
     }
 
-    private Section findUpTerminalSection() {
+    public List<Long> getStations() {
         return sections.stream()
-                .filter(Section::isUpTerminal)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError(UP_TERMINAL_NOT_EXIST_EXCEPTION_MESSAGE));
+                .map(Section::getStationId)
+                .collect(toList());
     }
 
-    public Section findBySameUpOrDownStationWith(Section section) {
+    public Optional<Section> findSectionToDeleteBy(long stationId) {
+        if (isNotRemovable()) {
+            throw new IllegalStateException(CANNOT_REMOVE_INITIAL_SECTIONS_EXCEPTION_MESSAGE);
+        }
+
+        return findSectionByStation(stationId);
+    }
+
+    private Optional<Section> findSectionByStation(long stationId) {
         return sections.stream()
-                .filter(it -> it.hasSameUpStation(section) || it.hasSameDownStation(section))
+                .filter(section -> section.hasStation(stationId))
+                .findAny();
+    }
+
+    private int findIndexOf(Section section) {
+        return sections.stream()
+                .filter(section::equals)
+                .map(sections::indexOf)
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException(NOT_MATCHED_STATION_EXCEPTION_MESSAGE));
+                .orElseThrow(() -> new IllegalArgumentException("일치하는 구간이 없습니다"));
     }
 
-    public boolean isInitialState() {
-        return sections.size() == MIN_SECTIONS_SIZE;
-    }
-
-    public Pair<Section, Section> findByStationId(Long stationId) {
-        try {
-            return sections.stream()
-                    .filter(section -> section.containsStation(stationId))
-                    .collect(collectingAndThen(toList(), l -> new ImmutablePair<>(l.get(0), l.get(1))));
-        } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException(NOT_CONTAINED_STATION_EXCEPTION_MESSAGE);
+    private Section createNextDownSectionOf(Section section, Long stationId, int distance) {
+        if (!isDownTerminal(section) && getNextDownSection(section).getDifferenceOfPosition(section) <= distance) {
+            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
         }
+        return new Section(section.getLineId(), stationId, section.calculateNextDownPosition(distance));
     }
 
-    public List<Section> getSections() {
-        return sections;
+    private Section createNextUpSectionOf(Section section, Long stationId, int distance) {
+        if (!isUpTerminal(section) && getNextUpSection(section).getDifferenceOfPosition(section) <= distance) {
+            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
+        }
+        return new Section(section.getLineId(), stationId, section.calculateNextUpPosition(distance));
+    }
+
+    private boolean isNotRemovable() {
+        return sections.size() == INITIAL_SIZE;
+    }
+
+    private boolean isUpTerminal(Section section) {
+        return findIndexOf(section) == 0;
+    }
+
+    private boolean isDownTerminal(Section section) {
+        return findIndexOf(section) == sections.size() - 1;
+    }
+
+    private Section getNextUpSection(Section section) {
+        if (isUpTerminal(section)) {
+            throw new IllegalArgumentException("해당 구간은 상행 종점입니다");
+        }
+        return sections.get(findIndexOf(section) - NEXT_INDEX);
+    }
+
+    private Section getNextDownSection(Section section) {
+        if (isDownTerminal(section)) {
+            throw new IllegalArgumentException("해당 구간은 하행 종점입니다");
+        }
+        return sections.get(findIndexOf(section) + NEXT_INDEX);
     }
 }

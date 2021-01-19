@@ -18,8 +18,7 @@ public class SectionDao {
     private static final RowMapper<Section> sectionMapper = (rs, rowNum) -> new Section(
             rs.getLong("id"),
             rs.getLong("line_id"),
-            rs.getLong("up_station_id"),
-            rs.getLong("down_station_id"),
+            rs.getLong("station_id"),
             rs.getInt("distance")
     );
 
@@ -36,28 +35,26 @@ public class SectionDao {
         return new Section(
                 id,
                 section.getLineId(),
-                section.getUpStationId(),
-                section.getDownStationId(),
-                section.getDistance());
+                section.getStationId(),
+                section.getPosition());
     }
 
     private PreparedStatementCreator insertSection(Section section) {
         return con -> {
             PreparedStatement psmt = con.prepareStatement(
-                    "insert into section (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)",
+                    "insert into section (line_id, station_id, distance) values (?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             );
             psmt.setLong(1, section.getLineId());
-            psmt.setLong(2, section.getUpStationId());
-            psmt.setLong(3, section.getDownStationId());
-            psmt.setInt(4, section.getDistance());
+            psmt.setLong(2, section.getStationId());
+            psmt.setInt(3, section.getPosition());
             return psmt;
         };
     }
 
     @Transactional(readOnly = true)
     public List<Section> findByLineId(Long lineId) {
-        return jdbcTemplate.query("select * from section where line_id = ?", sectionMapper, lineId);
+        return jdbcTemplate.query("select * from section where line_id = ? order by distance", sectionMapper, lineId);
     }
 
     public void delete(Section section) {

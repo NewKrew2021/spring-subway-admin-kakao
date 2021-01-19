@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.LineNotFoundException;
 import subway.section.SectionService;
-import subway.section.Sections;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class LineService {
         }
 
         Line newLine = lineDao.save(request.toEntity());
-        sectionService.save(Sections.createInitialSections(request.getSectionRequest().toEntity(newLine.getId())));
+        sectionService.initializeByLine(newLine.getId(), request.getSectionRequest());
         return LineResponse.from(newLine, sectionService.findStationsOf(newLine.getId()));
     }
 

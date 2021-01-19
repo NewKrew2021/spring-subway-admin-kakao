@@ -22,15 +22,6 @@ public class Line {
         this.id = id;
     }
 
-    public Line(LineRequest lineRequest) {
-        this(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
-    }
-
-    public Line(Long id, LineRequest lineRequest) {
-        this(lineRequest);
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
@@ -69,10 +60,5 @@ public class Line {
         }
 
         this.distance -= endSection.getDistance();
-    }
-
-    public static Line getLineToLineRequest(Long id, LineRequest lineRequest) {
-        return new Line(id, lineRequest.getName(), lineRequest.getColor(),
-                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
     }
 }

@@ -27,6 +27,8 @@ public class LineController {
         try {
             Line line = lineRequest.getLine();
             Long lindId = lineService.create(line);
+            Section section = new Section(lindId, line);
+            sectionService.create(section);
             LineResponse lineResponse = new LineResponse(lindId, line.getName(), line.getColor(), stationService.getStations(lindId));
 
             return ResponseEntity.created(URI.create("/lines/" + lindId)).body(lineResponse);
@@ -70,12 +72,17 @@ public class LineController {
 
     @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        sectionService.validate(lineId, sectionRequest, stationService.getStations(lineId));
-        return sectionService.create(lineId, sectionRequest);
+        sectionService.validateCreate(lineId, sectionRequest, stationService.getStations(lineId));
+        sectionService.create(lineId, sectionRequest);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/{lineId}/sections")
-    public ResponseEntity deleteSection(@PathVariable Long lindId, @RequestParam Long stationId) {
-        return sectionService.delete(lindId, stationId);
+    public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
+        sectionService.validateDelete(lineId);
+        sectionService.delete(lineId, stationId);
+
+        return ResponseEntity.ok().build();
     }
 }

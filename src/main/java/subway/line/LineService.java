@@ -1,8 +1,6 @@
 package subway.line;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import subway.station.Station;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -12,8 +10,6 @@ public class LineService {
 
     @Resource
     private LineDao lineDao;
-    @Resource
-    private SectionDao sectionDao;
 
     public Long create(Line line) {
         return lineDao.save(line);
@@ -32,6 +28,6 @@ public class LineService {
     }
 
     public void update(Long lineId, LineRequest lineRequest) {
-        lineDao.update(new Line(lineId, lineRequest));
+        lineDao.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
     }
 }

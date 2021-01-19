@@ -3,7 +3,6 @@ package subway.line;
 import subway.station.Station;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LineResponse {
     private Long id;
@@ -37,5 +36,4 @@ public class LineResponse {
     public List<Station> getStations() {
         return stations;
     }
-
 }

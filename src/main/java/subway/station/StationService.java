@@ -1,7 +1,5 @@
 package subway.station;
 
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import subway.line.Line;
 import subway.line.LineDao;
@@ -9,7 +7,6 @@ import subway.line.Section;
 import subway.line.SectionDao;
 
 import javax.annotation.Resource;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

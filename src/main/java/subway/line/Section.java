@@ -23,8 +23,8 @@ public class Section {
         this.id = id;
     }
 
-    public Section(Line line) {
-        this(line.getId(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
+    public Section(Long lineId, Line line) {
+        this(lineId, line.getUpStationId(), line.getDownStationId(), line.getDistance());
     }
 
     public Long getId() {

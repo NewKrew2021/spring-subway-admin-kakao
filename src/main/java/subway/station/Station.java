@@ -48,7 +48,7 @@ public class Station {
         }
 
         Station station = (Station) o;
-        return Objects.equals(id, station.id) && Objects.equals(name, station.name);
+        return Objects.equals(name, station.name);
     }
 
     @Override

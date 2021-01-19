@@ -8,21 +8,30 @@ public class Stations {
     private final List<Station> stations;
 
     public Stations(List<Station> stations) {
-        int originalCount = stations.size();
-        boolean isValid = stations.stream()
-                .distinct()
-                .count() == originalCount;
+        this.stations = Collections.unmodifiableList(stations);
 
-        if (!isValid) {
+        if (!(areValidNames() && areValidIDs())) {
             throw new IllegalArgumentException("There cannot be multiple stations with same name or ID");
         }
-
-        this.stations = Collections.unmodifiableList(stations);
     }
 
     public List<StationResponse> allToDto() {
         return stations.stream()
                 .map(Station::toDto)
                 .collect(Collectors.toList());
+    }
+
+    private boolean areValidNames() {
+        return stations.stream()
+                .map(Station::getName)
+                .distinct()
+                .count() == stations.size();
+    }
+
+    private boolean areValidIDs() {
+        return stations.stream()
+                .map(Station::getID)
+                .distinct()
+                .count() == stations.size();
     }
 }

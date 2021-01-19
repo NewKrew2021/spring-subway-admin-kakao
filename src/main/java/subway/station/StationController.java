@@ -34,7 +34,7 @@ public class StationController {
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> responses = new ArrayList<>();
         for (Station station : stationService.findAll()) {
-            responses.add(new StationResponse(station.getId(), station.getName()));
+            responses.add(new StationResponse(station));
         }
         return ResponseEntity.ok().body(responses);
     }

@@ -26,7 +26,7 @@ public class SectionDao {
         return section;
     };
 
-    private final RowMapper<Section> stationRowMapper = (resultSet, rowNum) -> {
+    private final RowMapper<Section> sectionOnlyStationRowMapper = (resultSet, rowNum) -> {
         Section section = new Section(
                 resultSet.getLong("up_station_id"),
                 resultSet.getLong("down_station_id")
@@ -57,7 +57,7 @@ public class SectionDao {
                 Integer.class, lineId, stationId, stationId);
     }
 
-    public Long findSectionIdFromEqualUpStationId(Long lineId, Long upStationId) {
+    public Long findSectionIdByUpStationId(Long lineId, Long upStationId) {
         try {
             String sql = "select id from section where line_id = ? and up_station_id = ?";
             return jdbcTemplate.queryForObject(sql, Long.class, Long.valueOf(lineId), Long.valueOf(upStationId));
@@ -66,10 +66,10 @@ public class SectionDao {
         }
     }
 
-    public Long findSectionIdFromEqualDownStationId(Long lineId, Long downStaionId) {
+    public Long findSectionIdByDownStationId(Long lineId, Long downStationId) {
         try {
             String sql = "select id from section where line_id = ? and down_station_id = ?";
-            return jdbcTemplate.queryForObject(sql, Long.class, Long.valueOf(lineId), Long.valueOf(downStaionId));
+            return jdbcTemplate.queryForObject(sql, Long.class, Long.valueOf(lineId), Long.valueOf(downStationId));
         } catch (Exception e) {
             return 0L;
         }
@@ -119,15 +119,13 @@ public class SectionDao {
 
     public List<Section> findAllSections(Long lineId, Long startStationId) {
         return jdbcTemplate.query("WITH RECURSIVE findAllSections(up_station_id, down_station_id) AS" +
-                "(" +
-                "SELECT up_station_id, down_station_id from SECTION " +
+                " (SELECT up_station_id, down_station_id from SECTION " +
                 "where line_id = ? and up_station_id = ? " +
                 "union all " +
                 "select s.up_station_id, s.down_station_id from SECTION s " +
-                "inner join findAllSections on findAllSections.down_station_id = s.up_station_id " +
-                ") " +
+                "inner join findAllSections on findAllSections.down_station_id = s.up_station_id) " +
                 "select * from findAllSections",
-                stationRowMapper, lineId, startStationId
+                sectionOnlyStationRowMapper, lineId, startStationId
         );
     }
 }

@@ -7,6 +7,8 @@ public class Section {
     private Long downStationId;
     private int distance;
 
+    public Section(){}
+
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
         this.lineId = lineId;
         this.upStationId = upStationId;

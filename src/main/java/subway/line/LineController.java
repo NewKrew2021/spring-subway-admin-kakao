@@ -3,7 +3,9 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -11,7 +13,7 @@ import java.util.List;
 public class LineController {
     private LineService lineService;
 
-    public LineController(LineService lineService){
+    public LineController( LineService lineService){
         this.lineService = lineService;
     }
 
@@ -23,12 +25,16 @@ public class LineController {
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok().body(lineService.showLines());
+        List<LineResponse> lineResponses = new ArrayList<>();
+            lineResponses = lineService.showLines();
+        return ResponseEntity.ok().body(lineResponses);
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
-        return ResponseEntity.ok().body(lineService.showLine(id));
+        LineResponse lineResponse = new LineResponse();
+        lineResponse = lineService.showLine(id);
+        return ResponseEntity.ok().body(lineResponse);
     }
 
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)

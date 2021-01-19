@@ -1,9 +1,5 @@
 package subway.line;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.*;
 import subway.section.SectionDao;
-import subway.station.StationDao;
 
 public class Line {
 
@@ -11,6 +7,8 @@ public class Line {
     private int extraFare;
     private String color;
     private String name;
+
+    public Line(){}
 
     public Line(Long id, String name, String color, int extraFare) {
         this(name, color, extraFare);

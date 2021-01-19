@@ -66,6 +66,7 @@ public class LineService {
                 });
 
         return stations.stream()
+                .distinct()
                 .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
                 .collect(Collectors.toList());
     }

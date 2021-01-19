@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -17,7 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static subway.line.SectionAcceptanceTest.지하철_구간_생성_요청;import static subway.station.StationAcceptanceTest.지하철역_등록되어_있음;
+import static subway.line.SectionAcceptanceTest.지하철_구간_생성_요청;
+import static subway.station.StationAcceptanceTest.지하철역_등록되어_있음;
 
 @DisplayName("지하철 노선 관련 기능")
 public class LineAcceptanceTest extends AcceptanceTest {
@@ -136,6 +136,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
+
+
 
     public static boolean 지하철_노선_삭제_확인(LineRequest lineRequest){
         return 지하철_노선_목록_조회_요청().jsonPath().getList(".", LineResponse.class).stream()

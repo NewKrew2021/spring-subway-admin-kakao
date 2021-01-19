@@ -3,11 +3,17 @@ package subway.line;
 import java.util.Objects;
 
 public class Section {
+    public final static int TERMINAL_ID = -1;
+
     private final long id;
     private final long lineId;
     private final long upStationId;
     private final long downStationId;
     private final int distance;
+
+    public Section(long upStationId, long downStationId, int distance) {
+        this(0L, 0L, upStationId, downStationId, distance);
+    }
 
     public Section(long lineId, long upStationId, long downStationId, int distance) {
         this(0L, lineId, upStationId, downStationId, distance);
@@ -27,6 +33,14 @@ public class Section {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public boolean isUpTerminal() {
+        return upStationId == TERMINAL_ID;
+    }
+
+    public boolean isDownTerminal() {
+        return downStationId == TERMINAL_ID;
     }
 
     public long getId() {

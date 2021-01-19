@@ -25,13 +25,13 @@ public class SectionDao {
         return new Section(id, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId());
     }
 
-    public List<Section> getSectionsByLineId(Long lineId) {
+    public Sections getSectionsByLineId(Long lineId) {
         String sql = "select * from SECTION where line_id = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
+        return new Sections(jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
                 rs.getInt("distance"),
-                rs.getLong("line_id")), lineId);
+                rs.getLong("line_id")), lineId));
     }
 
     public int deleteSectionById(Long sectionId) {

@@ -1,7 +1,7 @@
 <template>
   <Dialog :close="close">
     <template slot="trigger">
-      <v-btn @click="initLineView" class="mx-2 absolute right-30 z-1 subway.section-create-button" fab color="amber">
+      <v-btn @click="initLineView" class="mx-2 absolute right-30 z-1 section-create-button" fab color="amber">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </template>
@@ -48,7 +48,7 @@
         <div class="d-flex">
           <v-text-field
               v-model="sectionForm.distance"
-              :rules="rules.subway.section.distance"
+              :rules="rules.section.distance"
               color="grey darken-1"
               label="거리"
               placeholder="거리"
@@ -136,7 +136,7 @@ export default {
       try {
         await this.createSection({
           lineId: this.selectedLine.id,
-          subway.section: this.sectionForm
+          section: this.sectionForm
         })
         this.closeDialog()
         this.fetchLines()
@@ -177,7 +177,7 @@ export default {
 </script>
 
 <style lange="scss" scoped>
-.subway.section-create-button {
+.section-create-button {
   bottom: -25px;
 }
 </style>

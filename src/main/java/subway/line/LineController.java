@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.Section;
 import subway.section.SectionService;
+import subway.section.Sections;
 import subway.station.Station;
 import subway.station.StationResponse;
 import subway.station.StationService;
@@ -52,11 +53,11 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         Line newLine = lineService.findOne(lineId);
 
-        List<Section> sections = sectionService.getSectionsByLineId(lineId);
+        Sections sections = sectionService.getSectionsByLineId(lineId);
 
         Set<Long> stationIds = new LinkedHashSet<>();
 
-        for (Section section : sections) {
+        for (Section section : sections.getSections()) {
             stationIds.add(section.getUpStationId());
             stationIds.add(section.getDownStationId());
         }

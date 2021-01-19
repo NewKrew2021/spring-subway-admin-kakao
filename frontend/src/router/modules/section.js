@@ -1,4 +1,4 @@
-import SectionPage from '@/views/subway.section/SectionPage'
+import SectionPage from '@/views/section/SectionPage'
 
 const sectionRoutes = [
   {

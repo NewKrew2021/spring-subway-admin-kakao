@@ -1,23 +1,25 @@
 package subway.domain;
 
 import subway.exception.custom.CannotAddSectionException;
-import subway.exception.custom.IllegalSectionException;
+import subway.exception.custom.SameUpstationDownStationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OrderedSections {
     private final List<Section> orderedSections = new ArrayList<>();
 
-    public OrderedSections(List<Section> sections) {
-        Long upStation = findFirstStationFromSections(sections);
-        Map<Long, Section> connection = generateConnection(sections);
+    public OrderedSections(Sections sections) {
+        Long upStation = sections.findFirstStation();
+        Map<Long, Section> connection = sections.generateConnection();
 
-        Long currentStation = upStation;
+        Section currentSection = connection.get(upStation);
         for (int i = 0; i < sections.size(); ++i) {
-            Section currentSection = connection.get(currentStation);
             orderedSections.add(currentSection);
-            currentStation = currentSection.getDownStationId();
+            currentSection = connection.get(currentSection.getDownStationId());
         }
     }
 
@@ -39,9 +41,26 @@ public class OrderedSections {
                 .findFirst().orElseThrow(CannotAddSectionException::new));
     }
 
-    public boolean isAddToEdgeCase(Section section) {
-        return getFirstStation().equals(section.getDownStationId()) ||
-                getLastStation().equals(section.getUpStationId());
+    public boolean isAddToEdgeCase(Section sectionToAdd) {
+        return getFirstStation().equals(sectionToAdd.getDownStationId()) ||
+                getLastStation().equals(sectionToAdd.getUpStationId());
+    }
+
+    public void validateSectionAddRequest(Section sectionToAdd) {
+        if (sectionToAdd.getUpStationId().equals(sectionToAdd.getDownStationId())) {
+            throw new SameUpstationDownStationException();
+        }
+
+        if (countContainedStation(sectionToAdd) != 1) {
+            throw new CannotAddSectionException();
+        }
+    }
+
+    private int countContainedStation(Section section) {
+        return (int) getOrderedStationIds().stream()
+                .filter(stationId -> stationId.equals(section.getDownStationId()) ||
+                        stationId.equals(section.getUpStationId()))
+                .count();
     }
 
     private Long getFirstStation() {
@@ -52,21 +71,4 @@ public class OrderedSections {
         return orderedSections.get(orderedSections.size() - 1).getDownStationId();
     }
 
-    private static Long findFirstStationFromSections(List<Section> sections) {
-        List<Long> upStations = sections.stream()
-                .map(Section::getUpStationId)
-                .collect(Collectors.toList());
-        List<Long> downStations = sections.stream()
-                .map(Section::getDownStationId)
-                .collect(Collectors.toList());
-        return upStations.stream().filter(station -> !downStations.contains(station))
-                .findFirst()
-                .orElseThrow(IllegalSectionException::new);
-    }
-
-    private static Map<Long, Section> generateConnection(List<Section> sections) {
-        Map<Long, Section> connection = new HashMap<>();
-        sections.forEach(section -> connection.put(section.getUpStationId(), section));
-        return connection;
-    }
 }

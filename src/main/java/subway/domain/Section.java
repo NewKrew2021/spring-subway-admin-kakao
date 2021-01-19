@@ -1,5 +1,8 @@
 package subway.domain;
 
+import subway.exception.custom.DifferentLineIdException;
+import subway.exception.custom.IllegalDistanceException;
+
 import java.util.Objects;
 
 public class Section {
@@ -42,6 +45,8 @@ public class Section {
     }
 
     public Section getAnotherSection(Section sectionToAdd) {
+        validateLineId(sectionToAdd);
+        validateDistance(sectionToAdd);
         // 하행 기준 분리 ex, (A - C) 에 (B - C) 추가
         if (isDownMatchPortion(sectionToAdd)) {
             return new Section(lineId, upStationId, sectionToAdd.getUpStationId(),
@@ -55,6 +60,31 @@ public class Section {
         throw new IllegalArgumentException("분리할 수 없는 구간입니다.");
     }
 
+    public Section mergeSection(Section sectionToMerge) {
+        validateLineId(sectionToMerge);
+        if (canMergeOnDownStation(sectionToMerge)) {
+            return new Section(lineId, upStationId, sectionToMerge.getDownStationId(),
+                    sectionToMerge.getDistance() + distance);
+        }
+        if (canMergeOnUpStation(sectionToMerge)) {
+            return new Section(lineId, sectionToMerge.getUpStationId(), downStationId,
+                    sectionToMerge.getDistance() + distance);
+        }
+        throw new IllegalArgumentException("합칠 수 없는 구간입니다.");
+    }
+
+    private void validateLineId(Section sectionToMerge) {
+        if (!lineId.equals(sectionToMerge.lineId)) {
+            throw new DifferentLineIdException();
+        }
+    }
+
+    private void validateDistance(Section sectionToAdd) {
+        if (distance <= sectionToAdd.getDistance()) {
+            throw new IllegalDistanceException();
+        }
+    }
+
     private boolean isDownMatchPortion(Section sectionToAdd) {
         return downStationId.equals(sectionToAdd.getDownStationId()) &&
                 !upStationId.equals(sectionToAdd.getUpStationId());
@@ -63,18 +93,6 @@ public class Section {
     private boolean isUpMatchPortion(Section sectionToAdd) {
         return !downStationId.equals(sectionToAdd.getDownStationId()) &&
                 upStationId.equals(sectionToAdd.getUpStationId());
-    }
-
-    public Section mergeSection(Section sectionToMerge) {
-        if(canMergeOnDownStation(sectionToMerge)){
-            return new Section(lineId, upStationId, sectionToMerge.getDownStationId(),
-                    sectionToMerge.getDistance() + distance);
-        }
-        if(canMergeOnUpStation(sectionToMerge)) {
-            return new Section(lineId, sectionToMerge.getUpStationId(), downStationId,
-                    sectionToMerge.getDistance() + distance);
-        }
-        throw new IllegalArgumentException("합칠 수 없는 구간입니다.");
     }
 
     private boolean canMergeOnDownStation(Section sectionToMerge) {

@@ -15,12 +15,12 @@ public class OrderedStationsTest {
     @BeforeEach
     public void createOrderedStations() {
         OrderedSections orderedSections = new OrderedSections(
-                Arrays.asList(
+                new Sections(Arrays.asList(
                         new Section(1L, 4L, 5L, 6),
                         new Section(1L, 1L, 2L, 3),
                         new Section(1L, 3L, 4L, 5),
                         new Section(1L, 2L, 3L, 4)
-                )
+                ))
         );
 
         orderedStations = new OrderedStations(orderedSections, Arrays.asList(

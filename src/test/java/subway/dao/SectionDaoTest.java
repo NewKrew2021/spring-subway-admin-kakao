@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import subway.domain.Line;
 import subway.domain.Section;
+import subway.domain.Sections;
 import subway.domain.Station;
 
 import java.util.Arrays;
@@ -56,9 +57,12 @@ public class SectionDaoTest {
         sectionDao.save(분당선_수서서현);
         sectionDao.save(분당선_서현수내);
         sectionDao.save(중앙선_서현수내);
-        assertThat(sectionDao.getByLineId(분당선.getId())).containsExactlyElementsOf(Arrays.asList(분당선_수서서현, 분당선_서현수내));
-        assertThat(sectionDao.getByLineId(중앙선.getId())).containsExactlyElementsOf(Arrays.asList(중앙선_서현수내));
-        assertThat(sectionDao.getByLineId(-1L)).containsExactlyElementsOf(Collections.emptyList());
+        assertThat(sectionDao.getByLineId(분당선.getId()))
+                .isEqualTo(new Sections(Arrays.asList(분당선_수서서현, 분당선_서현수내)));
+        assertThat(sectionDao.getByLineId(중앙선.getId()))
+                .isEqualTo(new Sections(Arrays.asList(중앙선_서현수내)));
+        assertThat(sectionDao.getByLineId(-1L))
+                .isEqualTo(new Sections(Collections.emptyList()));
     }
 
     @DisplayName("데이터베이스의 지하철 구간을 제거한다.")

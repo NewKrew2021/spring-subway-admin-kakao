@@ -37,7 +37,7 @@ public class Sections {
         validateNoStations(upStationId, downStationId);
         validateDistance(distance);
         if (validateMakeDownStation(upStationId, downStationId, distance)) return;
-        validateMakeUpStation(upStationId, downStationId, distance);
+        if (validateMakeUpStation(upStationId, downStationId, distance)) return;
     }
 
     private void validateDistance(int distance) {
@@ -46,18 +46,21 @@ public class Sections {
         }
     }
 
-    private void validateMakeUpStation(Long upStationId, Long downStationId, int distance) {
+    private boolean validateMakeUpStation(Long upStationId, Long downStationId, int distance) {
         if (!isStationIdExist(upStationId) && isStationIdExist(downStationId)) {
-            int downDistance = getSectionDistanceByStationId(downStationId);
-            distanceValidate(downDistance - distance, downDistance);
-            return;
+            RelativeDistance downStationRelativeDistance = getRelativeDistanceByStationId(downStationId);
+            distanceValidate(downStationRelativeDistance.calculateUpStationRelativeDistance(distance),
+                    downStationRelativeDistance.getRelativeDistance());
+            return true;
         }
+        return false;
     }
 
     private boolean validateMakeDownStation(Long upStationId, Long downStationId, int distance) {
         if (isStationIdExist(upStationId) && !isStationIdExist(downStationId)) {
-            int upDistance = getSectionDistanceByStationId(upStationId);
-            distanceValidate(upDistance, upDistance + distance);
+            RelativeDistance upStationRelativeDistance = getRelativeDistanceByStationId(upStationId);
+            distanceValidate(upStationRelativeDistance.getRelativeDistance(),
+                    upStationRelativeDistance.calculateDownStationRelativeDistance(distance));
             return true;
         }
         return false;
@@ -75,11 +78,10 @@ public class Sections {
         }
     }
 
-    private int getSectionDistanceByStationId(Long stationId) {
+    private RelativeDistance getRelativeDistanceByStationId(Long stationId) {
         return sections.stream().filter(section -> section.getStationId().equals(stationId))
                 .findFirst()
-                .map(Section::getDistance)
-                .hashCode();
+                .map(Section::getRelativeDistance).get();
     }
 
     private void distanceValidate(int upDistance, int downDistance) {
@@ -89,16 +91,16 @@ public class Sections {
     }
 
     private boolean areThereAnyStationsBetweenNewSections(int upDistance, int downDistance) {
-        return sections.stream().map(Section::getDistance)
+        return sections.stream().map(Section::getRelativeDistanceByInteger)
                 .filter(distance -> (distance >= upDistance && distance <= downDistance))
                 .count() != BASIC_NUM_OF_NEW_SECTION;
     }
 
     public int calculateRelativeDistance(Long upStationId, Long downStationId, int distance) {
         if (isStationIdExist(upStationId)) {
-            return getSectionDistanceByStationId(upStationId) + distance;
+            return getRelativeDistanceByStationId(upStationId).calculateDownStationRelativeDistance(distance);
         }
-        return getSectionDistanceByStationId(downStationId) - distance;
+        return getRelativeDistanceByStationId(downStationId).calculateUpStationRelativeDistance(distance);
     }
 
     public List<Long> getSortedStationIdsByDistance() {

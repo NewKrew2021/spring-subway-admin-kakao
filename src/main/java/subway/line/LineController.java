@@ -26,10 +26,15 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        System.out.println("에러1");
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+        System.out.println("에러2");
         Line newLine = lineDao.save(line);
+        System.out.println("에러3");
         sectionDao.LineInitialize(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        System.out.println("에러4");
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), getStationResponsesByLineId(newLine.getId()));
+        System.out.println("에러5");
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -64,8 +69,11 @@ public class LineController {
     }
 
     public List<StationResponse> getStationResponsesByLineId(Long lineId) {
+        System.out.println("에러 분기 1");
         Sections sectionsByLineId = new Sections(sectionDao.findByLineId(lineId));
+        System.out.println("에러 분기 2");
         List<Long> stationIdsByDistance = sectionsByLineId.getSortedStationIdsByDistance();
+        System.out.println("에러 분기 3");
         return stationIdsByDistance.stream().map(stationId ->
                 new StationResponse(stationId, stationDao.findById(stationId).getName()))
                 .collect(Collectors.toList());

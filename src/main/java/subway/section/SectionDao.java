@@ -19,7 +19,7 @@ public class SectionDao {
             new Section(rs.getLong("id"),
                     rs.getLong("line_id"),
                     rs.getLong("station_id"),
-                    rs.getInt("distance")));
+                    rs.getInt("relative_distance")));
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -29,17 +29,17 @@ public class SectionDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
-                    "insert into section (line_id,station_id,distance) values (?, ?, ?)",
+                    "insert into section (line_id,station_id,relative_distance) values (?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             );
             psmt.setLong(1, section.getLineId());
             psmt.setLong(2, section.getStationId());
-            psmt.setInt(3, section.getDistance());
+            psmt.setInt(3, section.getRelativeDistanceByInteger());
             return psmt;
         }, keyHolder);
 
         Long id = (Long) keyHolder.getKey();
-        return new Section(section.getLineId(), section.getStationId(), section.getDistance());
+        return new Section(section.getLineId(), section.getStationId(), section.getRelativeDistanceByInteger());
     }
 
     public List<Section> findAll() {

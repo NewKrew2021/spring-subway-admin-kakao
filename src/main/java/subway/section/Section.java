@@ -4,23 +4,26 @@ public class Section {
     private Long id;
     private Long stationId;
     private Long lineId;
-    private int distance;
+    private RelativeDistance relativeDistance;
 
     public Section(Long id, Long lineId, Long stationId, int distance) {
         this.id = id;
         this.stationId = stationId;
         this.lineId = lineId;
-        this.distance = distance;
+        this.relativeDistance = new RelativeDistance(distance);
     }
 
     public Section(Long lineId, Long stationId, int distance) {
         this.stationId = stationId;
         this.lineId = lineId;
-        this.distance = distance;
+        this.relativeDistance = new RelativeDistance(distance);
+    }
+    public RelativeDistance getRelativeDistance() {
+        return relativeDistance;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getRelativeDistanceByInteger() {
+        return relativeDistance.getRelativeDistance();
     }
 
     public Long getLineId() {
@@ -32,7 +35,7 @@ public class Section {
     }
 
     public int compareDistance(Section otherSection) {
-        return this.getDistance() - otherSection.getDistance();
+        return this.relativeDistance.calculateDistanceDifference(otherSection.relativeDistance);
     }
 
 }

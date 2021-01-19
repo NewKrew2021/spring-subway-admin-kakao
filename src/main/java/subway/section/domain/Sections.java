@@ -58,7 +58,7 @@ public class Sections {
     }
 
     public Section sameUpSationId(Long id) {
-       return sections.stream()
+        return sections.stream()
                 .filter(section -> section.getUpStationId().equals(id))
                 .findFirst()
                 .orElse(null);

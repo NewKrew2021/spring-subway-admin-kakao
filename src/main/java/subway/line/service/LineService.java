@@ -9,7 +9,6 @@ import subway.line.domain.LineRequest;
 import subway.line.domain.LineResponse;
 import subway.section.domain.Section;
 import subway.section.domain.SectionRequest;
-import subway.section.domain.Sections;
 import subway.section.service.SectionService;
 import subway.station.domain.StationResponse;
 import subway.station.service.StationService;

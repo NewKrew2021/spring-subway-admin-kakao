@@ -5,20 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.domain.Line;
 import subway.line.domain.LineRequest;
 import subway.line.domain.LineResponse;
-import subway.line.dao.LineDao;
 import subway.line.service.LineService;
-import subway.section.domain.Section;
 import subway.section.domain.SectionRequest;
 import subway.section.service.SectionService;
-import subway.station.dao.StationDao;
-import subway.station.domain.StationResponse;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lines")
@@ -50,7 +44,7 @@ public class LineController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String>  lineHandle() {
+    public ResponseEntity<String> lineHandle() {
         return ResponseEntity.badRequest().body("노선 등록 실패");
     }
 

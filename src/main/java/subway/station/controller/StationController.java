@@ -6,13 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
-import subway.station.dao.StationDao;
-import subway.station.domain.Station;
 import subway.station.service.StationService;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")

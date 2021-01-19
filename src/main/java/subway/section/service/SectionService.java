@@ -6,27 +6,20 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.domain.LineResponse;
-import subway.section.domain.Section;
 import subway.section.dao.SectionDao;
-import subway.section.domain.SectionRequest;
-import subway.section.domain.Sections;
+import subway.section.domain.Section;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class SectionService {
     private static final int FIRST_INDEX = 0;
     private static final int SECOND_INDEX = 1;
 
-    private LineDao lineDao;
     private SectionDao sectionDao;
 
     @Autowired
     SectionService(LineDao lineDao, SectionDao sectionDao) {
-        this.lineDao = lineDao;
         this.sectionDao = sectionDao;
     }
 

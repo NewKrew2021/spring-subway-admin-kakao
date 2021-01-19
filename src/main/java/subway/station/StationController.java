@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class StationController {
     private StationDao stationDao;
 
-    public StationController(StationDao stationDao){
+    public StationController(StationDao stationDao) {
         this.stationDao = stationDao;
     }
 
@@ -20,7 +20,7 @@ public class StationController {
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation = stationDao.save(station);
-        if(newStation == null){
+        if (newStation == null) {
             return ResponseEntity.badRequest().build();
         }
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());

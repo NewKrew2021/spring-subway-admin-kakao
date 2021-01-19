@@ -5,13 +5,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
-import subway.station.Station;
-import subway.station.StationDao;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.List;
 
 @Repository
 public class LineDao {
@@ -58,7 +54,7 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
-    public List<Line> findLineByName(String name){
+    public List<Line> findLineByName(String name) {
         String sql = "select id, name, color from line where name = ?";
         return jdbcTemplate.query(sql, lineRowMapper, name);
     }
@@ -73,38 +69,5 @@ public class LineDao {
         jdbcTemplate.update(sql, Long.valueOf(id));
     }
 
-//    public void updateStation(Section section){
-//        Line line = lines.stream()
-//                .filter(line1 -> line1.getId().equals(section.getLineId()))
-//                .findFirst()
-//                .orElse(null);
-//        List<Station> stations = line.getStations();
-//
-//        for(int i = 0 ; i< stations.size(); i++){
-//            if(stations.get(i).getId() == section.getUpStationId()){
-//                sectionDao.addSection(i, stations.get(i).getId(), section);
-//                if(i == stations.size() -1){
-//                    stations.add(i, stationDao.findById(section.getDownStationId()));
-//                    line.updateDownStationId(section.getDownStationId());
-//                    line.updateDistance(line.getDistance() + section.getDistance());
-//                    return;
-//                }
-//                stations.add(i + 1, stationDao.findById(section.getDownStationId()));
-//                return;
-//            }
-//            if (stations.get(i).getId() == section.getDownStationId()) {
-//                sectionDao.addSection(i, stations.get(i).getId(), section);
-//                if (i == 0) {
-//                    stations.add(0, stationDao.findById(section.getUpStationId()));
-//                    line.updateUpStationId(section.getUpStationId());
-//                    line.updateDistance(line.getDistance() + section.getDistance());
-//                    return;
-//                }
-//                stations.add(i - 1, stationDao.findById(section.getUpStationId()));
-//                return;
-//            }
-//        }
-//        throw new IllegalArgumentException();
-//    }
 
 }

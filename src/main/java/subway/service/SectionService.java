@@ -5,13 +5,15 @@ import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
-import subway.dto.*;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Sections;
+import subway.domain.Station;
 import subway.exception.InvalidSectionInsertException;
 import subway.exception.NotEnoughLengthToDeleteSectionException;
 import subway.exception.StationNotFoundException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

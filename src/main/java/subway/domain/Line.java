@@ -1,4 +1,6 @@
-package subway.dto;
+package subway.domain;
+
+import subway.dto.LineRequest;
 
 public class Line {
     private Long id;

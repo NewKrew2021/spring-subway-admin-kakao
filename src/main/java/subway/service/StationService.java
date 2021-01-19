@@ -3,7 +3,7 @@ package subway.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import subway.dao.StationDao;
-import subway.dto.Station;
+import subway.domain.Station;
 import subway.exception.DuplicateStationNameException;
 import subway.exception.StationNotFoundException;
 

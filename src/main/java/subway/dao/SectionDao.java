@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import subway.dto.Section;
-import subway.dto.Sections;
-
-import java.util.List;
+import subway.domain.Section;
+import subway.domain.Sections;
 
 @Repository
 public class SectionDao {

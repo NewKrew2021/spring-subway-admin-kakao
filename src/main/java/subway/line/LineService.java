@@ -10,8 +10,9 @@ import subway.station.StationDao;
 
 import javax.annotation.Resource;
 import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class LineService {
@@ -26,24 +27,14 @@ public class LineService {
     private SectionDao sectionDao;
 
     public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance());
-
         try {
-            lineDao.save(line);
-        } catch (DuplicateKeyException dke) {
+            lineDao.save(new Line(lineRequest));
+        } catch (DuplicateKeyException e) {
             return ResponseEntity.badRequest().build();
         }
 
-        Line newLine = lineDao.findByName(line.getName());
-
-        sectionDao.save(new Section(newLine.getId(),
-                newLine.getUpStationId(),
-                newLine.getDownStationId(),
-                newLine.getDistance()));
+        Line newLine = lineDao.findByName(lineRequest.getName());
+        sectionDao.save(new Section(newLine));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(new LineResponse(newLine, getStations(newLine.getId())));
@@ -51,23 +42,25 @@ public class LineService {
 
     public ResponseEntity<List<LineResponse>> showLines() {
         List<Line> lines = lineDao.findAll();
-        List<LineResponse> lineResponses = lines.stream().map(LineResponse::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(lineResponses);
+
+        return ResponseEntity.ok().body(LineResponse.getLineResponses(lines));
     }
 
     public ResponseEntity deleteLine(Long id) {
         lineDao.deleteById(id);
+
         return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<LineResponse> showLine(Long id) {
         Line line = lineDao.findById(id);
-        LineResponse lineResponse = new LineResponse(line, getStations(id));
-        return ResponseEntity.ok(lineResponse);
+
+        return ResponseEntity.ok(new LineResponse(line, getStations(id)));
     }
 
     public ResponseEntity updateLine(Long id, LineRequest lineRequest) {
-        lineDao.update(Line.getLineToLineRequest(id, lineRequest));
+        lineDao.update(new Line(id, lineRequest));
+
         return ResponseEntity.ok().build();
     }
 
@@ -78,7 +71,6 @@ public class LineService {
 
         Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
         Long upStationId = line.getUpStationId();
-
         stations.add(stationDao.findById(upStationId));
 
         while (orderedSections.containsKey(upStationId)) {
@@ -91,7 +83,6 @@ public class LineService {
     }
 
     public void addLastStation(Line line, SectionRequest sectionRequest, Section newSection) {
-        // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
                 line.getName(),
                 line.getColor(),
@@ -100,13 +91,10 @@ public class LineService {
                 line.getDistance() + sectionRequest.getDistance());
 
         lineDao.update(updateLine);
-
-        // SectionDao에서 구간 추가
         sectionDao.save(newSection);
     }
 
     public void addFirstStation(Line line, SectionRequest sectionRequest, Section newSection) {
-        // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
                 line.getName(),
                 line.getColor(),
@@ -115,8 +103,6 @@ public class LineService {
                 line.getDistance() + sectionRequest.getDistance());
 
         lineDao.update(updateLine);
-
-        // SectionDao에서 구간 추가
         sectionDao.save(newSection);
     }
 
@@ -205,32 +191,27 @@ public class LineService {
         Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
         Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
 
-        // 하행 종점 변경 (A -> B -> (C))
         if (Section.isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
             addLastStation(line, sectionRequest, newSection);
             return ResponseEntity.ok().build();
         }
 
-        // 상행 종점 변경 ((C) -> A -> B)
         if (Section.isAddStation(sectionRequest.getDownStationId(), line.getUpStationId())) {
             addFirstStation(line, sectionRequest, newSection);
             return ResponseEntity.ok().build();
         }
 
-        // 하행역 추가
         if (orderedSections.containsKey(sectionRequest.getUpStationId())) {
             addDownStation(orderedSections, line, sectionRequest);
             return ResponseEntity.ok().build();
         }
 
-        // 상행역 추가
         if (reverseOrderedSections.containsKey(sectionRequest.getDownStationId())) {
             addUpStation(reverseOrderedSections, line, sectionRequest);
             return ResponseEntity.ok().build();
         }
 
-
-        throw new IllegalArgumentException("생성 실패");
+        throw new IllegalArgumentException();
     }
 
     private boolean containsEndStation(Long id, SectionRequest sectionRequest) {
@@ -258,40 +239,26 @@ public class LineService {
     }
 
     public ResponseEntity deleteSection(Long id, Long stationId) {
-        //@TODO 삭제
-        // 1. stationId로 구간 조회
-        // 2. 해당 역이 상행, 하행 종점일 경우 구간 삭제 + 노선의 상행, 하행 업데이트 (sectionDao, LineDao)
-        // 3. 중간에 갈래길일 경우, 두개의 구간을 하나의 구간으로 통합
-        // 4. 역애 대한 정보 삭제 (stationDao)
-
-        List<Section> sections = sectionDao.findByLineId(id);
-        if (sections.size() == 1) {
+        if (sectionDao.countByLineId(id) == 1) {
             throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
         }
 
-        // 1.
-        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId, id);
-
-        Line line = lineDao.findById(id);
-
-        // 2.
-        if (line.isEndStation(sectionList.size())) {
-            Section endSection = sectionList.get(0);
-            line.updateEndStation(endSection, stationId);
-            sectionDao.deleteById(endSection.getId());
-        }
-
-        // 3.
-        if (!line.isEndStation(sectionList.size())) {
-            Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
-            sectionDao.deleteById(sectionList.get(0).getId());
-            sectionDao.deleteById(sectionList.get(1).getId());
-            sectionDao.save(mergeSection);
-        }
-
-        // 4.
         stationDao.deleteById(stationId);
 
+        List<Section> sections = sectionDao.findByStationIdAndLineId(stationId, id);
+        Line line = lineDao.findById(id);
+
+        if (line.isEndStation(sections.size())) {
+            Section endSection = sections.get(0);
+            line.updateEndStation(endSection, stationId);
+            sectionDao.deleteById(endSection.getId());
+            lineDao.update(line);
+            return ResponseEntity.ok().build();
+        }
+
+        Section mergeSection = sections.get(0).merge(sections.get(1), stationId);
+        sectionDao.deleteById(sections.get(1).getId());
+        sectionDao.update(mergeSection);
 
         return ResponseEntity.ok().build();
     }

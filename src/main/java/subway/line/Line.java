@@ -22,6 +22,15 @@ public class Line {
         this.id = id;
     }
 
+    public Line(LineRequest lineRequest) {
+        this(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+    }
+
+    public Line(Long id, LineRequest lineRequest) {
+        this(lineRequest);
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }
@@ -51,13 +60,15 @@ public class Line {
     }
 
     public void updateEndStation(Section endSection, Long stationId) {
-        if (stationId == this.upStationId) {
+        if (stationId == endSection.getUpStationId()) {
             this.upStationId = endSection.getDownStationId();
         }
 
-        if (stationId == this.downStationId) {
+        if (stationId == endSection.getDownStationId()) {
             this.downStationId = endSection.getUpStationId();
         }
+
+        this.distance -= endSection.getDistance();
     }
 
     public static Line getLineToLineRequest(Long id, LineRequest lineRequest) {

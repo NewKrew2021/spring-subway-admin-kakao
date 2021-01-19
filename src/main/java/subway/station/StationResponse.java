@@ -1,5 +1,8 @@
 package subway.station;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class StationResponse {
     private Long id;
     private String name;
@@ -12,11 +15,6 @@ public class StationResponse {
         this.name = name;
     }
 
-    public StationResponse(Station station) {
-        this.id = station.getId();
-        this.name = station.getName();
-    }
-
     public Long getId() {
         return id;
     }
@@ -25,11 +23,10 @@ public class StationResponse {
         return name;
     }
 
-    @Override
-    public String toString() {
-        return "StationResponse{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+    public static List<StationResponse> getStationResponses(List<Station> stations) {
+        return stations.stream()
+                .map(station -> new StationResponse(station.getId(),
+                        station.getName()))
+                .collect(Collectors.toList());
     }
 }

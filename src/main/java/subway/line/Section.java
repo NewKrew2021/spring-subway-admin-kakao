@@ -23,6 +23,18 @@ public class Section {
         this.id = id;
     }
 
+    public Section(Line line) {
+        this(line.getId(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getLineId() {
+        return lineId;
+    }
+
     public Long getUpStationId() {
         return upStationId;
     }
@@ -35,20 +47,12 @@ public class Section {
         return distance;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getLineId() {
-        return lineId;
-    }
-
     public Section merge(Section section, Long stationId) {
-        if(this.upStationId == stationId){
+        if (this.upStationId == stationId) {
             this.upStationId = section.getUpStationId();
         }
 
-        if(this.downStationId == stationId){
+        if (this.downStationId == stationId) {
             this.downStationId = section.getDownStationId();
         }
 
@@ -57,12 +61,12 @@ public class Section {
         return this;
     }
 
-    public static Map<Long, Section> getOrderedSections(List<Section> sections){
+    public static Map<Long, Section> getOrderedSections(List<Section> sections) {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getUpStationId, section -> section));
     }
 
-    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections){
+    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections) {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
     }

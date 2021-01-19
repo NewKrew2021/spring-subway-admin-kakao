@@ -12,6 +12,7 @@ public class StationMapper implements RowMapper<Station>, Serializable {
 
     @Override
     public Station mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Station(rs.getLong("id"),rs.getString("name"));
+        return new Station(rs.getLong("id"),
+                rs.getString("name"));
     }
 }

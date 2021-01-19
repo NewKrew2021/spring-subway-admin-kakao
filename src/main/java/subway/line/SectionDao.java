@@ -32,7 +32,7 @@ public class SectionDao {
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from SECTION where id = ?",id);
+        jdbcTemplate.update("delete from SECTION where id = ?", id);
     }
 
     public Section findById(Long id) {
@@ -40,7 +40,7 @@ public class SectionDao {
         return jdbcTemplate.queryForObject(sql, sectionMapper, id);
     }
 
-    public List<Section> findByLineId(Long lineId){
+    public List<Section> findByLineId(Long lineId) {
         String sql = "select * from SECTION where line_id = ?";
         return jdbcTemplate.query(sql, sectionMapper, lineId);
     }
@@ -53,5 +53,9 @@ public class SectionDao {
     public List<Section> findByStationIdAndLineId(Long stationId, Long lineId) {
         String sql = "select * from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
         return jdbcTemplate.query(sql, sectionMapper, lineId, stationId, stationId);
+    }
+
+    public int countByLineId(Long lineId) {
+        return jdbcTemplate.queryForObject("select count(*) from SECTION where line_id = ?", Integer.class, lineId);
     }
 }

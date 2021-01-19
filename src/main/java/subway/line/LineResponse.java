@@ -3,6 +3,7 @@ package subway.line;
 import subway.station.Station;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LineResponse {
     private Long id;
@@ -11,7 +12,8 @@ public class LineResponse {
     private int extraFare;
     private List<Station> stations;
 
-    public LineResponse(){}
+    public LineResponse() {
+    }
 
     public LineResponse(Long id, String name, String color) {
         this.id = id;
@@ -19,27 +21,8 @@ public class LineResponse {
         this.color = color;
     }
 
-    public LineResponse(Long id, String name, String color, List<Station> stations) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.stations = stations;
-    }
-
-    public LineResponse(Line line) {
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
-    }
-
-
     public LineResponse(Line line, List<Station> stations) {
-        if(!validator(line)){
-            throw new IllegalArgumentException("노선 정보가 존재하지 않습니다.");
-        }
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
+        this(line.getId(), line.getName(), line.getColor());
         this.stations = stations;
     }
 
@@ -59,20 +42,18 @@ public class LineResponse {
         return stations;
     }
 
-    private boolean validator(Line line){
+    private boolean validator(Line line) {
         if (line == null) {
             return false;
         }
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "LineResponse{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", color='" + color + '\'' +
-                ", stations=" + stations +
-                '}';
+    public static List<LineResponse> getLineResponses(List<Line> lines) {
+        return lines.stream()
+                .map(line -> new LineResponse(line.getId(),
+                        line.getName(),
+                        line.getColor()))
+                .collect(Collectors.toList());
     }
 }

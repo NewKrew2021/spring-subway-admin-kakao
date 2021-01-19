@@ -2,7 +2,6 @@ package subway.line;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import subway.station.Station;
 
 import java.io.Serializable;
 import java.sql.ResultSet;

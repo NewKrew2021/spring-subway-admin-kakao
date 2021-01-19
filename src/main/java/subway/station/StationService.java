@@ -1,13 +1,33 @@
 package subway.station;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
-public interface StationService {
-    Station save(Station station);
+@Service
+public class StationService {
+    private StationDao stationDao;
 
-    List<Station> findAll();
+    public StationService(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
 
-    Station findOne(Long stationId);
+    public Station save(Station station) {
+        Station newStation = new Station(station.getName());
+        return stationDao.save(newStation);
+    }
 
-    boolean deleteById(Long stationId);
+    public List<Station> findAll() {
+        return stationDao.findAll();
+    }
+
+    public Station findOne(Long stationId) {
+        return stationDao.findOne(stationId);
+    }
+
+    public boolean deleteById(Long stationId) {
+        return stationDao.deleteById(stationId) != 0;
+    }
+
 }

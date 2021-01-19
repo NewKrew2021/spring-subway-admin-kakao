@@ -73,9 +73,7 @@ public class LineController {
 
         for(Long stationId : stationIds){
             Station station = stationDao.findById(stationId).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
-            stationResponses.add(new StationResponse(
-                station.getId(), station.getName()
-            ));
+            stationResponses.add(new StationResponse(station));
         }
 
         LineResponse lineResponse = new LineResponse(

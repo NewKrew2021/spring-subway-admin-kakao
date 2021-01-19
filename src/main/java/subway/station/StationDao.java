@@ -53,6 +53,5 @@ public class StationDao {
     private final RowMapper<Station> stationRowMapper =
             (resultSet, rowNum) -> new Station(
                     resultSet.getLong("id"),
-                    resultSet.getString("name")
-            );
+                    resultSet.getString("name"));
 }

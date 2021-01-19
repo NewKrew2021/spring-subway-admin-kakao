@@ -1,8 +1,8 @@
-package subway.station;
+package subway.station.vo;
 
 public class Station {
     private Long id;
-    private String name;
+    private final String name;
 
     public Station(Long id, String name) {
         this.id = id;
@@ -11,6 +11,10 @@ public class Station {
 
     public Station(String name) {
         this.name = name;
+    }
+
+    public Station(Long id, Station station) {
+        this(id, station.getName());
     }
 
     public Long getId() {

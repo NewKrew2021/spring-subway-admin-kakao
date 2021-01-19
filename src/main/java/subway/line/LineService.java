@@ -7,6 +7,7 @@ import subway.exceptions.InvalidSectionException;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;
+import subway.station.Station;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -56,18 +57,18 @@ public class LineService {
         return lineDao.updateLine(id, lineRequest);
     }
 
-    public List<StationResponse> getStationResponsesById(long id) {
-        List<StationResponse> responses = new ArrayList<>();
+    public List<Station> getStationsById(long id) {
+        List<Station> stations = new ArrayList<>();
         List<Section> sections = sectionDao.findAllSections(id, lineDao.findById(id).getStartStationId());
         if (sections.size() == 0) {
             throw new EmptySectionException("라인 내에 구간이 존재하지 않습니다.");
         }
         for (Section section : sections) {
-            responses.add(new StationResponse(section.getUpStationId(), stationDao.findById(section.getUpStationId()).getName()));
+            stations.add(new Station(section.getUpStationId(), stationDao.findById(section.getUpStationId()).getName()));
         }
-        long endStationId = sections.get(sections.size()-1).getDownStationId();
-        responses.add(new StationResponse(endStationId, stationDao.findById(endStationId).getName()));
-        return responses;
+        long endStationId = sections.get(sections.size() - 1).getDownStationId();
+        stations.add(new Station(endStationId, stationDao.findById(endStationId).getName()));
+        return stations;
     }
 
     public Line saveSection(long lineId, SectionRequest sectionRequest) {

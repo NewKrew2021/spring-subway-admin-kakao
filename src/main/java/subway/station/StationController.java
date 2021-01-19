@@ -8,6 +8,7 @@ import subway.exceptions.DuplicateStationNameException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -26,17 +27,16 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station newStation = stationService.save(new Station(stationRequest.getName()));
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        StationResponse stationResponse = new StationResponse(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> responses = new ArrayList<>();
-        for (Station station : stationService.findAll()) {
-            responses.add(new StationResponse(station));
-        }
-        return ResponseEntity.ok().body(responses);
+        List<StationResponse> stationResponses = stationService.findAll().stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(stationResponses);
     }
 
     @DeleteMapping("/stations/{id}")

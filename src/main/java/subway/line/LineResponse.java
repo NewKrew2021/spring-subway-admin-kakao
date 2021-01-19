@@ -20,11 +20,19 @@ public class LineResponse {
         this.color = color;
     }
 
+    public LineResponse(Line line) {
+        this(line.getId(), line.getName(), line.getColor());
+    }
+
     public LineResponse(long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.stations = stations;
+    }
+
+    public static LineResponse of(Line newLine, List<StationResponse> stations) {
+        return new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stations);
     }
 
     public long getId() {

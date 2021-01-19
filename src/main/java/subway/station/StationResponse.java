@@ -1,6 +1,7 @@
 package subway.station;
 
 public class StationResponse {
+
     private long id;
     private String name;
 

@@ -7,11 +7,13 @@ import subway.exceptions.DuplicateLineNameException;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
 import subway.section.SectionRequest;
+import subway.station.Station;
 import subway.station.StationResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
@@ -35,8 +37,11 @@ public class LineController {
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.save(lineRequest);
-        List<StationResponse> stationResponses = lineService.getStationResponsesById(newLine.getId());
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
+        List<Station> stations = lineService.getStationsById(newLine.getId());
+        List<StationResponse> stationResponses = stations.stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
+        LineResponse lineResponse = LineResponse.of(newLine, stationResponses);
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
@@ -46,29 +51,31 @@ public class LineController {
         if (showLine == null) {
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = lineService.getStationResponsesById(showLine.getId());
-        LineResponse lineResponse = new LineResponse(showLine.getId(), showLine.getName(), showLine.getColor(), stationResponses);
+        List<Station> stations = lineService.getStationsById(showLine.getId());
+        List<StationResponse> stationResponses = stations.stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
+        LineResponse lineResponse = LineResponse.of(showLine, stationResponses);
         return ResponseEntity.ok().body(lineResponse);
     }
 
     @GetMapping("/lines")
     public ResponseEntity<List<LineResponse>> showLines() {
         List<Line> lines = lineService.findAll();
-        List<LineResponse> lineResponses = new ArrayList<>();
-        for (Line line : lines) {
-            lineResponses.add(new LineResponse(line.getId(), line.getName(), line.getColor()));
-        }
+        List<LineResponse> lineResponses = lines.stream()
+                .map(LineResponse::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok().body(lineResponses);
     }
 
     @PutMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
+    public ResponseEntity updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
         lineService.updateLine(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{id}")
-    public ResponseEntity<LineResponse> deleteLine(@PathVariable long id) {
+    public ResponseEntity deleteLine(@PathVariable long id) {
         boolean isLineDeleted = lineService.deleteById(id);
         if (isLineDeleted) {
             return ResponseEntity.noContent().build();

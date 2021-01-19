@@ -3,6 +3,7 @@ package subway.station;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.ExistStationSaveException;
 
 import java.net.URI;
 import java.util.List;
@@ -20,6 +21,9 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
+        if( stationDao.hasStationName(stationRequest.getName()) ) {
+            throw new ExistStationSaveException();
+        }
         Long id = stationDao.save(new Station(stationRequest.getName()));
         StationResponse stationResponse = new StationResponse(id, stationRequest.getName());
         return ResponseEntity.created(URI.create("/stations/" + id)).body(stationResponse);

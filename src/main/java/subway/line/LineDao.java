@@ -31,7 +31,7 @@ public class LineDao {
         return keyHolder.getKey().longValue();
     }
 
-    public boolean hasContainLine(String name) {
+    public boolean hasLineName(String name) {
         String SQL = "SELECT count(*) FROM line WHERE name = ?";
         int count = jdbcTemplate.queryForObject(SQL, Integer.class, name);
         return count != 0;

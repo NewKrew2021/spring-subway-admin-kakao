@@ -54,4 +54,9 @@ public class StationDao {
                 id);
     }
 
+    public boolean hasStationName(String name) {
+        String SQL = "SELECT count(*) FROM station WHERE name = ?";
+        int count = jdbcTemplate.queryForObject(SQL, Integer.class, name);
+        return count != 0;
+    }
 }

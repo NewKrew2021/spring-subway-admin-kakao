@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.ExistLineSaveException;
 import subway.section.*;
 import subway.station.StationDao;
 import subway.station.StationResponse;
@@ -31,7 +32,8 @@ public class LineController {
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         LineDto lineDto = new LineDto(lineRequest);
 
-        if( lineDao.hasContainLine(lineDto.getName()) ) {
+        if( lineDao.hasLineName(lineDto.getName()) ) {
+            new ExistLineSaveException().printStackTrace();
             return ResponseEntity.badRequest().build();
         }
 
@@ -77,18 +79,18 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         SectionDto sectionDto = new SectionDto(sectionRequest);
-        if (sectionService.insertSection( sectionDto, lineId)) {
-            return ResponseEntity.ok().build();
+        if (!sectionService.insertSection( sectionDto, lineId)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-        if (sectionService.deleteSection(lineId, stationId)) {
-            return ResponseEntity.ok().build();
+        if (!sectionService.deleteSection(lineId, stationId)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.ok().build();
     }
 
 }

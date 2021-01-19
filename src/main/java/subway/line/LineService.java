@@ -26,7 +26,7 @@ public class LineService {
     @Resource
     private SectionDao sectionDao;
 
-    public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
+    public ResponseEntity<LineResponse> create(LineRequest lineRequest) {
         try {
             lineDao.save(new Line(lineRequest));
         } catch (DuplicateKeyException e) {
@@ -40,25 +40,25 @@ public class LineService {
                 .body(new LineResponse(newLine, getStations(newLine.getId())));
     }
 
-    public ResponseEntity<List<LineResponse>> showLines() {
+    public ResponseEntity<List<LineResponse>> getLines() {
         List<Line> lines = lineDao.findAll();
 
         return ResponseEntity.ok().body(LineResponse.getLineResponses(lines));
     }
 
-    public ResponseEntity deleteLine(Long id) {
+    public ResponseEntity delete(Long id) {
         lineDao.deleteById(id);
 
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<LineResponse> showLine(Long id) {
+    public ResponseEntity<LineResponse> getLine(Long id) {
         Line line = lineDao.findById(id);
 
         return ResponseEntity.ok(new LineResponse(line, getStations(id)));
     }
 
-    public ResponseEntity updateLine(Long id, LineRequest lineRequest) {
+    public ResponseEntity update(Long id, LineRequest lineRequest) {
         lineDao.update(new Line(id, lineRequest));
 
         return ResponseEntity.ok().build();

@@ -15,16 +15,16 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        return stationService.createStation(stationRequest);
+        return stationService.create(stationRequest);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return stationService.showStations();
+        return stationService.getStations();
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        return stationService.deleteStation(id);
+        return stationService.delete(id);
     }
 }

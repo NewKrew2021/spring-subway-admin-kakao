@@ -15,27 +15,27 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        return lineService.createLine(lineRequest);
+        return lineService.create(lineRequest);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return lineService.showLines();
+        return lineService.getLines();
     }
 
     @DeleteMapping("/lines/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
-        return lineService.deleteLine(id);
+        return lineService.delete(id);
     }
 
     @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return lineService.showLine(id);
+        return lineService.getLine(id);
     }
 
     @PutMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        return lineService.updateLine(id, lineRequest);
+        return lineService.update(id, lineRequest);
     }
 
     @PostMapping(value = "/lines/{id}/sections")

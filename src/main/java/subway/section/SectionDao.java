@@ -1,8 +1,11 @@
 package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -22,44 +25,19 @@ public class SectionDao {
     public List<Section> getSectionsOfLine(Long id) {
         String SQL = "SELECT * FROM section WHERE line_id = ?";
         return jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("station_id"),
-                        resultSet.getInt("distance"),
-                        resultSet.getLong("next_id")
-                ),
-                id);
+                SQL, new SelectSectionMapper(), id);
     }
 
     public Section getSection(Long stationId, Long lineId) {
         String SQL = "SELECT * FROM section WHERE station_id = ? AND line_id = ?";
         List<Section> sections = jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("station_id"),
-                        resultSet.getInt("distance"),
-                        resultSet.getLong("next_id")
-                ),
-                stationId, lineId);
+                SQL, new SelectSectionMapper(), stationId, lineId);
         return sections.isEmpty() ? null : sections.get(0);
     }
 
     public Section getSectionById(Long id) {
         String SQL = "SELECT * FROM section WHERE id = ?";
-        List<Section> sections = jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("station_id"),
-                        resultSet.getInt("distance"),
-                        resultSet.getLong("next_id")
-                ),
-                id);
+        List<Section> sections = jdbcTemplate.query( SQL, new SelectSectionMapper(), id);
         return sections.isEmpty() ? null : sections.get(0);
     }
 
@@ -68,31 +46,13 @@ public class SectionDao {
             return null;
         }
         String SQL = "SELECT * FROM section WHERE next_id = ?";
-        List<Section> sections = jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("station_id"),
-                        resultSet.getInt("distance"),
-                        resultSet.getLong("next_id")
-                ),
-                nextId);
+        List<Section> sections = jdbcTemplate.query( SQL, new SelectSectionMapper(), nextId);
         return sections.isEmpty() ? null : sections.get(0);
     }
 
     public List<Section> getReqSection(Long upStationId, Long downStationId, Long lineId) {
         String SQL = "SELECT * FROM section WHERE line_id = ? AND (station_id = ? OR station_id = ?)";
-        return jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        resultSet.getLong("station_id"),
-                        resultSet.getInt("distance"),
-                        resultSet.getLong("next_id")
-                ),
-                lineId, upStationId, downStationId);
+        return jdbcTemplate.query( SQL, new SelectSectionMapper(), lineId, upStationId, downStationId);
     }
 
     public void update(Section prevSection) {
@@ -102,4 +62,18 @@ public class SectionDao {
         String SQL = "UPDATE section SET next_id = ?, distance = ? WHERE id = ?";
         jdbcTemplate.update(SQL, prevSection.getNextStationId(), prevSection.getDistance(), prevSection.getId());
     }
+
+    private final static class SelectSectionMapper implements RowMapper<Section> {
+        @Override
+        public Section mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+            return new Section(
+                    resultSet.getLong("id"),
+                    resultSet.getLong("line_id"),
+                    resultSet.getLong("station_id"),
+                    resultSet.getInt("distance"),
+                    resultSet.getLong("next_id")
+            );
+        }
+    }
+
 }

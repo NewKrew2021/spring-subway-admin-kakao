@@ -36,7 +36,7 @@ public class LineController {
         final Section upSection = new Section(newLine.getID(), request.getUpStationID(), 0);
         final Section downSection = new Section(newLine.getID(), request.getDownStationID(), request.getDistance());
 
-        boolean created = sectionDao.insertOnCreateLine(upSection, downSection);
+        boolean created = sectionDao.insert(upSection, downSection);
         if (!created) {
             return ResponseEntity.badRequest().build();
         }
@@ -57,7 +57,7 @@ public class LineController {
 
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
-        Line line = lineDao.findByID(lineID);
+        Line line = lineDao.findOne(lineID);
         return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
     }
 
@@ -107,7 +107,7 @@ public class LineController {
     }
 
     private Stations getStationsByLine(Line line) {
-        Sections sections = sectionDao.findByLineID(line.getID());
+        Sections sections = sectionDao.findAllSectionsOf(line.getID());
         return new Stations(sections.getStationIDs().stream()
                 .map(stationDao::findByID)
                 .collect(Collectors.toList()));

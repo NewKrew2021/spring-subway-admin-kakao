@@ -12,22 +12,21 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insertOnCreateLine(Section upSection, Section downSection) {
+    public boolean insert(Section upSection, Section downSection) {
         if (upSection.equals(downSection)) {
             return false;
         }
 
-        insertSection(upSection);
-        insertSection(downSection);
+        Sections sections = findAllSectionsOf(upSection.getLineID());
 
-        return true;
-    }
-
-    public boolean insert(Section upSection, Section downSection) {
-        Sections sections = findByLineID(upSection.getLineID());
+        if (sections.hasNoSections()) {
+            insertSection(upSection);
+            insertSection(downSection);
+            return true;
+        }
 
         Section newSection = sections.insert(upSection, downSection);
-        if (newSection == null) {
+        if (couldNotInsertNewSection(newSection)) {
             return false;
         }
 
@@ -36,13 +35,18 @@ public class SectionDao {
     }
 
     public boolean delete(Section section) {
-        Sections sections = findByLineID(section.getLineID());
-        if (sections.hasOnlyTwoSections()) {
+        Sections sections = findAllSectionsOf(section.getLineID());
+        if (sections.hasMinimumSectionCount()) {
             return false;
         }
 
         deleteSection(section);
         return true;
+    }
+
+    public Sections findAllSectionsOf(Long lineID) {
+        String sql = "select * from section where line_id = ? order by distance";
+        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
     }
 
     private boolean insertSection(Section section) {
@@ -55,9 +59,8 @@ public class SectionDao {
         return jdbcTemplate.update(sql, section.getLineID(), section.getStationID()) > 0;
     }
 
-    public Sections findByLineID(Long lineID) {
-        String sql = "select * from section where line_id = ? order by distance";
-        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
+    private boolean couldNotInsertNewSection(Section newSection) {
+        return newSection == null;
     }
 
     private final RowMapper<Section> sectionRowMapper =

@@ -39,6 +39,20 @@ public class LineDao {
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
 
+    public List<Line> findAll() {
+        String sql = "select * from line";
+        return jdbcTemplate.query(sql, lineRowMapper);
+    }
+
+    public Line findOne(Long id) {
+        String sql = "select * from line where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
     public boolean update(Long id, LineRequest lineRequest) {
         String sql = "update line set name = ?, color = ? where id = ?";
         return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
@@ -47,20 +61,6 @@ public class LineDao {
     public boolean delete(Long id) {
         String sql = "delete from line where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
-    }
-
-    public List<Line> findAll() {
-        String sql = "select * from line";
-        return jdbcTemplate.query(sql, lineRowMapper);
-    }
-
-    public Line findByID(Long id) {
-        String sql = "select * from line where id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
-        } catch (DataAccessException e) {
-            return null;
-        }
     }
 
     public boolean isDuplicatedName(Line line) {

@@ -10,7 +10,11 @@ public class Sections {
 
     public Sections(List<Section> sections) {
         if (!sorted(sections)) {
-            throw new IllegalArgumentException("sections should be sorted by distance order");
+            throw new IllegalArgumentException("Sections should be sorted by distance order");
+        }
+
+        if (hasDuplicates(sections)) {
+            throw new IllegalArgumentException("Sections cannot have duplicate elements");
         }
 
         this.sections = Collections.unmodifiableList(sections);
@@ -22,79 +26,88 @@ public class Sections {
                 .collect(Collectors.toList());
     }
 
-    public List<Integer> getDistances() {
-        return sections.stream()
-                .map(Section::getDistance)
-                .collect(Collectors.toList());
-    }
-
-    public Section insert(Section upSection, Section downSection) {
-        Long lineID = upSection.getLineID();
-        Long upStationID = upSection.getStationID();
-        Long downStationID = downSection.getStationID();
-
-        int distance = downSection.getDistance();
-        if (!validateStations(upStationID, downStationID)) {
+    public Section insert(Section upSectionParameters, Section downSectionParameters) {
+        if (!areValidSections(upSectionParameters, downSectionParameters)) {
             return null;
         }
 
-        Section existingSection = findExistingSection(lineID, upStationID, downStationID);
-        Section newSection = makeNewSection(lineID, upStationID, downStationID, distance);
-        if (!validateDistance(existingSection.getDistance(), newSection.getDistance())) {
+        final int NOT_DEFINED = Integer.MAX_VALUE;
+        int distanceDiff = downSectionParameters.distanceDiff(upSectionParameters);
+
+        Section existingSection = findSection(upSectionParameters);
+        Section newSectionParameters = downSectionParameters;
+        int newSectionDistance = NOT_DEFINED;
+        if (!sectionExists(existingSection)) {
+            existingSection = findSection(downSectionParameters);
+            newSectionParameters = upSectionParameters;
+            newSectionDistance = existingSection.getDistance() - distanceDiff;
+        }
+
+        if (newSectionDistance == NOT_DEFINED) {
+            newSectionDistance = existingSection.getDistance() + distanceDiff;
+        }
+
+        Section newSection = new Section(newSectionParameters.getLineID(),
+                newSectionParameters.getStationID(),
+                newSectionDistance);
+
+        if (!haveValidDistance(existingSection, newSection)) {
             return null;
         }
 
         return newSection;
     }
 
-    private Section findByStationID(Long stationID) {
+    public boolean hasMinimumSectionCount() {
+        return sections.size() <= 2;
+    }
+
+    public boolean hasNoSections() {
+        return sections.isEmpty();
+    }
+
+    private Section findSection(Section section) {
         return sections.stream()
-                .filter(section -> section.getStationID() == stationID)
+                .filter(sec -> sec.equals(section))
                 .findFirst()
                 .orElse(null);
     }
 
-    private Section makeNewSection(Long lineID, Long upStationID, Long downStationID, int distance) {
-        Section upSection = findByStationID(upStationID);
-        Section downSection = findByStationID(downStationID);
+    private boolean areValidSections(Section upSection, Section downSection) {
+        return sectionExists(upSection) != sectionExists(downSection);
+    }
 
-        if (isExisting(upSection)) {
-            return new Section(lineID, downStationID, upSection.getDistance() + distance);
+    private boolean sectionExists(Section sectionParameters) {
+        return findSection(sectionParameters) != null;
+    }
+
+    private boolean haveValidDistance(Section existingSection, Section newSection) {
+        Section nextSection = getNextSection(existingSection, newSection);
+        if (isHighestOrLowestSection(nextSection)) {
+            return true;
         }
 
-        return new Section(lineID, upStationID, downSection.getDistance() - distance);
+        return existingSection.isCloserFromThan(newSection, nextSection);
     }
 
-    private Section findExistingSection(Long lineID, Long upStationID, Long downStationID) {
-        Section upSection = findByStationID(upStationID);
-        Section downSection = findByStationID(downStationID);
-
-        return isExisting(upSection) ? upSection : downSection;
+    private Section getNextSection(Section existingSection, Section newSection) {
+        try {
+            return sections.get(getNextSectionIdx(existingSection, newSection));
+        } catch (IndexOutOfBoundsException ignored) {
+            return null;
+        }
     }
 
-    private boolean validateDistance(int existingDistance, int newDistance) {
-        int diff = newDistance - existingDistance;
-
-        for (Integer dist : getDistances()) {
-            int tempDiff = dist - existingDistance;
-            System.out.println(dist);
-            if (diff * tempDiff > 0 && Math.abs(diff) >= Math.abs(tempDiff))
-                return false;
+    private int getNextSectionIdx(Section existingSection, Section newSection) {
+        if (existingSection.isUpperThan(newSection)) {
+            return sections.indexOf(existingSection) + 1;
         }
 
-        return true;
+        return sections.indexOf(existingSection) - 1;
     }
 
-    private boolean isExisting(Section section) {
-        return section != null;
-    }
-
-    private boolean validateStations(Long upStationID, Long downStationID) {
-        return isExisting(findByStationID(upStationID)) != isExisting(findByStationID(downStationID));
-    }
-
-    public boolean hasOnlyTwoSections() {
-        return sections.size() <= 2;
+    private boolean isHighestOrLowestSection(Section nextSection) {
+        return nextSection == null;
     }
 
     private boolean sorted(List<Section> sections) {
@@ -102,5 +115,11 @@ public class Sections {
                 .sorted(Comparator.comparingInt(Section::getDistance))
                 .collect(Collectors.toList())
                 .equals(sections);
+    }
+
+    private boolean hasDuplicates(List<Section> sections) {
+        return sections.stream()
+                .distinct()
+                .count() != sections.size();
     }
 }

@@ -19,6 +19,18 @@ public class Section implements Comparable<Section> {
         this.distance = distance;
     }
 
+    public int distanceDiff(Section downSection) {
+        return distance - downSection.distance;
+    }
+
+    public boolean isUpperThan(Section newSection) {
+        return distance < newSection.distance;
+    }
+
+    public boolean isCloserFromThan(Section fromSection, Section thanSection) {
+        return Math.abs(distance - fromSection.distance) < Math.abs(distance - thanSection.distance);
+    }
+
     public long getID() {
         return id;
     }
@@ -37,10 +49,16 @@ public class Section implements Comparable<Section> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Section section = (Section) o;
-        return Objects.equals(lineID, section.lineID) && Objects.equals(stationID, section.stationID);
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Section that = (Section) o;
+        return Objects.equals(lineID, that.lineID) && Objects.equals(stationID, that.stationID);
     }
 
     @Override

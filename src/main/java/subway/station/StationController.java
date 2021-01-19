@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -21,14 +22,17 @@ public class StationController {
         if (stationService.existName(stationRequest.getName())) {
             return ResponseEntity.badRequest().build();
         }
-        StationResponse stationResponse = stationService.createStation(stationRequest);
-        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
+        Station newStation = stationService.createStation(new Station(stationRequest.getName()));
+        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(new StationResponse(newStation.getId(), newStation.getName()));
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> stationResponses = stationService.getAllStations();
-        return ResponseEntity.ok().body(stationResponses);
+        List<Station> stations = stationService.getAllStations();
+        List<StationResponse> responses = stations.stream()
+                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(responses);
     }
 
     @DeleteMapping("/stations/{id}")

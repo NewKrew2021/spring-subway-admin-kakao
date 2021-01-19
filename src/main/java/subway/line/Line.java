@@ -11,9 +11,6 @@ public class Line {
     private Long startStationId;
     private Long endStationId;
 
-    public Line() {
-    }
-
     public Line(Long id, String name, String color, Long startStationId, Long endStationId) {
         this.id = id;
         this.name = name;
@@ -23,10 +20,7 @@ public class Line {
     }
 
     public Line(String name, String color, Long startStationId, Long endStationId) {
-        this.name = name;
-        this.color = color;
-        this.startStationId = startStationId;
-        this.endStationId = endStationId;
+        this(null, name, color, startStationId, endStationId);
     }
 
     public Long getId() {
@@ -49,9 +43,6 @@ public class Line {
         return endStationId;
     }
 
-    public LineResponse makeLineResponse(List<StationResponse> stations) {
-        return new LineResponse(getId(), getName(), getColor(), stations);
-    }
 
     public Line getLineEndStationChanged(long newEndStationId) {
         return new Line(id, name, color, startStationId, newEndStationId);

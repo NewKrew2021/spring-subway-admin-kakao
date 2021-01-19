@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
+import subway.exception.NotExistException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,16 +15,22 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResponse createStation(StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
+    public Station createStation(Station station) {
         Station newStation = stationDao.save(station);
-        return new StationResponse(newStation.getId(), newStation.getName());
+        return newStation;
     }
 
-    public List<StationResponse> getAllStations() {
+    public List<Station> getAllStations() {
         return stationDao.findAll().stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public Station getStation(long stationId) {
+        Station station = stationDao.findById(stationId);
+        if (station == null) {
+            throw new NotExistException("해당 역이 존재하지 않습니다.");
+        }
+        return station;
     }
 
     public void deleteStation(long id) {

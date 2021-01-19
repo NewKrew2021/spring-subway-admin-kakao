@@ -6,7 +6,6 @@ import subway.line.Line;
 import subway.line.LineDao;
 import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +27,16 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public List<StationResponse> getStationsOfLine(Line line) {
-        List<StationResponse> stations = new ArrayList<>();
+    public List<Station> getStationsOfLine(Line line) {
+        List<Station> stations = new ArrayList<>();
         Station curStation = stationDao.findById(line.getStartStationId());
         Section curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
         while (curSection != null) {
-            stations.add(new StationResponse(curStation.getId(), curStation.getName()));
+            stations.add(curStation);
             curStation = stationDao.findById(curSection.getDownStationId());
             curSection = sectionDao.findByUpStationIdAndLineId(curStation.getId(), line.getId());
         }
-        stations.add(new StationResponse(curStation.getId(), curStation.getName()));
+        stations.add(curStation);
         return stations;
     }
 
@@ -53,24 +52,23 @@ public class SectionService {
         sectionDao.updateSection(id, section);
     }
 
-    public void addSection(long id, SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), id);
+    public void addSection(long id, Section newSection) {
         Line line = lineDao.findById(id);
-        List<StationResponse> stations = getStationsOfLine(line);
+        List<Station> stations = getStationsOfLine(line);
 
         boolean upStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getUpStationId()));
+                .anyMatch(station -> station.getId().equals(newSection.getUpStationId()));
         boolean downStationExist = stations.stream()
-                .anyMatch(stationResponse -> stationResponse.getId().equals(section.getDownStationId()));
+                .anyMatch(station -> station.getId().equals(newSection.getDownStationId()));
 
         validateSection(upStationExist, downStationExist);
 
         if (upStationExist) {
-            addSectionWhenUpStationExist(section, line);
+            addSectionWhenUpStationExist(newSection, line);
             return;
         }
 
-        addSectionWhenDownStationExist(section, line);
+        addSectionWhenDownStationExist(newSection, line);
     }
 
     private void addSectionWhenUpStationExist(Section section, Line line) {

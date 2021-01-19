@@ -2,13 +2,9 @@ package subway.line;
 
 import org.springframework.stereotype.Service;
 import subway.exception.NotExistException;
-import subway.section.Section;
 import subway.section.SectionDao;
-import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,25 +20,9 @@ public class LineService {
         this.stationDao = stationDao;
     }
 
-    public LineResponse createLine(LineRequest lineRequest) {
-        List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());
-
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
+    public Line createLine(Line line) {
         Line newLine = lineDao.save(line);
-
-        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId());
-        sectionDao.save(section);
-
-        return newLine.makeLineResponse(stations);
-    }
-
-    private List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
-        List<StationResponse> stations = new ArrayList<>();
-        Station upStation = stationDao.findById(upStationId);
-        Station downStation = stationDao.findById(downStationId);
-        stations.add(upStation.makeStationResponse());
-        stations.add(downStation.makeStationResponse());
-        return stations;
+        return newLine;
     }
 
     public boolean existName(String name) {
@@ -53,9 +33,9 @@ public class LineService {
         lineDao.deleteById(id);
     }
 
-    public void updateLine(long id, LineRequest lineRequest) {
+    public void updateLine(long id, String newName, String newColor) {
         Line originalLine = lineDao.findById(id);
-        Line line = new Line(id, lineRequest.getName(), lineRequest.getColor(), originalLine.getStartStationId(), originalLine.getEndStationId());
+        Line line = new Line(id, newName, newColor, originalLine.getStartStationId(), originalLine.getEndStationId());
         lineDao.updateById(id, line);
     }
 

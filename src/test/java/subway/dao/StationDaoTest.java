@@ -1,10 +1,12 @@
-package subway.station;
+package subway.dao;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import subway.dao.StationDao;
+import subway.domain.Station;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 

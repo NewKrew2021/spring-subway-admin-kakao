@@ -1,14 +1,15 @@
-package subway.line;
+package subway.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.Section;
+import subway.domain.SectionGroup;
 import subway.exception.NoContentException;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class SectionGroupTest {
 

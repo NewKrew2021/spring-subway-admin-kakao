@@ -1,14 +1,14 @@
-package subway.line;
+package subway.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import subway.domain.Section;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static subway.line.Section.VIRTUAL_ENDPOINT_ID;
+import static subway.domain.Section.VIRTUAL_ENDPOINT_ID;
 
 class SectionTest {
 

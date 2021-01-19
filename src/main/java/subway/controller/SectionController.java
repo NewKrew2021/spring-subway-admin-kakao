@@ -1,8 +1,13 @@
-package subway.line;
+package subway.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.domain.Section;
+import subway.response.LineResponse;
+import subway.request.SectionRequest;
+import subway.response.SectionResponse;
+import subway.service.SectionService;
 
 @RestController
 public class SectionController {

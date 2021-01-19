@@ -1,11 +1,11 @@
-package subway.line;
+package subway.domain;
 
 import subway.exception.NoContentException;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static subway.line.Section.VIRTUAL_ENDPOINT_ID;
+import static subway.domain.Section.VIRTUAL_ENDPOINT_ID;
 
 public class SectionGroup {
 

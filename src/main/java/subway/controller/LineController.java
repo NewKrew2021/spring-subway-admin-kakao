@@ -1,9 +1,14 @@
-package subway.line;
+package subway.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.Station;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Station;
+import subway.request.LineRequest;
+import subway.response.LineResponse;
+import subway.service.LineService;
 
 import java.net.URI;
 import java.util.List;

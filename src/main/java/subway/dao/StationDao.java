@@ -1,4 +1,4 @@
-package subway.station;
+package subway.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.domain.Station;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 

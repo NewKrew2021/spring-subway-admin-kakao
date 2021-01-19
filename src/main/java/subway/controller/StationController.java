@@ -14,6 +14,7 @@ import subway.service.StationService;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -41,11 +42,12 @@ public class StationController {
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> StationResponses = new ArrayList<>();
+        List<StationResponse> StationResponses;
         List<Station> stations = stationService.findAllStations();
-        for (Station station : stations) {
-            StationResponses.add(new StationResponse(station.getId(), station.getName()));
-        }
+        StationResponses = stations
+                .stream()
+                .map(station -> new StationResponse(station.getId(), station.getName()))
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(StationResponses);
     }

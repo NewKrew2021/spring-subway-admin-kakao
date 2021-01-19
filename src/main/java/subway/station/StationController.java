@@ -12,32 +12,32 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
-    private final StationDao dao;
+    private final StationService stationService;
 
     @Autowired
-    public StationController(StationDao dao) {
-        this.dao = dao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = dao.save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        Station newStation = stationService.create(station);
+        StationResponse stationResponse = new StationResponse(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> responses = dao.findAll().stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
+        List<StationResponse> responses = stationService.showAll().stream()
+                .map(StationResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(responses);
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        dao.deleteById(id);
+        stationService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

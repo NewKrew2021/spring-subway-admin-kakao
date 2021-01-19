@@ -21,31 +21,28 @@ public class LineDao {
     LineMapper lineMapper;
 
     public void save(Line line) {
-        jdbcTemplate.update("insert into LINE (name, color, up_station_id, down_station_id, distance) values (?, ?, ?, ?, ?)",
+        jdbcTemplate.update(LineQuery.SAVE.getQuery(),
                 line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
     }
 
     public List<Line> findAll() {
-        String sql = "select * from LINE";
-        return jdbcTemplate.query(sql, lineMapper);
+        return jdbcTemplate.query(LineQuery.FIND_ALL.getQuery(), lineMapper);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from LINE where id = ?",id);
+        jdbcTemplate.update(LineQuery.DELETE_BY_ID.getQuery(),id);
     }
 
     public Line findById(Long id) {
-        String sql = "select * from LINE where id = ?";
-        return jdbcTemplate.queryForObject(sql,lineMapper, id);
+        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_ID.getQuery(),lineMapper, id);
     }
 
     public Line findByName(String name) {
-        String sql = "select * from LINE where name = ?";
-        return jdbcTemplate.queryForObject(sql,lineMapper, name);
+        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_NAME.getQuery(),lineMapper, name);
     }
 
     public void update(Line line) {
-        jdbcTemplate.update("update LINE set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
+        jdbcTemplate.update(LineQuery.UPDATE.getQuery(),
                 line.getUpStationId(), line.getDownStationId(), line.getDistance(), line.getId());
     }
 }

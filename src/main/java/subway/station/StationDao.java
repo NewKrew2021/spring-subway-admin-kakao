@@ -5,12 +5,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.exceptions.DuplicateStationNameException;
+import subway.exceptions.InvalidStationArgumentException;
 
 import java.util.List;
 
 @Repository
 public class StationDao {
 
+    public static final int NO_DELETE_ROW = 0;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -37,9 +39,12 @@ public class StationDao {
         return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public int deleteById(Long id) {
+    public void deleteById(Long id) {
         String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, Long.valueOf(id));
+        int deletedRow = jdbcTemplate.update(sql, Long.valueOf(id));
+        if(deletedRow == NO_DELETE_ROW) {
+            throw new InvalidStationArgumentException("해당되는 역이 존재하지 않습니다.");
+        }
     }
 
     public Station findById(Long id) {

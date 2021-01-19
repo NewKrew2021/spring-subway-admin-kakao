@@ -20,11 +20,7 @@ public class StationService {
     }
 
     public void deleteById(Long id) {
-        try {
-            stationDao.deleteById(id);
-        } catch (Exception e) {
-            throw new InvalidStationArgumentException("역을 삭제할 수 없습니다.");
-        }
+        stationDao.deleteById(id);
     }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateStationNameException;
+import subway.exceptions.InvalidStationArgumentException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ public class StationController {
     @Autowired
     private StationService stationService;
 
-    @ExceptionHandler(DuplicateStationNameException.class)
-    public ResponseEntity<String> errorHandler(DuplicateStationNameException e) {
+    @ExceptionHandler({ DuplicateStationNameException.class, InvalidStationArgumentException.class })
+    public ResponseEntity<String> errorHandler(Exception e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
@@ -40,6 +41,6 @@ public class StationController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         stationService.deleteById(id);
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.noContent().build();
     }
 }

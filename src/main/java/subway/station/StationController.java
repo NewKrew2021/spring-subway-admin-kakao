@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,4 +44,16 @@ public class StationController {
         stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity exceptionHandler(Exception exception) {
+        exception.printStackTrace();
+
+        if (exception instanceof DuplicateKeyException) {
+            return ResponseEntity.badRequest().body("요청한 이름의 station이 이미 존재합니다.");
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
 }

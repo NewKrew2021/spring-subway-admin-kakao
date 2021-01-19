@@ -41,7 +41,7 @@ public class LineServiceImpl implements LineService {
         return lineDao.update(line) != 0;
     }
 
-    public boolean updateAll(Line line){
+    public boolean updateAll(Line line) {
         return lineDao.updateAll(line) != 0;
     }
 

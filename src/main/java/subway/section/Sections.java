@@ -1,8 +1,8 @@
 package subway.section;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Sections {
     List<Section> sections;
@@ -12,27 +12,27 @@ public class Sections {
     }
 
     Sections(List<Section> sections) {
-        this.sections = sections;
+        this.sections = Collections.unmodifiableList(sections);
     }
 
     public Section findSectionByUpStationId(Long id) {
         return sections.stream()
                 .filter(sec -> sec.getUpStationId().equals(id))
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
     public Section findSectionByDownStationId(Long id) {
         return sections.stream()
                 .filter(sec -> sec.getDownStationId().equals(id))
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
     public Section findSectionByStationId(Long id) {
         return sections.stream()
                 .filter(sec -> sec.getUpStationId().equals(id) || sec.getDownStationId().equals(id))
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
@@ -55,9 +55,5 @@ public class Sections {
 
     public List<Section> getSections() {
         return sections;
-    }
-
-    public boolean existSection(Section section) {
-        return sections.contains(section);
     }
 }

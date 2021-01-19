@@ -49,17 +49,6 @@ public class Section {
         return lineId;
     }
 
-    @Override
-    public String toString() {
-        return "Section{" +
-                "upStationId=" + upStationId +
-                ", downStationId=" + downStationId +
-                ", distance=" + distance +
-                ", lineId=" + lineId +
-                ", sectionId=" + sectionId +
-                '}';
-    }
-
     public Long getSectionId() {
         return sectionId;
     }

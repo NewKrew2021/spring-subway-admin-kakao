@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -8,8 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import subway.section.SectionRequest;
 import subway.AcceptanceTest;
+import subway.line.LineResponse;
 import subway.station.StationResponse;
 
 import java.util.Arrays;

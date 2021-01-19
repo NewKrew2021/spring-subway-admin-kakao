@@ -1,4 +1,6 @@
-package subway.line;
+package subway.request;
+
+import subway.domain.Line;
 
 public class LineRequest {
     private String name;

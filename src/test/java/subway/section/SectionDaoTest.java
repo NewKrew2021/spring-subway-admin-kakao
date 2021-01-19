@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.dao.SectionDao;
+import subway.domain.Section;
+import subway.domain.Line;
+import subway.dao.LineDao;
+import subway.domain.Station;
+import subway.dao.StationDao;
 
 import static org.junit.jupiter.api.Assertions.*;
 

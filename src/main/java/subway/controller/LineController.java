@@ -1,15 +1,19 @@
-package subway.line;
+package subway.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exception.NotFoundException;
-import subway.section.Section;
-import subway.section.SectionRequest;
-import subway.section.SectionService;
-import subway.station.Station;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.domain.Line;
+import subway.dao.LineDao;
+import subway.request.LineRequest;
+import subway.response.LineResponse;
+import subway.domain.Section;
+import subway.request.SectionRequest;
+import subway.service.SectionService;
+import subway.domain.Station;
+import subway.dao.StationDao;
+import subway.response.StationResponse;
 
 import java.net.URI;
 import java.util.List;

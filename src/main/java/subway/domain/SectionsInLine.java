@@ -1,6 +1,4 @@
-package subway.section;
-
-import subway.station.Station;
+package subway.domain;
 
 import java.util.*;
 import java.util.stream.Collectors;

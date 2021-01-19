@@ -1,4 +1,6 @@
-package subway.station;
+package subway.domain;
+
+import subway.response.StationResponse;
 
 import java.util.Objects;
 

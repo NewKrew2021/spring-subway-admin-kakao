@@ -29,7 +29,7 @@ public class StationController {
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         Stations stations = new Stations(stationDao.findAll());
-        return ResponseEntity.ok(stations.allToDto());
+        return ResponseEntity.ok(stations.toDto());
     }
 
     @GetMapping(value = "/stations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -20,16 +20,14 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName()); // 여기상태에서는 id가 없다.
-        Station newStation = stationDao.save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+        Long id = stationDao.save(new Station(stationRequest.getName()));
+        StationResponse stationResponse = new StationResponse(id, stationRequest.getName());
+        return ResponseEntity.created(URI.create("/stations/" + id)).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<Station> stations = stationDao.findAll();
-        List<StationResponse> stationResponses = stations.stream()
+        List<StationResponse> stationResponses = stationDao.findAll().stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(stationResponses);

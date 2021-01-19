@@ -80,6 +80,5 @@ public class LineDao {
             (resultSet, rowNum) -> new Line(
                     resultSet.getLong("id"),
                     resultSet.getString("name"),
-                    resultSet.getString("color")
-            );
+                    resultSet.getString("color"));
 }

@@ -19,11 +19,7 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
-        validateDistance(distance);
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.lineId = lineId;
+        this(null, upStationId, downStationId, distance, lineId);
     }
 
     public Long getId() {

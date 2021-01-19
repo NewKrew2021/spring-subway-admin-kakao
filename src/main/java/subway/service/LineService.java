@@ -1,9 +1,12 @@
-package subway.line;
+package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.LineDao;
+import subway.domain.line.Line;
+import subway.domain.line.LineResponse;
 import subway.exception.NotExistException;
-import subway.section.SectionDao;
-import subway.station.StationDao;
+import subway.dao.SectionDao;
+import subway.dao.StationDao;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,13 +14,9 @@ import java.util.stream.Collectors;
 @Service
 public class LineService {
     private final LineDao lineDao;
-    private final SectionDao sectionDao;
-    private final StationDao stationDao;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineService(LineDao lineDao) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
     }
 
     public Line createLine(Line line) {

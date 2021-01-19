@@ -1,6 +1,8 @@
-package subway.station;
+package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.StationDao;
+import subway.domain.station.Station;
 import subway.exception.NotExistException;
 
 import java.util.List;

@@ -1,11 +1,13 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.SectionDao;
+import subway.domain.section.Section;
 import subway.exception.InvalidSectionException;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.domain.line.Line;
+import subway.dao.LineDao;
+import subway.domain.station.Station;
+import subway.dao.StationDao;
 
 import java.util.ArrayList;
 import java.util.List;

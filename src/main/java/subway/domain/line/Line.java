@@ -1,8 +1,4 @@
-package subway.line;
-
-import subway.station.StationResponse;
-
-import java.util.List;
+package subway.domain.line;
 
 public class Line {
     private Long id;

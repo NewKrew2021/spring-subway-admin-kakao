@@ -1,16 +1,19 @@
-package subway.line;
+package subway.controller;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.NotExistException;
-import subway.section.Section;
-import subway.section.SectionRequest;
-import subway.section.SectionService;
-import subway.station.Station;
-import subway.station.StationResponse;
-import subway.station.StationService;
+import subway.domain.line.Line;
+import subway.domain.line.LineRequest;
+import subway.domain.line.LineResponse;
+import subway.service.LineService;
+import subway.domain.section.Section;
+import subway.domain.section.SectionRequest;
+import subway.service.SectionService;
+import subway.domain.station.Station;
+import subway.domain.station.StationResponse;
+import subway.service.StationService;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -32,13 +35,8 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine;
+        Line newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()));
         List<StationResponse> stationResponses = new ArrayList<>();
-        try {
-            newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()));
-        } catch (DuplicateKeyException e) {
-            return ResponseEntity.badRequest().build();
-        }
         sectionService.createSection(new Section(newLine.getStartStationId(), newLine.getEndStationId(), lineRequest.getDistance(), newLine.getId()));
 
         Station upStation = stationService.getStation(lineRequest.getUpStationId());

@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Line {
     private final String name;
     private final String color;
-    private Long id;
+    private final Long id;
 
     public Line(Long id, String name, String color) {
         this.id = id;
@@ -14,8 +14,7 @@ public class Line {
     }
 
     public Line(String name, String color) {
-        this.name = name;
-        this.color = color;
+        this(null, name, color);
     }
 
     public Long getId() {

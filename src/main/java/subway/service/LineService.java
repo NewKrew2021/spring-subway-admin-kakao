@@ -28,9 +28,8 @@ public class LineService {
 
     public LineResponse createLine(LineRequest lineRequest) {
         Line newLine = lineDao.save(lineRequest.getDomain());
-        Section section = new Section(newLine.getId(), lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(), lineRequest.getDistance());
-        sectionDao.save(section);
+        sectionDao.save(new Section(newLine.getId(), lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(), lineRequest.getDistance()));
         return new LineResponse(newLine, getOrderedStationsOfLine(newLine.getId()));
     }
 

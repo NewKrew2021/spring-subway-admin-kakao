@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Station {
     private final String name;
-    private Long id;
+    private final Long id;
 
     public Station(Long id, String name) {
         this.id = id;
@@ -12,7 +12,7 @@ public class Station {
     }
 
     public Station(String name) {
-        this.name = name;
+        this(null, name);
     }
 
     public Long getId() {

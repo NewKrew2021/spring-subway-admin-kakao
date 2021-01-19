@@ -8,7 +8,7 @@ public interface SectionService {
 
     boolean deleteSectionById(Long lineId);
 
-    boolean saveSection(Section section);
-
     boolean deleteSection(Long lineId, Long stationId);
+
+    boolean saveSectionAsRequest(SectionRequest sectionRequest, Long lineId);
 }

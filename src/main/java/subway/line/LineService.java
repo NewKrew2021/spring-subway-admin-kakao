@@ -16,4 +16,10 @@ public interface LineService {
     boolean update(Line line);
 
     boolean updateAll(Line line);
+
+    LineResponse saveAndResponse(LineRequest lineRequest);
+
+    List<LineResponse> findAllResponse();
+
+    LineResponse findOneResponse(Long lineId);
 }

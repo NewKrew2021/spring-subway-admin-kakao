@@ -16,8 +16,7 @@ public class SectionController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), lineId);
-        if (!sectionService.saveSection(section)) {
+        if (!sectionService.saveSectionAsRequest(sectionRequest, lineId)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();

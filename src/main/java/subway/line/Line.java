@@ -17,11 +17,6 @@ public class Line {
     public Line() {
     }
 
-    public Line(String name, String color) {
-        this.color = color;
-        this.name = name;
-    }
-
     public Line(Long id, String name, String color) {
         this.id = id;
         this.color = color;

@@ -10,4 +10,10 @@ public interface StationService {
     Station findOne(Long stationId);
 
     boolean deleteById(Long stationId);
+
+    StationResponse saveAndResponse(StationRequest stationRequest);
+
+    List<StationResponse> findAllResponse();
+
+    StationResponse findOneResponse(Long stationId);
 }

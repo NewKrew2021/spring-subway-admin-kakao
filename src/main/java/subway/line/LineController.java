@@ -19,56 +19,29 @@ import java.util.stream.Collectors;
 public class LineController {
 
     private final LineService lineService;
-    private final StationService stationService;
-    private final SectionService sectionService;
 
-    public LineController(LineService lineService, StationService stationService, SectionService sectionService) {
+    public LineController(LineService lineService) {
         this.lineService = lineService;
-        this.stationService = stationService;
-        this.sectionService = sectionService;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineService.save(
-                new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
-                new Section(lineRequest.getUpStationId(),
-                        lineRequest.getDownStationId(),
-                        lineRequest.getDistance()));
-        if (newLine == null) {
+        LineResponse lineResponse = lineService.saveAndResponse(lineRequest);
+        if (lineResponse == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor()));
+        return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
 
     @GetMapping
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok(lineService.findAll()
-                .stream()
-                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(lineService.findAllResponse());
     }
 
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line newLine = lineService.findOne(lineId);
-
-        Sections sections = sectionService.getSectionsByLineId(lineId);
-
-        Set<Long> stationIds = new LinkedHashSet<>();
-
-        for (Section section : sections.getSections()) {
-            stationIds.add(section.getUpStationId());
-            stationIds.add(section.getDownStationId());
-        }
-
-        List<StationResponse> stationResponses = stationIds.stream()
-                .map(id -> {
-                    Station station = stationService.findOne(id);
-                    return new StationResponse(station.getId(), station.getName());
-                }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses));
+        LineResponse lineResponse = lineService.findOneResponse(lineId);
+        return ResponseEntity.ok(lineResponse);
     }
 
     @PutMapping("/{lineId}")

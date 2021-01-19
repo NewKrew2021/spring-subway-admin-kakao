@@ -22,6 +22,10 @@ public class SectionServiceImpl implements SectionService {
         return sectionDao.save(section);
     }
 
+    public boolean saveSectionAsRequest(SectionRequest sectionRequest, Long lineId) {
+        return saveSection(new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), lineId));
+    }
+
     public Sections getSectionsByLineId(Long lineId) {
         return getOrderedSection(sectionDao.getSectionsByLineId(lineId), lineService.findOne(lineId));
     }
@@ -39,11 +43,36 @@ public class SectionServiceImpl implements SectionService {
         return new Sections(orderedSections);
     }
 
+    public boolean deleteSection(Long lineId, Long stationId) {
+        Sections sections = getSectionsByLineId(lineId);
+        Line line = lineService.findOne(lineId);
+
+        if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
+            return false;
+        }
+
+        Section nextSection = sections.findSectionByUpStationId(stationId);
+        Section prevSection = sections.findSectionByDownStationId(stationId);
+
+        if (nextSection != null && prevSection != null) {
+            deleteSectionById(nextSection.getSectionId());
+            deleteSectionById(prevSection.getSectionId());
+            save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), lineId));
+        } else if (nextSection != null) {
+            deleteSectionById(nextSection.getSectionId());
+            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
+        } else if (prevSection != null) {
+            deleteSectionById(prevSection.getSectionId());
+            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
+        }
+        return true;
+    }
+
     public boolean deleteSectionById(Long sectionId) {
         return sectionDao.deleteSectionById(sectionId) != 0;
     }
 
-    public boolean saveSection(Section section) {
+    private boolean saveSection(Section section) {
         if (sectionDao.existSection(section)) {
             return false;
         }
@@ -87,30 +116,5 @@ public class SectionServiceImpl implements SectionService {
         }
         deleteSectionById(prevSection.getSectionId());
         save(new Section(prevSection.getUpStationId(), section.getUpStationId(), prevSection.getDistance() - section.getDistance(), line.getId()));
-    }
-
-    public boolean deleteSection(Long lineId, Long stationId) {
-        Sections sections = getSectionsByLineId(lineId);
-        Line line = lineService.findOne(lineId);
-
-        if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
-            return false;
-        }
-
-        Section nextSection = sections.findSectionByUpStationId(stationId);
-        Section prevSection = sections.findSectionByDownStationId(stationId);
-
-        if (nextSection != null && prevSection != null) {
-            deleteSectionById(nextSection.getSectionId());
-            deleteSectionById(prevSection.getSectionId());
-            save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), lineId));
-        } else if (nextSection != null) {
-            deleteSectionById(nextSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
-        } else if (prevSection != null) {
-            deleteSectionById(prevSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
-        }
-        return true;
     }
 }

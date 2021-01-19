@@ -41,6 +41,50 @@ public class Section {
         return distance;
     }
 
+    public Section getAnotherSection(Section sectionToAdd) {
+        // 하행 기준 분리 ex, (A - C) 에 (B - C) 추가
+        if (isDownMatchPortion(sectionToAdd)) {
+            return new Section(lineId, upStationId, sectionToAdd.getUpStationId(),
+                    distance - sectionToAdd.getDistance());
+        }
+        // 상행 기준 분리 ex, (A - C) 에 (A - B) 추가
+        if (isUpMatchPortion(sectionToAdd)) {
+            return new Section(lineId, sectionToAdd.getDownStationId(), downStationId,
+                    distance - sectionToAdd.getDistance());
+        }
+        throw new IllegalArgumentException("분리할 수 없는 구간입니다.");
+    }
+
+    private boolean isDownMatchPortion(Section sectionToAdd) {
+        return downStationId.equals(sectionToAdd.getDownStationId()) &&
+                !upStationId.equals(sectionToAdd.getUpStationId());
+    }
+
+    private boolean isUpMatchPortion(Section sectionToAdd) {
+        return !downStationId.equals(sectionToAdd.getDownStationId()) &&
+                upStationId.equals(sectionToAdd.getUpStationId());
+    }
+
+    public Section mergeSection(Section sectionToMerge) {
+        if(canMergeOnDownStation(sectionToMerge)){
+            return new Section(lineId, upStationId, sectionToMerge.getDownStationId(),
+                    sectionToMerge.getDistance() + distance);
+        }
+        if(canMergeOnUpStation(sectionToMerge)) {
+            return new Section(lineId, sectionToMerge.getUpStationId(), downStationId,
+                    sectionToMerge.getDistance() + distance);
+        }
+        throw new IllegalArgumentException("합칠 수 없는 구간입니다.");
+    }
+
+    private boolean canMergeOnDownStation(Section sectionToMerge) {
+        return downStationId.equals(sectionToMerge.getUpStationId());
+    }
+
+    private boolean canMergeOnUpStation(Section sectionToMerge) {
+        return upStationId.equals(sectionToMerge.getDownStationId());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

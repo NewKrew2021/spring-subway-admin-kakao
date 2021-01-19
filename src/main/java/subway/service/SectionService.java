@@ -64,21 +64,10 @@ public class SectionService {
 
         // 기존의 구간을 지우고, 두 구간으로 나누어 저장해야 한다.
         Section newSection = sectionDao.save(sectionToAdd);
-        sectionDao.save(getAnotherSection(sectionToSplit, sectionToAdd));
+        sectionDao.save(sectionToSplit.getAnotherSection(sectionToAdd));
         sectionDao.deleteById(sectionToSplit.getId());
 
         return new SectionResponse(newSection);
-    }
-
-    private static Section getAnotherSection(Section sectionToSplit, Section sectionToAdd) {
-        // 하행 기준 분리 ex, (A - C) 에 (B - C) 추가
-        if (sectionToSplit.getDownStationId().equals(sectionToAdd.getDownStationId())) {
-            return new Section(sectionToSplit.getLineId(), sectionToSplit.getUpStationId(),
-                    sectionToAdd.getUpStationId(), sectionToSplit.getDistance() - sectionToAdd.getDistance());
-        }
-        // 상행 기준 분리 ex, (A - C) 에 (A - B) 추가
-        return new Section(sectionToSplit.getLineId(), sectionToAdd.getDownStationId(),
-                sectionToSplit.getDownStationId(), sectionToSplit.getDistance() - sectionToAdd.getDistance());
     }
 
     private static void validateSectionAddRequest(List<Long> stationIds, SectionRequest sectionRequest) {
@@ -115,17 +104,11 @@ public class SectionService {
     }
 
     private void deleteSectionFromMiddleOfLine(Section upsideSection, Section downsideSection) {
-        Section newSection = mergedSection(upsideSection, downsideSection);
+        Section newSection = upsideSection.mergeSection(downsideSection);
         // 두 구간 사이의 역이 없어졌으므로, 두 구간을 합친다.
         sectionDao.deleteById(downsideSection.getId());
         sectionDao.deleteById(upsideSection.getId());
         sectionDao.save(newSection);
-    }
-
-    private static Section mergedSection(Section upsideSection, Section downsideSection) {
-        return new Section(upsideSection.getLineId(), upsideSection.getUpStationId(),
-                downsideSection.getDownStationId(),
-                downsideSection.getDistance() + upsideSection.getDistance());
     }
 
     private OrderedSections getOrderedSectionsByLineId(Long id) {

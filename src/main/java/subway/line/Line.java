@@ -1,6 +1,6 @@
 package subway.line;
 
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import subway.section.Section;
 
 import java.util.Objects;
 

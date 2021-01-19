@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;

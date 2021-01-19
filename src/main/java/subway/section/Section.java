@@ -1,4 +1,6 @@
-package subway.line;
+package subway.section;
+
+import subway.line.Line;
 
 import java.util.List;
 import java.util.Map;

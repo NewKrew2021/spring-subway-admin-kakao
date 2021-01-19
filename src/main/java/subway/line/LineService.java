@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
+import subway.section.Section;
+import subway.section.SectionDao;
+import subway.section.SectionRequest;
 import subway.station.Station;
 import subway.station.StationDao;
 

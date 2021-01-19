@@ -81,6 +81,5 @@ public class LineDao {
             throw new BadRequestException();
         }
         jdbcTemplate.update("delete from LINE where id = ?", lineId);
-        sectionDao.deleteByLineId(lineId);
     }
 }

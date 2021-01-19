@@ -33,4 +33,10 @@ public class LineService {
     }
 
 
+    public Line createLine(Line line) {
+        Line newLine = lineDao.save(line);
+        Section newSection = new Section(newLine.getId(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
+        sectionService.createSection(newSection);
+        return newLine;
+    }
 }

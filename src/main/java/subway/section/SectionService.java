@@ -117,4 +117,8 @@ public class SectionService {
     private boolean isMiddleStation(Section upStationMatch, Section downStationMatch) {
         return upStationMatch != null && downStationMatch != null;
     }
+
+    public void createSection(Section section){
+        sectionDao.insert(section);
+    }
 }

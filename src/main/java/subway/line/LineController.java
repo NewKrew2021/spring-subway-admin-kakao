@@ -29,15 +29,15 @@ public class LineController {
     }
 
     @PostMapping("/lines")
-    public ResponseEntity<LineResponse> createStation(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        Line newLine = lineDao.save(line);
-        if (newLine == null) {
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        try{
+            Line newLine = lineService.createLine(line);
+            LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
+            return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+        } catch(Exception e){
             return ResponseEntity.badRequest().build();
         }
-        sectionDao.insert(new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,7 +65,7 @@ public class LineController {
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
         lineDao.updateById(id, line);
         return ResponseEntity.ok().build();
     }

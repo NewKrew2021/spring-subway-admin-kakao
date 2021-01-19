@@ -1,6 +1,5 @@
 package subway.line;
 
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,19 +67,19 @@ public class LineController {
     }
 
     @PutMapping("/lines/{id}")
-    public ResponseEntity editLineById(@RequestBody LineRequest lineRequest, @PathVariable long id) {
+    public ResponseEntity<Void> editLineById(@RequestBody LineRequest lineRequest, @PathVariable long id) {
         lineDao.editLineById(id, lineRequest.getName(), lineRequest.getColor());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{id}")
-    public ResponseEntity deleteLineById(@PathVariable long id) {
+    public ResponseEntity<Void> deleteLineById(@PathVariable long id) {
         lineDao.deleteLineById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
+    public ResponseEntity<Void> addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         Sections sections = new Sections(sectionDao.getSections(lineId));
         Section newSection = sections.checkAddSection(sectionRequest, lineId);
         if (newSection != null) {
@@ -92,7 +90,7 @@ public class LineController {
     }
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
-    public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
+    public ResponseEntity<Void> deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
         Sections sections = new Sections(sectionDao.getSections(lineId));
         if (sections.isLeastSizeSections() || !sections.hasSection(stationId)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

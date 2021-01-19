@@ -18,16 +18,6 @@ public class LineDao {
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    /*
-        create table if not exists LINE
-        (
-        id bigint auto_increment not null,
-        name varchar(255) not null unique,
-        color varchar(20) not null,
-        primary key(id)
-        );
-
-     */
 
     public Line save(Line line) {
         String SQL = "INSERT INTO line(name,color) VALUES (?,?)";
@@ -35,8 +25,13 @@ public class LineDao {
         jdbcTemplate.update(SQL, line.getName(), line.getColor());
         return jdbcTemplate.queryForObject(
                 SELECT_SQL,
-                (resultSet, rowNum) -> new Line(resultSet.getLong("id"), resultSet.getString("name"), resultSet.getString("color")),
-                line.getName());
+                (resultSet, rowNum) -> new Line(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("color")
+                ),
+                line.getName()
+        );
     }
 
     public boolean hasContains(Line line) {

@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public class SectionDao {
 
-    final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

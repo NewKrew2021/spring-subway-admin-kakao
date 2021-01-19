@@ -5,8 +5,8 @@ import java.util.Objects;
 public class Line {
 
     private long id;
-    private String name;
-    private String color;
+    private final String name;
+    private final String color;
 
 
     public Line(long id, String name, String color) {

@@ -31,16 +31,18 @@ public class Section {
         sectionType = SectionType.INSERT_UP_STATION;
     }
 
-    public SectionType getSectionType() {
-        return sectionType;
+    public int calculateSectionPosition(int distance){
+        if(sectionType == SectionType.INSERT_UP_STATION){
+            return position - distance;
+        }
+        return position + distance;
     }
 
-    public int calculateUpSectionPosition(int distance) {
-        return this.position - distance;
-    }
-
-    public int calculateDownSectionPosition(int distance) {
-        return this.position + distance;
+    public long chooseInsertSectionStationId(SectionRequest sectionRequest){
+        if(sectionType == SectionType.INSERT_UP_STATION){
+            return sectionRequest.getUpStationId();
+        }
+        return sectionRequest.getDownStationId();
     }
 
     public boolean isInvalidPositionSection(int basicPosition, int newPosition) {

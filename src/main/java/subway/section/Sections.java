@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 public class Sections {
 
     private final List<Section> sections;
-    private final int MIN_SECTION_SIZE = 2;
+    private static final int MIN_SECTION_SIZE = 2;
 
     public Sections(List<Section> sections) {
         this.sections = sections;
@@ -24,28 +24,17 @@ public class Sections {
         if (isDuplicatedSection(sectionRequest)) {
             throw new IllegalArgumentException("같은 구간이 존재합니다.");
         }
+
         Section standardSection = findSectionToInsert(sectionRequest.getUpStationId(), sectionRequest.getDownStationId());
         standardSection.sectionConfirm(sectionRequest.getUpStationId());
 
-        int newPosition = 0;
-        long stationId = 0;
-        if (standardSection.getSectionType() == SectionType.INSERT_UP_STATION) {
-            newPosition = standardSection.calculateUpSectionPosition(sectionRequest.getDistance());
-            stationId = sectionRequest.getUpStationId();
-        }
-        if (standardSection.getSectionType() == SectionType.INSERT_DOWN_STATION) {
-            newPosition = standardSection.calculateDownSectionPosition(sectionRequest.getDistance());
-            stationId = sectionRequest.getDownStationId();
-        }
+        int newPosition = standardSection.calculateSectionPosition(sectionRequest.getDistance());
+        long stationId = standardSection.chooseInsertSectionStationId(sectionRequest);
 
         if (checkDistance(standardSection.getPosition(), newPosition)) {
             throw new IllegalArgumentException("추가하려는 구간 사이에 다른 역이 존재합니다.");
         }
-
-        Section newSection = new Section(lineId, stationId, newPosition);
-
-
-        return newSection;
+        return new Section(lineId, stationId, newPosition);
     }
 
     public Section findSectionToInsert(long upStationId, long downStationId) {

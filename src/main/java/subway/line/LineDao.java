@@ -2,8 +2,11 @@ package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exceptions.DuplicateLineNameException;
+
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -27,15 +30,23 @@ public class LineDao {
     };
 
     public long save(LineRequest lineRequest) {
-        String sql = "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?,?,?,?)";
-        long lineId;
-        try {
-            jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
-            lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, lineRequest.getName());
-        } catch (Exception e) {
-            throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
-        }
-        return lineId;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement pstmt = connection.prepareStatement(
+                    "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?, ?, ?, ?)",
+                    new String[] {"id"}
+                    );
+            pstmt.setString(1, lineRequest.getName());
+            pstmt.setString(2, lineRequest.getColor());
+            pstmt.setLong(3, lineRequest.getUpStationId());
+            pstmt.setLong(4, lineRequest.getDownStationId());
+            return pstmt;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
+    }
+
+    public int countByName(String lineName) {
+        return jdbcTemplate.queryForObject("select count(*) from LINE where name = ?", Integer.class, lineName);
     }
 
     public Line findById(long id) {

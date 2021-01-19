@@ -1,18 +1,22 @@
 package subway.station;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exceptions.DuplicateStationNameException;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
 public class StationDao {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
         Station station = new Station(
@@ -23,27 +27,34 @@ public class StationDao {
     };
 
     public Station save(Station station) {
-        String sql = "insert into STATION(name) VALUES (?)";
-        try {
-            jdbcTemplate.update(sql, station.getName());
-        } catch (Exception e) {
-            throw new DuplicateStationNameException("중복된 역 이름입니다.");
-        }
-        return jdbcTemplate.queryForObject("select id, name from STATION where name = ?", stationRowMapper, station.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement pstmt = connection.prepareStatement(
+                    "insert into STATION(name) values(?)",
+                    new String[] {"id"}
+            );
+            pstmt.setString(1, station.getName());
+            return pstmt;
+        }, keyHolder);
+        return jdbcTemplate.queryForObject(
+                "select id, name from STATION where id = ?",
+                stationRowMapper, keyHolder.getKey().longValue()
+        );
+    }
+
+    public int countByName(String stationName) {
+        return jdbcTemplate.queryForObject("select count(*) from STATION where name = ?", Integer.class, stationName);
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station limit 20";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        return jdbcTemplate.query("select id, name from STATION limit 20", stationRowMapper);
     }
 
     public int deleteById(long id) {
-        String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update("delete from STATION where id = ?", id);
     }
 
     public Station findById(long id) {
-        String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        return jdbcTemplate.queryForObject("select id, name from STATION where id = ?", stationRowMapper, id);
     }
 }

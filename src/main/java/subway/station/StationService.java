@@ -1,6 +1,7 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
+import subway.exceptions.DuplicateStationNameException;
 
 import java.util.List;
 
@@ -14,15 +15,18 @@ public class StationService {
     }
 
     public Station save(Station station) {
+        validateDuplicateStationName(station.getName());
         return stationDao.save(station);
+    }
+
+    private void validateDuplicateStationName(String name) {
+        if (stationDao.countByName(name) > 0) {
+            throw new DuplicateStationNameException("중복된 역 이름입니다.");
+        }
     }
 
     public List<Station> findAll() {
         return stationDao.findAll();
-    }
-
-    public Station findById(long id) {
-        return stationDao.findById(id);
     }
 
     public boolean deleteById(long id) {

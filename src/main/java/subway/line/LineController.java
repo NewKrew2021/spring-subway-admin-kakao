@@ -1,6 +1,8 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,36 +30,13 @@ public class LineController {
         this.sectionService = sectionService;
     }
 
-    @DeleteMapping("/{lineId}/sections")
-    public ResponseEntity<LineResponse> deleteLineSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        Line line = lineDao.findById(lineId);
-        sectionService.deleteSection(line.getId(), stationId);
-
-        return ResponseEntity.ok().body(LineResponse.of(line));
-    }
-
-
-    @PostMapping("/{lineId}/sections")
-    public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
-        sectionService.addSectionToLine(Section.of(lineId, sectionRequest));
-        return ResponseEntity.ok().body(LineResponse.of(lineDao.findById(lineId)));
-    }
-
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (isNameDuplicate(lineRequest.getName())) {
-            return ResponseEntity.badRequest().build();
-        }
-
         Line newLine = lineDao.save(Line.of(lineRequest));
         sectionService.save(Section.of(newLine.getId(), lineRequest));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
                 .body(LineResponse.of(newLine));
-    }
-
-    private boolean isNameDuplicate(String name) {
-        return lineDao.findByName(name) != null;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -92,5 +71,16 @@ public class LineController {
         line.updateNameAndColor(lineRequest.getName(), lineRequest.getColor());
         lineDao.update(line);
         return ResponseEntity.ok().build();
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity exceptionHandler(Exception exception) {
+        exception.printStackTrace();
+
+        if (exception instanceof DuplicateKeyException) {
+            return ResponseEntity.badRequest().body("요청한 이름의 Line이 이미 존재합니다.");
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 }

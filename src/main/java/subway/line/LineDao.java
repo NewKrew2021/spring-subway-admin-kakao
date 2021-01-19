@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -28,7 +29,7 @@ public class LineDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Line save(Line line) {
+    public Line save(Line line) throws DuplicateKeyException {
         String sql = "insert into LINE (name, color) values (?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -47,18 +48,9 @@ public class LineDao {
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
-    public Line findById(Long id) {
+    public Line findById(Long id) throws EmptyResultDataAccessException {
         String sql = "select id, name, color from LINE where id = ?";
         return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
-    }
-
-    public Line findByName(String name) {
-        String sql = "select id, name, color from LINE where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
     }
 
     public void update(Line newLine) {
@@ -73,8 +65,11 @@ public class LineDao {
         }, keyHolder);
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws EmptyResultDataAccessException{
         String sql = "delete from LINE where id = ?";
-        jdbcTemplate.update(sql, id);
+
+        if (jdbcTemplate.update(sql, id) == 0) {
+            throw new EmptyResultDataAccessException("삭제하려는 Line이 존재하지 않습니다.", 1);
+        }
     }
 }

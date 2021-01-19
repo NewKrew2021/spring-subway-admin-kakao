@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import subway.station.Station;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,9 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 @SpringBootTest
 public class SectionDaoTest {
-    private final Section 섹션1 = new Section(1L, 1L, 2L, 3);
-    private final Section 섹션2 = new Section(1L, 2L, 3L, 4);
-    private final Section 섹션3 = new Section(2L, 2L, 3L, 5);
+    private final Station 강남역 = new Station(1L);
+    private final Station 역삼역 = new Station(2L);
+    private final Station 광교역 = new Station(3L);
+
+    private final Section 섹션1 = new Section(1L, 강남역, 역삼역, 3);
+    private final Section 섹션2 = new Section(1L, 역삼역, 광교역, 4);
+    private final Section 섹션3 = new Section(2L, 역삼역, 광교역, 5);
 
     @Autowired
     SectionDao sectionDao;

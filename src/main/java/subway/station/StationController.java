@@ -45,7 +45,7 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        if(stationService.deleteStation(id)) {
+        if(!stationService.deleteStation(id)) {
             throw new InvalidIdException("해당하는 ID가 없습니다. : Station ID : " + id);
         }
         return ResponseEntity.noContent().build();

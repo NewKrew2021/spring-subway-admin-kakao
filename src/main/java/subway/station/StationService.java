@@ -14,10 +14,8 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResponse createStation(StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
-        return new StationResponse(newStation.getId(), newStation.getName());
+    public Station createStation(Station station) {
+        return stationDao.save(station);
     }
 
     public List<StationResponse> getAllStations() {

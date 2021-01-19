@@ -13,6 +13,10 @@ public class Station {
         this(null, name);
     }
 
+    public static Station fromRequest(StationRequest stationRequest) {
+        return new Station(stationRequest.getName());
+    }
+
     public Long getId() {
         return id;
     }
@@ -21,7 +25,7 @@ public class Station {
         return name;
     }
 
-    public StationResponse makeStationResponse() {
+    public StationResponse toResponse() {
         return new StationResponse(getId(), getName());
     }
 }

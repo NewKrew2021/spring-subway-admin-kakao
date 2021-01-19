@@ -53,8 +53,7 @@ public class SectionService {
         sectionDao.updateSection(id, section);
     }
 
-    public void addSection(long id, SectionRequest sectionRequest) {
-        Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance(), id);
+    public void addSection(long id, Section section) {
         Line line = lineDao.findById(id);
         List<StationResponse> stations = getStationsOfLine(line);
 

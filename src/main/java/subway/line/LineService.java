@@ -24,24 +24,21 @@ public class LineService {
         this.stationDao = stationDao;
     }
 
-    public LineResponse createLine(LineRequest lineRequest) {
-        List<StationResponse> stations = getStartAndEndStationResponse(lineRequest.getUpStationId(), lineRequest.getDownStationId());
-
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
+    public Line createLine(Line line, int distance) {
         Line newLine = lineDao.save(line);
 
-        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId());
+        Section section = new Section(newLine.getStartStationId(), newLine.getEndStationId(), distance, newLine.getId());
         sectionDao.save(section);
 
-        return newLine.makeLineResponse(stations);
+        return newLine;
     }
 
-    private List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
+    public List<StationResponse> getStartAndEndStationResponse(Long upStationId, Long downStationId) {
         List<StationResponse> stations = new ArrayList<>();
         Station upStation = stationDao.findById(upStationId);
         Station downStation = stationDao.findById(downStationId);
-        stations.add(upStation.makeStationResponse());
-        stations.add(downStation.makeStationResponse());
+        stations.add(upStation.toResponse());
+        stations.add(downStation.toResponse());
         return stations;
     }
 
@@ -53,10 +50,9 @@ public class LineService {
         lineDao.deleteById(id);
     }
 
-    public void updateLine(long id, LineRequest lineRequest) {
+    public void updateLine(long id, Line line) {
         Line originalLine = lineDao.findById(id);
-        Line line = new Line(id, lineRequest.getName(), lineRequest.getColor(), originalLine.getStartStationId(), originalLine.getEndStationId());
-        lineDao.updateById(id, line);
+        lineDao.updateById(id, originalLine.getLineNameAndColorChanged(line.getName(), line.getColor()));
     }
 
     public List<LineResponse> getAllLines() {

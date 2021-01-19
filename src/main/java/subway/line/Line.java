@@ -23,6 +23,13 @@ public class Line {
         this(null, name, color, startStationId, endStationId);
     }
 
+    public static Line fromRequest(LineRequest lineRequest) {
+        return new Line(lineRequest.getName(),
+                lineRequest.getColor(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId());
+    }
+
     public Long getId() {
         return id;
     }
@@ -43,16 +50,20 @@ public class Line {
         return endStationId;
     }
 
-    public LineResponse makeLineResponse(List<StationResponse> stations) {
+    public LineResponse toResponse(List<StationResponse> stations) {
         return new LineResponse(getId(), getName(), getColor(), stations);
     }
 
     public Line getLineEndStationChanged(long newEndStationId) {
-        return new Line(id, name, color, startStationId, newEndStationId);
+        return new Line(getId(), getName(), getColor(), getStartStationId(), newEndStationId);
     }
 
     public Line getLineStartStationChanged(long newStartStationId) {
-        return new Line(id, name, color, newStartStationId, endStationId);
+        return new Line(getId(), getName(), getColor(), newStartStationId, getEndStationId());
+    }
+
+    public Line getLineNameAndColorChanged(String name, String color) {
+        return new Line(getId(), name, color, getStartStationId(), getEndStationId());
     }
 
     public boolean isStartStation(long stationId) {

@@ -3,7 +3,7 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.NotExistException;
+import subway.section.Section;
 import subway.section.SectionRequest;
 import subway.section.SectionService;
 import subway.station.StationResponse;
@@ -28,12 +28,11 @@ public class LineController {
             return ResponseEntity.badRequest().build();
         }
 
-        try {
-            LineResponse lineResponse = lineService.createLine(lineRequest);
-            return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
-        } catch (NotExistException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Line newLine = lineService.createLine(Line.fromRequest(lineRequest), lineRequest.getDistance());
+        List<StationResponse> stations = lineService.getStartAndEndStationResponse(
+                newLine.getStartStationId(),
+                newLine.getEndStationId());
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(newLine.toResponse(stations));
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -52,7 +51,7 @@ public class LineController {
 
     @RequestMapping(value = "/lines/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
-        lineService.updateLine(id, lineRequest);
+        lineService.updateLine(id, Line.fromRequest(lineRequest));
         return ResponseEntity.ok().build();
     }
 
@@ -64,7 +63,7 @@ public class LineController {
 
     @PostMapping(value = "/lines/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        sectionService.addSection(id, sectionRequest);
+        sectionService.addSection(id, Section.fromRequest(sectionRequest, id));
         return ResponseEntity.ok().build();
     }
 

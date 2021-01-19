@@ -21,8 +21,8 @@ public class StationController {
         if (stationService.existName(stationRequest.getName())) {
             return ResponseEntity.badRequest().build();
         }
-        StationResponse stationResponse = stationService.createStation(stationRequest);
-        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
+        Station station = stationService.createStation(Station.fromRequest(stationRequest));
+        return ResponseEntity.created(URI.create("/stations/" + station.getId())).body(station.toResponse());
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)

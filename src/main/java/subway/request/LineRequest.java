@@ -1,4 +1,4 @@
-package subway.line;
+package subway.request;
 
 public class LineRequest {
     private String name;
@@ -37,4 +37,5 @@ public class LineRequest {
     public int getDistance() {
         return distance;
     }
+
 }

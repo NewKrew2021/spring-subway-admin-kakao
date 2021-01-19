@@ -1,4 +1,4 @@
-package subway.station;
+package subway.domain;
 
 public class Station {
     private Long id;
@@ -7,13 +7,21 @@ public class Station {
     public Station() {
     }
 
-    public Station(Long id, String name) {
+    private Station(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public Station(String name) {
+    private Station(String name) {
         this.name = name;
+    }
+
+    public static Station of(String name) {
+        return new Station(name);
+    }
+
+    public static Station of(Long id, String name) {
+        return new Station(id, name);
     }
 
     public Long getId() {

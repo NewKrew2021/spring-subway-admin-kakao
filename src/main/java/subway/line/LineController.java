@@ -45,7 +45,7 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity createSection(@RequestBody SectionRequest sectionRequest,
                                         @PathVariable Long lineId) {
-        lineDao.findById(lineId).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
+        lineDao.findById(lineId);
 
         Section section = new Section(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), lineId, sectionRequest.getDistance());
         sectionDao.save(section);
@@ -66,7 +66,7 @@ public class LineController {
 
     @GetMapping(value = "/lines/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException("존재하지 않는 line id 입니다."));
+        Line line = lineDao.findById(id);
 
         List<StationResponse> stationResponses = new ArrayList<>();
         List<Long> stationIds = sectionDao.findSortedStationIdsByLineId(id);

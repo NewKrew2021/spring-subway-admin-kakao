@@ -1,11 +1,16 @@
 package subway.line;
 
+import subway.section.Sections;
+import subway.station.Station;
+
+import java.util.List;
 import java.util.Objects;
 
 public class Line {
     private Long id;
     private String name;
     private String color;
+    private Sections sections;
 
     public Line(Long id, String name, String color) {
         this.id = id;
@@ -16,6 +21,17 @@ public class Line {
     public Line(String name, String color) {
         this.name = name;
         this.color = color;
+    }
+
+    public Line(Line line, Sections sections) {
+        this.id = line.getId();
+        this.name = line.getName();
+        this.color = line.getColor();
+        this.sections = sections;
+    }
+
+    public List<Station> getAllStations() {
+        return sections.getAllStations();
     }
 
     public Long getId() {

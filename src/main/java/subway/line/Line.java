@@ -12,13 +12,11 @@ public class Line {
     private String name;
     private String color;
 
-    @Autowired
-    private SectionService sectionService;
-
-    @Autowired
-    private StationDao stationDao;
-
-    public Line() {}
+//    @Autowired
+//    private SectionService sectionService;
+//
+//    @Autowired
+//    private StationDao stationDao;
 
     public Line(String name, String color) {
         this(0L, name, color);
@@ -55,13 +53,13 @@ public class Line {
         return Objects.hash(id, name, color);
     }
 
-    public List<Long> getStationIds(){
-        List<Section> sections = sectionService.showAll(this.id);
-        List<Long> stationIds = sections.stream()
-                .map(Section::getUpStationId)
-                .collect(Collectors.toList());
-        stationIds.add(sections.get(sections.size()-1).getDownStationId());
-        return stationIds;
-    }
+//    public List<Long> getStationIds(){
+//        List<Section> sections = sectionService.showAll(this.id);
+//        List<Long> stationIds = sections.stream()å
+//                .map(Section::getUpStationId)
+//                .collect(Collectors.toList());
+//        stationIds.add(sections.get(sections.size()-1).getDownStationId());
+//        return stationIds;
+//    }
 
 }

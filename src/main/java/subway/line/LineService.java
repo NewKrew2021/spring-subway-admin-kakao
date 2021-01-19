@@ -11,14 +11,20 @@ import java.util.stream.Collectors;
 public class LineService {
     private LineDao lineDao;
     private StationDao stationDao;
+    private SectionService sectionService;
 
-    public LineService(LineDao lineDao, StationDao stationDao){
+    public LineService(LineDao lineDao, StationDao stationDao, SectionService sectionService){
         this.lineDao = lineDao;
         this.stationDao = stationDao;
+        this.sectionService = sectionService;
     }
 
     public List<Station> getStations(Line line){
-        List<Long> stationIds = line.getStationIds();
+        List<Section> sections = sectionService.showAll(line.getId());
+        List<Long> stationIds = sections.stream()
+                .map(Section::getUpStationId)
+                .collect(Collectors.toList());
+        stationIds.add(sections.get(sections.size()-1).getDownStationId());
         return stationIds.stream()
                 .map(stationDao::findStationById)
                 .collect(Collectors.toList());

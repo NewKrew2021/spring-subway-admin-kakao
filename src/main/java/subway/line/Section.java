@@ -62,21 +62,12 @@ public class Section {
     }
     //TO DO: 테스트 에러발생 지점!!
     private void checkNotIncluded(List<Section> sections) {
-        boolean flag = false;
-        for (Section section : sections) {
-            if (section.getUpStationId().equals(upStationId) || section.getDownStationId().equals(downStationId)) {
-                flag = true;
-            }
-        }
-        if (!flag) {
+        if (sections.size() > 0 && !sections.stream()
+                .anyMatch(section -> section.getUpStationId().equals(upStationId) || section.getDownStationId().equals(downStationId)
+                || section.getUpStationId().equals(downStationId) || section.getDownStationId().equals(upStationId))) {
             System.out.println("어떤 섹션 에러");
             throw new IllegalArgumentException("어떤 station도 없으면 추가할 수 없습니다.");
         }
-//        if (!sections.stream()
-//                .anyMatch(section -> section.getUpStationId().equals(upStationId) || section.getDownStationId().equals(downStationId))) {
-//            System.out.println("어떤 섹션 에러");
-//            throw new IllegalArgumentException("어떤 station도 없으면 추가할 수 없습니다.");
-//        }
     }
 
     public void checkValidDistance(Section section) {

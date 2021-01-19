@@ -42,7 +42,7 @@ public class SectionService {
 
         Map<Long, Long> upStationAndDownStation = sectionDao.findByLineId(section.getLineId()).stream()
                 .collect(Collectors.toMap(Section::getUpStationId, Section::getDownStationId));
-        if(SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.UP_STATION_MATCHING){
+        if (SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.UP_STATION_MATCHING) {
             Section upStationMatchSection = sectionDao.findByUpStationId(section.getUpStationId());
             section.checkValidDistance(upStationMatchSection);
             sectionDao.insert(section);
@@ -50,14 +50,14 @@ public class SectionService {
             sectionDao.update(new Section(upStationMatchSection.getId(), section.getLineId(), section.getDownStationId(), upStationMatchSection.getDownStationId(), newDistance));
             return;
         }
-        if(SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.DOWN_STATION_MATCHING){
+        if (SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.DOWN_STATION_MATCHING) {
             Section downStationMatchSection = sectionDao.findByDownStationId(section.getDownStationId());
             section.checkValidDistance(downStationMatchSection);
             sectionDao.insert(section);
             int newDistance = downStationMatchSection.getDistance() - section.getDistance();
             sectionDao.update(new Section(downStationMatchSection.getId(), section.getLineId(), downStationMatchSection.getUpStationId(), section.getUpStationId(), newDistance));
             return;
-            }
+        }
         sectionDao.insert(section);
     }
 

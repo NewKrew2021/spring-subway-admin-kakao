@@ -56,4 +56,11 @@ public class Sections {
     public List<Section> getSections() {
         return sections;
     }
+
+    @Override
+    public String toString() {
+        return "Sections{" +
+                "sections=" + sections +
+                '}';
+    }
 }

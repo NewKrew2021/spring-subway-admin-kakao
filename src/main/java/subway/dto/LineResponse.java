@@ -29,6 +29,10 @@ public class LineResponse {
         this.stations = stations;
     }
 
+    public LineResponse() {
+
+    }
+
     public Long getId() {
         return id;
     }

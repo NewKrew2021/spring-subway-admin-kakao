@@ -5,6 +5,8 @@ import subway.domain.Section;
 import subway.dto.SectionRequest;
 import subway.domain.Sections;
 
+import java.util.List;
+
 public interface SectionService {
     Section save(Section section);
 

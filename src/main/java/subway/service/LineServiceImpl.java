@@ -17,20 +17,18 @@ import java.util.stream.Collectors;
 @Service
 public class LineServiceImpl implements LineService {
     private final LineDao lineDao;
-    private final SectionDao sectionDao;
+    private final SectionService sectionService;
     private final StationService stationService;
 
-    public LineServiceImpl(LineDao lineDao, SectionDao sectionDao, StationService stationService) {
+    public LineServiceImpl(LineDao lineDao, SectionService sectionService, StationService stationService) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
+        this.sectionService = sectionService;
         this.stationService = stationService;
     }
 
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
-        if (newLine != null) {
-            sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
-        }
+        sectionService.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
         return newLine;
     }
 
@@ -40,7 +38,7 @@ public class LineServiceImpl implements LineService {
 
     public List<Line> findAll() {
         List<Line> lines = lineDao.findAll();
-        if(lines.size() == 0){
+        if (lines.size() == 0) {
             throw new DataEmptyException();
         }
         return lines;
@@ -48,7 +46,7 @@ public class LineServiceImpl implements LineService {
 
     public Line findOne(Long lineId) {
         Line line = lineDao.findOne(lineId);
-        if(line == null){
+        if (line == null) {
             throw new DataEmptyException();
         }
         return line;
@@ -62,12 +60,6 @@ public class LineServiceImpl implements LineService {
         return lineDao.updateAll(line) != 0;
     }
 
-    public LineResponse saveAndResponse(LineRequest lineRequest) {
-        Line line = save(new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
-                new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        return new LineResponse(line);
-    }
-
     public List<LineResponse> findAllResponse() {
         return findAll().stream()
                 .map(LineResponse::new)
@@ -76,14 +68,13 @@ public class LineServiceImpl implements LineService {
 
     public LineResponse findOneResponse(Long lineId) {
         Line line = findOne(lineId);
-        Sections sections = sectionDao.getSectionsByLineId(lineId);
+        Sections sections = sectionService.getSectionsByLineId(lineId);
         Set<Long> stationIds = new LinkedHashSet<>();
-
         sections.getSections()
                 .forEach(section -> {
-            stationIds.add(section.getUpStationId());
-            stationIds.add(section.getDownStationId());
-        });
+                    stationIds.add(section.getUpStationId());
+                    stationIds.add(section.getDownStationId());
+                });
 
         List<StationResponse> stationResponses = stationIds.stream()
                 .map(id -> {
@@ -93,5 +84,4 @@ public class LineServiceImpl implements LineService {
                 .collect(Collectors.toList());
         return new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
     }
-
 }

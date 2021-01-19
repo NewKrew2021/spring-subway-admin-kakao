@@ -3,9 +3,12 @@ package subway.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.convertor.LineConvertor;
 import subway.domain.Line;
+import subway.domain.Section;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
+import subway.factory.LineFactory;
 import subway.service.LineService;
 
 import java.net.URI;
@@ -23,18 +26,17 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        LineResponse lineResponse = lineService.saveAndResponse(lineRequest);
-        if (lineResponse == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Section section = new Section(lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        LineResponse lineResponse = LineConvertor.convertLine(lineService.save(LineFactory.getLine(lineRequest),section));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
 
     @GetMapping
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok(lineService.findAllResponse());
+        return ResponseEntity.ok(LineConvertor.convertLines(lineService.findAll()));
     }
 
+    //TODO 리스폰스 변경.
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         LineResponse lineResponse = lineService.findOneResponse(lineId);
@@ -43,7 +45,7 @@ public class LineController {
 
     @PutMapping("/{lineId}")
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        if (!lineService.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor()))) {
+        if (!lineService.update(LineFactory.getLine(lineId, lineRequest))) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();

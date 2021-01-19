@@ -20,9 +20,8 @@ public interface LineService {
 
     boolean updateAll(Line line);
 
-    LineResponse saveAndResponse(LineRequest lineRequest);
-
     List<LineResponse> findAllResponse();
 
     LineResponse findOneResponse(Long lineId);
+
 }

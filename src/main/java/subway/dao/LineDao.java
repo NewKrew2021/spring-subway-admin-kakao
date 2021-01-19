@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
+import subway.exception.AlreadyExistData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,8 @@ public class LineDao {
             SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
             Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
             return new Line(id, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
-
         } catch (Exception e) {
-            return null;
+            throw new AlreadyExistData();
         }
     }
 

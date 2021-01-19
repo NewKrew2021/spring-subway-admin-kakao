@@ -1,6 +1,7 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
@@ -14,11 +15,11 @@ import java.util.List;
 public class SectionServiceImpl implements SectionService {
 
     private final SectionDao sectionDao;
-    private final LineService lineService;
+    private final LineDao lineDao;
 
-    public SectionServiceImpl(SectionDao sectionDao, LineService lineService) {
+    public SectionServiceImpl(SectionDao sectionDao, LineDao lineDao) {
         this.sectionDao = sectionDao;
-        this.lineService = lineService;
+        this.lineDao = lineDao;
     }
 
     public Section save(Section section) {
@@ -30,7 +31,7 @@ public class SectionServiceImpl implements SectionService {
     }
 
     public Sections getSectionsByLineId(Long lineId) {
-        return getOrderedSection(sectionDao.getSectionsByLineId(lineId), lineService.findOne(lineId));
+        return getOrderedSection(sectionDao.getSectionsByLineId(lineId), lineDao.findOne(lineId));
     }
 
     private Sections getOrderedSection(Sections sections, Line line) {
@@ -48,7 +49,7 @@ public class SectionServiceImpl implements SectionService {
 
     public boolean deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
-        Line line = lineService.findOne(lineId);
+        Line line = lineDao.findOne(lineId);
 
         if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
             return false;
@@ -63,10 +64,10 @@ public class SectionServiceImpl implements SectionService {
             save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), lineId));
         } else if (nextSection != null) {
             deleteSectionById(nextSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
+            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
         } else if (prevSection != null) {
             deleteSectionById(prevSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
+            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
         }
         return true;
     }
@@ -99,10 +100,10 @@ public class SectionServiceImpl implements SectionService {
 
     private void addSectionBack(Sections sections, Section section) {
         Long existStationId = section.getUpStationId();
-        Line line = lineService.findOne(section.getLineId());
+        Line line = lineDao.findOne(section.getLineId());
         Section nextSection = sections.findSectionByUpStationId(existStationId);
         if (existStationId == line.getDownStationId()) {
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), section.getDownStationId()));
+            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), section.getDownStationId()));
             return;
         }
         deleteSectionById(nextSection.getSectionId());
@@ -111,10 +112,10 @@ public class SectionServiceImpl implements SectionService {
 
     private void addSectionFront(Sections sections, Section section) {
         Long existStationId = section.getDownStationId();
-        Line line = lineService.findOne(section.getLineId());
+        Line line = lineDao.findOne(section.getLineId());
         Section prevSection = sections.findSectionByDownStationId(existStationId);
         if (existStationId == line.getUpStationId()) {
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), section.getUpStationId(), line.getDownStationId()));
+            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), section.getUpStationId(), line.getDownStationId()));
             return;
         }
         deleteSectionById(prevSection.getSectionId());

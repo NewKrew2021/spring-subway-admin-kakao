@@ -15,8 +15,6 @@ public interface StationService {
 
     boolean deleteById(Long stationId);
 
-    StationResponse saveAndResponse(StationRequest stationRequest);
-
     List<StationResponse> findAllResponse();
 
     StationResponse findOneResponse(Long stationId);

@@ -43,11 +43,6 @@ public class StationServiceImpl implements StationService {
         return stationDao.deleteById(stationId) != 0;
     }
 
-    public StationResponse saveAndResponse(StationRequest stationRequest) {
-        Station station = save(new Station(stationRequest.getName()));
-        return new StationResponse(station);
-    }
-
     public List<StationResponse> findAllResponse() {
         return findAll()
                 .stream()
@@ -55,7 +50,6 @@ public class StationServiceImpl implements StationService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public StationResponse findOneResponse(Long stationId) {
         return new StationResponse(findOne(stationId));
     }

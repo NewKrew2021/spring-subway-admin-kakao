@@ -1,5 +1,8 @@
 package subway.domain;
 
+import subway.exception.DistanceException;
+import subway.exception.IllegalStationException;
+
 import java.util.Objects;
 
 public class Section {
@@ -13,24 +16,35 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, Integer distance) {
+        if(checkProblemStationId(upStationId,downStationId)){
+            throw new IllegalStationException();
+        }
+        if(distance <= 0){
+            throw new DistanceException();
+        }
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
     }
 
     public Section(Long upStationId, Long downStationId, Integer distance, Long lineId) {
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
+        this(upStationId,downStationId,distance);
         this.lineId = lineId;
     }
 
     public Section(Long sectionId, Long upStationId, Long downStationId, Integer distance, Long lineId) {
+        this(upStationId,downStationId,distance,lineId);
         this.sectionId = sectionId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
-        this.lineId = lineId;
+    }
+
+    private boolean checkProblemStationId(Long upStationId, Long downStationId) {
+        if (upStationId < 0) {
+            return true;
+        }
+        if (downStationId < 0) {
+            return true;
+        }
+        return upStationId.equals(downStationId);
     }
 
     public Long getUpStationId() {
@@ -64,5 +78,16 @@ public class Section {
     @Override
     public int hashCode() {
         return Objects.hash(upStationId, downStationId, lineId);
+    }
+
+    @Override
+    public String toString() {
+        return "Section{" +
+                "upStationId=" + upStationId +
+                ", downStationId=" + downStationId +
+                ", distance=" + distance +
+                ", lineId=" + lineId +
+                ", sectionId=" + sectionId +
+                '}';
     }
 }

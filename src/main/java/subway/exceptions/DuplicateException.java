@@ -1,4 +1,4 @@
-package subway;
+package subway.exceptions;
 
 import org.springframework.http.HttpStatus;
 

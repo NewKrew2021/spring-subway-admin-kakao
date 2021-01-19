@@ -3,7 +3,7 @@ package subway.line;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.NotFoundException;
+import subway.exceptions.NotFoundException;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;

@@ -1,4 +1,4 @@
-package subway;
+package subway.exceptions;
 
 public class NotFoundException extends RuntimeException{
 

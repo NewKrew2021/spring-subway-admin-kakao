@@ -1,4 +1,4 @@
-package subway.section;
+package subway.exceptions;
 
 public class CannotConstructRightSectionsForLine extends RuntimeException {
 

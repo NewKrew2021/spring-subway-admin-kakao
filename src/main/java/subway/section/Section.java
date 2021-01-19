@@ -1,5 +1,7 @@
 package subway.section;
 
+import subway.exceptions.IllegalSectionCreateException;
+
 public class Section {
     private Long id, upStationId, downStationId, lineId;
     private int distance;

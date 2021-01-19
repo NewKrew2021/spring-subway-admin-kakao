@@ -47,7 +47,8 @@ public class LineDao {
     }
 
     public void update(Line line) {
-        int update = jdbcTemplate.update("update line set name = ?, color = ? where id = ?", line.getName(), line.getColor(), line.getId());
+        int update = jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
+                line.getName(), line.getColor(), line.getId());
         if (update == 0) {
             throw new LineNothingToUpdateException();
         }

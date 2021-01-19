@@ -7,6 +7,7 @@ import subway.line.LineResponse;
 import subway.station.StationDao;
 
 @RestController
+@RequestMapping("/lines/{lineId}/sections")
 public class SectionController {
     private final LineDao lineDao;
     private final StationDao stationDao;
@@ -18,14 +19,14 @@ public class SectionController {
         this.sectionDao = sectionDao;
     }
 
-    @PostMapping("/lines/{lineId}/sections")
+    @PostMapping()
     public ResponseEntity<LineResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         sectionDao.makeSection(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(),
                 sectionRequest.getDistance(), lineId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{lineId}/sections")
+    @DeleteMapping()
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         sectionDao.deleteByLineIdAndStationId(lineId, stationId);
         return ResponseEntity.ok().build();

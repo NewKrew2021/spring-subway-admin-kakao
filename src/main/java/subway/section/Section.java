@@ -1,63 +1,82 @@
 package subway.section;
 
+import java.util.Objects;
+
 public class Section {
 
     private long id;
-    private long lineId;
-    private int upDistance;
-    private long stationId;
-    private int downDistance;
-    private long nextId;
+    private final long stationId;
+    private final long lineId;
+    private final int position;
+    private SectionType sectionType;
 
-    public Section(long id, long lineId, int upDistance, long stationId, int downDistance, long nextId) {
+    public Section(long id, long stationId, long lineId, int position) {
         this.id = id;
+        this.stationId = stationId;
         this.lineId = lineId;
-        this.upDistance = upDistance;
-        this.stationId = stationId;
-        this.downDistance = downDistance;
-        this.nextId = nextId;
+        this.position = position;
     }
 
-    public Section(int upDistance, long stationId, int downDistance) {
-        this.upDistance = upDistance;
+    public Section(long lineId, long stationId, int position) {
+        this.lineId = lineId;
         this.stationId = stationId;
-        this.downDistance = downDistance;
+        this.position = position;
     }
 
-    public SectionType sectionConfirm(long upStationId, long downStationId, int index) {
+    public void sectionConfirm(long upStationId) {
         if (stationId == upStationId) {
-            SectionType sectionType = SectionType.INSERT_DOWN_STATION; // INDEX == SIZE-1 FINAL
-            sectionType.setIndex(index);
-            return sectionType;
+            sectionType = SectionType.INSERT_DOWN_STATION;
+            return;
         }
-        if (stationId == downStationId) {
-            SectionType sectionType = SectionType.INSERT_UP_STATION; // index == 0 FIRST
-            sectionType.setIndex(index);
-            return sectionType;
+        sectionType = SectionType.INSERT_UP_STATION;
+    }
+
+    public SectionType getSectionType() {
+        return sectionType;
+    }
+
+    public int calculateUpSectionPosition(int distance) {
+        return this.position - distance;
+    }
+
+    public int calculateDownSectionPosition(int distance) {
+        return this.position + distance;
+    }
+
+    public boolean isInvalidPositionSection(int basicPosition, int newPosition) {
+        if (sectionType == SectionType.INSERT_UP_STATION) {
+            return basicPosition <= position && position <= newPosition;
         }
-        return SectionType.EXCEPTION;
-    }
-
-    public int getUpDistance() {
-        return upDistance;
-    }
-
-    public int getDownDistance() {
-        return downDistance;
-    }
-
-
-
-    public void setDownDistance(int distance) {
-        this.downDistance = distance;
-    }
-
-    public void setUpDistance(int distance) {
-        this.upDistance = distance;
+        return newPosition <= position && position <= basicPosition;
     }
 
     public long getStationId() {
         return stationId;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public long getLineId() {
+        return lineId;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return stationId == section.stationId && lineId == section.lineId && position == section.position;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stationId, lineId, position);
     }
 }
 

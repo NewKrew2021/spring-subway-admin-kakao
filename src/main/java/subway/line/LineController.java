@@ -1,9 +1,11 @@
 package subway.line;
 
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;
 import subway.section.Sections;
@@ -11,6 +13,7 @@ import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,7 @@ public class LineController {
             return ResponseEntity.badRequest().build();
         }
         Line newLine = lineDao.save(line);
+        sectionDao.createLineSection(newLine, lineRequest);
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), null);
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
@@ -52,10 +56,9 @@ public class LineController {
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLineById(@PathVariable long lineId) {
         Line line = lineDao.getLine(lineId); // 이 단계에서 station id는 line이 갖고 있으나, station 에 각각에 대한 정보는 없다.
-        //Line 은 만든다. Section이 없다.
         Sections sections = new Sections(sectionDao.getSections(lineId));
 
-        List<Long> stationsId = line.getStationsId();
+        List<Long> stationsId = sections.getStationsId();
         List<StationResponse> stationResponses = stationsId
                 .stream()
                 .map(stationDao::findById)
@@ -79,9 +82,10 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
-        Line line = lineDao.getLine(lineId);
-        sectionDao.save(sectionRequest,lineId);
-        if (line.insertSection(sectionRequest)) {
+        Sections sections = new Sections(sectionDao.getSections(lineId));
+        Section newSection = sections.checkAddSection(sectionRequest, lineId);
+        if (newSection != null) {
+            sectionDao.save(newSection);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -89,11 +93,12 @@ public class LineController {
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-        Line line = lineDao.getLine(lineId);
-        if (line.deleteSection(stationId)) {
-            return ResponseEntity.ok().build();
+        Sections sections = new Sections(sectionDao.getSections(lineId));
+        if (sections.isLeastSizeSections() || !sections.hasSection(stationId)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        sectionDao.delete(lineId, stationId);
+        return ResponseEntity.ok().build();
     }
 
 }

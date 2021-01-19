@@ -8,6 +8,16 @@ public class Section {
     private Long downStationId;
     private int distance;
 
+    public Section(){}
+
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -43,12 +53,6 @@ public class Section {
         return lineId;
     }
 
-    public void update(Section updateSection) {
-        this.upStationId = updateSection.getUpStationId();
-        this.downStationId = updateSection.getDownStationId();
-        this.distance = updateSection.getDistance();
-    }
-
     public Section merge(Section section, Long stationId) {
         if(this.upStationId == stationId){
             this.upStationId = section.getUpStationId();
@@ -57,6 +61,8 @@ public class Section {
         if(this.downStationId == stationId){
             this.downStationId = section.getDownStationId();
         }
+
+        this.distance += section.getDistance();
 
         return this;
     }

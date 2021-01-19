@@ -122,6 +122,10 @@ public class LineService {
         while (orderedSections.containsKey(upStationId)) {
             Section section = orderedSections.get(upStationId);
 
+            if (distanceSum + section.getDistance() == sectionRequest.getDistance()) {
+                throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+            }
+
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
                 Section newSection = new Section(
                         line.getId(),
@@ -132,12 +136,13 @@ public class LineService {
                 sectionDao.save(newSection);
 
                 Section updateSection = new Section(
+                        section.getId(),
                         line.getId(),
                         sectionRequest.getDownStationId(),
                         section.getDownStationId(),
                         distanceSum + section.getDistance() - sectionRequest.getDistance());
 
-                sectionDao.update(section.getId(), updateSection);
+                sectionDao.update(updateSection);
                 return;
             }
 
@@ -154,6 +159,10 @@ public class LineService {
         while (reverseOrderedSections.containsKey(downStationId)) {
             Section section = reverseOrderedSections.get(downStationId);
 
+            if (distanceSum + section.getDistance() == sectionRequest.getDistance()) {
+                throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+            }
+
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
                 Section newSection = new Section(
                         line.getId(),
@@ -164,12 +173,13 @@ public class LineService {
                 sectionDao.save(newSection);
 
                 Section updateSection = new Section(
+                        section.getId(),
                         line.getId(),
                         section.getUpStationId(),
                         sectionRequest.getUpStationId(),
                         distanceSum + section.getDistance() - sectionRequest.getDistance());
 
-                sectionDao.update(section.getId(), updateSection);
+                sectionDao.update(updateSection);
                 return;
             }
 
@@ -255,6 +265,7 @@ public class LineService {
 
         // 1.
         List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId,id);
+
         Line line = lineDao.findById(id);
 
         // 2.
@@ -267,7 +278,9 @@ public class LineService {
         // 3.
         if(!line.isEndStation(sectionList.size())){
             Section mergeSection = sectionList.get(0).merge(sectionList.get(1), stationId);
+            sectionDao.deleteById(sectionList.get(0).getId());
             sectionDao.deleteById(sectionList.get(1).getId());
+            sectionDao.save(mergeSection);
         }
 
         // 4.

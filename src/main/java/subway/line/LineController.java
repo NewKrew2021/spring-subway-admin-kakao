@@ -28,7 +28,6 @@ public class LineController {
         this.stationDao = stationDao;
         this.sectionService = sectionService;
         this.lineService = lineService;
-        this.sectionDao = sectionDao;
     }
 
     @PostMapping("/lines")
@@ -38,7 +37,7 @@ public class LineController {
         if (newLine == null) {
             return ResponseEntity.badRequest().build();
         }
-        sectionDao.insert(new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
+        sectionService.insert(new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
         LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
         // stations 안만들어줌!!!!!
         // TO DO

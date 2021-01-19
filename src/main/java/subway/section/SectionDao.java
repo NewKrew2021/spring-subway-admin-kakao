@@ -33,14 +33,6 @@ public class SectionDao {
         return section;
     };
 
-    private final RowMapper<Section> sectionOnlyStationRowMapper = (resultSet, rowNum) -> {
-        Section section = new Section(
-                resultSet.getLong("up_station_id"),
-                resultSet.getLong("down_station_id")
-        );
-        return section;
-    };
-
     public long save(long lineId, SectionRequest sectionRequest) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {

@@ -17,6 +17,7 @@ import java.util.List;
 public class LineService {
 
     private static final int MIN_DUPLICATE_LINE_NAME_COUNT = 1;
+    private static final long NO_SECTION = 0L;
 
     private static final String DUPLICATE_LINE_NAME_MESSAGE = "중복된 노선 이름입니다.";
     private static final String EMPTY_SECTION_MESSAGE = "라인 내에 구간이 존재하지 않습니다.";
@@ -120,7 +121,7 @@ public class LineService {
 
     private Section makeUpdatedSection(long lineId, SectionRequest sectionRequest) {
         long sectionId = sectionDao.findSectionIdByUpStationId(lineId, sectionRequest.getUpStationId());
-        if (sectionId == 0L) {
+        if (sectionId == NO_SECTION) {
             sectionId = sectionDao.findSectionIdByDownStationId(lineId, sectionRequest.getDownStationId());
             Section section = sectionDao.findById(sectionId);
             return new Section(sectionId, lineId, section.getUpStationId(), sectionRequest.getUpStationId(),

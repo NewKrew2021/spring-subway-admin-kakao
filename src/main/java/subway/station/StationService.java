@@ -9,6 +9,7 @@ import java.util.List;
 public class StationService {
 
     private static final int MIN_DUPLICATE_STATION_NAME_COUNT = 1;
+    private static final int MUST_DELETE_COUNT = 1;
 
     private final StationDao stationDao;
 
@@ -32,7 +33,7 @@ public class StationService {
     }
 
     public boolean deleteById(long id) {
-        if(stationDao.deleteById(id) == 1) {
+        if(stationDao.deleteById(id) == MUST_DELETE_COUNT) {
             return true;
         }
         return false;

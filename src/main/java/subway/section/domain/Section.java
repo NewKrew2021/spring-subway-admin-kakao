@@ -1,4 +1,6 @@
-package subway.line;
+package subway.section.domain;
+
+import subway.section.dto.SectionRequest;
 
 import java.util.Objects;
 

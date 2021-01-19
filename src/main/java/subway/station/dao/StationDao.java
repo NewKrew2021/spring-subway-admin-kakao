@@ -1,8 +1,9 @@
-package subway.station;
+package subway.station.dao;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
+import subway.station.domain.Station;
 
 import java.util.List;
 

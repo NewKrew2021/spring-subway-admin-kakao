@@ -23,8 +23,8 @@ public class StationController {
         return stationService.getStations();
     }
 
-    @DeleteMapping("/stations/{id}")
-    public ResponseEntity deleteStation(@PathVariable Long id) {
-        return stationService.delete(id);
+    @DeleteMapping("/stations/{stationId}")
+    public ResponseEntity deleteStation(@PathVariable Long stationId) {
+        return stationService.delete(stationId);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.exceptions.DuplicateLineNameException;
 import subway.exceptions.InvalidLineArgumentException;
 import subway.exceptions.InvalidSectionException;
+import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.net.URI;
@@ -16,8 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("lines")
 public class LineController {
-    @Autowired
+
     private LineService lineService;
+
+    public LineController(LineService lineService) {
+        this.lineService = lineService;
+    }
 
     @ExceptionHandler(InvalidSectionException.class)
     public ResponseEntity<String> internalServerErrorHandler(InvalidSectionException e) {
@@ -65,9 +70,6 @@ public class LineController {
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable(name = "lineId") Long id) {
         Line showLine = lineService.findById(id);
-        if (showLine == null) {
-            return ResponseEntity.badRequest().build();
-        }
         List<StationResponse> stationResponses = lineService.getStationResponsesById(showLine.getId());
         LineResponse lineResponse = new LineResponse(showLine.getId(), showLine.getName(), showLine.getColor(), stationResponses);
         return ResponseEntity.ok().body(lineResponse);

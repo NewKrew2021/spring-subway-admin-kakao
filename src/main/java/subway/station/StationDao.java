@@ -18,8 +18,12 @@ public class StationDao {
     public static final String SELECT_ALL_ID_NAME_FROM_STATION = "select id, name from station";
     public static final String DELETE_STATION_BY_ID = "delete from station where id = ?";
     public static final String SELECT_STATION_BY_ID = "select id, name from station where id = ?";
-    @Autowired
+
     private JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
         Station station = new Station(

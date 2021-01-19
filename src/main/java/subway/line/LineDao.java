@@ -5,12 +5,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.exceptions.DuplicateLineNameException;
+import subway.exceptions.InvalidLineArgumentException;
+
 import java.util.List;
 
 @Repository
 public class LineDao {
-    @Autowired
+
     private JdbcTemplate jdbcTemplate;
+
+    public LineDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
         Line line = new Line(
@@ -23,12 +29,12 @@ public class LineDao {
         return line;
     };
 
-    public Long save(LineRequest lineRequest) {
+    public Long save(Line line) {
         String sql = "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?,?,?,?)";
         Long lineId;
         try {
-            jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
-            lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, lineRequest.getName());
+            jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId());
+            lineId = jdbcTemplate.queryForObject("select id from LINE where name = ?", Long.class, line.getName());
         } catch (Exception e) {
             throw new DuplicateLineNameException("중복된 이름의 노선입니다.");
         }
@@ -37,7 +43,11 @@ public class LineDao {
 
     public Line findById(Long id) {
         String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, Long.valueOf(id));
+        Line line = jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        if(line == null) {
+            throw new InvalidLineArgumentException("해당하는 노선이 존재하지 않습니다.");
+        }
+        return line;
     }
 
     public List<Line> findAll() {
@@ -45,10 +55,10 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line updateLine(Long id, LineRequest lineRequest) {
+    public Line updateLine(Line line) {
         String sql = "update line set name = ?, color = ? where id = ?";
-        jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), Long.valueOf(id));
-        return findById(id);
+        jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getId());
+        return findById(line.getId());
     }
 
     public Line updateLineStartStation(Long lineId, Long stationId) {

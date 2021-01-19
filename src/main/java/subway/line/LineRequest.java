@@ -24,18 +24,18 @@ public class LineRequest {
         this.distance = distance;
     }
 
-    public void validateLineRequest() {
-        validateNonemptyArgument();
-        validateDifferentUpDown();
+    public void checkLineRequest() {
+        checkEmptyArgument();
+        checkStationId();
     }
 
-    private void validateNonemptyArgument() {
+    private void checkEmptyArgument() {
         if (upStationId == null || downStationId == null || distance == 0) {
             throw new InvalidLineArgumentException(NONEMPTY_ARGUMENT_MESSAGE);
         }
     }
 
-    private void validateDifferentUpDown() {
+    private void checkStationId() {
         if (upStationId == downStationId) {
             throw new InvalidLineArgumentException(SAME_STATION_MESSAGE);
         }

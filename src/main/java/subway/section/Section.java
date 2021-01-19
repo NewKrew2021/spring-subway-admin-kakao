@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import subway.exceptions.InvalidSectionException;
 
@@ -19,7 +19,9 @@ public class Section {
 
     public Section(Long upStationId, Long downStationId, int distance) {
         this(upStationId, downStationId);
-        validateDistance(distance);
+        if (distance <= 0) {
+            throw new InvalidSectionException(INVALID_DISTANCE_MESSAGE);
+        }
         this.distance = distance;
     }
 
@@ -31,12 +33,6 @@ public class Section {
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
         this(lineId, upStationId, downStationId, distance);
         this.id = id;
-    }
-
-    private void validateDistance(int distance) {
-        if (distance <= 0) {
-            throw new InvalidSectionException(INVALID_DISTANCE_MESSAGE);
-        }
     }
 
     public Long getId() {

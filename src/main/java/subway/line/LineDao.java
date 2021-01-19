@@ -16,14 +16,14 @@ import java.util.List;
 public class LineDao {
     private final JdbcTemplate jdbcTemplate;
     private final static RowMapper<Line> lineMapper = (rs, rowNum) ->
-            new Line(rs.getLong("id"),rs.getString("name"),rs.getString("color"));
+            new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color"));
 
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Line save(Line line) {
-        if(existBy(line.getName())){
+        if (existBy(line.getName())) {
             throw new LineDuplicatedException();
         }
 

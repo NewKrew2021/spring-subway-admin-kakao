@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.NotFoundException;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.SectionsInLine;
@@ -48,11 +47,11 @@ public class SectionDao {
         );
     }
 
-    public SectionsInLine findAllByLine(Line line, StationDao stationDao, LineDao lineDao) {
+    public SectionsInLine findAllByLine(Line line) {
         return new SectionsInLine(jdbcTemplate.query(selectByIdQuery, (rs, rowNum) -> {
             Long id = rs.getLong("id");
-            Station upStation = stationDao.findById(rs.getLong("up_station_id")).orElseThrow(NotFoundException::new);
-            Station downStation = stationDao.findById(rs.getLong("down_station_id")).orElseThrow(NotFoundException::new);
+            Station upStation = new Station(rs.getLong("up_station_id"));
+            Station downStation = new Station(rs.getLong("down_station_id"));
             int distance = rs.getInt("distance");
             return new Section(id, line, upStation, downStation, distance);
         },  line.getId()));

@@ -24,7 +24,8 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("station")
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("station")
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);
         Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
@@ -42,7 +43,9 @@ public class StationDao {
 
     public Station findOne(Long stationId) {
         String sql = "select * from STATION where id = ?";
-        return jdbcTemplate.queryForObject(sql, (resultSet, idx) -> new Station(resultSet.getLong("id"), resultSet.getString("name")), stationId);
+        return jdbcTemplate.queryForObject(sql,
+                (resultSet, idx) -> new Station(resultSet.getLong("id"),
+                        resultSet.getString("name")), stationId);
     }
 
     public int deleteById(Long stationId) {

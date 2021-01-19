@@ -70,11 +70,18 @@ public class SectionService{
         Line line = lineService.findOne(section.getLineId());
         Section nextSection = sections.findSectionByUpStationId(existStationId);
         if (existStationId == line.getDownStationId()) {
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), section.getDownStationId()));
+            lineService.updateAll(new Line(line.getId(),
+                    line.getName(),
+                    line.getColor(),
+                    line.getUpStationId(),
+                    section.getDownStationId()));
             return;
         }
         deleteSectionById(nextSection.getSectionId());
-        save(new Section(section.getDownStationId(), nextSection.getDownStationId(), nextSection.getDistance() - section.getDistance(), line.getId()));
+        save(new Section(section.getDownStationId(),
+                nextSection.getDownStationId(),
+                nextSection.getDistance() - section.getDistance(),
+                line.getId()));
     }
 
     private void addSectionFront(Sections sections, Section section) {
@@ -82,11 +89,18 @@ public class SectionService{
         Line line = lineService.findOne(section.getLineId());
         Section prevSection = sections.findSectionByDownStationId(existStationId);
         if (existStationId == line.getUpStationId()) {
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), section.getUpStationId(), line.getDownStationId()));
+            lineService.updateAll(new Line(line.getId(),
+                    line.getName(),
+                    line.getColor(),
+                    section.getUpStationId(),
+                    line.getDownStationId()));
             return;
         }
         deleteSectionById(prevSection.getSectionId());
-        save(new Section(prevSection.getUpStationId(), section.getUpStationId(), prevSection.getDistance() - section.getDistance(), line.getId()));
+        save(new Section(prevSection.getUpStationId(),
+                section.getUpStationId(),
+                prevSection.getDistance() - section.getDistance(),
+                line.getId()));
     }
 
     public boolean deleteSection(Long lineId, Long stationId) {
@@ -103,13 +117,24 @@ public class SectionService{
         if (nextSection != null && prevSection != null) {
             deleteSectionById(nextSection.getSectionId());
             deleteSectionById(prevSection.getSectionId());
-            save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), lineId));
+            save(new Section(prevSection.getUpStationId(),
+                    nextSection.getDownStationId(),
+                    prevSection.getDistance() + nextSection.getDistance(),
+                    lineId));
         } else if (nextSection != null) {
             deleteSectionById(nextSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
+            lineService.updateAll(new Line(line.getId(),
+                    line.getName(),
+                    line.getColor(),
+                    nextSection.getDownStationId(),
+                    line.getDownStationId()));
         } else if (prevSection != null) {
             deleteSectionById(prevSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
+            lineService.updateAll(new Line(line.getId(),
+                    line.getName(),
+                    line.getColor(),
+                    line.getUpStationId(),
+                    prevSection.getUpStationId()));
         }
         return true;
     }

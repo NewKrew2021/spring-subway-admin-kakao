@@ -41,12 +41,24 @@ public class LineDao {
 
     public List<Line> findAll() {
         String sql = "select * from LINE";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color"), rs.getLong("up_station_id"), rs.getLong("down_station_id")));
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new Line(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("color"),
+                        rs.getLong("up_station_id"),
+                        rs.getLong("down_station_id")));
     }
 
     public Line findOne(Long lineId) {
         String sql = "select * from LINE where id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color"), rs.getLong("up_station_id"), rs.getLong("down_station_id")), lineId);
+        return jdbcTemplate.queryForObject(sql,
+                (rs, rowNum) -> new Line(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("color"),
+                        rs.getLong("up_station_id"),
+                        rs.getLong("down_station_id")), lineId);
     }
 
     public int update(Line line) {
@@ -56,6 +68,10 @@ public class LineDao {
 
     public int updateAll(Line line) {
         String sql = "update LINE set color = ?, name = ?, up_station_id = ?, down_station_id = ? where id = ?";
-        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getUpStationId(), line.getDownStationId(), line.getId());
+        return jdbcTemplate.update(sql, line.getColor(),
+                line.getName(),
+                line.getUpStationId(),
+                line.getDownStationId(),
+                line.getId());
     }
 }

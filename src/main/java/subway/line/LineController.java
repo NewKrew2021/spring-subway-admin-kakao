@@ -31,14 +31,21 @@ public class LineController {
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.save(
-                new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId()),
+                new Line(lineRequest.getName(),
+                        lineRequest.getColor(),
+                        lineRequest.getUpStationId(),
+                        lineRequest.getDownStationId()),
+
                 new Section(lineRequest.getUpStationId(),
                         lineRequest.getDownStationId(),
                         lineRequest.getDistance()));
         if (newLine == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor()));
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
+                .body(new LineResponse(newLine.getId(),
+                        newLine.getName(),
+                        newLine.getColor()));
     }
 
     @GetMapping
@@ -68,7 +75,11 @@ public class LineController {
                     return new StationResponse(station.getId(), station.getName());
                 }).collect(Collectors.toList());
 
-        return ResponseEntity.ok(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses));
+        return ResponseEntity.ok(new LineResponse(
+                newLine.getId(),
+                newLine.getName(),
+                newLine.getColor(),
+                stationResponses));
     }
 
     @PutMapping("/{lineId}")

@@ -19,7 +19,10 @@ public class LineService{
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
         if (newLine != null) {
-            sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
+            sectionDao.save(new Section(section.getUpStationId(),
+                    section.getDownStationId(),
+                    section.getDistance(),
+                    newLine.getId()));
         }
         return newLine;
     }

@@ -19,15 +19,23 @@ public class SectionDao {
 
     public boolean existSection(Section section) {
         String sql = "select count(*) from section where up_station_id = ? and down_station_id = ? and line_id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, section.getUpStationId(), section.getDownStationId(), section.getLineId()) > 0;
+        return jdbcTemplate.queryForObject(sql, Integer.class,
+                section.getUpStationId(),
+                section.getDownStationId(),
+                section.getLineId()) > 0;
     }
 
     public Section save(Section section) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("section")
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("section")
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
         Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-        return new Section(id, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId());
+        return new Section(id,
+                section.getUpStationId(),
+                section.getDownStationId(),
+                section.getDistance(),
+                section.getLineId());
     }
 
     public Sections getSectionsByLineId(Long lineId) {

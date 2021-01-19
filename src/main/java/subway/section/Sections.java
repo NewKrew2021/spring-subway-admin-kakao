@@ -40,10 +40,12 @@ public class Sections {
 
     public Long findStationExistBySection(Section section) {
         for (Section sec : sections) {
-            if (sec.getUpStationId().equals(section.getUpStationId()) || sec.getDownStationId().equals(section.getUpStationId())) {
+            if (sec.getUpStationId().equals(section.getUpStationId()) ||
+                    sec.getDownStationId().equals(section.getUpStationId())) {
                 return section.getUpStationId();
             }
-            if (sec.getUpStationId().equals(section.getDownStationId()) || sec.getDownStationId().equals(section.getDownStationId())) {
+            if (sec.getUpStationId().equals(section.getDownStationId()) ||
+                    sec.getDownStationId().equals(section.getDownStationId())) {
                 return section.getDownStationId();
             }
         }

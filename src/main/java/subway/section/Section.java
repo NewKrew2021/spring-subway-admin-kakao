@@ -58,7 +58,9 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId) && Objects.equals(lineId, section.lineId);
+        return Objects.equals(upStationId, section.upStationId) &&
+                Objects.equals(downStationId, section.downStationId) &&
+                Objects.equals(lineId, section.lineId);
     }
 
     @Override

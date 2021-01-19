@@ -56,7 +56,7 @@ public class LineController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LineResponse>> showStationsOfLine(){
+    public ResponseEntity<List<LineResponse>> showLines(){
 
         return ResponseEntity.ok().body(lineDao.findAll()
                 .stream()
@@ -71,7 +71,7 @@ public class LineController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteLineById(@PathVariable Long id) {
+    public ResponseEntity deleteLine(@PathVariable Long id) {
         lineDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -102,14 +102,14 @@ public class LineController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LineResponse> getLineStations(@PathVariable Long id) {
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineDao.findById(id);
 
         return ResponseEntity.ok().body(new LineResponse(line, findStationsByLineId(id)));
     }
 
     @DeleteMapping("/{id}/sections")
-    public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
+    public ResponseEntity deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
         int sectionsCount = sectionDao.countByLineId(id);
 
         if(sectionsCount <= 3) {

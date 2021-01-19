@@ -158,34 +158,34 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line, StationResponse upStation, StationResponse downStation, int distance) {
-        SectionRequest sectionRequest = new SectionRequest(upStation.getId(), downStation.getId(), distance);
+        SectionRequest sectionRequest = new SectionRequest(upStation.getID(), downStation.getID(), distance);
 
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(sectionRequest)
-                .when().post("/lines/{lineId}/sections", line.getId())
+                .when().post("/lines/{lineID}/sections", line.getID())
                 .then().log().all()
                 .extract();
     }
 
     public static void 지하철_노선에_지하철역_순서_정렬됨(ExtractableResponse<Response> response, List<StationResponse> expectedStations) {
         LineResponse line = response.as(LineResponse.class);
-        List<Long> stationIds = line.getStations().stream()
-                .map(StationResponse::getId)
+        List<Long> stationIDs = line.getStations().stream()
+                .map(StationResponse::getID)
                 .collect(Collectors.toList());
 
-        List<Long> expectedStationIds = expectedStations.stream()
-                .map(StationResponse::getId)
+        List<Long> expectedStationIDs = expectedStations.stream()
+                .map(StationResponse::getID)
                 .collect(Collectors.toList());
 
-        assertThat(stationIds).containsExactlyElementsOf(expectedStationIds);
+        assertThat(stationIDs).containsExactlyElementsOf(expectedStationIDs);
     }
 
     public static ExtractableResponse<Response> 지하철_노선에_지하철역_제외_요청(LineResponse line, StationResponse station) {
         return RestAssured
                 .given().log().all()
-                .when().delete("/lines/{lineId}/sections?stationId={stationId}", line.getId(), station.getId())
+                .when().delete("/lines/{lineID}/sections?stationID={stationID}", line.getID(), station.getID())
                 .then().log().all()
                 .extract();
     }

@@ -40,12 +40,12 @@ public class StationDao {
         return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public Station findById(Long id) {
+    public Station findByID(Long id) {
         String sql = "select id, name from station where id = ?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
-    public boolean deleteById(Long id) {
+    public boolean deleteByID(Long id) {
         String sql = "delete from station where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }

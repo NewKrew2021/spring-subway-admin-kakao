@@ -38,8 +38,6 @@ public class LineDao {
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
-    //atomic insert 구현 필요
-
 
     public boolean update(Long id, LineRequest lineRequest) {
         String sql = "update line set name = ?, color = ? where id = ?";
@@ -56,7 +54,7 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line findById(Long id) {
+    public Line findByID(Long id) {
         String sql = "select * from line where id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, lineRowMapper, id);

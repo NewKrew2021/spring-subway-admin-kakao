@@ -16,9 +16,9 @@ public class Sections {
         this.sections = Collections.unmodifiableList(sections);
     }
 
-    public List<Long> getStationIds() {
+    public List<Long> getStationIDs() {
         return sections.stream()
-                .map(Section::getStationId)
+                .map(Section::getStationID)
                 .collect(Collectors.toList());
     }
 
@@ -29,17 +29,17 @@ public class Sections {
     }
 
     public Section insert(Section upSection, Section downSection) {
-        Long lineId = upSection.getLineId();
-        Long upStationId = upSection.getStationId();
-        Long downStationId = downSection.getStationId();
+        Long lineID = upSection.getLineID();
+        Long upStationID = upSection.getStationID();
+        Long downStationID = downSection.getStationID();
 
         int distance = downSection.getDistance();
-        if (!validateStations(upStationId, downStationId)) {
+        if (!validateStations(upStationID, downStationID)) {
             return null;
         }
 
-        Section existingSection = findExistingSection(lineId, upStationId, downStationId);
-        Section newSection = makeNewSection(lineId, upStationId, downStationId, distance);
+        Section existingSection = findExistingSection(lineID, upStationID, downStationID);
+        Section newSection = makeNewSection(lineID, upStationID, downStationID, distance);
         if (!validateDistance(existingSection.getDistance(), newSection.getDistance())) {
             return null;
         }
@@ -47,27 +47,27 @@ public class Sections {
         return newSection;
     }
 
-    private Section findByStationId(Long stationId) {
+    private Section findByStationID(Long stationID) {
         return sections.stream()
-                .filter(section -> section.getStationId() == stationId)
+                .filter(section -> section.getStationID() == stationID)
                 .findFirst()
                 .orElse(null);
     }
 
-    private Section makeNewSection(Long lineId, Long upStationId, Long downStationId, int distance) {
-        Section upSection = findByStationId(upStationId);
-        Section downSection = findByStationId(downStationId);
+    private Section makeNewSection(Long lineID, Long upStationID, Long downStationID, int distance) {
+        Section upSection = findByStationID(upStationID);
+        Section downSection = findByStationID(downStationID);
 
         if (isExisting(upSection)) {
-            return new Section(lineId, downStationId, upSection.getDistance() + distance);
+            return new Section(lineID, downStationID, upSection.getDistance() + distance);
         }
 
-        return new Section(lineId, upStationId, downSection.getDistance() - distance);
+        return new Section(lineID, upStationID, downSection.getDistance() - distance);
     }
 
-    private Section findExistingSection(Long lineId, Long upStationId, Long downStationId) {
-        Section upSection = findByStationId(upStationId);
-        Section downSection = findByStationId(downStationId);
+    private Section findExistingSection(Long lineID, Long upStationID, Long downStationID) {
+        Section upSection = findByStationID(upStationID);
+        Section downSection = findByStationID(downStationID);
 
         return isExisting(upSection) ? upSection : downSection;
     }
@@ -89,8 +89,8 @@ public class Sections {
         return section != null;
     }
 
-    private boolean validateStations(Long upStationId, Long downStationId) {
-        return isExisting(findByStationId(upStationId)) != isExisting(findByStationId(downStationId));
+    private boolean validateStations(Long upStationID, Long downStationID) {
+        return isExisting(findByStationID(upStationID)) != isExisting(findByStationID(downStationID));
     }
 
     public boolean hasOnlyTwoSections() {

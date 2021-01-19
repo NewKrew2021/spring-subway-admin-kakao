@@ -4,39 +4,35 @@ import java.util.Objects;
 
 public class Section implements Comparable<Section> {
     private final long id;
-    private final long lineId;
-    private final long stationId;
+    private final long lineID;
+    private final long stationID;
     private final int distance;
 
-    public Section(long lineId, long stationId, int distance) {
-        this(0L, lineId, stationId, distance);
+    public Section(long lineID, long stationID, int distance) {
+        this(0L, lineID, stationID, distance);
     }
 
-    public Section(long id, long lineId, long stationId, int distance) {
+    public Section(long id, long lineID, long stationID, int distance) {
         this.id = id;
-        this.lineId = lineId;
-        this.stationId = stationId;
+        this.lineID = lineID;
+        this.stationID = stationID;
         this.distance = distance;
     }
 
-    public long getId() {
+    public long getID() {
         return id;
     }
 
-    public long getLineId() {
-        return lineId;
+    public long getLineID() {
+        return lineID;
     }
 
-    public long getStationId() {
-        return stationId;
+    public long getStationID() {
+        return stationID;
     }
 
     public int getDistance() {
         return distance;
-    }
-
-    public int distanceDiffWith(Section existingSection) {
-        return distance - existingSection.distance;
     }
 
     @Override
@@ -44,7 +40,7 @@ public class Section implements Comparable<Section> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(lineId, section.lineId) && Objects.equals(stationId, section.stationId);
+        return Objects.equals(lineID, section.lineID) && Objects.equals(stationID, section.stationID);
     }
 
     @Override

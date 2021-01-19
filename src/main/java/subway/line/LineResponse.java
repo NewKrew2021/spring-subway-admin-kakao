@@ -19,7 +19,7 @@ public class LineResponse {
         this.stations = stations;
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

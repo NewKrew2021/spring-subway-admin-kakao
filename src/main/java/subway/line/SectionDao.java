@@ -24,7 +24,7 @@ public class SectionDao {
     }
 
     public boolean insert(Section upSection, Section downSection) {
-        Sections sections = findByLineId(upSection.getLineId());
+        Sections sections = findByLineID(upSection.getLineID());
 
         Section newSection = sections.insert(upSection, downSection);
         if (newSection == null) {
@@ -36,7 +36,7 @@ public class SectionDao {
     }
 
     public boolean delete(Section section) {
-        Sections sections = findByLineId(section.getLineId());
+        Sections sections = findByLineID(section.getLineID());
         if (sections.hasOnlyTwoSections()) {
             return false;
         }
@@ -47,17 +47,17 @@ public class SectionDao {
 
     private boolean insertSection(Section section) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-        return jdbcTemplate.update(sql, section.getLineId(), section.getStationId(), section.getDistance()) > 0;
+        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance()) > 0;
     }
 
     private boolean deleteSection(Section section) {
         String sql = "delete from section where line_id = ? and station_id = ?";
-        return jdbcTemplate.update(sql, section.getLineId(), section.getStationId()) > 0;
+        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID()) > 0;
     }
 
-    public Sections findByLineId(Long lineId) {
+    public Sections findByLineID(Long lineID) {
         String sql = "select * from section where line_id = ? order by distance";
-        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
+        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
     }
 
     private final RowMapper<Section> sectionRowMapper =

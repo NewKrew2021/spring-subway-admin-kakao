@@ -12,7 +12,7 @@ public class StationResponse {
         this.name = name;
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

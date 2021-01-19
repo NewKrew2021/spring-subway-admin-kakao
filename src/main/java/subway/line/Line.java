@@ -36,7 +36,7 @@ public class Line {
         return new LineResponse(id, name, color, stations.allToDto());
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

@@ -3,23 +3,23 @@ package subway.line;
 import java.beans.ConstructorProperties;
 
 public class SectionRequest {
-    private Long upStationId;
-    private Long downStationId;
+    private Long upStationID;
+    private Long downStationID;
     private int distance;
 
-    @ConstructorProperties({"upStationId", "downStationId", "distance"})
-    public SectionRequest(Long upStationId, Long downStationId, int distance) {
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+    @ConstructorProperties({"upStationID", "downStationID", "distance"})
+    public SectionRequest(Long upStationID, Long downStationID, int distance) {
+        this.upStationID = upStationID;
+        this.downStationID = downStationID;
         this.distance = distance;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
+    public Long getUpStationID() {
+        return upStationID;
     }
 
-    public Long getDownStationId() {
-        return downStationId;
+    public Long getDownStationID() {
+        return downStationID;
     }
 
     public int getDistance() {

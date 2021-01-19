@@ -29,7 +29,7 @@ public class Station {
         return new StationResponse(id, name);
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

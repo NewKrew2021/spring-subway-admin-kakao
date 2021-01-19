@@ -40,7 +40,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
 
         // then
-       지하철역_생성_실패함(response);
+        지하철역_생성_실패함(response);
     }
 
     @DisplayName("지하철역을 조회한다.")
@@ -111,7 +111,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
     public static ExtractableResponse<Response> 지하철역_제거_요청(StationResponse stationResponse) {
         return RestAssured
                 .given().log().all()
-                .when().delete("/stations/" + stationResponse.getId())
+                .when().delete("/stations/" + stationResponse.getID())
                 .then().log().all()
                 .extract();
     }
@@ -138,14 +138,14 @@ public class StationAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {
-        List<Long> expectedLineIds = createdResponses.stream()
-                .map(it -> it.getId())
+        List<Long> expectedLineIDs = createdResponses.stream()
+                .map(it -> it.getID())
                 .collect(Collectors.toList());
 
-        List<Long> resultLineIds = response.jsonPath().getList(".", StationResponse.class).stream()
-                .map(StationResponse::getId)
+        List<Long> resultLineIDs = response.jsonPath().getList(".", StationResponse.class).stream()
+                .map(StationResponse::getID)
                 .collect(Collectors.toList());
 
-        assertThat(resultLineIds).containsAll(expectedLineIds);
+        assertThat(resultLineIDs).containsAll(expectedLineIDs);
     }
 }

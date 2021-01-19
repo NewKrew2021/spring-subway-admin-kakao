@@ -33,8 +33,8 @@ public class LineController {
         }
         final Line newLine = lineDao.insert(line);
 
-        final Section upSection = new Section(newLine.getId(), request.getUpStationId(), 0);
-        final Section downSection = new Section(newLine.getId(), request.getDownStationId(), request.getDistance());
+        final Section upSection = new Section(newLine.getID(), request.getUpStationID(), 0);
+        final Section downSection = new Section(newLine.getID(), request.getDownStationID(), request.getDistance());
 
         boolean created = sectionDao.insertOnCreateLine(upSection, downSection);
         if (!created) {
@@ -42,7 +42,7 @@ public class LineController {
         }
 
         LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
-        return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
+        return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,15 +55,15 @@ public class LineController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineDao.findById(lineId);
+    @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
+        Line line = lineDao.findByID(lineID);
         return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        boolean updated = lineDao.update(id, lineRequest);
+    @PutMapping("/{lineID}")
+    public ResponseEntity<?> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
+        boolean updated = lineDao.update(lineID, lineRequest);
         if (!updated) {
             return ResponseEntity.badRequest().build();
         }
@@ -71,9 +71,9 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{lineId}")
-    public ResponseEntity<?> deleteLine(@PathVariable Long lineId) {
-        boolean deleted = lineDao.delete(lineId);
+    @DeleteMapping("/{lineID}")
+    public ResponseEntity<?> deleteLine(@PathVariable Long lineID) {
+        boolean deleted = lineDao.delete(lineID);
         if (!deleted) {
             return ResponseEntity.badRequest().build();
         }
@@ -81,11 +81,10 @@ public class LineController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{lineId}/sections")
-    public ResponseEntity<?> addSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
-//        boolean created = sectionDao.insert(lineId, request);
-        final Section upSection = new Section(lineId, request.getUpStationId(), 0);
-        final Section downSection = new Section(lineId, request.getDownStationId(), request.getDistance());
+    @PostMapping("/{lineID}/sections")
+    public ResponseEntity<?> addSection(@PathVariable Long lineID, @RequestBody SectionRequest request) {
+        final Section upSection = new Section(lineID, request.getUpStationID(), 0);
+        final Section downSection = new Section(lineID, request.getDownStationID(), request.getDistance());
 
         boolean created = sectionDao.insert(upSection, downSection);
         if (!created) {
@@ -95,9 +94,9 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{lineId}/sections")
-    public ResponseEntity<?> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        final Section section = new Section(lineId, stationId, 0);
+    @DeleteMapping("/{lineID}/sections")
+    public ResponseEntity<?> deleteSection(@PathVariable Long lineID, @RequestParam Long stationID) {
+        final Section section = new Section(lineID, stationID, 0);
 
         boolean deleted = sectionDao.delete(section);
         if (!deleted) {
@@ -108,9 +107,9 @@ public class LineController {
     }
 
     private Stations getStationsByLine(Line line) {
-        Sections sections = sectionDao.findByLineId(line.getId());
-        return new Stations(sections.getStationIds().stream()
-                .map(stationDao::findById)
+        Sections sections = sectionDao.findByLineID(line.getID());
+        return new Stations(sections.getStationIDs().stream()
+                .map(stationDao::findByID)
                 .collect(Collectors.toList()));
     }
 }

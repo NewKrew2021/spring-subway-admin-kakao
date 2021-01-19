@@ -5,8 +5,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.SectionDao;
+import subway.section.SectionDto;
 import subway.section.SectionRequest;
-import subway.section.Sections;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
@@ -76,9 +76,8 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
-        Line line = lineDao.getLine(lineId);
-        sectionDao.save(sectionRequest,lineId);
-        if (line.insertSection(sectionRequest)) {
+        SectionDto sectionDto = new SectionDto(sectionRequest);
+        if (lineService.insertSection( sectionDto, lineId)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -86,10 +85,7 @@ public class LineController {
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-        Line line = lineDao.getLine(lineId);
-        if (line.deleteSection(stationId)) {
-            return ResponseEntity.ok().build();
-        }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 

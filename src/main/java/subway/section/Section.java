@@ -2,62 +2,53 @@ package subway.section;
 
 public class Section {
 
-    private long id;
-    private long lineId;
-    private int upDistance;
-    private long stationId;
-    private int downDistance;
-    private long nextId;
+    private Long id;
+    private Long lineId;
+    private Long stationId;
+    private int distance;
+    private Long nextStationId;
 
-    public Section(long id, long lineId, int upDistance, long stationId, int downDistance, long nextId) {
+    public Section(Long id, Long lineId, Long stationId, int distance, Long nextStationId) {
         this.id = id;
         this.lineId = lineId;
-        this.upDistance = upDistance;
         this.stationId = stationId;
-        this.downDistance = downDistance;
-        this.nextId = nextId;
+        this.distance = distance;
+        this.nextStationId = nextStationId;
     }
 
-    public Section(int upDistance, long stationId, int downDistance) {
-        this.upDistance = upDistance;
+    public Section(Long lineId, Long stationId, int distance, Long nextStationId) {
+        this.lineId = lineId;
         this.stationId = stationId;
-        this.downDistance = downDistance;
+        this.distance = distance;
+        this.nextStationId = nextStationId;
     }
 
-    public SectionType sectionConfirm(long upStationId, long downStationId, int index) {
-        if (stationId == upStationId) {
-            SectionType sectionType = SectionType.INSERT_DOWN_STATION; // INDEX == SIZE-1 FINAL
-            sectionType.setIndex(index);
-            return sectionType;
-        }
-        if (stationId == downStationId) {
-            SectionType sectionType = SectionType.INSERT_UP_STATION; // index == 0 FIRST
-            sectionType.setIndex(index);
-            return sectionType;
-        }
-        return SectionType.EXCEPTION;
+    public long getId() {
+        return id;
     }
 
-    public int getUpDistance() {
-        return upDistance;
-    }
-
-    public int getDownDistance() {
-        return downDistance;
-    }
-
-
-
-    public void setDownDistance(int distance) {
-        this.downDistance = distance;
-    }
-
-    public void setUpDistance(int distance) {
-        this.upDistance = distance;
+    public long getLineId() {
+        return lineId;
     }
 
     public long getStationId() {
         return stationId;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public Long getNextStationId() {
+        return nextStationId;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
+
+    public void setNextStation(Long nextId) {
+        this.nextStationId = nextId;
     }
 }
 

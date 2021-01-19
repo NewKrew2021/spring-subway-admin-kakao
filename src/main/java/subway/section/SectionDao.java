@@ -1,9 +1,9 @@
 package subway.section;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import subway.line.LineRequest;
+
+import java.util.List;
 
 @Repository
 public class SectionDao {
@@ -14,27 +14,92 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save(SectionRequest sectionRequest, long lineId){
-
-    }
-    /*
-    create table if not exists SECTION
-(
-    id bigint auto_increment not null,
-    line_id bigint not null,
-    up_distance int,
-    station_id bigint not null,
-    down_distance int,
-    next_id bigint,
-    primary key(id)
-    );
-
-    * */
-    public void save(Section section){
-        String SQL = "INSERT INTO section (lind_id ,up_distance, station_id, down_distance, next_id ) VALUES (?, ?, ?, ?, ?)";
+    public void save(Section section) {
+        String SQL = "INSERT INTO section (line_id, station_id, distance, next_id ) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(SQL, section.getLineId(), section.getStationId(), section.getDistance(), section.getNextStationId());
     }
 
-    public LineRequest getSections(long lineId) {
-        return null;
+    public List<Section> getSectionsOfLine(Long id) {
+        String SQL = "SELECT * FROM section WHERE line_id = ?";
+        return jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Section(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getLong("next_id")
+                ),
+                id);
+    }
+
+    public Section getSection(Long stationId, Long lineId) {
+        String SQL = "SELECT * FROM section WHERE station_id = ? AND line_id = ?";
+        List<Section> sections = jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Section(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getLong("next_id")
+                ),
+                stationId, lineId);
+        return sections.isEmpty() ? null : sections.get(0);
+    }
+
+    public Section getSectionById(Long id) {
+        String SQL = "SELECT * FROM section WHERE id = ?";
+        List<Section> sections = jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Section(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getLong("next_id")
+                ),
+                id);
+        return sections.isEmpty() ? null : sections.get(0);
+    }
+
+    public Section getSectionByNextId(Long nextId) {
+        if( nextId == null ) {
+            return null;
+        }
+        String SQL = "SELECT * FROM section WHERE next_id = ?";
+        List<Section> sections = jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Section(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getLong("next_id")
+                ),
+                nextId);
+        return sections.isEmpty() ? null : sections.get(0);
+    }
+
+    public List<Section> getReqSection(Long upStationId, Long downStationId, Long lineId) {
+        String SQL = "SELECT * FROM section WHERE line_id = ? AND (station_id = ? OR station_id = ?)";
+        return jdbcTemplate.query(
+                SQL,
+                (resultSet, rowNum) -> new Section(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getLong("next_id")
+                ),
+                lineId, upStationId, downStationId);
+    }
+
+    public void update(Section prevSection) {
+        if(  prevSection == null) {
+            return;
+        }
+        String SQL = "UPDATE section SET next_id = ?, distance = ? WHERE id = ?";
+        jdbcTemplate.update(SQL, prevSection.getNextStationId(), prevSection.getDistance(), prevSection.getId());
     }
 }

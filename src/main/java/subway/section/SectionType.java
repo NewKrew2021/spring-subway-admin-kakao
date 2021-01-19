@@ -1,38 +1,52 @@
 package subway.section;
 
-import java.util.List;
-
 public enum SectionType {
 
 
-    INSERT_DOWN_STATION,         // ordinal == 0
-    INSERT_UP_STATION,       //  ordinal == 1
-    INSERT_FIRST_STATION,
-    INSERT_LAST_STATION,
+    INSERT_DOWN_STATION,
+    INSERT_UP_STATION,
     EXCEPTION;
 
+    private Section newSection;
+    private Section prevSection;
 
-    private int index;
-
-
-    public void setIndex(int index){
-        this.index = index;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public boolean invalidateDistance(int distance, List<Section> sections) {
-        if(this == INSERT_FIRST_STATION || this == INSERT_LAST_STATION){
+    public boolean invalidateDistance() {
+        if( newSection.getNextStationId() == -1 || prevSection == null ){
             return false;
         }
-        if( this == INSERT_DOWN_STATION) {
-            return distance >= sections.get(index).getDownDistance();
-        }
-        return distance >= sections.get(index).getUpDistance();
+        return newSection.getDistance() >= prevSection.getDistance();
     }
 
+    public void updateDistance() {
+        if( this == INSERT_DOWN_STATION) {
+            int distance = newSection.getDistance();
+            newSection.setDistance((prevSection.getDistance() == 0) ? 0 :  prevSection.getDistance() - newSection.getDistance());
+            prevSection.setDistance(distance);
+        }
+        if( this == INSERT_UP_STATION && prevSection != null ) {
+            prevSection.setDistance(prevSection.getDistance() - newSection.getDistance());
+        }
+    }
+
+    public void setPrevSections(Section prevSection) {
+        this.prevSection = prevSection;
+        if( this.prevSection != null ) {
+            this.prevSection.setNextStation(this.newSection.getStationId());
+        }
+    }
+
+    public void setNewSections(Section section) {
+        newSection = section;
+    }
+
+
+    public Section getNewSection() {
+        return newSection;
+    }
+
+    public Section getPrevSection() {
+        return prevSection;
+    }
 }
 
 

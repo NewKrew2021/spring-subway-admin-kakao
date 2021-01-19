@@ -13,6 +13,10 @@ import java.util.List;
 
 @Repository
 public class SectionDao {
+    private final String SECTION_SELECT_BY_LINE_ID = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ?";
+    private final String SECTION_DELETE_BY_ID = "delete from section where id = ?";
+
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
     private final RowMapper<Section> sectionMapper = (rs, rowNum) ->
@@ -20,14 +24,13 @@ public class SectionDao {
                     rs.getLong(4), rs.getInt(5));
 
     @Autowired
-    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource){
+    public SectionDao(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
-        this.insertActor = new SimpleJdbcInsert(dataSource)
+        this.insertActor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("section")
                 .usingGeneratedKeyColumns("id");
     }
 
-    //TODO
     public Section save(Section section) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
         Long id = insertActor.executeAndReturnKey(parameters).longValue();
@@ -36,10 +39,10 @@ public class SectionDao {
     }
 
     public List<Section> getByLineId(Long id) {
-        return jdbcTemplate.query("select * from section where line_id = ?", sectionMapper, id);
+        return jdbcTemplate.query(SECTION_SELECT_BY_LINE_ID, sectionMapper, id);
     }
 
     public boolean deleteById(Long id) {
-        return jdbcTemplate.update("delete from section where id = ?", id) > 0;
+        return jdbcTemplate.update(SECTION_DELETE_BY_ID, id) > 0;
     }
 }

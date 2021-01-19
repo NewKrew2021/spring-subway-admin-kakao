@@ -13,16 +13,20 @@ public class Station {
     }
 
     public Station(Long id, String name) {
-        if (isNegative(id)) {
-            throw new IllegalArgumentException("Station ID cannot be negative");
-        }
-
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Station name cannot be null or blank characters");
-        }
+        validate(id, name);
 
         this.id = id;
         this.name = name;
+    }
+
+    private void validate(Long id, String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Station name cannot be null or blank characters.");
+        }
+    }
+
+    public boolean exists() {
+        return this != null;
     }
 
     public StationResponse toDto() {
@@ -48,7 +52,7 @@ public class Station {
         }
 
         Station station = (Station) o;
-        return Objects.equals(id, station.id) && Objects.equals(name, station.name);
+        return Objects.equals(name, station.name);
     }
 
     @Override

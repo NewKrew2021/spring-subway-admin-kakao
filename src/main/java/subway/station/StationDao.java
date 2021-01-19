@@ -19,6 +19,12 @@ public class StationDao {
     }
 
     public Station insert(Station station) {
+        Stations stations = new Stations(findAll());
+
+        if (stations.hasDuplicate(station)) {
+            return null;
+        }
+
         String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 

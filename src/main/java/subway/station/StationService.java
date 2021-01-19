@@ -8,7 +8,7 @@ import java.util.List;
 public class StationService {
     StationDao stationDao;
 
-    public StationService(StationDao stationDao){
+    public StationService(StationDao stationDao) {
         this.stationDao = stationDao;
     }
 

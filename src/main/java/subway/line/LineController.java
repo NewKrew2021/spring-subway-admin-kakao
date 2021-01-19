@@ -25,25 +25,23 @@ public class LineController {
     }
 
     @PostMapping
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        final Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        final Section section = new Section(lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance());
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
+        final Line line = new Line(request.getName(), request.getColor());
 
         if (lineDao.isDuplicatedName(line)) {
             return ResponseEntity.badRequest().build();
         }
+        final Line newLine = lineDao.insert(line);
 
-        Line newLine = lineDao.insert(line);
-        sectionDao.insert(newLine.getId(), section);
+        final Section upSection = new Section(newLine.getId(), request.getUpStationId(), 0);
+        final Section downSection = new Section(newLine.getId(), request.getDownStationId(), request.getDistance());
 
-        Sections sections = sectionDao.findByLineId(newLine.getId());
-        Stations stations = new Stations(sections.getSortedStationIds().stream()
-                .map(stationDao::findById)
-                .collect(Collectors.toList()));
+        boolean created = sectionDao.insertOnCreateLine(upSection, downSection);
+        if (!created) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        LineResponse lineResponse = newLine.toDto(stations);
+        LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
 
@@ -51,32 +49,20 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> res = lineDao.findAll()
                 .stream()
-                .map(line -> {
-                    Sections sections = sectionDao.findByLineId(line.getId());
-                    Stations stations = new Stations(sections.getSortedStationIds().stream()
-                            .map(stationDao::findById)
-                            .collect(Collectors.toList()));
-
-                    return line.toDto(stations);
-                })
+                .map(line -> line.toDto(getStationsByLine(line)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.findById(id);
-        Sections sections = sectionDao.findByLineId(line.getId());
-        Stations stations = new Stations(sections.getSortedStationIds().stream()
-                .map(stationDao::findById)
-                .collect(Collectors.toList()));
-
-        return ResponseEntity.ok(line.toDto(stations));
+    @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
+        Line line = lineDao.findById(lineId);
+        return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+    public ResponseEntity<?> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         boolean updated = lineDao.update(id, lineRequest);
         if (!updated) {
             return ResponseEntity.badRequest().build();
@@ -85,9 +71,9 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteLine(@PathVariable Long id) {
-        boolean deleted = lineDao.deleteById(id);
+    @DeleteMapping("/{lineId}")
+    public ResponseEntity<?> deleteLine(@PathVariable Long lineId) {
+        boolean deleted = lineDao.delete(lineId);
         if (!deleted) {
             return ResponseEntity.badRequest().build();
         }
@@ -96,13 +82,12 @@ public class LineController {
     }
 
     @PostMapping("/{lineId}/sections")
-    public ResponseEntity<LineResponse> addSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        final Section newSection = new Section(lineId,
-                sectionRequest.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                sectionRequest.getDistance());
+    public ResponseEntity<?> addSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
+//        boolean created = sectionDao.insert(lineId, request);
+        final Section upSection = new Section(lineId, request.getUpStationId(), 0);
+        final Section downSection = new Section(lineId, request.getDownStationId(), request.getDistance());
 
-        boolean created = sectionDao.insert(lineId, newSection);
+        boolean created = sectionDao.insert(upSection, downSection);
         if (!created) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -110,13 +95,22 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}/sections")
-    public ResponseEntity<LineResponse> deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
-        boolean deleted = sectionDao.delete(id, stationId);
+    @DeleteMapping("/{lineId}/sections")
+    public ResponseEntity<?> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
+        final Section section = new Section(lineId, stationId, 0);
+
+        boolean deleted = sectionDao.delete(section);
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    private Stations getStationsByLine(Line line) {
+        Sections sections = sectionDao.findByLineId(line.getId());
+        return new Stations(sections.getStationIds().stream()
+                .map(stationDao::findById)
+                .collect(Collectors.toList()));
     }
 }

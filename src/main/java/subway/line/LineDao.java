@@ -38,6 +38,23 @@ public class LineDao {
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
+    //atomic insert 구현 필요
+
+
+    public boolean update(Long id, LineRequest lineRequest) {
+        String sql = "update line set name = ?, color = ? where id = ?";
+        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
+    }
+
+    public boolean delete(Long id) {
+        String sql = "delete from line where id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    public List<Line> findAll() {
+        String sql = "select * from line";
+        return jdbcTemplate.query(sql, lineRowMapper);
+    }
 
     public Line findById(Long id) {
         String sql = "select * from line where id = ?";
@@ -48,32 +65,17 @@ public class LineDao {
         }
     }
 
-    public Line findByName(String name) {
+    public boolean isDuplicatedName(Line line) {
+        return findByName(line.getName()) != null;
+    }
+
+    private Line findByName(String name) {
         String sql = "select * from line where name = ?";
         try {
             return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
         } catch (DataAccessException e) {
             return null;
         }
-    }
-
-    public List<Line> findAll() {
-        String sql = "select * from line";
-        return jdbcTemplate.query(sql, lineRowMapper);
-    }
-
-    public boolean update(Long id, LineRequest lineRequest) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
-    }
-
-    public boolean deleteById(Long id) {
-        String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
-    }
-
-    public boolean isDuplicatedName(Line line) {
-        return findByName(line.getName()) != null;
     }
 
     private final RowMapper<Line> lineRowMapper =

@@ -65,7 +65,7 @@ public class LineDao {
         }, keyHolder);
     }
 
-    public void deleteById(Long id) throws EmptyResultDataAccessException{
+    public void deleteById(Long id) throws EmptyResultDataAccessException {
         String sql = "delete from LINE where id = ?";
 
         if (jdbcTemplate.update(sql, id) == 0) {

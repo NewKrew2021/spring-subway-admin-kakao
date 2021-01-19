@@ -1,9 +1,9 @@
 package subway.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -34,12 +34,12 @@ public class SectionDao {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setLong(1, section.getLineId());
-            ps.setLong(2, section.getUpStationId());
-            ps.setLong(3, section.getDownStationId());
-            ps.setInt(4, section.getDistance());
-            return ps;
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setLong(1, section.getLineId());
+            pstmt.setLong(2, section.getUpStationId());
+            pstmt.setLong(3, section.getDownStationId());
+            pstmt.setInt(4, section.getDistance());
+            return pstmt;
         }, keyHolder);
 
         return Section.of(keyHolder.getKey().longValue(), section);
@@ -55,7 +55,10 @@ public class SectionDao {
         return jdbcTemplate.query(sql, actorRowMapper, lineId);
     }
 
-    public void deleteById(Long id) {
-        jdbcTemplate.update("delete from SECTION where id = ?", id);
+    public void deleteById(Long id) throws EmptyResultDataAccessException {
+        if (jdbcTemplate.update("delete from SECTION where id = ?", id) == 0) {
+            throw new EmptyResultDataAccessException("삭제하려는 section이 존재하지 않습니다.", 1);
+        }
+        ;
     }
 }

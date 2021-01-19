@@ -12,9 +12,11 @@ public interface SectionService {
 
     Sections getSectionsByLineId(Long lineId);
 
-    boolean deleteSectionById(Long lineId);
+    boolean deleteSectionById(Long sectionId);
+
+    void deleteSectionByLineId(Long lineId);
 
     boolean deleteSection(Long lineId, Long stationId);
 
-    boolean saveSectionAsRequest(SectionRequest sectionRequest, Long lineId);
+    boolean saveSection(Section section);
 }

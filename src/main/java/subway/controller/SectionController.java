@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.dto.SectionRequest;
+import subway.factory.SectionFactory;
 import subway.service.SectionService;
 
 @RestController
@@ -17,7 +18,7 @@ public class SectionController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        if (!sectionService.saveSectionAsRequest(sectionRequest, lineId)) {
+        if (!sectionService.saveSection(SectionFactory.getSection(sectionRequest, lineId))) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();

@@ -1,6 +1,7 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.domain.*;
 import subway.dto.LineRequest;
@@ -26,14 +27,20 @@ public class LineServiceImpl implements LineService {
         this.stationService = stationService;
     }
 
+    @Transactional
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
         sectionService.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
         return newLine;
     }
 
+    @Transactional
     public boolean deleteById(Long lineId) {
-        return lineDao.deleteById(lineId) != 0;
+        if(lineDao.deleteById(lineId) == 0){
+            return false;
+        }
+        sectionService.deleteSectionByLineId(lineId);
+        return true;
     }
 
     public List<Line> findAll() {

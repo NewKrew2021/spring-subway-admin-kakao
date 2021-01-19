@@ -8,6 +8,11 @@ import java.util.List;
 
 @Repository
 public class StationDao {
+    public static final String SAVE_SQL = "insert into STATION (name) values (?)";
+    public static final String FIND_ALL_SQL = "select * from STATION";
+    public static final String FIND_BY_ID_SQL = "select * from STATION where id = ?";
+    public static final String FIND_BY_NAME_SQL = "select * from STATION where name = ?";
+    public static final String DELETE_SQL = "delete from STATION where id = ?";
 
     @Resource
     JdbcTemplate jdbcTemplate;
@@ -15,28 +20,24 @@ public class StationDao {
     @Resource
     StationMapper stationMapper;
 
-    public Station save(Station station) {
-        jdbcTemplate.update("insert into STATION (name) values (?)",station.getName());
-        return station;
+    public void save(Station station) {
+        jdbcTemplate.update(SAVE_SQL, station.getName());
     }
 
     public List<Station> findAll() {
-        String sql = "select * from STATION";
-        return jdbcTemplate.query(sql, stationMapper);
+        return jdbcTemplate.query(FIND_ALL_SQL, stationMapper);
     }
 
     public Station findById(Long id) {
-        String sql = "select * from STATION where id = ?";
-        return jdbcTemplate.queryForObject(sql,stationMapper, id);
+        return jdbcTemplate.queryForObject(FIND_BY_ID_SQL, stationMapper, id);
     }
 
     public Station findByName(String name) {
-        String sql = "select * from STATION where name = ?";
-        return jdbcTemplate.queryForObject(sql,stationMapper, name);
+        return jdbcTemplate.queryForObject(FIND_BY_NAME_SQL, stationMapper, name);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from STATION where id = ?",id);
+        jdbcTemplate.update(DELETE_SQL, id);
     }
 
 }

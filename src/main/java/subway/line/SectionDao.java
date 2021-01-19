@@ -1,19 +1,19 @@
 package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
+    public static final String SAVE_SQL = "insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)";
+    public static final String DELETE_SQL = "delete from SECTION where id = ?";
+    public static final String FIND_BY_LINE_ID_SQL = "select * from SECTION where line_id = ?";
+    public static final String UPDATE_SQL = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
+    public static final String FIND_BY_STATION_ID_AND_LINE_ID_SQL = "select * from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
+    public static final String COUNT_BY_LINE_ID_SQL = "select count(*) from SECTION where line_id = ?";
 
     @Resource
     JdbcTemplate jdbcTemplate;
@@ -22,40 +22,26 @@ public class SectionDao {
     SectionMapper sectionMapper;
 
     public void save(Section section) {
-        jdbcTemplate.update("insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)",
-                section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
-    }
-
-    public List<Section> findAll() {
-        String sql = "select * from SECTION";
-        return jdbcTemplate.query(sql, sectionMapper);
+        jdbcTemplate.update(SAVE_SQL, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from SECTION where id = ?", id);
-    }
-
-    public Section findById(Long id) {
-        String sql = "select * from SECTION where id = ?";
-        return jdbcTemplate.queryForObject(sql, sectionMapper, id);
+        jdbcTemplate.update(DELETE_SQL, id);
     }
 
     public List<Section> findByLineId(Long lineId) {
-        String sql = "select * from SECTION where line_id = ?";
-        return jdbcTemplate.query(sql, sectionMapper, lineId);
+        return jdbcTemplate.query(FIND_BY_LINE_ID_SQL, sectionMapper, lineId);
     }
 
     public void update(Section updateSection) {
-        jdbcTemplate.update("update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
-                updateSection.getUpStationId(), updateSection.getDownStationId(), updateSection.getDistance(), updateSection.getId());
+        jdbcTemplate.update(UPDATE_SQL, updateSection.getUpStationId(), updateSection.getDownStationId(), updateSection.getDistance(), updateSection.getId());
     }
 
     public List<Section> findByStationIdAndLineId(Long stationId, Long lineId) {
-        String sql = "select * from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
-        return jdbcTemplate.query(sql, sectionMapper, lineId, stationId, stationId);
+        return jdbcTemplate.query(FIND_BY_STATION_ID_AND_LINE_ID_SQL, sectionMapper, lineId, stationId, stationId);
     }
 
     public int countByLineId(Long lineId) {
-        return jdbcTemplate.queryForObject("select count(*) from SECTION where line_id = ?", Integer.class, lineId);
+        return jdbcTemplate.queryForObject(COUNT_BY_LINE_ID_SQL, Integer.class, lineId);
     }
 }

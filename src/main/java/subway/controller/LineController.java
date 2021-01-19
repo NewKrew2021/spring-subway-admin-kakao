@@ -3,17 +3,16 @@ package subway.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.NotFoundException;
 import subway.domain.Line;
-import subway.dao.LineDao;
 import subway.request.LineRequest;
 import subway.response.LineResponse;
 import subway.domain.Section;
 import subway.request.SectionRequest;
+import subway.service.LineService;
 import subway.service.SectionService;
 import subway.domain.Station;
-import subway.dao.StationDao;
 import subway.response.StationResponse;
+import subway.service.StationService;
 
 import java.net.URI;
 import java.util.List;
@@ -23,22 +22,22 @@ import java.util.stream.Collectors;
 @RestController
 public class LineController {
     SectionService sectionService;
-    LineDao lineDao;
-    StationDao stationDao;
+    LineService lineService;
+    StationService stationService;
 
-    public LineController(StationDao stationDao, LineDao lineDao, SectionService sectionService) {
-        this.stationDao = stationDao;
-        this.lineDao = lineDao;
+    public LineController(SectionService sectionService, LineService lineService, StationService stationService) {
         this.sectionService = sectionService;
+        this.lineService = lineService;
+        this.stationService = stationService;
     }
 
     @PostMapping("")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = lineRequest.mapToLine();
+        Line line = lineRequest.toLine();
+        Line newLine = lineService.createLine(line);
 
-        Line newLine = lineDao.save(line);
-        Station upStation = stationDao.findById(lineRequest.getUpStationId()).orElseThrow(NotFoundException::new);
-        Station downStation = stationDao.findById(lineRequest.getDownStationId()).orElseThrow(NotFoundException::new);
+        Station upStation = stationService.getStation(lineRequest.getUpStationId());
+        Station downStation = stationService.getStation(lineRequest.getDownStationId());
 
         Section section = new Section(newLine, upStation, downStation, lineRequest.getDistance());
         sectionService.save(section);
@@ -51,9 +50,9 @@ public class LineController {
     @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@RequestBody SectionRequest sectionRequest,
                                         @PathVariable Long lineId) {
-        Line line = lineDao.findById(lineId).orElseThrow(NotFoundException::new);
-        Station upStation = stationDao.findById(sectionRequest.getUpStationId()).orElseThrow(NotFoundException::new);
-        Station downStation = stationDao.findById(sectionRequest.getDownStationId()).orElseThrow(NotFoundException::new);
+        Line line = lineService.getLine(lineId);
+        Station upStation = stationService.getStation(sectionRequest.getUpStationId());
+        Station downStation = stationService.getStation(sectionRequest.getDownStationId());
 
         Section section = new Section(line, upStation, downStation, sectionRequest.getDistance());
         sectionService.save(section);
@@ -63,18 +62,12 @@ public class LineController {
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> lineResponses =
-                lineDao.findAll()
-                        .stream()
-                        .map(LineResponse::from)
-                        .collect(Collectors.toList());
-
-        return ResponseEntity.ok().body(lineResponses);
+        return ResponseEntity.ok().body(lineService.getLines().stream().map(LineResponse::from).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.findById(id).orElseThrow(() -> new NotFoundException());
+        Line line = lineService.getLine(id);
 
         List<StationResponse> stationResponses = sectionService.findSortedStationsByLine(line)
                 .stream()
@@ -89,24 +82,21 @@ public class LineController {
     @PutMapping(value = "/{id}")
     public ResponseEntity modifyLine(@RequestBody LineRequest lineRequest,
                                      @PathVariable Long id) {
-        lineDao.update(new Line(id, lineRequest.getName(), lineRequest.getColor()));
-
+        lineService.updateLine(new Line(id, lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
-        lineDao.deleteById(id);
-
+        lineService.deleteLine(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(value = "/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId,
                                         @RequestParam Long stationId) {
-        Station station = stationDao.findById(stationId).orElseThrow(NotFoundException::new);
-        Line line = lineDao.findById(lineId).orElseThrow(NotFoundException::new);
-
+        Station station = stationService.getStation(stationId);
+        Line line = lineService.getLine(lineId);
         sectionService.deleteStation(line, station);
 
         return ResponseEntity.ok().build();

@@ -37,4 +37,8 @@ public class LineRequest {
     public int getDistance() {
         return distance;
     }
+
+    public Line getLine() {
+        return new Line(name, color, upStationId, downStationId, distance);
+    }
 }

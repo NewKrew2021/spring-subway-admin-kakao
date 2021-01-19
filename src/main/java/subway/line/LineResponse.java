@@ -15,14 +15,10 @@ public class LineResponse {
     public LineResponse() {
     }
 
-    public LineResponse(Long id, String name, String color) {
+    public LineResponse(Long id, String name, String color, List<Station> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
-    }
-
-    public LineResponse(Line line, List<Station> stations) {
-        this(line.getId(), line.getName(), line.getColor());
         this.stations = stations;
     }
 
@@ -42,18 +38,4 @@ public class LineResponse {
         return stations;
     }
 
-    private boolean validator(Line line) {
-        if (line == null) {
-            return false;
-        }
-        return true;
-    }
-
-    public static List<LineResponse> getLineResponses(List<Line> lines) {
-        return lines.stream()
-                .map(line -> new LineResponse(line.getId(),
-                        line.getName(),
-                        line.getColor()))
-                .collect(Collectors.toList());
-    }
 }

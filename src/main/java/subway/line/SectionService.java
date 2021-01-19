@@ -1,16 +1,17 @@
 package subway.line;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
 import subway.station.Station;
 import subway.station.StationDao;
-import subway.station.StationService;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class SectionService {
 
     @Resource

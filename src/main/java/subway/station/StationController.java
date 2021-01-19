@@ -21,9 +21,9 @@ public class StationController {
         try {
             Station station = stationRequest.getStation();
             Long stationId = stationService.create(station);
+            StationResponse stationResponse = new StationResponse(stationId, station.getName());
 
-            return ResponseEntity.created(URI.create("/stations/" + stationId))
-                    .body(new StationResponse(stationId, station.getName()));
+            return ResponseEntity.created(URI.create("/stations/" + stationId)).body(stationResponse);
         } catch (DuplicateKeyException e) {
             return ResponseEntity.badRequest().build();
         }

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public class StationDao {
-    public static final String INSERT_SQL = "insert into STATION (name) values (?)";
+    public static final String SAVE_SQL = "insert into STATION (name) values (?)";
     public static final String FIND_ALL_SQL = "select id, name from STATION";
     public static final String FIND_BY_ID_SQL = "select id, name from STATION where id = ?";
     public static final String DELETE_SQL = "delete from STATION where id = ?";
@@ -26,9 +26,9 @@ public class StationDao {
     public Long save(Station station) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement preparedStatement = con.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, station.getName());
-            return preparedStatement;
+            PreparedStatement ps = con.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, station.getName());
+            return ps;
         }, keyHolder);
 
         return keyHolder.getKey().longValue();

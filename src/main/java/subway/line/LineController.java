@@ -1,14 +1,18 @@
 package subway.line;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.StationService;
 
 import javax.annotation.Resource;
+import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
 
     @Resource
@@ -18,38 +22,59 @@ public class LineController {
     @Resource
     private SectionService sectionService;
 
-    @PostMapping(value = "/lines")
+    @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        return lineService.create(lineRequest);
+        try {
+            Line line = lineRequest.getLine();
+            Long lindId = lineService.create(line);
+            LineResponse lineResponse = new LineResponse(lindId, line.getName(), line.getColor(), stationService.getStations(lindId));
+
+            return ResponseEntity.created(URI.create("/lines/" + lindId)).body(lineResponse);
+        } catch (DuplicateKeyException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return lineService.getLines();
+        List<Line> lines = lineService.getLines();
+        List<LineResponse> lineResponses = lines.stream()
+                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor(), stationService.getStations(line.getId())))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(lineResponses);
     }
 
-    @DeleteMapping("/lines/{lineId}")
+    @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        return lineService.delete(lineId);
+        lineService.delete(lineId);
+
+        return ResponseEntity.noContent().build();
+
     }
 
-    @GetMapping(value = "/lines/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        return lineService.getLine(lineId);
+        Line line = lineService.getLine(lineId);
+        LineResponse lineResponse = new LineResponse(lineId, line.getName(), line.getColor(), stationService.getStations(lineId));
+
+        return ResponseEntity.ok(lineResponse);
     }
 
-    @PutMapping(value = "/lines/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        return lineService.update(lineId, lineRequest);
+        lineService.update(lineId, lineRequest);
+
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/lines/{lineId}/sections")
+    @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         sectionService.validate(lineId, sectionRequest, stationService.getStations(lineId));
         return sectionService.create(lineId, sectionRequest);
     }
 
-    @DeleteMapping(value = "/lines/{lineId}/sections")
+    @DeleteMapping(value = "/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lindId, @RequestParam Long stationId) {
         return sectionService.delete(lindId, stationId);
     }

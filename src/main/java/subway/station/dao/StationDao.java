@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
 import subway.station.domain.Station;
+import subway.station.query.StationQuery;
 
 import java.util.List;
 
@@ -18,13 +19,12 @@ public class StationDao {
 
 
     public Station save(Station station) {
-        String sql = "insert into station (name) values (?)";
 
         KeyHolder keyHoler = new org.springframework.jdbc.support.GeneratedKeyHolder();
 
         jdbcTemplate.update(e -> {
                     java.sql.PreparedStatement preparedStatement = e.prepareStatement(
-                    sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+                            StationQuery.INSERT, java.sql.Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, station.getName());
             return preparedStatement;
             }, keyHoler);
@@ -34,9 +34,8 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select * from station";
         return jdbcTemplate.query(
-                sql,
+                StationQuery.SELECT_ALL,
                 (resultSet,rowNum)->{
                     Station station = new Station(
                             resultSet.getLong("id"),
@@ -47,9 +46,8 @@ public class StationDao {
     }
 
     public Station findById (Long id){
-        String sql = "select * from station where id = ?";
         return jdbcTemplate.queryForObject(
-                sql,
+                StationQuery.SELECT_BY_ID,
                 (resultSet, rowNum) -> {
                     Station station = new Station(
                         resultSet.getLong("id"),
@@ -60,8 +58,7 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "delete from station where id = ?";
-        jdbcTemplate.update(sql,id);
+        jdbcTemplate.update(StationQuery.DELETE_BY_ID,id);
     }
 
 }

@@ -37,7 +37,7 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineDao.findByName(lineRequest.getName()) != 0){
+        if (lineDao.countByName(lineRequest.getName()) != 0){
             return ResponseEntity.badRequest().build();
         }
 

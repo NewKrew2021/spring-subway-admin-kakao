@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
+import subway.line.query.LineQuery;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -21,13 +22,12 @@ public class LineDao {
 
 
     public Line save(Line line) {
-        String sql = "insert into line (name, color) values (?,?)";
 
         KeyHolder keyHoler = new GeneratedKeyHolder();
 
         jdbcTemplate.update(e -> {
-            PreparedStatement preparedStatement = e.prepareStatement(sql,
-                    Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = e.prepareStatement(
+                    LineQuery.INSERT, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, line.getName());
             preparedStatement.setString(2, line.getColor());
 
@@ -39,9 +39,8 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
         return jdbcTemplate.query(
-                sql,
+                LineQuery.SELECT_ALL,
                 (resultSet,rowNum)->
                     new Line(
                         resultSet.getLong("id"),
@@ -53,9 +52,8 @@ public class LineDao {
 
 
     public Line findById(Long id) {
-        String sql = "select * from line where id = ?";
         return jdbcTemplate.queryForObject(
-                sql,
+                LineQuery.SELECT_BY_ID,
                 (resultSet,rowNum)->
                     new Line(
                         resultSet.getLong("id"),
@@ -66,17 +64,16 @@ public class LineDao {
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from line where id = ?", id);
+        jdbcTemplate.update(LineQuery.DELETE_BY_ID, id);
     }
 
 
     public void modify(Long id, LineRequest lineRequest) {
-        jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
+        jdbcTemplate.update(LineQuery.UPDATE_BY_ID,
                 lineRequest.getName(), lineRequest.getColor(), id);
     }
 
-    public int findByName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+    public int countByName(String name) {
+        return jdbcTemplate.queryForObject(LineQuery.COUNT_BY_NAME, Integer.class, name);
     }
 }

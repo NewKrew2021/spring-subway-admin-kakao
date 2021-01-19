@@ -1,56 +1,51 @@
 package subway.line;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Repository
 public class LineDao {
 
-    private Long seq = 0L;
-    private List<Line> lines = new ArrayList<>();
+    @Resource
+    JdbcTemplate jdbcTemplate;
 
-    public Line save(Line line) {
-        Line persistStation = createNewObject(line);
-        if(lines.contains(line)){
-            throw new IllegalArgumentException("노선 이름이 중복됩니다.");
-        }
-        lines.add(persistStation);
-        return persistStation;
+    @Resource
+    LineMapper lineMapper;
+
+    public void save(Line line) {
+        jdbcTemplate.update("insert into LINE (name, color, up_station_id, down_station_id, distance) values (?, ?, ?, ?, ?)",
+                line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
     }
 
     public List<Line> findAll() {
-        return lines;
-    }
-
-    private Line createNewObject(Line line) {
-        Field field = ReflectionUtils.findField(Line.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, line, ++seq);
-        return line;
+        String sql = "select * from LINE";
+        return jdbcTemplate.query(sql, lineMapper);
     }
 
     public void deleteById(Long id) {
-        lines.removeIf(it -> it.getId().equals(id));
+        jdbcTemplate.update("delete from LINE where id = ?",id);
     }
 
-    public Optional<Line> findById(Long id) {
-        return lines.stream()
-                .filter(it -> it.getId() == id)
-                .findFirst();
+    public Line findById(Long id) {
+        String sql = "select * from LINE where id = ?";
+        return jdbcTemplate.queryForObject(sql,lineMapper, id);
     }
 
-    public void update(Long id, LineRequest lineRequest) {
-        Line line = findById(id).get();
-        line.update(lineRequest);
+    public Line findByName(String name) {
+        String sql = "select * from LINE where name = ?";
+        return jdbcTemplate.queryForObject(sql,lineMapper, name);
     }
 
-    public void update(Line updateLine) {
-        Line line = findById(updateLine.getId()).get();
-        line.update(updateLine);
+    public void update(Line line) {
+        jdbcTemplate.update("update LINE set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
+                line.getUpStationId(), line.getDownStationId(), line.getDistance(), line.getId());
     }
 }

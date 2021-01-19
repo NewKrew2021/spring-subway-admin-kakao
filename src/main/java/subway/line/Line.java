@@ -20,6 +20,15 @@ public class Line {
         this.color = color;
     }
 
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
     public Line(Long id, Long upStationId, Long downStationId, int distance) {
         this.id = id;
         this.upStationId = upStationId;
@@ -121,12 +130,17 @@ public class Line {
     }
 
     public void updateEndStation(Section endSection, Long stationId) {
-        if(stationId == this.upStationId){
+        if (stationId == this.upStationId) {
             this.upStationId = endSection.getDownStationId();
         }
 
-        if(stationId == this.downStationId){
+        if (stationId == this.downStationId) {
             this.downStationId = endSection.getUpStationId();
         }
+    }
+
+    public static Line getLineToLineRequest(Long id, LineRequest lineRequest) {
+        return new Line(id, lineRequest.getName(), lineRequest.getColor(),
+                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
     }
 }

@@ -20,6 +20,7 @@ public class LineDao {
     public static final String UPDATE_LINE_NAME_COLOR_BY_ID = "update LINE set name = ?, color = ? where id = ?";
     public static final String DELETE_LINE_BY_ID = "delete from line where id = ?";
     public static final String UPDATE_LINE_START_END_STATIONS_BY_ID = "update LINE set start_station_id = ?, end_station_id = ? where id = ?";
+    public static final int NO_DELETED_ROW = 1;
     private JdbcTemplate jdbcTemplate;
 
     public LineDao(JdbcTemplate jdbcTemplate) {
@@ -68,7 +69,10 @@ public class LineDao {
         return findById(line.getId());
     }
 
-    public int deleteById(Long id) {
-        return jdbcTemplate.update(DELETE_LINE_BY_ID, Long.valueOf(id));
+    public void deleteById(Long id) {
+        int deletedRow = jdbcTemplate.update(DELETE_LINE_BY_ID, id);
+        if(deletedRow < NO_DELETED_ROW) {
+            throw new InvalidLineArgumentException(NO_MATCHING_LINE_ERROR_MESSAGE);
+        }
     }
 }

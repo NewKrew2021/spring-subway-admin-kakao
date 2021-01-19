@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public class StationDao {
 
-    public static final int NO_DELETE_ROW = 0;
+    public static final int NO_DELETED_ROW = 0;
     public static final String INSERT_STATION = "insert into STATION(name) VALUES (?)";
     public static final String SELECT_STATION_BY_NAME = "select id, name from STATION where name = ?";
     public static final String SELECT_ALL_STATIONS = "select id, name from station";
@@ -49,7 +49,7 @@ public class StationDao {
 
     public void deleteById(Long id) {
         int deletedRow = jdbcTemplate.update(DELETE_STATION_BY_ID, Long.valueOf(id));
-        if (deletedRow == NO_DELETE_ROW) {
+        if (deletedRow == NO_DELETED_ROW) {
             throw new InvalidStationArgumentException(NO_MATCHING_STATION_ERROR_MESSAGE);
         }
     }

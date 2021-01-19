@@ -44,8 +44,9 @@ public class LineService {
         return lineDao.findById(id);
     }
 
-    public boolean deleteById(Long id) {
-        return (lineDao.deleteById(id) == 1) && (sectionDao.deleteAllByLineId(id) > 0);
+    public void deleteById(Long id) {
+         lineDao.deleteById(id);
+         sectionDao.deleteAllByLineId(id);
     }
 
     public Line updateLine(Long id, LineRequest lineRequest) {

@@ -8,6 +8,9 @@ import subway.dto.Line;
 import subway.dto.Section;
 import subway.dto.SectionRequest;
 import subway.dto.SectionResponse;
+import subway.exception.InvalidSectionInsertException;
+import subway.exception.NotEnoughLengthToDeleteSectionException;
+import subway.exception.StationNotFoundException;
 import subway.service.LineService;
 import subway.service.SectionService;
 
@@ -27,19 +30,25 @@ public class SectionController {
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Line nowLine = lineService.findById(lineId);
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        if (sectionService.insertSection(nowLine, newSection)) {
+        try{
+            sectionService.insertSection(nowLine, newSection);
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        catch (InvalidSectionInsertException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
         Line nowLine = lineService.findById(lineId);
-        if (sectionService.deleteStation(nowLine, stationId)) {
+        try{
+            sectionService.deleteStation(nowLine, stationId);
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        catch (NotEnoughLengthToDeleteSectionException | StationNotFoundException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 

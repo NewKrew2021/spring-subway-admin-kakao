@@ -25,9 +25,9 @@ public class StationDao {
         return station;
     };
 
-    public int save(Station station) {
+    public void save(Station station) {
         String sql = "insert into station (name) values (?)";
-        return jdbcTemplate.update(sql, station.getName());
+        jdbcTemplate.update(sql, station.getName());
     }
 
     public Station findById(Long id) {
@@ -39,24 +39,23 @@ public class StationDao {
         System.out.println(name);
         String sql = "Select * from station where name=?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, name);
-
     }
 
-    public boolean hasSameStationName(String name) {
+    public boolean hasStationId(Long id){
+        String sql = "select count(*) from station where id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, id) != 0;
+    }
+
+    public boolean hasStationName(String name) {
         int cnt = jdbcTemplate.queryForObject("Select count(*) From station where name=?", Integer.class, name);
         return cnt != 0;
     }
 
-
     public List<Station> findAll() {
-
         return jdbcTemplate.query("select * from station", stationRowMapper);
-
     }
 
-    public void deleteById(Long id) {
+    public void delete(Long id) {
         jdbcTemplate.update("delete from station where id=?", id);
     }
-
-
 }

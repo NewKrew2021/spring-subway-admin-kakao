@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import subway.dto.Station;
 import subway.dto.StationRequest;
 import subway.dto.StationResponse;
+import subway.exception.DuplicateStationNameException;
+import subway.exception.StationNotFoundException;
 import subway.service.StationService;
 
 import java.net.URI;
@@ -25,14 +27,16 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if (!stationService.insertStation(station)) {
+
+        try{
+            stationService.insertStation(station);
+            Station newStation = stationService.findStationByName(station.getName());
+            StationResponse stationResponse = new StationResponse(newStation);
+            return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+        }
+        catch (DuplicateStationNameException e){
             return ResponseEntity.badRequest().build();
         }
-
-        Station newStation = stationService.findStationByName(station.getName());
-
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,7 +52,12 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationService.deleteStation(id);
-        return ResponseEntity.noContent().build();
+        try{
+            stationService.deleteStation(id);
+            return ResponseEntity.noContent().build();
+        }
+        catch (StationNotFoundException e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

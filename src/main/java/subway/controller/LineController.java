@@ -2,9 +2,12 @@ package subway.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.dto.*;
+import subway.exception.DuplicateLineNameException;
+import subway.exception.LineNotFoundException;
 import subway.service.LineService;
 import subway.service.SectionService;
 
@@ -25,15 +28,21 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (!lineService.insertLine(new Line(lineRequest))) {
+        try{
+            lineService.insertLine(new Line(lineRequest));
+            Line newLine = lineService.findLineByName(lineRequest.getName());
+            sectionService.insertFirstSection(new Section(newLine.getId(), newLine.getUpStationId(), newLine.getDownStationId(), lineRequest.getDistance()));
+            List<Station> stations = sectionService.getStationsByLine(newLine);
+            return ResponseEntity.created(
+                    URI.create("/line/" + newLine.getId()))
+                    .body(new LineResponse(newLine, stations));
+        }
+        catch (DuplicateLineNameException e){
             return ResponseEntity.badRequest().build();
         }
-        Line newLine = lineService.findLineByName(lineRequest.getName());
-        sectionService.insertFirstSection(new Section(newLine.getId(), newLine.getUpStationId(), newLine.getDownStationId(), lineRequest.getDistance()));
-        List<Station> stations = sectionService.getStationsByLine(newLine);
-        return ResponseEntity.created(
-                URI.create("/line/" + newLine.getId()))
-                .body(new LineResponse(newLine, stations));
+        catch (LineNotFoundException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/lines")

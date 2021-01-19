@@ -45,12 +45,12 @@ public class SectionDao {
                 sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
     }
 
-    public void deleteSection(Long id) {
+    public void delete(Long id) {
         String sql = "delete from section where id=?";
         jdbcTemplate.update(sql, id);
     }
 
-    public int countSection(){
+    public int count(){
         String sql = "select count(*) from section";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }

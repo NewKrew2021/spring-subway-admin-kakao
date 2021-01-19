@@ -28,9 +28,9 @@ public class LineDao {
         return line;
     };
 
-    public int save(Line line) {
+    public void save(Line line) {
         String sql = "insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
-        return jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
+        jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
 
     }
 
@@ -56,29 +56,12 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public void updateLine(Line line) {
+    public void update(Line line) {
         String sql = "update line set name=?, color = ?, up_station_id = ?, down_station_id = ?  where id=?";
         jdbcTemplate.update(
                 sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getId());
     }
 
-    public void modifyLineStationId(Line line) {
-        String sql = "update line set up_station_id = ?, down_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, line.getUpStationId(), line.getDownStationId(), line.getId());
-    }
-
-    public void modifyLineUpStationId(Long id, Long upStationId) {
-        String sql = "update line set up_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, upStationId, id);
-    }
-
-    public void modifyLineDownStationId(Long id, Long downStationId) {
-        String sql = "update line set down_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, downStationId, id);
-    }
 
     public void delete(Long id) {
         String sql = "delete from line where id=?";

@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
-import subway.dto.Line;
-import subway.dto.Section;
-import subway.dto.Sections;
-import subway.dto.Station;
+import subway.dto.*;
+import subway.exception.InvalidSectionInsertException;
+import subway.exception.NotEnoughLengthToDeleteSectionException;
+import subway.exception.StationNotFoundException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,70 +33,70 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public boolean insertSection(Line nowLine, Section newSection) {
+    public void insertSection(Line nowLine, Section newSection) throws InvalidSectionInsertException {
 
         Sections sections = sectionDao.findSectionsByLineId(nowLine.getId());
 
         if (nowLine.isMatchedOnlyUpEndStation(newSection)) {
             sectionDao.save(newSection);
             nowLine.setUpStationId(newSection.getUpStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
+            lineDao.update(nowLine);
+            return;
         }
 
         if (nowLine.isMatchedOnlyDownEndStation(newSection)) {
             sectionDao.save(newSection);
             nowLine.setDownStationId(newSection.getDownStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
+            lineDao.update(nowLine);
+            return;
         }
 
         Section modifiedSection = sections.getModifiedSection(newSection);
         if(modifiedSection == null){
-            return false;
+            throw new InvalidSectionInsertException();
         }
         sectionDao.modifySection(modifiedSection);
         sectionDao.save(newSection);
-        return true;
+        return;
     }
 
 
-    public boolean deleteStation(Line line, Long stationId) {
+    public void deleteStation(Line line, Long stationId) throws NotEnoughLengthToDeleteSectionException, StationNotFoundException {
 
         Sections sections = sectionDao.findSectionsByLineId(line.getId());
-        System.out.println("111111111111");
 
         if (!sections.isPossibleLengthToDelete()) {
-            return false;
+            throw new NotEnoughLengthToDeleteSectionException();
         }
 
         Section sectionMatchingDownStation = sections.getSectionByDownStationId(stationId);
         Section sectionMatchingUpStation = sections.getSectionByUpStationId(stationId);
 
         if(sectionMatchingDownStation == null && sectionMatchingUpStation == null){
-            return false;
+            throw new StationNotFoundException();
         }
         if(sectionMatchingDownStation != null && sectionMatchingUpStation != null){
-            sectionDao.deleteSection(sectionMatchingUpStation.getId());
+            sectionDao.delete(sectionMatchingUpStation.getId());
             sectionDao.modifySection(
                     new Section(
                             sectionMatchingDownStation.getId(), sectionMatchingDownStation.getLineId(), sectionMatchingDownStation.getUpStationId(), sectionMatchingUpStation.getDownStationId(), sectionMatchingDownStation.getDistance() + sectionMatchingUpStation.getDistance()));
-            stationDao.deleteById(stationId);
-            return true;
+            stationDao.delete(stationId);
+            return;
         }
 
         if(line.isSectionContainEndDownStation(sectionMatchingDownStation)){
-            lineDao.modifyLineDownStationId(sectionMatchingDownStation.getId(), sectionMatchingDownStation.getUpStationId());
-            sectionDao.deleteSection(sectionMatchingDownStation.getId());
-            return true;
+            line.setDownStationId(sectionMatchingDownStation.getUpStationId());
+            lineDao.update(line);
+            sectionDao.delete(sectionMatchingDownStation.getId());
+            return;
         }
 
         if(line.isSectionContainUpEndStation(sectionMatchingUpStation)){
-            lineDao.modifyLineUpStationId(sectionMatchingUpStation.getId(), sectionMatchingUpStation.getDownStationId());
-            sectionDao.deleteSection(sectionMatchingUpStation.getId());
-            return true;
+            line.setUpStationId(sectionMatchingUpStation.getDownStationId());
+            lineDao.update(line);
+            sectionDao.delete(sectionMatchingUpStation.getId());
+            return;
         }
-        return false;
     }
 
     public List<Station> getStationsByLine(Line line) {
@@ -113,7 +113,7 @@ public class SectionService {
     }
 
     private boolean isEmpty(){
-        return sectionDao.countSection() == 0;
+        return sectionDao.count() == 0;
     }
 
 }

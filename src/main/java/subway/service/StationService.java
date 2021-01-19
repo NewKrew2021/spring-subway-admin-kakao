@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import subway.dao.StationDao;
 import subway.dto.Station;
+import subway.exception.DuplicateStationNameException;
+import subway.exception.StationNotFoundException;
 
 import java.util.List;
 
@@ -17,15 +19,15 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public boolean insertStation(Station station) {
+    public void insertStation(Station station) throws DuplicateStationNameException {
         if (checkDuplicatedStationName(station.getName())) {
-            return false;
+            throw new DuplicateStationNameException();
         }
-        return stationDao.save(station) != 0;
+        stationDao.save(station);
     }
 
     public boolean checkDuplicatedStationName(String name) {
-        return stationDao.hasSameStationName(name);
+        return stationDao.hasStationName(name);
     }
 
     public Station findStationByName(String name) {
@@ -36,9 +38,10 @@ public class StationService {
         return stationDao.findAll();
     }
 
-    public void deleteStation(Long id) {
-        stationDao.deleteById(id);
+    public void deleteStation(Long id) throws StationNotFoundException {
+        if(!stationDao.hasStationId(id)){
+            throw new StationNotFoundException();
+        }
+        stationDao.delete(id);
     }
-
-
 }

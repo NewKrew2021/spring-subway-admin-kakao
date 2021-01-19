@@ -14,6 +14,7 @@ public class LineResponse {
 
     }
 
+
     public LineResponse(Line line, List<Station> stations) {
         this.id = line.getId();
         this.name = line.getName();
@@ -38,7 +39,7 @@ public class LineResponse {
     }
 
     public List<StationResponse> getStations() {
-        return stations;
+        return this.stations;
     }
 
     public int getExtraFare() {

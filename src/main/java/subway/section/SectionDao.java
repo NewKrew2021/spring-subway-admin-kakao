@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,11 +27,12 @@ public class SectionDao {
                 .usingGeneratedKeyColumns("id");
     }
 
+    //TODO
     public Section save(Section section) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);
         Long id = insertActor.executeAndReturnKey(parameters).longValue();
-        return new Section(id, section.getLineId(), section.getUpStationId(),
-                section.getDownStationId(), section.getDistance());
+        return new Section(id, section.getLineId(), section.getUpStation(),
+                section.getDownStation(), section.getDistance());
     }
 
     public List<Section> getByLineId(Long id) {

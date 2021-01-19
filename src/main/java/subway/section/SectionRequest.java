@@ -1,4 +1,6 @@
-package subway.line;
+package subway.section;
+
+import subway.station.Station;
 
 public class SectionRequest {
     private Long upStationId;
@@ -12,6 +14,10 @@ public class SectionRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Section toSection(Long lineId) {
+        return new Section(null, lineId, new Station(upStationId), new Station(downStationId), distance);
     }
 
     public Long getUpStationId() {

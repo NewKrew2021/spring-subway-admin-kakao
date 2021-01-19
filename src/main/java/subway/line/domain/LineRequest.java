@@ -1,4 +1,4 @@
-package subway.request;
+package subway.line.domain;
 
 public class LineRequest {
     private String name;

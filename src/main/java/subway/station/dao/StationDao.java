@@ -1,4 +1,4 @@
-package subway.dao;
+package subway.station.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.domain.Station;
+import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -26,17 +26,17 @@ public class StationDao {
             resultSet.getString("name")
     );
 
-    public Station save(Station station) {
+    public Station save(String name) {
         String sql = "insert into STATION (name) values (?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, station.getName());
+            ps.setString(1, name);
             return ps;
         }, keyHolder);
 
-        return Station.of(keyHolder.getKey().longValue(), station.getName());
+        return Station.of(keyHolder.getKey().longValue(), name);
     }
 
     public List<Station> findAll() {

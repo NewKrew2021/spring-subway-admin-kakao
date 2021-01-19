@@ -1,4 +1,4 @@
-package subway.dao;
+package subway.line.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.domain.Line;
+import subway.line.domain.Line;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -53,13 +53,9 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 
-    public Line findByName(String name) {
-        String sql = "select id, name, color from LINE where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+    public Integer existByName(String name) {
+        String sql = "select count(*) from LINE where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 
     public void update(Line newLine) {

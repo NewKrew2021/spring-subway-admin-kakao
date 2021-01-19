@@ -1,7 +1,6 @@
-package subway.domain;
+package subway.section.domain;
 
-import subway.request.LineRequest;
-import subway.request.SectionRequest;
+import subway.line.domain.LineRequest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +24,7 @@ public class Section {
     }
 
     private Section(Long lineId, Long upStationId, Long downStationId, int distance) {
-        this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
+        this(null, lineId, upStationId, downStationId, distance);
     }
 
     public static Section of(Long lineId, LineRequest lineRequest) {

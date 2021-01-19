@@ -24,7 +24,7 @@ public class SectionController {
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Line nowLine = lineService.findById(lineId);
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         if (sectionService.insertSection(nowLine, newSection)) {
@@ -34,7 +34,7 @@ public class SectionController {
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity<SectionResponse> deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
+    public ResponseEntity deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
         Line nowLine = lineService.findById(lineId);
         if (sectionService.deleteStation(nowLine, stationId)) {
             return ResponseEntity.ok().build();

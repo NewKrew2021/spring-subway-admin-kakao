@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.dto.Section;
+import subway.dto.Sections;
 
 import java.util.List;
 
@@ -33,9 +34,9 @@ public class SectionDao {
         jdbcTemplate.update(sql, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
-    public List<Section> findSectionsByLineId(long lineId) {
+    public Sections findSectionsByLineId(long lineId) {
         String sql = "select * from section where line_id=?";
-        return jdbcTemplate.query(sql, sectionRowMapper, lineId);
+        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
     }
 
     public void modifySection(Section section) {
@@ -47,6 +48,11 @@ public class SectionDao {
     public void deleteSection(Long id) {
         String sql = "delete from section where id=?";
         jdbcTemplate.update(sql, id);
+    }
+
+    public int countSection(){
+        String sql = "select count(*) from section";
+        return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
 

@@ -65,4 +65,21 @@ public class Line {
     public void setDownStationId(Long downStationId) {
         this.downStationId = downStationId;
     }
+
+    public boolean isSectionContainUpEndStation(Section section){
+        if(section == null) return false;
+        return section.getUpStationId().equals(this.upStationId);
+    }
+    public boolean isSectionContainEndDownStation(Section section){
+        if(section == null) return false;
+        return section.getUpStationId().equals(this.downStationId);
+    }
+
+    public boolean isMatchedOnlyUpEndStation(Section section) {
+        return this.getUpStationId().equals(section.getDownStationId());
+    }
+
+    public boolean isMatchedOnlyDownEndStation(Section section) {
+        return this.getDownStationId().equals(section.getUpStationId());
+    }
 }

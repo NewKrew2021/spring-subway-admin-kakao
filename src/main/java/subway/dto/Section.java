@@ -46,4 +46,19 @@ public class Section {
     public int getDistance() {
         return this.distance;
     }
+
+    public boolean canInsertMatchingUpStation(Section newSection) {
+        return this.getUpStationId().equals(newSection.getUpStationId()) &&
+                !this.getDownStationId().equals(newSection.getDownStationId()) &&
+                this.getDistance() > newSection.getDistance();
+    }
+
+    public boolean canInsertMatchingDownStation(Section newSection) {
+        if (this.getDownStationId().equals(newSection.getDownStationId())
+                && !this.getUpStationId().equals(newSection.getUpStationId())
+                && this.getDistance() > newSection.getDistance()) {
+            return true;
+        }
+        return false;
+    }
 }

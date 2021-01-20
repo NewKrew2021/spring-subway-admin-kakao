@@ -11,23 +11,26 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
-    private final StationDao stationDao;
+    private final StationService stationService;
 
-    public StationController(StationDao dao) {
-        this.stationDao = dao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
+
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        Station newStation = stationService.createStation(station);
+        StationResponse stationResponse = new StationResponse(
+                newStation.getId(),
+                newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> responses = stationDao.findAll().stream()
+        List<StationResponse> responses = stationService.findAll().stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(responses);
@@ -35,7 +38,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+        stationService.deleteStationById(id);
         return ResponseEntity.noContent().build();
     }
 }

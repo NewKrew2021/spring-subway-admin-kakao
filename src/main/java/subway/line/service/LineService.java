@@ -3,6 +3,7 @@ package subway.line.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
 import subway.line.dao.LineDao;
@@ -37,6 +38,7 @@ public class LineService {
         this.sectionDao = sectionDao;
     }
 
+    @Transactional
     public LineResponse createLine(LineRequest lineRequest) throws DuplicateKeyException {
         Line line = new Line(lineRequest);
 
@@ -56,6 +58,7 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteLine(Long id) {
         lineDao.deleteById(id);
     }
@@ -65,6 +68,7 @@ public class LineService {
         return new LineResponse(line, getStations(line.getId()));
     }
 
+    @Transactional
     public void updateLine(Long id, LineRequest lineRequest) {
         lineDao.update(Line.getLineToLineRequest(id, lineRequest));
     }
@@ -88,6 +92,7 @@ public class LineService {
         return stations;
     }
 
+    @Transactional
     public void addLastStation(Line line, SectionRequest sectionRequest, Section newSection) {
         // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
@@ -103,6 +108,7 @@ public class LineService {
         sectionDao.save(newSection);
     }
 
+    @Transactional
     public void addFirstStation(Line line, SectionRequest sectionRequest, Section newSection) {
         // LineDao에서 해당 라인의 downStationId와 distance를 업데이트
         Line updateLine = new Line(line.getId(),
@@ -118,6 +124,7 @@ public class LineService {
         sectionDao.save(newSection);
     }
 
+    @Transactional
     public void addDownStation(Map<Long, Section> orderedSections, Line line, SectionRequest sectionRequest) {
         Long upStationId = sectionRequest.getUpStationId();
         int distanceSum = SECTION_DISTANCE_SUM_DEFAULT;
@@ -155,6 +162,7 @@ public class LineService {
         throw new SectionDistanceExceedException();
     }
 
+    @Transactional
     public void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest sectionRequest) {
         Long downStationId = sectionRequest.getDownStationId();
         int distanceSum = SECTION_DISTANCE_SUM_DEFAULT;
@@ -193,7 +201,7 @@ public class LineService {
         throw new SectionDistanceExceedException();
     }
 
-
+    @Transactional
     public void createSection(Long id, SectionRequest sectionRequest) {
         sectionValidator(id, sectionRequest);
 
@@ -256,6 +264,7 @@ public class LineService {
                 && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
+    @Transactional
     public void deleteSection(Long id, Long stationId) {
         //@TODO 삭제
         // 1. stationId로 구간 조회

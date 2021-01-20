@@ -3,6 +3,8 @@ package subway.domain.section;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.domain.station.Station;
+import subway.exception.SectionCreateException;
+import subway.exception.SectionOperationException;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -22,10 +24,10 @@ public class SectionTest {
     @DisplayName("Section 생성 조건 테스트")
     public void constructorTest() {
         assertThatThrownBy(() -> new Section(1L, LINE_ID, 강남역, 강남역, 10))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(SectionCreateException.class);
 
         assertThatThrownBy(() -> new Section(1L, LINE_ID, 강남역, 역삼역, 0))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(SectionCreateException.class);
     }
 
     @Test
@@ -34,13 +36,13 @@ public class SectionTest {
         assertThat(강남_망포.split(강남_역삼)).isEqualTo(new Section(null, LINE_ID, 역삼역, 망포역, 8));
         assertThat(강남_망포.split(광교_망포)).isEqualTo(new Section(null, LINE_ID, 강남역, 광교역, 8));
 
-        assertThatThrownBy(() -> 강남_망포.split(역삼_광교)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> 강남_망포.split(역삼_광교)).isInstanceOf(SectionOperationException.class);
     }
 
     @Test
     @DisplayName("Section 병합 테스트")
     public void attachSectionTest() {
         assertThat(강남_역삼.attach(역삼_광교)).isEqualTo(new Section(null, LINE_ID, 강남역, 광교역, 7));
-        assertThatThrownBy(() -> 강남_역삼.attach(강남_망포)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> 강남_역삼.attach(강남_망포)).isInstanceOf(SectionOperationException.class);
     }
 }

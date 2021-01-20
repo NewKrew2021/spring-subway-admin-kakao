@@ -1,17 +1,14 @@
 package subway.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.InvalidIdException;
 import subway.domain.line.Line;
 import subway.domain.line.LineRequest;
 import subway.domain.line.LineResponse;
+import subway.domain.section.Section;
 import subway.service.LineService;
-import subway.domain.section.*;
 import subway.domain.station.Station;
 
 import java.net.URI;
@@ -25,16 +22,6 @@ public class LineController {
     @Autowired
     public LineController(LineService lineService) {
         this.lineService = lineService;
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity illegalArgumentExceptionHandler() {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-
-    @ExceptionHandler(value = {DataAccessException.class, InvalidIdException.class})
-    public ResponseEntity exceptionHandler() {
-        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/lines")

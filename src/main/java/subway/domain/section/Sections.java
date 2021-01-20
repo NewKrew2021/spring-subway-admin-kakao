@@ -1,5 +1,6 @@
 package subway.domain.section;
 
+import subway.exception.IllegalSectionsException;
 import subway.exception.SectionOperationException;
 import subway.domain.station.Station;
 import subway.domain.station.Stations;
@@ -15,30 +16,10 @@ public class Sections {
         sortByOrder();
     }
 
-    private void sortByOrder() {
-        Map<Long, Section> connection = generateConnection();
-        Long currentStation = findFirstStation();
-        List<Section> orderedSections = new ArrayList<>();
-        for (int i = 0; i < sections.size(); ++i) {
-            Section currentSection = connection.get(currentStation);
-            orderedSections.add(currentSection);
-            currentStation = currentSection.getDownStationId();
-        }
-        this.sections = orderedSections;
-    }
-
     public Long findFirstStation() {
         List<Long> upStations = sections.stream().map(Section::getUpStationId).collect(Collectors.toList());
         List<Long> downStations = sections.stream().map(Section::getDownStationId).collect(Collectors.toList());
-        return upStations.stream().filter(station -> !downStations.contains(station)).findFirst().orElseThrow(IllegalArgumentException::new);
-    }
-
-    private Map<Long, Section> generateConnection() {
-        Map<Long, Section> connection = new HashMap<>();
-        for (Section section : sections) {
-            connection.put(section.getUpStationId(), section);
-        }
-        return connection;
+        return upStations.stream().filter(station -> !downStations.contains(station)).findFirst().orElseThrow(IllegalSectionsException::new);
     }
 
     public Stations getAllStations() {
@@ -95,5 +76,25 @@ public class Sections {
         if(sections.size() == 1) {
             throw new SectionOperationException(SectionOperationException.SECTION_DELETE_ERROR_ONE_SECTION);
         }
+    }
+
+    private void sortByOrder() {
+        Map<Long, Section> connection = generateConnection();
+        Long currentStation = findFirstStation();
+        List<Section> orderedSections = new ArrayList<>();
+        for (int i = 0; i < sections.size(); ++i) {
+            Section currentSection = connection.get(currentStation);
+            orderedSections.add(currentSection);
+            currentStation = currentSection.getDownStationId();
+        }
+        this.sections = orderedSections;
+    }
+
+    private Map<Long, Section> generateConnection() {
+        Map<Long, Section> connection = new HashMap<>();
+        for (Section section : sections) {
+            connection.put(section.getUpStationId(), section);
+        }
+        return connection;
     }
 }

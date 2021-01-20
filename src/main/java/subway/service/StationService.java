@@ -2,6 +2,7 @@ package subway.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.dao.StationDao;
 import subway.exception.InvalidIdException;
 import subway.domain.station.Station;
@@ -10,7 +11,7 @@ import subway.domain.station.Stations;
 
 @Service
 public class StationService {
-    private StationDao stationDao;
+    private final StationDao stationDao;
 
     @Autowired
     public StationService(StationDao stationDao) {
@@ -30,6 +31,7 @@ public class StationService {
         return stationDao.getById(id);
     }
 
+    @Transactional
     public boolean deleteStation(Long id) {
         if(!stationDao.contain(id)) {
             throw new InvalidIdException(InvalidIdException.INVALID_SECTION_ID_ERROR + id);

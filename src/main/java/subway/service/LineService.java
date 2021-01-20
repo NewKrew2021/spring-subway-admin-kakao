@@ -2,6 +2,7 @@ package subway.service;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.exception.InvalidIdException;
 import subway.domain.line.Line;
@@ -21,6 +22,7 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
+    @Transactional
     public Line createLine(Line line, Section section) {
         Line newLine = lineDao.save(line);
         Section newSection = new Section(null, newLine.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
@@ -28,12 +30,14 @@ public class LineService {
         return showLine(newLine.getId());
     }
 
+    @Transactional(readOnly = true)
     public List<Line> showLines() {
         return lineDao.findAll().stream()
                 .map(line -> new Line(line, sectionService.getSectionsByLineId(line.getId())))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Line showLine(Long id) {
         Line line;
         try {
@@ -45,11 +49,13 @@ public class LineService {
         return new Line(line, sections);
     }
 
+    @Transactional
     public void modifyLine(Long id, Line line) {
         validateId(id);
         lineDao.update(id, line);
     }
 
+    @Transactional
     public void deleteLine(Long id) {
         validateId(id);
         lineDao.deleteById(id);

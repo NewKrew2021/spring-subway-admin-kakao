@@ -1,4 +1,4 @@
-package subway.domain.station;
+package subway.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import subway.dao.StationDao;
+import subway.domain.station.Station;
 
 import java.util.Arrays;
 

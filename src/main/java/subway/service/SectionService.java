@@ -2,6 +2,7 @@ package subway.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.dao.SectionDao;
 import subway.domain.section.Section;
 import subway.domain.section.Sections;
@@ -12,8 +13,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
-    private SectionDao sectionDao;
-    private StationService stationService;
+    private final SectionDao sectionDao;
+    private final StationService stationService;
 
     @Autowired
     public SectionService(SectionDao sectionDao, StationService stationService) {
@@ -21,6 +22,7 @@ public class SectionService {
         this.stationService = stationService;
     }
 
+    @Transactional
     public Section save(Section section) {
         Station upStation = stationService.find(section.getUpStationId());
         Station downStation = stationService.find(section.getDownStationId());
@@ -28,6 +30,7 @@ public class SectionService {
         return new Section(newSection.getId(), section.getLineId(), upStation, downStation, section.getDistance());
     }
 
+    @Transactional(readOnly = true)
     public Sections getSectionsByLineId(Long lindId) {
         List<Section> sectionList = sectionDao.getByLineId(lindId).stream()
                 .map(section ->
@@ -37,6 +40,7 @@ public class SectionService {
         return new Sections(sectionList);
     }
 
+    @Transactional
     public Section createSection(Section section) {
         Sections sections = getSectionsByLineId(section.getLineId());
         sections.validateSectionRequest(section);
@@ -49,6 +53,7 @@ public class SectionService {
         return save(section);
     }
 
+    @Transactional
     public void deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
         sections.validateDeleteSection(stationId);

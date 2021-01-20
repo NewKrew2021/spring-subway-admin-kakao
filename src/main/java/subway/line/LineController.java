@@ -2,7 +2,6 @@ package subway.line;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.DuplicateNameException;
 import subway.station.StationDao;
 
 import java.net.URI;
@@ -91,17 +90,15 @@ public class LineController {
     @PostMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> createSectionOnLine(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Line line = lineDao.findOne(lineId);
-        if (sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getUpStationId(), true) == null &&
-                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getUpStationId(), false) == null &&
-                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getDownStationId(), true) == null &&
-                sectionDao.findOneByLineIdAndStationId(lineId, sectionRequest.getDownStationId(), false) == null
-        ) {
-            throw new DuplicateNameException(sectionRequest.getUpStationId() + ", " + sectionRequest.getDownStationId());
-        }
+        Long upStationId = sectionRequest.getUpStationId();
+        Long downStationId = sectionRequest.getDownStationId();
         Section section = new Section(line.getId(),
-                stationDao.findOne(sectionRequest.getUpStationId()),
-                stationDao.findOne(sectionRequest.getDownStationId()),
+                stationDao.findOne(upStationId),
+                stationDao.findOne(downStationId),
                 sectionRequest.getDistance());
+
+        lineService.checkDuplicateName(lineId, upStationId, downStationId);
+
         lineService.addSection(line, section);
         SectionResponse response = new SectionResponse(section);
         return ResponseEntity.ok().body(response);

@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
+import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
 
 import java.util.List;
@@ -9,6 +10,16 @@ import java.util.stream.IntStream;
 @Service
 public class LineService {
     private final SectionDao sectionDao;
+
+    public void checkDuplicateName(Long lineId, Long upStationId, Long downStationId) {
+        if (sectionDao.findOneByLineIdAndStationId(lineId, upStationId, true) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, upStationId, false) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, downStationId, true) == null &&
+                sectionDao.findOneByLineIdAndStationId(lineId, downStationId, false) == null
+        ) {
+            throw new DuplicateNameException(upStationId + ", " + downStationId);
+        }
+    }
 
     public LineService(SectionDao sectionDao) {
         this.sectionDao = sectionDao;

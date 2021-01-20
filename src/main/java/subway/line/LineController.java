@@ -1,11 +1,7 @@
 package subway.line;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exceptions.DuplicateLineNameException;
-import subway.exceptions.InvalidLineArgumentException;
-import subway.exceptions.InvalidSectionException;
 import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
@@ -21,16 +17,6 @@ public class LineController {
 
     public LineController(LineService lineService) {
         this.lineService = lineService;
-    }
-
-    @ExceptionHandler(InvalidSectionException.class)
-    public ResponseEntity<String> internalServerErrorHandler(InvalidSectionException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-    }
-
-    @ExceptionHandler({InvalidLineArgumentException.class, DuplicateLineNameException.class})
-    public ResponseEntity<String> badRequestErrorHandler(RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @PostMapping

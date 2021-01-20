@@ -15,7 +15,7 @@ public class SectionTest {
     private Section mergedSection;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         section1 = new Section(1L, 1L, 2L, 3);
         section2 = new Section(1L, 2L, 3L, 4);
         mergedSection = new Section(1L, 1L, 3L, 7);
@@ -23,7 +23,7 @@ public class SectionTest {
 
     @DisplayName("구간 분리 시, 주어진 구간의 나머지 구간 도출 테스트")
     @Test
-    public void getAnotherSectionTest(){
+    public void getAnotherSectionTest() {
         assertThat(mergedSection.getAnotherSection(section1)).isEqualTo(section2);
         assertThat(mergedSection.getAnotherSection(section2)).isEqualTo(section1);
         assertThatThrownBy(() -> section1.getAnotherSection(section2)).isInstanceOf(IllegalDistanceException.class);
@@ -32,7 +32,7 @@ public class SectionTest {
 
     @DisplayName("구간 합 시, 합체된 구간 도출 테스트")
     @Test
-    public void mergeSectionTest(){
+    public void mergeSectionTest() {
         assertThat(section1.mergeSection(section2)).isEqualTo(mergedSection);
         assertThat(section2.mergeSection(section1)).isEqualTo(mergedSection);
         assertThatThrownBy(() -> mergedSection.mergeSection(section1)).isInstanceOf(IllegalArgumentException.class);

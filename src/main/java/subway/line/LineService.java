@@ -70,10 +70,10 @@ public class LineService {
             throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
         }
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        if (line.isLineStartStation(sectionRequest.getDownStationId())) {
+        if (line.isStartStation(newSection.getDownStationId())) {
             return saveSectionsHead(newSection, line);
         }
-        if (line.isLineEndStation(sectionRequest.getUpStationId())) {
+        if (line.isEndStation(newSection.getUpStationId())) {
             return saveSectionsTail(newSection, line);
         }
         return saveBetweenSections(sections, newSection);
@@ -103,14 +103,14 @@ public class LineService {
     public void deleteStationById(Long lineId, Long stationId) {
         Line line = lineDao.findById(lineId);
         Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if (sections.getSize() == 1) {
+        if (!sections.isRemovable()) {
             throw new InvalidSectionException(SECTIONS_SIZE_ERROR_MESSAGE);
         }
-        if (line.isLineStartStation(stationId)) {
+        if (line.isStartStation(stationId)) {
             deleteStartStation(sections, stationId, line);
             return;
         }
-        if (line.isLineEndStation(stationId)) {
+        if (line.isEndStation(stationId)) {
             deleteEndStation(sections, stationId, line);
             return;
         }

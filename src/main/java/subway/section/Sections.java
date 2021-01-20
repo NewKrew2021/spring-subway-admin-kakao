@@ -8,6 +8,7 @@ import java.util.List;
 public class Sections {
 
     public static final String NO_MATCHING_SECTION_ERROR_MESSAGE = "구간이 존재하지 않습니다.";
+    public static final int MINIMUM_SECTION_SIZE = 1;
 
     private List<Section> sections = new ArrayList<>();
 
@@ -99,5 +100,9 @@ public class Sections {
         }
         sequence.add(getLastStation());
         return sequence;
+    }
+
+    public boolean isRemovable() {
+        return sections.size() >= MINIMUM_SECTION_SIZE;
     }
 }

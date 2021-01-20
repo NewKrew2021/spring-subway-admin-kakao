@@ -36,11 +36,11 @@ public class Line {
         this.id = id;
     }
 
-    public boolean isLineStartStation(Long stationId) {
+    public boolean isStartStation(Long stationId) {
         return startStationId == stationId;
     }
 
-    public boolean isLineEndStation(Long stationId) {
+    public boolean isEndStation(Long stationId) {
         return endStationId == stationId;
     }
 

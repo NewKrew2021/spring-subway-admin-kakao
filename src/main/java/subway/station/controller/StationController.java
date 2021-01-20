@@ -4,10 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.service.StationService;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
+import subway.station.service.StationService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -23,16 +24,18 @@ public class StationController {
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        return stationService.createStation(stationRequest);
+        StationResponse stationResponse = stationService.createStation(stationRequest);
+        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return stationService.showStations();
+        return ResponseEntity.ok().body(stationService.showStations());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        return stationService.deleteStation(id);
+        stationService.deleteStation(id);
+        return ResponseEntity.noContent().build();
     }
 }

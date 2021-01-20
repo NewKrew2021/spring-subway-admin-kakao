@@ -1,7 +1,6 @@
 package subway.line.service;
 
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
@@ -9,15 +8,16 @@ import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.domain.LineRequest;
 import subway.line.domain.LineResponse;
-import subway.section.domain.Section;
 import subway.section.dao.SectionDao;
+import subway.section.domain.Section;
 import subway.section.domain.SectionRequest;
-import subway.station.domain.Station;
 import subway.station.dao.StationDao;
+import subway.station.domain.Station;
 
 import javax.annotation.Resource;
-import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,43 +32,34 @@ public class LineService {
     @Resource
     private SectionDao sectionDao;
 
-    public ResponseEntity<LineResponse> createLine(LineRequest lineRequest) {
+    public LineResponse createLine(LineRequest lineRequest) throws DuplicateKeyException {
         Line line = new Line(lineRequest);
 
-        try {
-            lineDao.save(line);
-        } catch (DuplicateKeyException dke){
-            return ResponseEntity.badRequest().build();
-        }
+        lineDao.save(line);
 
         Line newLine = lineDao.findByName(line.getName());
 
         sectionDao.save(new Section(newLine));
 
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
-                .body(new LineResponse(newLine, getStations(newLine.getId())));
+        return new LineResponse(newLine, getStations(newLine.getId()));
     }
 
-    public ResponseEntity<List<LineResponse>> showLines() {
+    public List<LineResponse> showLines() {
         List<Line> lines = lineDao.findAll();
-        List<LineResponse> lineResponses = lines.stream().map(LineResponse::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(lineResponses);
+        return lines.stream().map(LineResponse::new).collect(Collectors.toList());
     }
 
-    public ResponseEntity deleteLine(Long id) {
+    public void deleteLine(Long id) {
         lineDao.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<LineResponse> showLine(Long id) {
+    public LineResponse showLine(Long id) {
         Line line = lineDao.findById(id);
-        LineResponse lineResponse = new LineResponse(line, getStations(id));
-        return ResponseEntity.ok(lineResponse);
+        return new LineResponse(line, getStations(id));
     }
 
-    public ResponseEntity updateLine(Long id, LineRequest lineRequest) {
+    public void updateLine(Long id, LineRequest lineRequest) {
         lineDao.update(Line.getLineToLineRequest(id,lineRequest));
-        return ResponseEntity.ok().build();
     }
 
     public List<Station> getStations(Long id) {
@@ -195,7 +186,7 @@ public class LineService {
     }
 
 
-    public ResponseEntity createSection(Long id, SectionRequest sectionRequest) {
+    public void createSection(Long id, SectionRequest sectionRequest) {
         sectionValidator(id,sectionRequest);
 
         Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
@@ -208,25 +199,25 @@ public class LineService {
         // 하행 종점 변경 (A -> B -> (C))
         if (Section.isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
             addLastStation(line, sectionRequest, newSection);
-            return ResponseEntity.ok().build();
+            return;
         }
 
         // 상행 종점 변경 ((C) -> A -> B)
         if (Section.isAddStation(sectionRequest.getDownStationId(), line.getUpStationId())) {
             addFirstStation(line, sectionRequest, newSection);
-            return ResponseEntity.ok().build();
+            return;
         }
 
         // 하행역 추가
         if (orderedSections.containsKey(sectionRequest.getUpStationId())) {
             addDownStation(orderedSections, line, sectionRequest);
-            return ResponseEntity.ok().build();
+            return;
         }
 
         // 상행역 추가
         if (reverseOrderedSections.containsKey(sectionRequest.getDownStationId())) {
             addUpStation(reverseOrderedSections, line, sectionRequest);
-            return ResponseEntity.ok().build();
+            return;
         }
 
 
@@ -257,7 +248,7 @@ public class LineService {
                 && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
-    public ResponseEntity deleteSection(Long id, Long stationId) {
+    public void deleteSection(Long id, Long stationId) {
         //@TODO 삭제
         // 1. stationId로 구간 조회
         // 2. 해당 역이 상행, 하행 종점일 경우 구간 삭제 + 노선의 상행, 하행 업데이트 (sectionDao, LineDao)
@@ -290,7 +281,5 @@ public class LineService {
         // 4.
         stationDao.deleteById(stationId);
         lineDao.update(line);
-
-        return ResponseEntity.ok().build();
     }
 }

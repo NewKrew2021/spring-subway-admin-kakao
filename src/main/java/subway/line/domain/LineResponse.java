@@ -5,6 +5,7 @@ import subway.station.domain.Station;
 import java.util.List;
 
 public class LineResponse {
+    private int status;
     private Long id;
     private String name;
     private String color;

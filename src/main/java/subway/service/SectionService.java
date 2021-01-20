@@ -37,10 +37,10 @@ public class SectionService {
 
     @Transactional
     public void insertSection(Line nowLine, Section newSection) throws NoSectionSpaceException {
-        Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
+        Sections sectionsFromNowLine = sectionDao.findByLineId(nowLine.getId());
         if (nowLine.isInsertModified(newSection)) {
             sectionDao.save(newSection);
-            lineDao.updateLine(nowLine);
+            lineDao.update(nowLine);
             return;
         }
         Section matchSection = sectionsFromNowLine.findMatchSection(newSection);
@@ -48,13 +48,13 @@ public class SectionService {
             throw new NoSectionSpaceException();
         }
         matchSection.modifyMatchedSection(newSection);
-        sectionDao.modifySection(matchSection);
+        sectionDao.modify(matchSection);
         sectionDao.save(newSection);
     }
 
     @Transactional
     public void deleteStation(Line line, Long stationId) throws EmptySectionException {
-        Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(line.getId());
+        Sections sectionsFromNowLine = sectionDao.findByLineId(line.getId());
         if (!sectionsFromNowLine.validateSectionDelete()) {
             throw new EmptySectionException();
         }
@@ -63,21 +63,21 @@ public class SectionService {
             throw new EmptySectionException();
         }
         if (deleteSections.size() == MATCHED_ONE_STATION) {
-            sectionDao.deleteSection(deleteSections.get(0).getId());
+            sectionDao.delete(deleteSections.get(0).getId());
             line.modifyLineWhenSectionDelete(deleteSections.get(0));
-            lineDao.updateLine(line);
+            lineDao.update(line);
         }
         if (deleteSections.size() == MATCHED_TWO_STATION) {
             Section modifySection = deleteSections.get(0);
             Section deleteSection = deleteSections.get(1);
             modifySection.mergeSection(deleteSection);
-            sectionDao.modifySection(modifySection);
-            sectionDao.deleteSection(deleteSection.getId());
+            sectionDao.modify(modifySection);
+            sectionDao.delete(deleteSection.getId());
         }
     }
 
     public Stations getStationsByLine(Line line) {
-        Sections sections = sectionDao.findSectionsByLineId(line.getId());
+        Sections sections = sectionDao.findByLineId(line.getId());
         List<Station> stations = new ArrayList<>();
         Map<Long, Long> sectionMap = sections.getSectionMap();
         stations.add(stationDao.findById(line.getUpStationId()));

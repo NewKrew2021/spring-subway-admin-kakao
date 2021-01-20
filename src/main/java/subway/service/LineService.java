@@ -25,7 +25,7 @@ public class LineService {
     }
 
     public Line findLineByName(String name) {
-        return lineDao.findLineByName(name);
+        return lineDao.findByName(name);
     }
 
     public List<Line> findAll() {
@@ -37,7 +37,7 @@ public class LineService {
     }
 
     public void modifyLine(Line line) {
-        lineDao.updateLine(line);
+        lineDao.update(line);
     }
 
     public void deleteLine(Long id) {

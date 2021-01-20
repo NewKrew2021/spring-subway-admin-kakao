@@ -11,13 +11,20 @@ import java.util.List;
 @Repository
 public class LineDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String INSERT_LINE = "insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
+    private final String SELECT_BY_NAME = "select * from line where name=?";
+    private final String COUNT_BY_NAME = "select count(*) from line where name = ?";
+    private final String SELECT_BY_ID = "select * from line where id = ?";
+    private final String SELECT_ALL = "select * from line";
+    private final String UPDATE_LINE = "update line set name=?, color = ?, up_station_id = ?, down_station_id = ?  where id=?";
+    private final String DELETE_BY_ID = "delete from line where id=?";
 
     @Autowired
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
+    private final RowMapper<Line> lineRowMapper = (resultSet, rowNum) -> {
         Line line = new Line(
                 resultSet.getLong("id"),
                 resultSet.getString("name"),
@@ -29,42 +36,32 @@ public class LineDao {
     };
 
     public int save(Line line) {
-        String sql = "insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
-        return jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
-
+        return jdbcTemplate.update(INSERT_LINE, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
     }
 
-    public Line findLineByName(String name) {
-        String sql = "select * from line where name=?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
-
+    public Line findByName(String name) {
+        return jdbcTemplate.queryForObject(SELECT_BY_NAME, lineRowMapper, name);
     }
 
     public boolean isContainSameName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        int count = jdbcTemplate.queryForObject(sql, Integer.class, name);
+        int count = jdbcTemplate.queryForObject(COUNT_BY_NAME, Integer.class, name);
         return count != 0;
     }
 
     public Line findById(Long lineId) {
-        String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, lineId);
+        return jdbcTemplate.queryForObject(SELECT_BY_ID, lineRowMapper, lineId);
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
-        return jdbcTemplate.query(sql, lineRowMapper);
+        return jdbcTemplate.query(SELECT_ALL, lineRowMapper);
     }
 
-    public void updateLine(Line line) {
-        String sql = "update line set name=?, color = ?, up_station_id = ?, down_station_id = ?  where id=?";
+    public void update(Line line) {
         jdbcTemplate.update(
-                sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getId());
+                UPDATE_LINE, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getId());
     }
 
     public void delete(Long id) {
-        String sql = "delete from line where id=?";
-        jdbcTemplate.update(sql, id);
-
+        jdbcTemplate.update(DELETE_BY_ID, id);
     }
 }

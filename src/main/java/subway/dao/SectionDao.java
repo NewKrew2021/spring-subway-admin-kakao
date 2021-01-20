@@ -11,7 +11,11 @@ import java.util.List;
 
 @Repository
 public class SectionDao {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final String INSERT_SECTION="insert into section (line_id, up_station_id,down_station_id,distance) values(?,?,?,?)";
+    private final String SELECT_BY_ID="select * from section where line_id=?";
+    private final String UPDATE_SECTION= "update section set up_station_id = ?, down_station_id = ?,distance =? where id=?";
+    private final String DELETE_SECTION="delete from section where id=?";
 
     @Autowired
     public SectionDao(JdbcTemplate jdbcTemplate) {
@@ -30,24 +34,20 @@ public class SectionDao {
     };
 
     public void save(Section section) {
-        String sql = "insert into section (line_id, up_station_id,down_station_id,distance) values(?,?,?,?)";
-        jdbcTemplate.update(sql, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
+        jdbcTemplate.update(INSERT_SECTION, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
-    public Sections findSectionsByLineId(long lineId) {
-        String sql = "select * from section where line_id=?";
-        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
+    public Sections findByLineId(long lineId) {
+        return new Sections(jdbcTemplate.query(SELECT_BY_ID, sectionRowMapper, lineId));
     }
 
-    public void modifySection(Section section) {
-        String sql = "update section set up_station_id = ?, down_station_id = ?,distance =? where id=?";
+    public void modify(Section section) {
         jdbcTemplate.update(
-                sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
+                UPDATE_SECTION, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
     }
 
-    public void deleteSection(Long id) {
-        String sql = "delete from section where id=?";
-        jdbcTemplate.update(sql, id);
+    public void delete(Long id) {
+        jdbcTemplate.update(DELETE_SECTION, id);
     }
 
 

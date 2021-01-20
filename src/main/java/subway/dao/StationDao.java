@@ -11,6 +11,12 @@ import java.util.List;
 @Repository
 public class StationDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String INSERT_STATION = "insert into station (name) values (?)";
+    private final String SELECT_STATION_BY_ID = "select * from station where id=?";
+    private final String SELECT_STATION_BY_NAME = "Select * from station where name=?";
+    private final String COUNT_STATION_BY_NAME = "Select count(*) From station where name=?";
+    private final String SELECT_ALL = "select * from station";
+    private final String DELETE_BY_ID = "delete from station where id=?";
 
     @Autowired
     public StationDao(JdbcTemplate jdbcTemplate) {
@@ -26,35 +32,29 @@ public class StationDao {
     };
 
     public int save(Station station) {
-        String sql = "insert into station (name) values (?)";
-        return jdbcTemplate.update(sql, station.getName());
+        return jdbcTemplate.update(INSERT_STATION, station.getName());
     }
 
     public Station findById(Long id) {
-        String sql = "select * from station where id=?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        return jdbcTemplate.queryForObject(SELECT_STATION_BY_ID, stationRowMapper, id);
     }
 
     public Station findByName(String name) {
-        String sql = "Select * from station where name=?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, name);
-
+        return jdbcTemplate.queryForObject(SELECT_STATION_BY_NAME, stationRowMapper, name);
     }
 
     public boolean hasSameStationName(String name) {
-        int cnt = jdbcTemplate.queryForObject("Select count(*) From station where name=?", Integer.class, name);
+        int cnt = jdbcTemplate.queryForObject(COUNT_STATION_BY_NAME, Integer.class, name);
         return cnt != 0;
     }
 
 
     public List<Station> findAll() {
-
-        return jdbcTemplate.query("select * from station", stationRowMapper);
-
+        return jdbcTemplate.query(SELECT_ALL, stationRowMapper);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from station where id=?", id);
+        jdbcTemplate.update(DELETE_BY_ID, id);
     }
 
 

@@ -14,10 +14,8 @@ import subway.section.domain.Section;
 import subway.section.domain.SectionRequest;
 import subway.section.domain.Sections;
 import subway.station.dao.StationDao;
-import subway.station.domain.Station;
 import subway.station.domain.Stations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 public class LineService {
 
     private final int SECTION_DISTANCE_SUM_DEFAULT = 0;
+
 
     private final LineDao lineDao;
     private final StationDao stationDao;
@@ -127,7 +126,7 @@ public class LineService {
             Section section = orderedSections.get(upStationId);
 
             if (distanceSum + section.getDistance() == sectionRequest.getDistance()) {
-                throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+                throw new SectionDistanceExceedException("");
             }
 
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
@@ -153,7 +152,7 @@ public class LineService {
             upStationId = section.getDownStationId();
             distanceSum += section.getDistance();
         }
-        throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+        throw new SectionDistanceExceedException();
     }
 
     public void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest sectionRequest) {
@@ -164,7 +163,7 @@ public class LineService {
             Section section = reverseOrderedSections.get(downStationId);
 
             if (distanceSum + section.getDistance() == sectionRequest.getDistance()) {
-                throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+                throw new SectionDistanceExceedException();
             }
 
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
@@ -190,7 +189,8 @@ public class LineService {
             downStationId = section.getUpStationId();
             distanceSum += section.getDistance();
         }
-        throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
+        
+        throw new SectionDistanceExceedException();
     }
 
 

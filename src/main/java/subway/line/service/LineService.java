@@ -1,6 +1,7 @@
 package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import subway.exceptions.DuplicateNameException;
 import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
@@ -31,7 +32,7 @@ public class LineService {
 
     public LineResponse create(LineRequest lineRequest) {
         if (lineDao.countByName(lineRequest.getName()) != 0){
-            throw new IllegalArgumentException();
+            throw new DuplicateNameException("노선의 이름은 중복될 수 없습니다.");
         }
 
         Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));

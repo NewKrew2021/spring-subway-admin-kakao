@@ -1,6 +1,7 @@
 package subway.station.service;
 
 import org.springframework.stereotype.Service;
+import subway.exceptions.DuplicateNameException;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.dto.StationRequest;
@@ -20,7 +21,7 @@ public class StationService {
 
     public StationResponse createLine(StationRequest stationRequest) {
         if(stationDao.countByName(stationRequest.getName()) != 0) {
-            throw new IllegalArgumentException("이미 존재하는 역입니다.");
+            throw new DuplicateNameException("이미 존재하는 역입니다.");
         }
         Station newStation = stationDao.save(stationRequest.getName());
         return new StationResponse(newStation);

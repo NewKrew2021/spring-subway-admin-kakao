@@ -1,8 +1,7 @@
-package subway.line;
+package subway.domain;
 
 import subway.exception.NoContentException;
 import subway.exception.TwoStationException;
-import subway.station.Station;
 
 import java.util.ArrayList;
 import java.util.HashMap;

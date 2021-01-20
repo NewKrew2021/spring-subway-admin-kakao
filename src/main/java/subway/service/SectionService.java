@@ -1,9 +1,12 @@
-package subway.line;
+package subway.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import subway.station.StationDao;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.dao.SectionDao;
+import subway.dao.StationDao;
 
 @Service
 public class SectionService {

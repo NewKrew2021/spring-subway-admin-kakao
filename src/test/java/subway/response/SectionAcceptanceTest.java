@@ -1,4 +1,4 @@
-package subway.line;
+package subway.response;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -10,16 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.dao.LineDao;
+import subway.dao.SectionDao;
+import subway.dao.StationDao;
+import subway.request.SectionRequest;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static subway.line.LineAcceptanceTest.지하철_노선_등록되어_있음;
-import static subway.line.LineAcceptanceTest.지하철_노선_조회_요청;
+import static subway.response.LineAcceptanceTest.지하철_노선_등록되어_있음;
+import static subway.response.LineAcceptanceTest.지하철_노선_조회_요청;
 import static subway.station.StationAcceptanceTest.지하철역_등록되어_있음;
 
 @DisplayName("지하철 구간 관련 기능")

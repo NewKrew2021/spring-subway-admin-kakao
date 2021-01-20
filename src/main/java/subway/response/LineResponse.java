@@ -1,6 +1,6 @@
-package subway.line;
+package subway.response;
 
-import subway.station.StationResponse;
+import subway.domain.Line;
 
 import java.util.List;
 import java.util.stream.Collectors;

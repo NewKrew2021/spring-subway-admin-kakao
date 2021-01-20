@@ -1,9 +1,14 @@
-package subway.line;
+package subway.service;
 
 import org.springframework.stereotype.Service;
+import subway.dao.LineDao;
+import subway.dao.SectionDao;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Sections;
 import subway.exception.DuplicateNameException;
 import subway.exception.NoContentException;
-import subway.station.StationDao;
+import subway.dao.StationDao;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -30,7 +35,7 @@ public class LineService {
         }
     }
 
-    public Line getLine(String name,String color) {
+    public Line getLine(String name, String color) {
         return lineDao.save(new Line(name,
                 color
         ));

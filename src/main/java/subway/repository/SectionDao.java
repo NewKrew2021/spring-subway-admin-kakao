@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import subway.domain.Section;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
@@ -18,12 +17,13 @@ public class SectionDao {
     private static final String DELETE_BY_ID_SQL = "delete from SECTION where id = ?";
     private static final String DELETE_BY_LINE_ID_SQL = "delete from SECTION where line_id = ?";
     private static final String COUNT_BY_LINE_ID_SQL = "select count(*) from SECTION where line_id = ?";
+    private final JdbcTemplate jdbcTemplate;
+    private final SectionMapper sectionMapper;
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
-
-    @Resource
-    SectionMapper sectionMapper;
+    public SectionDao(JdbcTemplate jdbcTemplate, SectionMapper sectionMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.sectionMapper = sectionMapper;
+    }
 
     public void save(Section section) {
         jdbcTemplate.update(SAVE_SQL,

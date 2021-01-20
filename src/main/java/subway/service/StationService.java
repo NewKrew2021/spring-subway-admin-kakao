@@ -2,23 +2,24 @@ package subway.service;
 
 import org.springframework.stereotype.Service;
 import subway.domain.Section;
-import subway.repository.SectionDao;
 import subway.domain.Sections;
 import subway.domain.Station;
+import subway.repository.SectionDao;
 import subway.repository.StationDao;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StationService {
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    @Resource
-    public StationDao stationDao;
-    @Resource
-    public SectionDao sectionDao;
+    public StationService(StationDao stationDao, SectionDao sectionDao) {
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     public Long create(Station station) {
         return stationDao.save(station);

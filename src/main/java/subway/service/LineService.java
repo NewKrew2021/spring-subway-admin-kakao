@@ -4,14 +4,15 @@ import org.springframework.stereotype.Service;
 import subway.domain.Line;
 import subway.repository.LineDao;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Service
 public class LineService {
+    private final LineDao lineDao;
 
-    @Resource
-    private LineDao lineDao;
+    public LineService(LineDao lineDao) {
+        this.lineDao = lineDao;
+    }
 
     public Long create(Line line) {
         return lineDao.save(line);

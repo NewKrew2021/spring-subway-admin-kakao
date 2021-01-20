@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
 
-import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -18,12 +17,13 @@ public class LineDao {
     private static final String FIND_BY_ID_SQL = "select id, name, color from LINE where id = ?";
     private static final String UPDATE_SQL = "update LINE set name = ?, color = ? where id = ?";
     private static final String DELETE_SQL = "delete from LINE where id = ?";
+    private final JdbcTemplate jdbcTemplate;
+    private final LineMapper lineMapper;
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
-
-    @Resource
-    LineMapper lineMapper;
+    public LineDao(JdbcTemplate jdbcTemplate, LineMapper lineMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.lineMapper = lineMapper;
+    }
 
     public Long save(Line line) {
         KeyHolder keyHolder = new GeneratedKeyHolder();

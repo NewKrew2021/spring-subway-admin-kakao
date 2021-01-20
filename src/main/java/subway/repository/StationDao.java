@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.domain.Station;
 
-import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -17,12 +16,13 @@ public class StationDao {
     private static final String FIND_ALL_SQL = "select id, name from STATION";
     private static final String FIND_BY_ID_SQL = "select id, name from STATION where id = ?";
     private static final String DELETE_SQL = "delete from STATION where id = ?";
+    private final JdbcTemplate jdbcTemplate;
+    private final StationMapper stationMapper;
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
-
-    @Resource
-    StationMapper stationMapper;
+    public StationDao(JdbcTemplate jdbcTemplate, StationMapper stationMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.stationMapper = stationMapper;
+    }
 
     public Long save(Station station) {
         KeyHolder keyHolder = new GeneratedKeyHolder();

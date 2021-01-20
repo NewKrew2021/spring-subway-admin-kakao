@@ -13,7 +13,6 @@ import subway.service.LineService;
 import subway.service.SectionService;
 import subway.service.StationService;
 
-import javax.annotation.Resource;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +22,15 @@ import java.util.stream.Collectors;
 public class LineController {
     private static final boolean FIRST_SECTION = true;
     private static final boolean LAST_SECTION = true;
+    private final StationService stationService;
+    private final LineService lineService;
+    private final SectionService sectionService;
 
-    @Resource
-    private StationService stationService;
-    @Resource
-    private LineService lineService;
-    @Resource
-    private SectionService sectionService;
+    public LineController(StationService stationService, LineService lineService, SectionService sectionService) {
+        this.stationService = stationService;
+        this.lineService = lineService;
+        this.sectionService = sectionService;
+    }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {

@@ -1,15 +1,14 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.exception.DeleteSectionException;
-import subway.exception.SectionDistanceExceedException;
 import subway.domain.Section;
-import subway.repository.SectionDao;
 import subway.domain.Sections;
 import subway.domain.Station;
+import subway.exception.DeleteSectionException;
+import subway.exception.SectionDistanceExceedException;
+import subway.repository.SectionDao;
 import subway.repository.StationDao;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +18,13 @@ public class SectionService {
     private static final boolean FIRST_SECTION = true;
     public static final boolean NOT_FIRST_SECTION = false;
     public static final boolean NOT_LAST_SECTION = false;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    @Resource
-    private StationDao stationDao;
-    @Resource
-    private SectionDao sectionDao;
+    public SectionService(StationDao stationDao, SectionDao sectionDao) {
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     public void create(Section section) {
         sectionDao.save(section);

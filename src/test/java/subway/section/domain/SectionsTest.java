@@ -86,7 +86,7 @@ class SectionsTest {
                 new Section(2L, lineId, 2L, 5)
         ));
         // when
-        Section newSection = sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, distance));
+        Section newSection = sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, distance));
 
         // then
         assertThat(newSection).usingRecursiveComparison()
@@ -107,7 +107,7 @@ class SectionsTest {
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, 2)))
+                .isThrownBy(() -> sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, 2)))
                 .withMessage("상/하행역 중 하나만 일치해야합니다");
     }
 
@@ -124,7 +124,7 @@ class SectionsTest {
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, distance)))
+                .isThrownBy(() -> sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, distance)))
                 .withMessage("기존 구간보다 새로 생긴 구간의 거리가 더 짧아야합니다");
     }
 

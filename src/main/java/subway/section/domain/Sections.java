@@ -45,19 +45,15 @@ public class Sections {
         );
     }
 
-    public Section createNewSection(SectionCreateValue createValue) {
-        Optional<Section> upSection = findSectionByStation(createValue.getUpStationId());
-        Optional<Section> downSection = findSectionByStation(createValue.getDownStationId());
-        if ((upSection.isPresent() && downSection.isPresent())
-                || (!upSection.isPresent() && !downSection.isPresent())) {
+    public Section createSection(SectionCreateValue createValue) {
+        Optional<Section> newDownSideSection = createDownSideSection(createValue);
+        Optional<Section> newUpSideSection = createUpSideSection(createValue);
+        if ((newDownSideSection.isPresent() && newUpSideSection.isPresent())
+                || (!newDownSideSection.isPresent() && !newUpSideSection.isPresent())) {
             throw new IllegalArgumentException(UP_OR_DOWN_ONLY_ONE_EXCEPTION_MESSAGE);
         }
 
-        return upSection.map(section ->
-                createNextDownSectionOf(section, createValue.getDownStationId(), createValue.getDistance())
-        ).orElseGet(() ->
-                createNextUpSectionOf(downSection.get(), createValue.getUpStationId(), createValue.getDistance())
-        );
+        return newDownSideSection.orElseGet(newUpSideSection::get);
     }
 
     public List<Long> getStations() {
@@ -88,11 +84,23 @@ public class Sections {
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 구간이 없습니다"));
     }
 
+    private Optional<Section> createDownSideSection(SectionCreateValue createValue) {
+        return findSectionByStation(createValue.getUpStationId())
+                .map(section ->
+                        createNextDownSectionOf(section, createValue.getDownStationId(), createValue.getDistance()));
+    }
+
     private Section createNextDownSectionOf(Section section, Long stationId, int distance) {
         if (!isDownTerminal(section) && getNextDownSection(section).getDifferenceOfPosition(section) <= distance) {
             throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
         }
         return new Section(section.getLineId(), stationId, section.calculateNextDownPosition(distance));
+    }
+
+    private Optional<Section> createUpSideSection(SectionCreateValue createValue) {
+        return findSectionByStation(createValue.getDownStationId())
+                .map(section ->
+                        createNextUpSectionOf(section, createValue.getUpStationId(), createValue.getDistance()));
     }
 
     private Section createNextUpSectionOf(Section section, Long stationId, int distance) {

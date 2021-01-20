@@ -44,7 +44,7 @@ public class SectionService {
             return;
         }
 
-        sectionDao.save(getSectionsBy(createValue.getLineId()).createNewSection(createValue));
+        sectionDao.save(getSectionsBy(createValue.getLineId()).createSection(createValue));
     }
 
     private void saveInitialSections(SectionCreateValue sectionValue) {

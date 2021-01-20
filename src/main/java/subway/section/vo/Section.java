@@ -2,6 +2,7 @@ package subway.section.vo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Section {
     private final long lineId;
@@ -115,5 +116,18 @@ public class Section {
 
     public List<Long> getStationIds() {
         return Arrays.asList(upStationId, downStationId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return lineId == section.lineId && upStationId == section.upStationId && downStationId == section.downStationId && distance == section.distance;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lineId, upStationId, downStationId, distance);
     }
 }

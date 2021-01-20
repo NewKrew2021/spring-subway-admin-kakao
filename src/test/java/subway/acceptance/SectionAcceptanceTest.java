@@ -8,9 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
-import subway.response.LineResponse;
 import subway.request.SectionRequest;
+import subway.response.LineResponse;
 import subway.response.StationResponse;
 
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import static subway.acceptance.LineAcceptanceTest.지하철_노선_등록되어
 import static subway.acceptance.LineAcceptanceTest.지하철_노선_조회_요청;
 import static subway.acceptance.StationAcceptanceTest.지하철역_등록되어_있음;
 
-@Transactional
 @DisplayName("지하철 구간 관련 기능")
 public class SectionAcceptanceTest extends AcceptanceTest {
     private LineResponse 신분당선;

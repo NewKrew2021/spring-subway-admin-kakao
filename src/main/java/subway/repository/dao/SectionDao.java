@@ -1,17 +1,18 @@
-package subway.section;
+package subway.repository.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.StationDao;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.SectionsInLine;
+import subway.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-import static subway.section.SectionQuery.*;
+import static subway.repository.query.SectionQuery.*;
 
 @Repository
 public class SectionDao {
@@ -46,8 +47,14 @@ public class SectionDao {
         );
     }
 
-    public SectionsInLine findAllByLine(Line line, StationDao stationDao, LineDao lineDao) {
-        return new SectionsInLine(jdbcTemplate.query(selectByIdQuery, new SectionMapper(stationDao, lineDao), line.getId()));
+    public SectionsInLine findAllByLine(Line line) {
+        return new SectionsInLine(jdbcTemplate.query(selectByIdQuery, (rs, rowNum) -> {
+            Long id = rs.getLong("id");
+            Station upStation = new Station(rs.getLong("up_station_id"));
+            Station downStation = new Station(rs.getLong("down_station_id"));
+            int distance = rs.getInt("distance");
+            return new Section(id, line, upStation, downStation, distance);
+        },  line.getId()));
     }
 
     public void deleteById(Long id) {

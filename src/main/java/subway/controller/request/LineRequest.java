@@ -1,4 +1,6 @@
-package subway.line;
+package subway.controller.request;
+
+import subway.domain.Line;
 
 public class LineRequest {
     private String name;
@@ -38,7 +40,7 @@ public class LineRequest {
         return distance;
     }
 
-    public Line mapToLine() {
+    public Line toLine() {
         return new Line(name, color);
     }
 }

@@ -1,6 +1,6 @@
-package subway.line;
+package subway.controller.response;
 
-import subway.station.StationResponse;
+import subway.domain.Line;
 
 import java.util.List;
 
@@ -10,6 +10,14 @@ public class LineResponse {
     private String color;
     private int extraFare;
     private List<StationResponse> stations;
+
+    public static LineResponse from(Line line) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor());
+    }
+
+    public static LineResponse from(Line line, List<StationResponse> stationResponses) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
+    }
 
     public LineResponse() {
 

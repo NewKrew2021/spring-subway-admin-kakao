@@ -1,11 +1,15 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.domain.Line;
+import subway.repository.dao.LineDao;
+import subway.domain.Section;
+import subway.repository.dao.SectionDao;
+import subway.domain.SectionsInLine;
+import subway.domain.Station;
+import subway.repository.dao.StationDao;
+import subway.exception.NotFoundException;
 
 import java.util.List;
 
@@ -23,13 +27,12 @@ public class SectionService {
 
     @Transactional
     public void save(Section newSection) {
-        SectionsInLine sectionsInLine = sectionDao.findAllByLine(newSection.getLine(), stationDao, lineDao);
-
+        SectionsInLine sectionsInLine = getMappedSectionsInLine(newSection.getLine());
         validateSave(sectionsInLine, newSection);
 
         Section containingSection = sectionsInLine.findContainingExistingSection(newSection);
 
-        if(containingSection == null) {
+        if (containingSection == null) {
             sectionDao.save(newSection);
             return;
         }
@@ -42,10 +45,10 @@ public class SectionService {
 
     @Transactional
     public void deleteStation(Line line, Station station) {
-        SectionsInLine sectionsInLine = sectionDao.findAllByLine(line, stationDao, lineDao);
+        SectionsInLine sectionsInLine = getMappedSectionsInLine(line);
         validateDeletion(sectionsInLine, station);
 
-        if(sectionsInLine.ofTerminalStationIs(station)) {
+        if (sectionsInLine.ofTerminalStationIs(station)) {
             Section terminalSection = sectionsInLine.findSectionByStation(station);
             sectionDao.deleteById(terminalSection.getId());
             return;
@@ -60,20 +63,26 @@ public class SectionService {
     }
 
     public List<Station> findSortedStationsByLine(Line line) {
-        SectionsInLine sectionsInLine = sectionDao.findAllByLine(line, stationDao, lineDao);
+        SectionsInLine sectionsInLine = getMappedSectionsInLine(line);
         return sectionsInLine.findSortedStations();
     }
 
+    private SectionsInLine getMappedSectionsInLine(Line line) {
+        SectionsInLine sectionsInLine = sectionDao.findAllByLine(line);
+        sectionsInLine.mapStation(stationId -> stationDao.findById(stationId).orElseThrow(NotFoundException::new));
+        return sectionsInLine;
+    }
+
     private void validateSave(SectionsInLine sectionsInLine, Section newSection) {
-        if(sectionsInLine.getSize() == 0) return;
-        if(!sectionsInLine.containsStation(newSection.getUpStation()) && !sectionsInLine.containsStation(newSection.getDownStation())) {
+        if (sectionsInLine.getSize() == 0) return;
+        if (!sectionsInLine.containsStation(newSection.getUpStation()) && !sectionsInLine.containsStation(newSection.getDownStation())) {
             throw new RuntimeException();
         }
     }
 
     private void validateDeletion(SectionsInLine sectionsInLine, Station station) {
-        if(sectionsInLine.getSize() <= 1) throw new RuntimeException();
-        if(!sectionsInLine.containsStation(station)) throw new RuntimeException();
+        if (sectionsInLine.getSize() <= 1) throw new RuntimeException();
+        if (!sectionsInLine.containsStation(station)) throw new RuntimeException();
     }
 
 }

@@ -1,8 +1,5 @@
-package subway.line;
+package subway.domain;
 
-import subway.station.StationResponse;
-
-import java.util.List;
 import java.util.Objects;
 
 public class Line {
@@ -31,14 +28,6 @@ public class Line {
 
     public String getColor() {
         return color;
-    }
-
-    public LineResponse mapToResponse() {
-        return new LineResponse(id, name, color);
-    }
-
-    public LineResponse mapToResponse(List<StationResponse> stationResponses) {
-        return new LineResponse(id, name, color, stationResponses);
     }
 
     @Override

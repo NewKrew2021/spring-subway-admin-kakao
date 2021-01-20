@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.repository.dao.SectionDao;
+import subway.domain.Section;
+import subway.domain.Line;
+import subway.repository.dao.LineDao;
+import subway.domain.Station;
+import subway.repository.dao.StationDao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,7 +59,7 @@ public class SectionDaoTest {
         Section newSection2 = sectionDao.save(new Section(이호선, 사당역, 방배역, 10));
 
         sectionDao.deleteById(newSection2.getId());
-        assertEquals(1, sectionDao.findAllByLine(이호선, stationDao, lineDao).getSize());
+        assertEquals(1, sectionDao.findAllByLine(이호선).getSize());
     }
 
 }

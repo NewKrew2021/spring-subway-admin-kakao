@@ -1,7 +1,4 @@
-package subway.section;
-
-import subway.line.Line;
-import subway.station.Station;
+package subway.domain;
 
 public class Section {
     private Long id;
@@ -27,6 +24,14 @@ public class Section {
         this.upStation = upStation;
         this.downStation = downStation;
         this.distance = distance;
+    }
+
+    public void setUpStation(Station upStation) {
+        this.upStation = upStation;
+    }
+
+    public void setDownStation(Station downStation) {
+        this.downStation = downStation;
     }
 
     public Long getId() {

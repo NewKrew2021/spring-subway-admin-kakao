@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import subway.line.Line;
-import subway.station.Station;
+import subway.domain.Section;
+import subway.domain.Line;
+import subway.domain.Station;
 
 @DisplayName("섹션 테스트")
 public class SectionTest {

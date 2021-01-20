@@ -1,6 +1,4 @@
-package subway.section;
-
-import subway.station.Station;
+package subway.domain;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,4 +89,14 @@ public class SectionsInLine extends Sections {
                 .orElseThrow(RuntimeException::new);
     }
 
+    public void mapStation(StationMapper stationMapper) {
+        sections.forEach(section -> {
+                    section.setUpStation(stationMapper.mapById(section.getUpStation().getId()));
+                    section.setDownStation(stationMapper.mapById(section.getDownStation().getId()));
+                });
+    }
+
+    public interface StationMapper {
+        Station mapById(Long stationId);
+    }
 }

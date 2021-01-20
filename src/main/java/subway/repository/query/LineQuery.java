@@ -1,6 +1,6 @@
-package subway.line;
+package subway.repository.query;
 
-class LineQuery {
+public class LineQuery {
     public static final String insertQuery = "insert into line (name, color) values(?, ?)";
     public static final String updateQuery = "update line set name = ?, color = ? where id = ?";
     public static final String selectByIdQuery = "select id, name, color from line where id = ?";

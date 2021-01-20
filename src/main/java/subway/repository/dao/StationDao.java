@@ -1,4 +1,4 @@
-package subway.line;
+package subway.repository.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.DuplicateException;
+import subway.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,38 +15,31 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-import static subway.line.LineQuery.*;
+import static subway.repository.query.StationQuery.*;
 
 @Repository
-public class LineDao {
+public class StationDao {
     private final JdbcTemplate jdbcTemplate;
 
-    public LineDao(JdbcTemplate jdbcTemplate) {
+    public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Line save(Line line) {
-        if (hasDuplicateName(line.getName())) {
-            throw new DuplicateException();
-        }
-        return insertAtDB(line);
+    public Station save(Station station) {
+        return insertAtDB(station);
     }
 
-    public void update(Line line) {
-        jdbcTemplate.update(updateQuery, line.getName(), line.getColor(), line.getId());
+    public List<Station> findAll() {
+        List<Station> stations = jdbcTemplate.query(selectAllQuery, new StationMapper());
+        return stations;
     }
 
-    public Optional<Line> findById(Long id) {
+    public Optional<Station> findById(Long id) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(selectByIdQuery, new LineMapper(), id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(selectByIdQuery, new StationMapper(), id));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-    }
-
-    public List<Line> findAll() {
-        List<Line> lines = jdbcTemplate.query(selectAllQuery, new LineMapper());
-        return lines;
     }
 
     public void deleteById(Long id) {
@@ -57,35 +50,32 @@ public class LineDao {
         return jdbcTemplate.queryForObject(countByNameQuery, int.class, name) != 0;
     }
 
-    private Line insertAtDB(Line line) {
+    private Station insertAtDB(Station station) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
                     insertQuery,
                     Statement.RETURN_GENERATED_KEYS);
-            psmt.setString(1, line.getName());
-            psmt.setString(2, line.getColor());
+            psmt.setString(1, station.getName());
             return psmt;
         }, keyHolder);
 
         Long id = (Long) keyHolder.getKey();
 
-        return new Line(
+        return new Station(
                 id,
-                line.getName(),
-                line.getColor()
+                station.getName()
         );
     }
 
-    private final static class LineMapper implements RowMapper<Line> {
+    private final static class StationMapper implements RowMapper<Station> {
         @Override
-        public Line mapRow(ResultSet rs, int rowNum) throws SQLException {
+        public Station mapRow(ResultSet rs, int rowNum) throws SQLException {
             Long id = rs.getLong("id");
             String name = rs.getString("name");
-            String color = rs.getString("color");
 
-            return new Line(id, name, color);
+            return new Station(id, name);
         }
     }
 }

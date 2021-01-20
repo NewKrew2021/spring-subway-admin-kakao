@@ -1,6 +1,6 @@
-package subway.station;
+package subway.repository.query;
 
-class StationQuery {
+public class StationQuery {
     public static final String insertQuery = "insert into station (name) values(?)";
     public static final String selectAllQuery = "select id, name from station";
     public static final String selectByIdQuery = "select id, name from station where id = ?";

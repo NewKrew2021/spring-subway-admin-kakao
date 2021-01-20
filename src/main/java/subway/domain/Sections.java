@@ -1,6 +1,4 @@
-package subway.section;
-
-import subway.station.Station;
+package subway.domain;
 
 import java.util.List;
 
@@ -33,7 +31,7 @@ public class Sections {
         return findSectionByStation(station) != null;
     }
 
-    protected Section findSectionByStation(Station station) {
+    public Section findSectionByStation(Station station) {
         return sections.stream()
                 .filter(section -> section.hasStation(station))
                 .findFirst()

@@ -79,7 +79,7 @@ public class LineService {
     }
 
     private Line saveSectionsHeadOrTail(Section newSection, Line line) {
-        line.updateStationInfoWhenInserted(newSection);
+        line.addSection(newSection);
         lineDao.updateById(line);
         sectionDao.save(newSection);
         return lineDao.findById(newSection.getLineId());
@@ -115,7 +115,7 @@ public class LineService {
 
     private void deleteStartOrEndStation(Sections sections, Long stationId, Line line) {
         Section section = getStartOrEndSection(sections, stationId, line);
-        line.updateStationInfoWhenDeleted(section);
+        line.deleteSection(section);
         lineDao.updateById(line);
         sectionDao.deleteById(section.getId());
     }

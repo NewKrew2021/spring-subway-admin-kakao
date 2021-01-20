@@ -71,7 +71,7 @@ public class Line {
         this.color = lineRequest.getColor();
     }
 
-    public void updateStationInfoWhenInserted(Section section) {
+    public void addSection(Section section) {
         if(section.getDownStationId() == startStationId) {
             this.startStationId = section.getUpStationId();
         }
@@ -80,7 +80,7 @@ public class Line {
         }
     }
 
-    public void updateStationInfoWhenDeleted(Section section) {
+    public void deleteSection(Section section) {
         if(section.getUpStationId() == startStationId) {
             startStationId = section.getDownStationId();
         }

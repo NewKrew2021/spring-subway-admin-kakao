@@ -1,11 +1,15 @@
 package subway.line;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.section.SectionDao;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -42,11 +46,7 @@ public class LineDao {
         String SQL = "SELECT * FROM line";
         return jdbcTemplate.query(
                 SQL,
-                (resultSet, rowNum) -> new Line(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("color")
-                )
+                new LineDao.SelectLineMapper()
         );
     }
 
@@ -54,11 +54,7 @@ public class LineDao {
         String SQL = "SELECT * FROM line WHERE id = ?";
         return jdbcTemplate.queryForObject(
                 SQL,
-                (resultSet, rowNum) -> new Line(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("color")
-                ),
+                new LineDao.SelectLineMapper(),
                 id
         );
     }
@@ -73,4 +69,16 @@ public class LineDao {
         String SQL = "DELETE FROM line where id = ?";
         jdbcTemplate.update(SQL, id);
     }
+
+    private final static class SelectLineMapper implements RowMapper<Line> {
+        @Override
+        public Line mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+            return new Line(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("color")
+            );
+        }
+    }
+
 }

@@ -9,42 +9,36 @@ import java.util.List;
 
 @RestController
 public class StationController {
-    private final StationDao stationDao;
+    private final StationService stationService;
 
-    public StationController(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station newStation = stationDao.insert(new Station(stationRequest.getName()));
-        if (newStation == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        StationResponse response = newStation.toDto();
+        StationResponse response = stationService.create(stationRequest);
         return ResponseEntity.created(URI.create("/stations/" + response.getId())).body(response);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        Stations stations = new Stations(stationDao.findAll());
-        return ResponseEntity.ok(stations.toDto());
+        return ResponseEntity.ok(stationService.findAll());
     }
 
     @GetMapping(value = "/stations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> showStation(@PathVariable Long id) {
-        Station station = stationDao.findById(id);
-        if (station == null) {
+        StationResponse response = stationService.findById(id);
+        if (response == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(station.toDto());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity<?> deleteStation(@PathVariable Long id) {
-        boolean deleted = stationDao.deleteById(id);
+        boolean deleted = stationService.deleteById(id);
         if (!deleted) {
             return ResponseEntity.badRequest().build();
         }

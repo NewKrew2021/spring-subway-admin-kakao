@@ -18,13 +18,6 @@ public class Stations {
         }
     }
 
-    public boolean hasDuplicate(Station station) {
-        return stations.stream()
-                .filter(_station -> _station.equals(station))
-                .collect(Collectors.toList())
-                .size() > 0;
-    }
-
     public List<StationResponse> toDto() {
         return stations.stream()
                 .map(Station::toDto)

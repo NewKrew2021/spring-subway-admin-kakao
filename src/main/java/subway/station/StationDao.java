@@ -19,24 +19,14 @@ public class StationDao {
     }
 
     public Station insert(Station station) {
-        Stations stations = new Stations(findAll());
-
-        if (stations.hasDuplicate(station)) {
-            return null;
-        }
-
         String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        try {
-            jdbcTemplate.update(con -> {
-                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, station.getName());
-                return st;
-            }, keyHolder);
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setString(1, station.getName());
+            return st;
+        }, keyHolder);
 
         return new Station(keyHolder.getKey().longValue(), station.getName());
     }
@@ -49,6 +39,16 @@ public class StationDao {
     public Station findById(Long id) {
         String sql = "select id, name from station where id = ?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+    }
+
+    public boolean isExistingName(String name) {
+        String sql = "select id, name from station where name = ?";
+        try {
+            jdbcTemplate.queryForObject(sql, stationRowMapper, name);
+        } catch (DataAccessException ignored) {
+            return false;
+        }
+        return true;
     }
 
     public boolean deleteById(Long id) {

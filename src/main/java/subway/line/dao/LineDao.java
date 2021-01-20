@@ -23,7 +23,7 @@ public class LineDao {
 
     public Line save(Line line) {
 
-        KeyHolder keyHoler = new GeneratedKeyHolder();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(e -> {
             PreparedStatement preparedStatement = e.prepareStatement(
@@ -32,9 +32,9 @@ public class LineDao {
             preparedStatement.setString(2, line.getColor());
 
             return preparedStatement;
-        }, keyHoler);
+        }, keyHolder);
 
-        Long id = (long) keyHoler.getKey();
+        Long id = (long) keyHolder.getKey();
         return new Line(id, line.getName(), line.getColor());
     }
 

@@ -18,19 +18,19 @@ public class StationDao {
     }
 
 
-    public Station save(Station station) {
+    public Station save(String name) {
 
-        KeyHolder keyHoler = new org.springframework.jdbc.support.GeneratedKeyHolder();
+        KeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
 
         jdbcTemplate.update(e -> {
                     java.sql.PreparedStatement preparedStatement = e.prepareStatement(
                             StationQuery.INSERT, java.sql.Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, station.getName());
+            preparedStatement.setString(1, name);
             return preparedStatement;
-            }, keyHoler);
+            }, keyHolder);
 
-        Long id = (long) keyHoler.getKey();
-        return new Station(id, station.getName());
+        Long id = (long) keyHolder.getKey();
+        return new Station(id, name);
     }
 
     public List<Station> findAll() {
@@ -59,6 +59,10 @@ public class StationDao {
 
     public void deleteById(Long id) {
         jdbcTemplate.update(StationQuery.DELETE_BY_ID,id);
+    }
+
+    public int countByName(String name) {
+        return jdbcTemplate.queryForObject(StationQuery.COUNT_BY_NAME, Integer.class, name);
     }
 
 }

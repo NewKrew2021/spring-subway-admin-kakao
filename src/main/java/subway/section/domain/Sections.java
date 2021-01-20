@@ -33,4 +33,11 @@ public class Sections {
                 .collect(Collectors.toList())
                 .size() != 0;
     }
+
+    public Section findNextSection(Section currentSection) {
+        return sections.stream()
+                .filter(section -> section.getUpStationId() == currentSection.getDownStationId())
+                .findAny()
+                .get();
+    }
 }

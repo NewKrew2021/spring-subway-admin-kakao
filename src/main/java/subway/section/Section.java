@@ -8,8 +8,8 @@ public class Section {
 
     private long id;
     private long lineId;
-    private final long upStationId;
-    private final long downStationId;
+    private long upStationId;
+    private long downStationId;
     private int distance;
 
     public Section(long upStationId, long downStationId) {
@@ -39,8 +39,22 @@ public class Section {
         }
     }
 
+    public void updateUpStationAndDistance(long newUpStationId, int subtrahend) {
+        upStationId = newUpStationId;
+        distance -= subtrahend;
+    }
+
+    public void updateDownStationAndDistance(long newDownStationId, int subtrahend) {
+        downStationId = newDownStationId;
+        distance -= subtrahend;
+    }
+
     public long getId() {
         return id;
+    }
+
+    public long getLineId() {
+        return lineId;
     }
 
     public long getUpStationId() {

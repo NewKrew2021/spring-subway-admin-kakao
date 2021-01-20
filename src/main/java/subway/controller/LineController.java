@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
 
     private final LineService lineService;
@@ -32,12 +33,12 @@ public class LineController {
         this.stationService = stationService;
     }
 
-    @PostMapping("/lines")
+    @PostMapping("")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineService.createLine(new Line(lineRequest.getName(), lineRequest.getColor()));
+        Line newLine = lineService.createLine(lineRequest.getName(), lineRequest.getColor());
         List<StationResponse> stationResponses = new ArrayList<>();
-        sectionService.createSection(new Section(lineRequest.getUpStationId(), 0, newLine.getId()));
-        sectionService.createSection(new Section(lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId()));
+        sectionService.createSection(lineRequest.getUpStationId(), 0, newLine.getId());
+        sectionService.createSection(lineRequest.getDownStationId(), lineRequest.getDistance(), newLine.getId());
 
         Station upStation = stationService.getStation(lineRequest.getUpStationId());
         Station downStation = stationService.getStation(lineRequest.getDownStationId());
@@ -47,13 +48,13 @@ public class LineController {
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses));
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "")
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResponses = lineService.getAllLines();
         return ResponseEntity.ok().body(lineResponses);
     }
 
-    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}")
     public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
         Line line = lineService.getLine(id);
         List<Station> stations = sectionService.getStationsOfLine(id);
@@ -64,25 +65,26 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponse);
     }
 
-    @RequestMapping(value = "/lines/{id}", method = RequestMethod.PUT)
+    @PutMapping(value = "/{id}")
     public ResponseEntity updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
         lineService.updateLine(id, lineRequest.getName(), lineRequest.getColor());
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
+        sectionService.deleteAllSectionsOfLine(id);
         lineService.deleteLine(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/lines/{id}/sections")
+    @PostMapping(value = "/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         sectionService.addSection(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}/sections")
+    @DeleteMapping("/{id}/sections")
     public ResponseEntity deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
         sectionService.deleteSection(id, stationId);
         return ResponseEntity.ok().build();

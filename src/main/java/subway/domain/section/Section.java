@@ -35,8 +35,8 @@ public class Section {
         return lineId;
     }
 
-    public int calculateDistance(Section upSection) {
-        return this.distance - upSection.distance;
+    public int calculateDistance(Section section) {
+        return Math.abs(this.distance - section.distance);
     }
 
     @Override

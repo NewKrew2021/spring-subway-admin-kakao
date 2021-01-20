@@ -36,11 +36,11 @@ public class Sections {
 
         Section newSection = null;
         if (upStationExist) {
-            newSection = addSectionWhenUpStationExist(upStationId, downStationId, distance);
+            newSection = makeNewSection(upStationId, downStationId, distance);
         }
 
         if (downStationExist) {
-            newSection = addSectionWhenDownStationExist(upStationId, downStationId, distance);
+            newSection = makeNewSection(downStationId, upStationId, -distance);
         }
 
         return newSection;
@@ -55,27 +55,24 @@ public class Sections {
         }
     }
 
-    private Section addSectionWhenUpStationExist(long upStationId, long downStationId, int distance) {
-        Section upSection = findByStationId(upStationId);
-        Section downSection = getDownSection(upSection);
+    private Section makeNewSection(long existStationId, long newStation, int distance) {
+        Section existSection = findByStationId(existStationId);
+        Section oppositeSection = getOppositeSection(existSection, distance);
 
-        if (downSection != null && downSection.calculateDistance(upSection) <= distance) {
+        if (oppositeSection != null && existSection.calculateDistance(oppositeSection) <= Math.abs(distance)) {
             throw new InvalidSectionException(INVALID_DISTANCE_SECTION_ADD_ERROR);
         }
 
-        return new Section(downStationId, upSection.getDistance() + distance, upSection.getLineId());
+        return new Section(newStation, existSection.getDistance() + distance, existSection.getLineId());
     }
 
-    private Section addSectionWhenDownStationExist(long upStationId, long downStationId, int distance) {
-        Section downSection = findByStationId(downStationId);
-        Section upSection = getUpSection(downSection);
-
-        if (upSection != null && downSection.calculateDistance(upSection) <= distance) {
-            throw new InvalidSectionException("새 구간의 길이는 기존에 존재하던 구간의 길이보다 크지 않아야 합니다.");
+    private Section getOppositeSection(Section section, int distance) {
+        if (distance > 0) {
+            return getDownSection(section);
         }
-
-        return new Section(upStationId, downSection.getDistance() - distance, downSection.getLineId());
+        return getUpSection(section);
     }
+
 
     private Section getUpSection(Section section) {
         int prevIdx = sections.indexOf(section) - 1;

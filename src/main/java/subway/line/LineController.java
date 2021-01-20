@@ -9,6 +9,7 @@ import subway.section.SectionRequest;
 import java.util.List;
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
 
     private final LineService lineService;
@@ -18,37 +19,37 @@ public class LineController {
         this.lineService = lineService;
     }
 
-    @PostMapping(value = "/lines")
+    @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         return lineService.createLine(lineRequest);
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         return lineService.showLines();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         return lineService.deleteLine(id);
     }
 
-    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         return lineService.showLine(id);
     }
 
-    @PutMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         return lineService.updateLine(id, lineRequest);
     }
 
-    @PostMapping(value = "/lines/{id}/sections")
+    @PostMapping(value = "/{id}/sections")
     public ResponseEntity createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         return lineService.createSection(id, sectionRequest);
     }
 
-    @DeleteMapping(value = "/lines/{id}/sections")
+    @DeleteMapping(value = "/{id}/sections")
     public ResponseEntity deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
         return lineService.deleteSection(id, stationId);
     }

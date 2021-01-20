@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("stations")
 public class StationController {
     private StationService stationService;
 
@@ -15,18 +16,18 @@ public class StationController {
         this.stationService = stationService;
     }
 
-    @PostMapping("/stations")
+    @PostMapping()
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         StationResponse stationResponse = stationService.createStation(stationRequest);
         return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }
 
-    @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         return ResponseEntity.ok().body(stationService.showStations());
     }
 
-    @DeleteMapping("/stations/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         stationService.deleteById(id);
         return ResponseEntity.noContent().build();

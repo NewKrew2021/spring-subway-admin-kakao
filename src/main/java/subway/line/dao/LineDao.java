@@ -1,20 +1,23 @@
 package subway.line.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
 public class LineDao {
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final LineMapper lineMapper;
 
-    @Resource
-    LineMapper lineMapper;
+    @Autowired
+    public LineDao(JdbcTemplate jdbcTemplate, LineMapper lineMapper){
+        this.jdbcTemplate = jdbcTemplate;
+        this.lineMapper = lineMapper;
+    }
 
     public void save(Line line) {
         jdbcTemplate.update(LineQuery.SAVE.getQuery(),

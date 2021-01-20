@@ -1,20 +1,27 @@
 package subway.station.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import subway.section.dao.SectionDao;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class StationService {
 
-    @Resource
-    public StationDao stationDao;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
+
+    @Autowired
+    public StationService(StationDao stationDao, SectionDao sectionDao) {
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     public StationResponse createStation(StationRequest stationRequest) {
         stationDao.save(new Station(stationRequest.getName()));

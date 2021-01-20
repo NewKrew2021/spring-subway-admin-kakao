@@ -1,5 +1,6 @@
 package subway.line.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
@@ -14,7 +15,6 @@ import subway.section.domain.SectionRequest;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,16 @@ import java.util.stream.Collectors;
 @Service
 public class LineService {
 
-    @Resource
-    private LineDao lineDao;
+    private final LineDao lineDao;
+    private final StationDao stationDao;
+    private final SectionDao sectionDao;
 
-    @Resource
-    private StationDao stationDao;
-
-    @Resource
-    private SectionDao sectionDao;
+    @Autowired
+    public LineService(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
+        this.lineDao = lineDao;
+        this.stationDao = stationDao;
+        this.sectionDao = sectionDao;
+    }
 
     public LineResponse createLine(LineRequest lineRequest) throws DuplicateKeyException {
         Line line = new Line(lineRequest);

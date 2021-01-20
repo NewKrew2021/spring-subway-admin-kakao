@@ -1,20 +1,23 @@
 package subway.station.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import subway.station.domain.Station;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
 public class StationDao {
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final StationMapper stationMapper;
 
-    @Resource
-    StationMapper stationMapper;
+    @Autowired
+    public StationDao(JdbcTemplate jdbcTemplate, StationMapper stationMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.stationMapper = stationMapper;
+    }
 
     public Station save(Station station) {
         jdbcTemplate.update(StationQuery.SAVE.getQuery(), station.getName());

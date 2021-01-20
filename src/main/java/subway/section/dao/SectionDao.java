@@ -1,20 +1,24 @@
 package subway.section.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import subway.section.domain.Section;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
 public class SectionDao {
 
-    @Resource
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final SectionMapper sectionMapper;
 
-    @Resource
-    SectionMapper sectionMapper;
+    @Autowired
+    public SectionDao(JdbcTemplate jdbcTemplate, SectionMapper sectionMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.sectionMapper = sectionMapper;
+    }
+
 
     public void save(Section section) {
         jdbcTemplate.update(SectionQuery.SAVE.getQuery(),

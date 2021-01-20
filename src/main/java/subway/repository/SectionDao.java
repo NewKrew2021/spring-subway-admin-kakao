@@ -1,9 +1,8 @@
-package subway.line.dao;
+package subway.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import subway.line.domain.Section;
-import subway.line.util.SectionMapper;
+import subway.domain.Section;
 
 import javax.annotation.Resource;
 import java.util.List;

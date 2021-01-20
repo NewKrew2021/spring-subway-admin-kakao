@@ -1,4 +1,4 @@
-package subway.line.domain;
+package subway.controller.to;
 
 public class SectionRequest {
     private Long upStationId;

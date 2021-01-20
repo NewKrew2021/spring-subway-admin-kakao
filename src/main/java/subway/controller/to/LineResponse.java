@@ -1,6 +1,6 @@
-package subway.line.domain;
+package subway.controller.to;
 
-import subway.station.domain.Station;
+import subway.domain.Station;
 
 import java.util.List;
 

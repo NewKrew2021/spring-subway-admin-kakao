@@ -1,13 +1,17 @@
-package subway.line.controller;
+package subway.controller;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.domain.*;
-import subway.line.service.LineService;
-import subway.line.service.SectionService;
-import subway.station.service.StationService;
+import subway.controller.to.LineRequest;
+import subway.controller.to.LineResponse;
+import subway.controller.to.SectionRequest;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.service.LineService;
+import subway.service.SectionService;
+import subway.service.StationService;
 
 import javax.annotation.Resource;
 import java.net.URI;

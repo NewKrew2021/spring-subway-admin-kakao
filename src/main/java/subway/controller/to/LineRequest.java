@@ -1,4 +1,6 @@
-package subway.line.domain;
+package subway.controller.to;
+
+import subway.domain.Line;
 
 public class LineRequest {
     private String name;

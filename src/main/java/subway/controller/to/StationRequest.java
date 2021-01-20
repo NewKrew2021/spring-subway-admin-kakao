@@ -1,4 +1,6 @@
-package subway.station.domain;
+package subway.controller.to;
+
+import subway.domain.Station;
 
 public class StationRequest {
     private String name;

@@ -1,13 +1,13 @@
-package subway.line.service;
+package subway.service;
 
 import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
-import subway.line.domain.Section;
-import subway.line.dao.SectionDao;
-import subway.line.domain.Sections;
-import subway.station.domain.Station;
-import subway.station.dao.StationDao;
+import subway.domain.Section;
+import subway.repository.SectionDao;
+import subway.domain.Sections;
+import subway.domain.Station;
+import subway.repository.StationDao;
 
 import javax.annotation.Resource;
 import java.util.List;

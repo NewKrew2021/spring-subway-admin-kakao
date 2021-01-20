@@ -1,4 +1,4 @@
-package subway.line.domain;
+package subway.domain;
 
 public class Section {
     private Long id;

@@ -31,7 +31,27 @@ public class Line {
         this.upStationId = lineRequest.getUpStationId();
         this.downStationId = lineRequest.getDownStationId();
         this.distance = lineRequest.getDistance();
+    }
 
+    public boolean isInsertModified(Section newSection) {
+        if(this.downStationId.equals(newSection.getUpStationId())){
+            this.downStationId= newSection.getDownStationId();
+            return true;
+        }
+        if(this.upStationId.equals(newSection.getDownStationId())){
+            this.upStationId= newSection.getUpStationId();
+            return true;
+        }
+        return false;
+    }
+
+    public void modifyLineWhenSectionDelete(Section newSection){
+        if(this.upStationId.equals(newSection.getUpStationId())){
+            this.upStationId= newSection.getDownStationId();
+        }
+        if(this.downStationId.equals(newSection.getDownStationId())){
+            this.downStationId= newSection.getUpStationId();
+        }
     }
 
     public long getId() {
@@ -52,28 +72,6 @@ public class Line {
 
     public Long getDownStationId() {
         return downStationId;
-    }
-
-
-    public boolean isInsertModified(Section newSection) {
-        if(this.downStationId.equals(newSection.getUpStationId())){
-            this.downStationId= newSection.getDownStationId();
-            return true;
-        }
-        if(this.upStationId.equals(newSection.getDownStationId())){
-            this.upStationId= newSection.getUpStationId();
-            return true;
-        }
-        return false;
-    }
-
-    public void lineModifyWhenDelete(Section newSection){
-        if(this.upStationId.equals(newSection.getUpStationId())){
-            this.upStationId= newSection.getDownStationId();
-        }
-        if(this.downStationId.equals(newSection.getDownStationId())){
-            this.downStationId= newSection.getUpStationId();
-        }
     }
 
 }

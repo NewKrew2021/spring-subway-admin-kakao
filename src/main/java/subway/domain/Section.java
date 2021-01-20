@@ -34,15 +34,19 @@ public class Section {
         return false;
     }
 
-    public boolean isMatchedOnlyUpStationId(Section newSection){
-        if(this.upStationId==upStationId&&this.downStationId!=downStationId){
+    private boolean validateDistance(Section newSection){
+        return this.distance> newSection.distance;
+    }
+
+    private boolean isMatchedOnlyUpStationId(Section newSection){
+        if(this.upStationId==newSection.upStationId&&this.downStationId!=newSection.downStationId){
             return true;
         }
         return false;
     }
 
-    public boolean isMatchedOnlyDownStationId(Section newSection){
-        if(this.downStationId==downStationId&&this.upStationId!=upStationId){
+    private boolean isMatchedOnlyDownStationId(Section newSection){
+        if(this.downStationId==newSection.downStationId&&this.upStationId!=newSection.upStationId){
             return true;
         }
         return false;
@@ -67,9 +71,6 @@ public class Section {
         }
     }
 
-    public boolean validateDistance(Section newSection){
-        return this.distance> newSection.distance;
-    }
 
     public void modifyMatchedSection(Section newSection) {
         if (isMatchedOnlyUpStationId(newSection)) {

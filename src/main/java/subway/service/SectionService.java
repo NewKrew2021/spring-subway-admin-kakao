@@ -50,26 +50,24 @@ public class SectionService {
 
     public boolean deleteStation(Line line, Long stationId) {
         Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(line.getId());
-        sectionsFromNowLine.printSize();
-        if (sectionsFromNowLine.validateSectionDelete()) {
+        if (!sectionsFromNowLine.validateSectionDelete()) {
             return false;
         }
         List<Section> deleteSections = sectionsFromNowLine.findDeleteSections(stationId);
-        System.out.println("크기:" + deleteSections.size());
         if (deleteSections.size() == 0) {
             return false;
         }
         if (deleteSections.size() == 1) {
             sectionDao.deleteSection(deleteSections.get(0).getId());
-            line.lineModifyWhenDelete(deleteSections.get(0));
+            line.modifyLineWhenSectionDelete(deleteSections.get(0));
             lineDao.updateLine(line);
             return true;
         }
         if (deleteSections.size() == 2) {
-            Section modfiySection = deleteSections.get(0);
+            Section modifySection = deleteSections.get(0);
             Section deleteSection = deleteSections.get(1);
-            modfiySection.mergeSection(deleteSection);
-            sectionDao.modifySection(modfiySection);
+            modifySection.mergeSection(deleteSection);
+            sectionDao.modifySection(modifySection);
             sectionDao.deleteSection(deleteSection.getId());
             return true;
         }
@@ -88,6 +86,4 @@ public class SectionService {
         }
         return result;
     }
-
-
 }

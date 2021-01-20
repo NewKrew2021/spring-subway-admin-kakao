@@ -2,9 +2,12 @@ package subway.station.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.station.domain.Station;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -19,9 +22,16 @@ public class StationDao {
         this.stationMapper = stationMapper;
     }
 
-    public Station save(Station station) {
-        jdbcTemplate.update(StationQuery.SAVE.getQuery(), station.getName());
-        return station;
+    public Long save(Station station) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(StationQuery.SAVE.getQuery(),
+                    new String[]{"id"});
+            preparedStatement.setString(1, station.getName());
+            return preparedStatement;
+        },keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public List<Station> findAll() {
@@ -31,11 +41,6 @@ public class StationDao {
     public Station findById(Long id) {
         return jdbcTemplate.queryForObject(StationQuery.FIND_BY_ID.getQuery(),
                 stationMapper, id);
-    }
-
-    public Station findByName(String name) {
-        return jdbcTemplate.queryForObject(StationQuery.FIND_BY_NAME.getQuery(),
-                stationMapper, name);
     }
 
     public void deleteById(Long id) {

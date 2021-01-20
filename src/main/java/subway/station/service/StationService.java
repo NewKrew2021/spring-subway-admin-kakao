@@ -25,10 +25,10 @@ public class StationService {
     }
 
     public StationResponse createStation(StationRequest stationRequest) {
-        stationDao.save(new Station(stationRequest.getName()));
+        Long stationId = stationDao.save(new Station(stationRequest.getName()));
+        Station newStation = stationDao.findById(stationId);
 
-        Station newStation = stationDao.findByName(stationRequest.getName());
-        return new StationResponse(newStation.getId(), newStation.getName());
+        return new StationResponse(stationId, newStation.getName());
     }
 
     public List<StationResponse> showStations() {

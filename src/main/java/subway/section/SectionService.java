@@ -36,19 +36,17 @@ public class SectionService {
 
         if (matchedUpSection != null) {
             checkDistance(matchedUpSection, newSection);
-            sectionDao.save(newSection);
-            sectionDao.update(matchedUpSection.getId(), Section.of(
-                    matchedUpSection.getId(),
-                    matchedUpSection.getLineId(),
-                    newSection.getDownStationId(),
-                    matchedUpSection.getDownStationId(),
-                    matchedUpSection.getDistance() - newSection.getDistance()));
+            addStationWhenMatchedUp(newSection, matchedUpSection);
             return;
         }
 
         Section matchedDownSection = sections.getMatchedDownStation(newSection);
 
         checkDistance(matchedDownSection, newSection);
+        addStationWhenMatchedDown(newSection, matchedDownSection);
+    }
+
+    private void addStationWhenMatchedDown(Section newSection, Section matchedDownSection) {
         sectionDao.save(newSection);
         sectionDao.update(matchedDownSection.getId(), Section.of(
                 matchedDownSection.getId(),
@@ -56,6 +54,16 @@ public class SectionService {
                 matchedDownSection.getUpStationId(),
                 newSection.getUpStationId(),
                 matchedDownSection.getDistance() - newSection.getDistance()));
+    }
+
+    private void addStationWhenMatchedUp(Section newSection, Section matchedUpSection) {
+        sectionDao.save(newSection);
+        sectionDao.update(matchedUpSection.getId(), Section.of(
+                matchedUpSection.getId(),
+                matchedUpSection.getLineId(),
+                newSection.getDownStationId(),
+                matchedUpSection.getDownStationId(),
+                matchedUpSection.getDistance() - newSection.getDistance()));
     }
 
     private void checkDistance(Section section, Section newSection) {

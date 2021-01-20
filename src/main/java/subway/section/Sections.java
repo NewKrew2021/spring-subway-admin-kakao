@@ -6,18 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Sections {
+    private final int TWO_SECTIONS_REPRESENT_ONE = 2;
     private final List<Section> sections;
 
     public Sections(List<Section> sections) {
-        if (!sorted(sections)) {
-            throw new IllegalArgumentException("Sections should be sorted by distance order");
-        }
-
-        if (hasDuplicates(sections)) {
-            throw new IllegalArgumentException("Sections cannot have duplicate elements");
-        }
-
         this.sections = Collections.unmodifiableList(sections);
+        checkAreValidSections();
     }
 
     public List<Long> getStationIDs() {
@@ -27,9 +21,7 @@ public class Sections {
     }
 
     public Section insert(Section upSectionParameters, Section downSectionParameters) {
-        if (!areValidSections(upSectionParameters, downSectionParameters)) {
-            return null;
-        }
+        checkValidSections(upSectionParameters, downSectionParameters);
 
         final int NOT_DEFINED = Integer.MAX_VALUE;
         int distanceDiff = downSectionParameters.distanceDiff(upSectionParameters);
@@ -59,15 +51,28 @@ public class Sections {
     }
 
     public boolean hasMinimumSectionCount() {
-        return sections.size() <= 2;
+        return sections.size() <= TWO_SECTIONS_REPRESENT_ONE;
     }
 
     public boolean hasNoSections() {
         return sections.isEmpty();
     }
 
-    protected boolean areValidSections(Section upSection, Section downSection) {
-        return sectionExists(upSection) != sectionExists(downSection);
+    protected void checkValidSections(Section upSection, Section downSection) {
+        checkBothSectionsAlreadyExist(upSection, downSection);
+        checkBothSectionsDoesNotExist(upSection, downSection);
+    }
+
+    private void checkBothSectionsAlreadyExist(Section upSection, Section downSection) {
+        if (sectionExists(upSection) && sectionExists(downSection)) {
+            throw new IllegalArgumentException("Cannot insert if both sections already exist");
+        }
+    }
+
+    private void checkBothSectionsDoesNotExist(Section upSection, Section downSection) {
+        if (!sectionExists(upSection) && !sectionExists(downSection)) {
+            throw new IllegalArgumentException("Cannot insert if neither section exist");
+        }
     }
 
     protected boolean haveValidDistance(Section existingSection, Section newSection) {
@@ -110,14 +115,24 @@ public class Sections {
         return section == null;
     }
 
-    private boolean sorted(List<Section> sections) {
+    private void checkAreValidSections() {
+        if (!isSorted()) {
+            throw new IllegalArgumentException("Sections should be sorted by distance order");
+        }
+
+        if (hasDuplicates()) {
+            throw new IllegalArgumentException("Sections cannot have duplicate elements");
+        }
+    }
+
+    private boolean isSorted() {
         return sections.stream()
                 .sorted(Comparator.comparingInt(Section::getDistance))
                 .collect(Collectors.toList())
                 .equals(sections);
     }
 
-    private boolean hasDuplicates(List<Section> sections) {
+    private boolean hasDuplicates() {
         return sections.stream()
                 .distinct()
                 .count() != sections.size();

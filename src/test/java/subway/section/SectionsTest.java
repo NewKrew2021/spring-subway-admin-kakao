@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 public class SectionsTest {
     private final long LINE_ID = 1;
@@ -106,7 +105,9 @@ public class SectionsTest {
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다")
     @Test
     void bothSectionAlreadyExists() {
-        assertThat(sections.insert(middleSection, lowermostSection)).isNull();
+        assertThatThrownBy(() -> sections.insert(middleSection, lowermostSection))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already");
     }
 
     @DisplayName("지하철 노선에 등록되지 않은 역을 기준으로 등록한다")
@@ -115,7 +116,9 @@ public class SectionsTest {
         Section nonExistingSection1 = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
         Section nonExistingSection2 = new Section(LINE_ID, MIDDLE_RIGHT_ID, 2);
 
-        assertThat(sections.insert(nonExistingSection1, nonExistingSection2)).isNull();
+        assertThatThrownBy(() -> sections.insert(nonExistingSection1, nonExistingSection2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("neither");
     }
 
     @DisplayName("추가하려는 노선이 기존 노선의 거리 이상이다")
@@ -149,7 +152,7 @@ public class SectionsTest {
     void testAreInsertableSections() {
         Section newSection = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
 
-        assertThat(sections.areValidSections(middleSection, newSection)).isTrue();
+        assertThatCode(() -> sections.checkValidSections(middleSection, newSection)).doesNotThrowAnyException();
     }
 
     @DisplayName("구간에 추가할 역들이 모두 존재하거나 모두 존재하지 않을땐 삽입 불가능하다")
@@ -158,8 +161,12 @@ public class SectionsTest {
         Section nonExistingSection1 = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 0);
         Section nonExistingSection2 = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
 
-        assertThat(sections.areValidSections(uppermostSection, middleSection)).isFalse();
-        assertThat(sections.areValidSections(nonExistingSection1, nonExistingSection2)).isFalse();
+        assertThatThrownBy(() -> sections.checkValidSections(uppermostSection, middleSection))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already");
+        assertThatThrownBy(() -> sections.checkValidSections(nonExistingSection1, nonExistingSection2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("neither");
     }
 
     @DisplayName("구간에 있는 역들의 거리와 비교하여 추가가 가능한지 확인한다")

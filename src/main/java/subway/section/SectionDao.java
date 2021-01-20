@@ -1,8 +1,13 @@
 package subway.section;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
 
 @Repository
 public class SectionDao {
@@ -12,9 +17,9 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insert(Section upSection, Section downSection) {
+    public void insert(Section upSection, Section downSection) {
         if (upSection.equals(downSection)) {
-            return false;
+            throw new IllegalArgumentException("UpSection and DownSection cannot be equal");
         }
 
         Sections sections = findAllSectionsOf(upSection.getLineID());
@@ -22,26 +27,19 @@ public class SectionDao {
         if (sections.hasNoSections()) {
             insertSection(upSection);
             insertSection(downSection);
-            return true;
+            return;
         }
 
-        Section newSection = sections.insert(upSection, downSection);
-        if (couldNotInsertNewSection(newSection)) {
-            return false;
-        }
-
-        insertSection(newSection);
-        return true;
+        insertSection(sections.insert(upSection, downSection));
     }
 
-    public boolean delete(Section section) {
+    public void delete(Section section) {
         Sections sections = findAllSectionsOf(section.getLineID());
         if (sections.hasMinimumSectionCount()) {
-            return false;
+            throw new IllegalArgumentException("Cannot delete section when there are only two sections left");
         }
 
         deleteSection(section);
-        return true;
     }
 
     public Sections findAllSectionsOf(Long lineID) {
@@ -49,18 +47,41 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
     }
 
-    private boolean insertSection(Section section) {
+    private Section insertSection(Section section) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance()) > 0;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        try {
+            jdbcTemplate.update(con -> {
+                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+                st.setLong(1, section.getLineID());
+                st.setLong(2, section.getStationID());
+                st.setInt(3, section.getDistance());
+                return st;
+            }, keyHolder);
+        } catch (DataAccessException ignored) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot create section. Station %d in line %d already exists",
+                            section.getStationID(), section.getLineID()));
+        }
+
+        return new Section(keyHolder.getKey().longValue(), section.getLineID(),
+                section.getStationID(), section.getDistance());
     }
 
-    private boolean deleteSection(Section section) {
+    private void deleteSection(Section section) {
         String sql = "delete from section where line_id = ? and station_id = ?";
-        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID()) > 0;
+        int affectedRows = jdbcTemplate.update(sql, section.getLineID(), section.getStationID());
+
+        if (!affectedToUniqueRowOnly(affectedRows)) {
+            throw new IllegalArgumentException(
+                    String.format("Could not delete section with station id: %d and line id: %d",
+                            section.getStationID(), section.getLineID()));
+        }
     }
 
-    private boolean couldNotInsertNewSection(Section newSection) {
-        return newSection == null;
+    private boolean affectedToUniqueRowOnly(int affectedRows) {
+        return affectedRows == 1;
     }
 
     private final RowMapper<Section> sectionRowMapper =

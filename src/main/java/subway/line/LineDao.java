@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class LineDao {
@@ -19,12 +20,9 @@ public class LineDao {
     }
 
     public Line insert(Line line) {
-        if (isDuplicatedName(line)) {
-            return null;
-        }
-
         String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
+
         try {
             jdbcTemplate.update(con -> {
                 PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
@@ -33,7 +31,7 @@ public class LineDao {
                 return st;
             }, keyHolder);
         } catch (DataAccessException ignored) {
-            return null;
+            throw new IllegalArgumentException(String.format("Line with name %s already exists", line.getName()));
         }
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
@@ -46,34 +44,41 @@ public class LineDao {
 
     public Line findOne(Long id) {
         String sql = "select * from line where id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
-        } catch (DataAccessException e) {
-            return null;
+        Line line = jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+
+        if (!lineExists(line)) {
+            throw new NoSuchElementException(String.format("Could not find line with id: %d", id));
         }
+
+        return line;
     }
 
-    public boolean update(Long id, LineRequest lineRequest) {
+    public Line update(Long id, LineRequest lineRequest) {
         String sql = "update line set name = ?, color = ? where id = ?";
-        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
-    }
+        int affectedRows = jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id);
 
-    public boolean delete(Long id) {
-        String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
-    }
-
-    public boolean isDuplicatedName(Line line) {
-        return findByName(line.getName()) != null;
-    }
-
-    private Line findByName(String name) {
-        String sql = "select * from line where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
-        } catch (DataAccessException e) {
-            return null;
+        if (!affectedToUniqueRowOnly(affectedRows)) {
+            throw new NoSuchElementException(String.format("Could not update line with id: %d", id));
         }
+
+        return findOne(id);
+    }
+
+    public void delete(Long id) {
+        String sql = "delete from line where id = ?";
+        int affectedRows = jdbcTemplate.update(sql, id);
+
+        if (!affectedToUniqueRowOnly(affectedRows)) {
+            throw new NoSuchElementException(String.format("Could not delete line with id: %d", id));
+        }
+    }
+
+    private boolean lineExists(Line line) {
+        return line != null;
+    }
+
+    private boolean affectedToUniqueRowOnly(int affectedRows) {
+        return affectedRows == 1;
     }
 
     private final RowMapper<Line> lineRowMapper =

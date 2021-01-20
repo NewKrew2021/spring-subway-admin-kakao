@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class StationDao {
@@ -29,7 +30,7 @@ public class StationDao {
                 return st;
             }, keyHolder);
         } catch (DataAccessException ignored) {
-            return null;
+            throw new IllegalArgumentException(String.format("Station with name %s already exists", station.getName()));
         }
 
         return new Station(keyHolder.getKey().longValue(), station.getName());
@@ -42,12 +43,27 @@ public class StationDao {
 
     public Station findByID(Long id) {
         String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        Station station;
+
+        station = jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        if (stationDoesNotExist(station)) {
+            throw new NoSuchElementException(String.format("Could not find station with id: %d", id));
+        }
+
+        return station;
     }
 
-    public boolean deleteByID(Long id) {
+    public void deleteByID(Long id) {
         String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        int affectedRows = jdbcTemplate.update(sql, id);
+
+        if (affectedRows != 1) {
+            throw new NoSuchElementException(String.format("Could not delete station %d", id));
+        }
+    }
+
+    private boolean stationDoesNotExist(Station station) {
+        return station == null;
     }
 
     private final RowMapper<Station> stationRowMapper =

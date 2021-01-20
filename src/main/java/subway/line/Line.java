@@ -3,8 +3,6 @@ package subway.line;
 import org.apache.commons.lang3.StringUtils;
 import subway.station.Stations;
 
-import java.util.Objects;
-
 public class Line {
     private final Long id;
     private final String name;
@@ -15,17 +13,7 @@ public class Line {
     }
 
     public Line(Long id, String name, String color) {
-        if (isNegative(id)) {
-            throw new IllegalArgumentException("Line ID cannot be negative");
-        }
-
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Line name should not be null or blank");
-        }
-
-        if (StringUtils.isBlank(color)) {
-            throw new IllegalArgumentException("Line color should not be null or blank");
-        }
+        checkHasInvalidArgument(id, name, color);
 
         this.id = id;
         this.name = name;
@@ -48,23 +36,18 @@ public class Line {
         return color;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    private void checkHasInvalidArgument(Long id, String name, String color) {
+        if (isNegative(id)) {
+            throw new IllegalArgumentException("Line ID cannot be negative");
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Line name should not be null or blank");
         }
 
-        Line line = (Line) o;
-        return Objects.equals(name, line.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, color);
+        if (StringUtils.isBlank(color)) {
+            throw new IllegalArgumentException("Line color should not be null or blank");
+        }
     }
 
     private boolean isNegative(Long id) {

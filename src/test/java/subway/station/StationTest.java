@@ -1,5 +1,6 @@
 package subway.station;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,7 @@ public class StationTest {
         assertThatThrownBy(() -> new Station(-1L, "hi")).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Station에서 StationDTO를 올바르게 생성한다")
     @Test
     void testToDto() {
         StationResponse response = new Station(1L, "hi").toDto();

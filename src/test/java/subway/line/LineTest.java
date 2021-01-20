@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.station.Stations;
 
@@ -21,6 +22,7 @@ public class LineTest {
         assertThatThrownBy(() -> new Line(1L, "hi", "\n")).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Line에서 LineDTO를 올바르게 생성한다")
     @Test
     void testToDto() {
         LineResponse response = new Line(1L, "hi", "red").toDto(new Stations(Collections.emptyList()));

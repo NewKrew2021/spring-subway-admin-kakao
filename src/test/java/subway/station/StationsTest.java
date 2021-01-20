@@ -1,5 +1,6 @@
 package subway.station;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class StationsTest {
         ))).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("TODO")
     @Test
     void testAllToDto() {
         Stations stations = new Stations(Arrays.asList(

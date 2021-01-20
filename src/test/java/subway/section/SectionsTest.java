@@ -3,6 +3,8 @@ package subway.section;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +49,7 @@ public class SectionsTest {
         ))).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("구간에 포함되는 역의 ID를 모두 조회한다")
     @Test
     void testGetStationIDs() {
         assertThat(sections.getStationIDs()).containsExactly(3L, 5L, 7L);
@@ -124,6 +127,7 @@ public class SectionsTest {
         assertThat(sections.insert(middle, middleRight)).isNull();
     }
 
+    @DisplayName("상행/하행역으로 이루어진 최소 단위의 구간이다")
     @Test
     void testHasMinimumSectionCount() {
         assertThat(sections.hasMinimumSectionCount()).isFalse();
@@ -133,12 +137,14 @@ public class SectionsTest {
         )).hasMinimumSectionCount()).isTrue();
     }
 
+    @DisplayName("구간의 초기상태다 (역이 존재하지 않음)")
     @Test
     void testHasNoSections() {
         assertThat(new Sections(Collections.emptyList()).hasNoSections()).isTrue();
         assertThat(sections.hasNoSections()).isFalse();
     }
 
+    @DisplayName("구간에 새로운 역을 추가할 수 있다")
     @Test
     void testAreInsertableSections() {
         Section newSection = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
@@ -146,6 +152,7 @@ public class SectionsTest {
         assertThat(sections.areValidSections(middleSection, newSection)).isTrue();
     }
 
+    @DisplayName("구간에 추가할 역들이 모두 존재하거나 모두 존재하지 않을땐 삽입 불가능하다")
     @Test
     void testAreNotInsertableSections() {
         Section nonExistingSection1 = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 0);
@@ -155,30 +162,17 @@ public class SectionsTest {
         assertThat(sections.areValidSections(nonExistingSection1, nonExistingSection2)).isFalse();
     }
 
-    @DisplayName("기존에 존재하는 sections에 새로운 Section이 삽입 가능한지 여부")
-    @Test
-    void testHaveValidDistance() {
+    @DisplayName("구간에 있는 역들의 거리와 비교하여 추가가 가능한지 확인한다")
+    @ParameterizedTest
+    @CsvSource({"5,true", "-1,true", "6,false", "-2,false"})
+    void testHaveValidDistance(int distance, boolean expected) {
         assertThat(sections.haveValidDistance(
                 middleSection,
-                new Section(LINE_ID, MIDDLE_RIGHT_ID, 5)
-        )).isTrue();
-
-        assertThat(sections.haveValidDistance(
-                middleSection,
-                new Section(LINE_ID, MIDDLE_LEFT_ID, -1)
-        )).isTrue();
-
-        assertThat(sections.haveValidDistance(
-                middleSection,
-                new Section(LINE_ID, MIDDLE_RIGHT_ID, 6)
-        )).isFalse();
-
-        assertThat(sections.haveValidDistance(
-                middleSection,
-                new Section(LINE_ID, MIDDLE_LEFT_ID, -2)
-        )).isFalse();
+                new Section(LINE_ID, MIDDLE_RIGHT_ID, distance)
+        )).isEqualTo(expected);
     }
 
+    @DisplayName("중간 역들은 상하에 다른 역이 존재한다")
     @Test
     void middleSectionsHaveNextSection() {
         Section lowerSection = new Section(LINE_ID, MIDDLE_RIGHT_ID, 6);
@@ -188,6 +182,7 @@ public class SectionsTest {
         assertThat(sections.getNextSection(middleSection, upperSection)).isNotNull();
     }
 
+    @DisplayName("상행/하행 종점은 자신보다 빠른/늦은 역이 없다")
     @Test
     void terminalSectionsDoesNotHaveNextSection() {
         Section upperThanUppermost = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, -3);
@@ -197,12 +192,14 @@ public class SectionsTest {
         assertThat(sections.getNextSection(lowermostSection, lowerThanLowermost)).isNull();
     }
 
+    @DisplayName("다음 역 조회를 위한 Index를 조회한다")
     @Test
     void testGetNextSectionIdx() {
         assertThat(sections.getNextSectionIdx(middleSection, uppermostSection)).isEqualTo(0);
         assertThat(sections.getNextSectionIdx(middleSection, lowermostSection)).isEqualTo(2);
     }
 
+    @DisplayName("구간 목록에 특정 역을 찾는다")
     @Test
     void testFindSection() {
         Section nonExistingSection = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, -2);

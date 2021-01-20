@@ -1,6 +1,7 @@
 package subway.section;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,17 +18,20 @@ public class SectionTest {
         other = new Section(1, 1, OTHER_DISTANCE);
     }
 
+    @DisplayName("두 역간의 거리의 차를 반환한다")
     @Test
     void testDistanceDiff() {
         assertThat(base.distanceDiff(other)).isEqualTo(Math.abs(BASE_DISTANCE - OTHER_DISTANCE));
     }
 
+    @DisplayName("상대 역이 구간 상에서 자신보다 늦은 역인지 확인한다")
     @Test
     void testIsUpperThan() {
         assertThat(base.isUpperThan(other)).isFalse();
         assertThat(other.isUpperThan(base)).isTrue();
     }
 
+    @DisplayName("받은 두 역 중에서 처음 받은 역이 다음 받은 역보다 가까운지 확인한다")
     @Test
     void testIsCloserFromThan() {
         Section thanSection = new Section(1, 1, 3);

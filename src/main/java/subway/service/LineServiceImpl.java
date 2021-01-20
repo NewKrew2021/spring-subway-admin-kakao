@@ -10,6 +10,8 @@ import subway.domain.Station;
 import subway.dto.LineResponseWithStation;
 import subway.dto.StationResponse;
 import subway.exception.DataEmptyException;
+import subway.exception.DeleteImpossibleException;
+import subway.exception.UpdateImpossibleException;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,12 +40,11 @@ public class LineServiceImpl implements LineService {
 
     @Override
     @Transactional
-    public boolean deleteById(Long lineId) {
+    public void deleteById(Long lineId) {
         if (lineDao.deleteById(lineId) == 0) {
-            return false;
+            throw new DeleteImpossibleException();
         }
         sectionService.deleteSectionByLineId(lineId);
-        return true;
     }
 
     @Override
@@ -65,8 +66,10 @@ public class LineServiceImpl implements LineService {
     }
 
     @Override
-    public boolean update(Line line) {
-        return lineDao.update(line) != 0;
+    public void update(Line line) {
+        if(lineDao.update(line) == 0){
+            throw new UpdateImpossibleException();
+        }
     }
 
     @Override

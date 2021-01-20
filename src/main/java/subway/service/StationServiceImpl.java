@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import subway.dao.StationDao;
 import subway.domain.Station;
 import subway.exception.DataEmptyException;
+import subway.exception.DeleteImpossibleException;
 
 import java.util.List;
 
@@ -40,7 +41,9 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
-    public boolean deleteById(Long stationId) {
-        return stationDao.deleteById(stationId) != 0;
+    public void deleteById(Long stationId) {
+        if(stationDao.deleteById(stationId) == 0){
+            throw new DeleteImpossibleException();
+        }
     }
 }

@@ -44,16 +44,13 @@ public class LineController {
 
     @PutMapping("/{lineId}")
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        if (!lineService.update(LineFactory.getLine(lineId, lineRequest))) {
-            return ResponseEntity.badRequest().build();
-        }
+        lineService.update(LineFactory.getLine(lineId, lineRequest));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        if (!lineService.deleteById(lineId))
-            return ResponseEntity.badRequest().build();
+        lineService.deleteById(lineId);
         return ResponseEntity.ok().build();
     }
 }

@@ -13,6 +13,6 @@ public interface StationService {
 
     Station findOne(Long stationId);
 
-    boolean deleteById(Long stationId);
+    void deleteById(Long stationId);
 
 }

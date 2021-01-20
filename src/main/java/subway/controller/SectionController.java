@@ -18,17 +18,13 @@ public class SectionController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        if (!sectionService.saveSection(SectionFactory.getSection(sectionRequest, lineId))) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        sectionService.saveSection(SectionFactory.getSection(sectionRequest, lineId));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        if (!sectionService.deleteSection(lineId, stationId)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        sectionService.deleteSection(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 }

@@ -7,6 +7,9 @@ import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
+import subway.exception.AlreadyExistDataException;
+import subway.exception.DeleteImpossibleException;
+import subway.exception.IllegalStationException;
 
 @Service
 public class SectionServiceImpl implements SectionService {
@@ -31,26 +34,26 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     @Transactional
-    public boolean saveSection(Section section) {
+    public void saveSection(Section section) {
         if (sectionDao.existSection(section)) {
-            return false;
+            throw new AlreadyExistDataException();
         }
-        return checkAndAddSection(section);
+        checkAndAddSection(section);
     }
 
-    private boolean checkAndAddSection(Section section) {
+    private void checkAndAddSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
         Long existStationId = sections.findStationExist(section);
         if (existStationId == -1) {
-            return false;
+            throw new IllegalStationException();
         }
         save(section);
         if (section.getUpStationId() == existStationId) {
             addSectionBack(sections, section);
-            return true;
         }
-        addSectionFront(sections, section);
-        return true;
+        if (section.getDownStationId() == existStationId) {
+            addSectionFront(sections, section);
+        }
     }
 
     private void addSectionBack(Sections sections, Section section) {
@@ -79,12 +82,12 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     @Transactional
-    public boolean deleteSection(Long lineId, Long stationId) {
+    public void deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
         Line line = lineDao.findOne(lineId);
 
         if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
-            return false;
+            throw new DeleteImpossibleException();
         }
 
         Section nextSection = sections.findSectionByUpStationId(stationId);
@@ -101,12 +104,13 @@ public class SectionServiceImpl implements SectionService {
             deleteSectionById(prevSection.getSectionId());
             lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
         }
-        return true;
     }
 
     @Override
-    public boolean deleteSectionById(Long sectionId) {
-        return sectionDao.deleteSectionById(sectionId) != 0;
+    public void deleteSectionById(Long sectionId) {
+        if (sectionDao.deleteSectionById(sectionId) == 0) {
+            throw new DeleteImpossibleException();
+        }
     }
 
     @Override

@@ -14,7 +14,7 @@ public class SectionTest {
     void createExceptionTest() {
         assertThatExceptionOfType(IllegalStationException.class).isThrownBy(() -> {
             new Section(1L, 1L, 3);
-        }).withMessageMatching("잘못된 역 번호 입니다.");
+        });
     }
 
     @Test
@@ -22,6 +22,6 @@ public class SectionTest {
     void createExceptionTest2() {
         assertThatExceptionOfType(DistanceException.class).isThrownBy(() -> {
             new Section(1L, 2L, 0);
-        }).withMessageMatching("잘못된 거리 입니다.");
+        });
     }
 }

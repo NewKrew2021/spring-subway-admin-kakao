@@ -22,6 +22,7 @@ public class Sections {
                     .filter(sec -> sec.getUpStationId().equals(finalCur))
                     .findFirst()
                     .get();
+            System.out.println(section);
             orderedSections.add(section);
             cur = section.getDownStationId();
         }

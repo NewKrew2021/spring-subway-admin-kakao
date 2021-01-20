@@ -11,13 +11,13 @@ import java.util.List;
 public interface LineService {
     Line save(Line line, Section section);
 
-    boolean deleteById(Long lineId);
+    void deleteById(Long lineId);
 
     List<Line> findAll();
 
     Line findOne(Long lineId);
 
-    boolean update(Line line);
+    void update(Line line);
 
     LineResponseWithStation findOneResponse(Long lineId);
 

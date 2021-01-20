@@ -16,10 +16,10 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, Integer distance) {
-        if(checkProblemStationId(upStationId,downStationId)){
+        if (checkProblemStationId(upStationId, downStationId)) {
             throw new IllegalStationException();
         }
-        if(distance <= 0){
+        if (distance <= 0) {
             throw new DistanceException();
         }
         this.upStationId = upStationId;
@@ -28,12 +28,12 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, Integer distance, Long lineId) {
-        this(upStationId,downStationId,distance);
+        this(upStationId, downStationId, distance);
         this.lineId = lineId;
     }
 
     public Section(Long sectionId, Long upStationId, Long downStationId, Integer distance, Long lineId) {
-        this(upStationId,downStationId,distance,lineId);
+        this(upStationId, downStationId, distance, lineId);
         this.sectionId = sectionId;
     }
 

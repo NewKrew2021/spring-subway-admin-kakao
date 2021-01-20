@@ -61,33 +61,6 @@ public class Section {
         return lineId;
     }
 
-    public static Section merge(List<Section> sectionList, Long stationId) {
-        Section frontSection = sectionList.get(0);
-        Section backSection = sectionList.get(1);
-
-        if (frontSection.upStationId == stationId) {
-            frontSection.upStationId = backSection.getUpStationId();
-        }
-
-        if (frontSection.downStationId == stationId) {
-            frontSection.downStationId = backSection.getDownStationId();
-        }
-
-        frontSection.distance += backSection.getDistance();
-
-        return frontSection;
-    }
-
-    public static Map<Long, Section> getOrderedSections(List<Section> sections) {
-        return sections.stream()
-                .collect(Collectors.toMap(Section::getUpStationId, section -> section));
-    }
-
-    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections) {
-        return sections.stream()
-                .collect(Collectors.toMap(Section::getDownStationId, section -> section));
-    }
-
     public static boolean isAddStation(Long sectionRequestStationId, Long lineStationId) {
         return sectionRequestStationId.equals(lineStationId);
     }

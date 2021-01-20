@@ -12,6 +12,7 @@ import subway.line.domain.LineResponse;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Section;
 import subway.section.domain.SectionRequest;
+import subway.section.domain.Sections;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 
@@ -70,10 +71,10 @@ public class LineService {
 
     public List<Station> getStations(Long id) {
         Line line = lineDao.findById(id);
-        List<Section> sections = sectionDao.findByLineId(id);
+        Sections sections = new Sections(sectionDao.findByLineId(id));
         List<Station> stations = new ArrayList<>();
 
-        Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
+        Map<Long, Section> orderedSections = sections.getOrderedSections();
         Long upStationId = line.getUpStationId();
 
         stations.add(stationDao.findById(upStationId));
@@ -197,11 +198,11 @@ public class LineService {
 
         Section newSection = new Section(id, sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(), sectionRequest.getDistance());
-        List<Section> sections = sectionDao.findByLineId(id);
+        Sections sections = new Sections(sectionDao.findByLineId(id));
         Line line = lineDao.findById(id);
 
-        Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
-        Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
+        Map<Long, Section> orderedSections = sections.getOrderedSections();
+        Map<Long, Section> reverseOrderedSections = sections.getReverseOrderedSections();
 
         // 하행 종점 변경 (A -> B -> (C))
         if (Section.isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
@@ -261,27 +262,27 @@ public class LineService {
         // 3. 중간에 갈래길일 경우, 두개의 구간을 하나의 구간으로 통합
         // 4. 역애 대한 정보 삭제 (stationDao)
 
-        List<Section> sections = sectionDao.findByLineId(id);
+        Sections sections = new Sections(sectionDao.findByLineId(id));
         if (sections.size() == Line.END_STATION_SECTION_SIZE) {
             throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
         }
 
         // 1.
-        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId, id);
+        Sections updateSectionList = new Sections(sectionDao.findByStationIdAndLineId(stationId, id));
 
         Line line = lineDao.findById(id);
 
         // 2.
-        if (line.isEndStation(sectionList.size())) {
-            Section endSection = sectionList.get(0);
+        if (line.isEndStation(updateSectionList.size())) {
+            Section endSection = updateSectionList.get(0);
             line.updateEndStation(endSection, stationId);
             sectionDao.deleteById(endSection.getId());
         }
 
         // 3.
-        if (!line.isEndStation(sectionList.size())) {
-            sectionDao.deleteBySectionList(sectionList);
-            sectionDao.save(Section.merge(sectionList, stationId));
+        if (!line.isEndStation(updateSectionList.size())) {
+            sectionDao.deleteBySectionList(updateSectionList);
+            sectionDao.save(updateSectionList.merge(updateSectionList, stationId));
         }
 
         // 4.

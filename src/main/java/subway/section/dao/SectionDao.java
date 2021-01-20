@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import subway.section.domain.Section;
+import subway.section.domain.Sections;
 
 import java.util.List;
 
@@ -30,8 +31,8 @@ public class SectionDao {
         jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), id);
     }
 
-    public void deleteBySectionList(List<Section> sectionList) {
-        for (Section section : sectionList) {
+    public void deleteBySectionList(Sections sections) {
+        for (Section section : sections.getSections()) {
             jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), section.getId());
         }
     }

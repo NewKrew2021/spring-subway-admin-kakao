@@ -58,6 +58,8 @@ public class SectionService {
     }
 
     public void delete(Long lineId, Long stationId) {
+        validateDelete(lineId);
+
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section firstSection = sectionDao.findFirstByLineId(lineId);
         Section lastSection = sectionDao.findLastByLineId(lineId);

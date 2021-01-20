@@ -2,6 +2,7 @@ package subway.domain;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Sections {
@@ -15,12 +16,12 @@ public class Sections {
 
     public Map<Long, Section> getOrderedSections() {
         return sections.stream()
-                .collect(Collectors.toMap(Section::getUpStationId, section -> section));
+                .collect(Collectors.toMap(Section::getUpStationId, Function.identity()));
     }
 
     public Map<Long, Section> getReverseOrderedSections() {
         return sections.stream()
-                .collect(Collectors.toMap(Section::getDownStationId, section -> section));
+                .collect(Collectors.toMap(Section::getDownStationId, Function.identity()));
     }
 
     public Sections getContainSections(Long stationId) {

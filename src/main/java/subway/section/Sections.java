@@ -1,8 +1,8 @@
 package subway.section;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import subway.line.Line;
+
+import java.util.*;
 
 public class Sections {
     List<Section> sections;
@@ -53,11 +53,49 @@ public class Sections {
         return NOT_EXIST;
     }
 
-    public boolean isPossibleToDelete() {
-        return sections.size() > 1;
+    public boolean isPossibleToDelete(Long stationId) {
+        return findSectionByStationId(stationId) != null && sections.size() > 1;
     }
 
     public List<Section> getSections() {
         return sections;
+    }
+
+    public Sections getOrderedSection(Line line) {
+        Long cur = line.getUpStationId();
+        Long dest = line.getDownStationId();
+        List<Section> orderedSections = new LinkedList();
+        Set<Long> visit = new HashSet<>();
+
+        while (!cur.equals(dest) && visit.add(cur)) {
+            Section section = findSectionByUpStationId(cur);
+            orderedSections.add(section);
+            cur = section.getDownStationId();
+        }
+
+        if(visit.contains(cur))
+            throw new RuntimeException("반복되는 구간이 존재합니다.");
+
+        return new Sections(orderedSections);
+    }
+
+    public boolean checkSectionExist(Section section){
+        if (isContainingSameSection(section) || findStationExistBySection(section) == Sections.NOT_EXIST) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isContainingSameSection(Section section) {
+        return sections.contains(section);
+    }
+    //판교 -       강남 - 광교
+    //      정자 - 강남
+    public Section findNextSection(Section section){
+        return findSectionByUpStationId(section.getUpStationId());
+    }
+
+    public Section findPrevSection(Section section){
+        return findSectionByDownStationId(section.getDownStationId());
     }
 }

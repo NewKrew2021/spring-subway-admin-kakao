@@ -61,4 +61,11 @@ public class Line {
         return downStationId;
     }
 
+    public boolean isFinalDownStation(Section section){
+        return section.getUpStationId() == downStationId;
+    }
+
+    public boolean isFinalUpStation(Section section){
+        return section.getDownStationId() == downStationId;
+    }
 }

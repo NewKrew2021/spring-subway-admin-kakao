@@ -20,66 +20,32 @@ public class SectionService{
         this.lineService = lineService;
     }
 
-    public Section save(Section section) {
-        return sectionDao.save(section);
-    }
-
     public Sections getSectionsByLineId(Long lineId) {
-        return getOrderedSection(sectionDao.getSectionsByLineId(lineId), lineService.findOne(lineId));
-    }
-
-    private Sections getOrderedSection(Sections sections, Line line) {
-        Long cur = line.getUpStationId();
-        Long dest = line.getDownStationId();
-        List<Section> orderedSections = new LinkedList();
-        Set<Long> visit = new HashSet<>();
-
-        while (!cur.equals(dest) && visit.add(cur)) {
-            Section section = sections.findSectionByUpStationId(cur);
-            orderedSections.add(section);
-            cur = section.getDownStationId();
-        }
-
-        if(visit.contains(cur))
-            throw new RuntimeException("반복되는 구간이 존재합니다.");
-
-        return new Sections(orderedSections);
-    }
-
-    public boolean deleteSectionById(Long sectionId) {
-        return sectionDao.deleteSectionById(sectionId) != 0;
+        return sectionDao.getSectionsByLineId(lineId).getOrderedSection(lineService.findOne(lineId));
     }
 
     public boolean saveSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
         Long existStationId = sections.findStationExistBySection(section);
 
-        if(!checkSectionExist(section, existStationId))
+        if(!sections.checkSectionExist(section))
             return false;
 
-        save(section);
+        sectionDao.save(section);
 
         if (section.getUpStationId() == existStationId) {
             addSectionBack(sections, section);
             return true;
         }
-        
+
         addSectionFront(sections, section);
         return true;
     }
 
-    private boolean checkSectionExist(Section section, Long existStationId){
-        if (sectionDao.existSection(section) || existStationId == Sections.NOT_EXIST) {
-            return false;
-        }
-        return true;
-    }
-
     private void addSectionBack(Sections sections, Section section) {
-        Long existStationId = section.getUpStationId();
         Line line = lineService.findOne(section.getLineId());
-        Section nextSection = sections.findSectionByUpStationId(existStationId);
-        if (existStationId == line.getDownStationId()) {
+        Section nextSection = sections.findNextSection(section);
+        if (line.isFinalDownStation(section) || nextSection == null) {
             lineService.updateAll(new Line(line.getId(),
                     line.getName(),
                     line.getColor(),
@@ -87,18 +53,17 @@ public class SectionService{
                     section.getDownStationId()));
             return;
         }
-        deleteSectionById(nextSection.getSectionId());
-        save(new Section(section.getDownStationId(),
+        sectionDao.deleteSectionById(nextSection.getSectionId());
+        sectionDao.save(new Section(section.getDownStationId(),
                 nextSection.getDownStationId(),
                 nextSection.getDistance() - section.getDistance(),
                 line.getId()));
     }
 
     private void addSectionFront(Sections sections, Section section) {
-        Long existStationId = section.getDownStationId();
         Line line = lineService.findOne(section.getLineId());
-        Section prevSection = sections.findSectionByDownStationId(existStationId);
-        if (existStationId == line.getUpStationId()) {
+        Section prevSection = sections.findPrevSection(section);
+        if (line.isFinalUpStation(section) || prevSection == null) {
             lineService.updateAll(new Line(line.getId(),
                     line.getName(),
                     line.getColor(),
@@ -106,8 +71,9 @@ public class SectionService{
                     line.getDownStationId()));
             return;
         }
-        deleteSectionById(prevSection.getSectionId());
-        save(new Section(prevSection.getUpStationId(),
+
+        sectionDao.deleteSectionById(prevSection.getSectionId());
+        sectionDao.save(new Section(prevSection.getUpStationId(),
                 section.getUpStationId(),
                 prevSection.getDistance() - section.getDistance(),
                 line.getId()));
@@ -117,7 +83,7 @@ public class SectionService{
         Sections sections = getSectionsByLineId(lineId);
         Line line = lineService.findOne(lineId);
 
-        if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
+        if (!sections.isPossibleToDelete(stationId)) {
             return false;
         }
 
@@ -125,21 +91,21 @@ public class SectionService{
         Section prevSection = sections.findSectionByDownStationId(stationId);
 
         if (nextSection != null && prevSection != null) {
-            deleteSectionById(nextSection.getSectionId());
-            deleteSectionById(prevSection.getSectionId());
-            save(new Section(prevSection.getUpStationId(),
+            sectionDao.deleteSectionById(nextSection.getSectionId());
+            sectionDao.deleteSectionById(prevSection.getSectionId());
+            sectionDao.save(new Section(prevSection.getUpStationId(),
                     nextSection.getDownStationId(),
                     prevSection.getDistance() + nextSection.getDistance(),
                     lineId));
         } else if (nextSection != null) {
-            deleteSectionById(nextSection.getSectionId());
+            sectionDao.deleteSectionById(nextSection.getSectionId());
             lineService.updateAll(new Line(line.getId(),
                     line.getName(),
                     line.getColor(),
                     nextSection.getDownStationId(),
                     line.getDownStationId()));
         } else if (prevSection != null) {
-            deleteSectionById(prevSection.getSectionId());
+            sectionDao.deleteSectionById(prevSection.getSectionId());
             lineService.updateAll(new Line(line.getId(),
                     line.getName(),
                     line.getColor(),

@@ -1,45 +1,54 @@
 package subway.domain;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Sections {
-    private List<Section> sections;
+    private final List<Section> sections;
+    private static final int MIN_SECTION_SIZE = 1;
 
+    public void printSize(){
+        System.out.println("사이즈:"+sections.size());
+    }
     public Sections(List<Section> sections){
         this.sections=sections;
     }
 
-    private boolean extracted(Line nowLine, Section newSection, List<Section> sectionListFromNowLine) {
-        if (isMatchedOnlyUpEndStation(nowLine, newSection)) {
-            sectionDao.save(newSection);
-            nowLine.setUpStationId(newSection.getUpStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
-        }
-        if (isMatchedOnlyDownEndStation(nowLine, newSection)) {
-            sectionDao.save(newSection);
-            nowLine.setDownStationId(newSection.getDownStationId());
-            lineDao.modifyLineStationId(nowLine);
-            return true;
-        }
-        for (Section oldSection : sectionListFromNowLine) {
-            if (canInsertMatchingUpStation(oldSection, newSection)) {
-                Section modifiedSection = new Section(oldSection.getId(), oldSection.getLineId(), newSection.getDownStationId(), oldSection.getDownStationId(), oldSection.getDistance() - newSection.getDistance());
-                sectionDao.modifySection(modifiedSection);
-                sectionDao.save(newSection);
-                return true;
-            }
-            if (canInsertMatchingDownStation(oldSection, newSection)) {
-                Section modifiedSection = new Section(oldSection.getId(), oldSection.getLineId(), oldSection.getUpStationId(), newSection.getUpStationId(), oldSection.getDistance() - newSection.getDistance());
-                sectionDao.modifySection(modifiedSection);
-                sectionDao.save(newSection);
-                return true;
-            }
-        }
-        return false;
+    public Section findMatchSection(Section newSection) {
+        return sections.stream()
+                .filter(section ->section.isInsert(newSection))
+                .findFirst()
+                .orElse(null);
     }
 
+    public boolean validateSectionDelete(){
+        if(sections.size()==MIN_SECTION_SIZE){
+            return false;
+        }
+        return true;
+    }
 
+    public List<Section> findDeleteSections(Long stationId) {
+        List<Section> deleteSections=new ArrayList<>();
+        for (Section section : sections) {
+            if(section.isContainStation(stationId)){
+                deleteSections.add(section);
+            }
+        }
+        return deleteSections;
+
+//        return sections.stream()
+//                .filter(section ->section.isContainStation(stationId))
+//                .collect(Collectors.toList());
+    }
+
+    public Map<Long, Long> getSectionMap(){
+        Map<Long, Long> sectionMap = new HashMap<>();
+        for (Section section : sections) {
+            sectionMap.put(section.getUpStationId(), section.getDownStationId());
+        }
+        return sectionMap;
+    }
 
 
 }

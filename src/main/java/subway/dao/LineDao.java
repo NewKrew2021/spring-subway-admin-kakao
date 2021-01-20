@@ -62,24 +62,6 @@ public class LineDao {
                 sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getId());
     }
 
-    public void modifyLineStationId(Line line) {
-        String sql = "update line set up_station_id = ?, down_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, line.getUpStationId(), line.getDownStationId(), line.getId());
-    }
-
-    public void modifyLineUpStationId(Long id, Long upStationId) {
-        String sql = "update line set up_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, upStationId, id);
-    }
-
-    public void modifyLineDownStationId(Long id, Long downStationId) {
-        String sql = "update line set down_station_id = ? where id=?";
-        jdbcTemplate.update(
-                sql, downStationId, id);
-    }
-
     public void delete(Long id) {
         String sql = "delete from line where id=?";
         jdbcTemplate.update(sql, id);

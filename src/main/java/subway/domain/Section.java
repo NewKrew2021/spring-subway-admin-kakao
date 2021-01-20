@@ -27,8 +27,60 @@ public class Section {
         this.distance = distance;
     }
 
+    public boolean isInsert(Section newSection){
+        if(validateDistance(newSection)&&(isMatchedOnlyUpStationId(newSection)||isMatchedOnlyDownStationId(newSection))){
+            return true;
+        }
+        return false;
+    }
 
+    public boolean isMatchedOnlyUpStationId(Section newSection){
+        if(this.upStationId==upStationId&&this.downStationId!=downStationId){
+            return true;
+        }
+        return false;
+    }
 
+    public boolean isMatchedOnlyDownStationId(Section newSection){
+        if(this.downStationId==downStationId&&this.upStationId!=upStationId){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isContainStation(Long stationId){
+        System.out.println("비교"+upStationId+" "+downStationId+":"+stationId);
+        if(upStationId.equals(stationId)||downStationId.equals(stationId)){
+            return true;
+        }
+        return false;
+    }
+
+    public void mergeSection(Section section){
+        if(upStationId.equals(section.downStationId)){
+            this.distance+= section.distance;
+            this.upStationId= section.upStationId;
+        }
+        if(this.downStationId.equals(section.upStationId)){
+            this.distance+=section.distance;
+            this.downStationId= section.downStationId;
+        }
+    }
+
+    public boolean validateDistance(Section newSection){
+        return this.distance> newSection.distance;
+    }
+
+    public void modifyMatchedSection(Section newSection) {
+        if (isMatchedOnlyUpStationId(newSection)) {
+            this.upStationId= newSection.downStationId;;
+            this.distance-= newSection.distance;
+        }
+        if (isMatchedOnlyDownStationId(newSection)) {
+            this.downStationId= newSection.upStationId;
+            this.distance-= newSection.distance;
+        }
+    }
 
     public Long getId() {
         return this.id;
@@ -49,4 +101,6 @@ public class Section {
     public int getDistance() {
         return this.distance;
     }
+
+
 }

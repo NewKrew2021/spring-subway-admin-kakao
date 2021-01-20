@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -43,7 +43,7 @@ public class SectionDao {
         return new Section(id, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
-    public void deleteById(Long sectionId) {
+    public void delete(Long sectionId) {
         jdbcTemplate.update("delete from section where id = ?", sectionId);
     }
 
@@ -59,8 +59,37 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
     }
 
-    public Sections findSectionsForDelete(Long lineId, Long stationId) {
+    public NamedSections findNamedSectionByLineId(Long lineId) {
+        String sql = "select * from section as sc " +
+                "left outer join station as st on sc.down_station_id = st.id " +
+                "where line_id = ?";
+        return new NamedSections(jdbcTemplate.query(sql, (resultSet, rowNum) -> new NamedSection(
+                resultSet.getLong("id"),
+                resultSet.getLong("line_id"),
+                resultSet.getLong("up_station_id"),
+                resultSet.getLong("down_station_id"),
+                resultSet.getInt("distance"),
+                resultSet.getString("name")), lineId));
+    }
+
+    public Sections findJointSections(Long lineId, Long stationId) {
         String sql = "select * from section where line_id = ? AND up_station_id = ? OR down_station_id = ?";
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId, stationId, stationId));
     }
+
+    public Section findSectionWithGivenUpStationId(Long lineId, Long upStationId) {
+        String sql = "select * from section where line_id = ? AND up_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, upStationId);
+    }
+
+    public Section findSectionWithGivenDownStationId(Long lineId, Long downStationId) {
+        String sql = "select * from section where line_id = ? AND down_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, downStationId);
+    }
+
+    public int countByGivenUpStaionId(Long lineId, Long stationId) {
+        String sql = "select count(*) from section where line_id = ? AND up_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, stationId);
+    }
+
 }

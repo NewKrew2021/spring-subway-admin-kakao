@@ -1,8 +1,8 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
+import subway.section.*;
 import subway.station.Station;
-import subway.station.StationDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,15 @@ import java.util.List;
 public class LineService {
 
     private final LineDao lineDao;
-    private final SectionDao sectionDao;
-    private final StationDao stationDao;
+    private final SectionService sectionService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineService(LineDao lineDao, SectionService sectionService) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
+        this.sectionService = sectionService;
     }
 
     public boolean isLineNameExist(String lineName) {
-        return lineDao.findByName(lineName) != 0;
+        return lineDao.countByName(lineName) != 0;
     }
 
     public Line save(LineRequest lineRequest) {
@@ -45,31 +43,31 @@ public class LineService {
     }
 
     public List<Station> findStationsOfLine(Long lineId) {
-        Sections sections = sectionDao.findSectionsByLineId(lineId);
+        NamedSections sections = sectionService.findNamedSectionsByLineId(lineId);
         List<Station> stations = new ArrayList<>();
 
-        Section currentSection = sections.findHeadSection();
+        NamedSection currentSection = sections.findHeadSection();
         while (currentSection.getDownStationId() != Line.TAIL) {
-            stations.add(stationDao.findById(currentSection.getDownStationId()));
+            stations.add(new Station(currentSection.getDownStationId(), currentSection.getDownStationName()));
             currentSection = sections.findRearOfGivenSection(currentSection.getDownStationId());
         }
 
         return stations;
     }
 
-    public boolean canNotDelete(Long lineId) {
-        return sectionDao.findSectionsByLineId(lineId).size() <= 3;
+    public boolean isNotDeletable(Long lineId) {
+        return !sectionService.isDeletable(lineId);
     }
 
     public void deleteStation(Long lineId, Long stationId) {
-        Sections sections = sectionDao.findSectionsForDelete(lineId, stationId);
+        Sections sections = sectionService.findSectionsForDelete(lineId, stationId);
         Section front = sections.findFrontOfGivenStation(stationId);
         Section rear = sections.findRearOfGivenSection(stationId);
 
-        sectionDao.deleteSections(sections);
+        sectionService.deleteSections(sections);
 
         int distance = zeroIfOneOfDistanceIsVirtual(front.getDistance(), rear.getDistance());
-        sectionDao.save(new Section(lineId, front.getUpStationId(), rear.getDownStationId(), distance));
+        sectionService.save(new Section(lineId, front.getUpStationId(), rear.getDownStationId(), distance));
     }
 
     private int zeroIfOneOfDistanceIsVirtual(int distance1, int distance2) {

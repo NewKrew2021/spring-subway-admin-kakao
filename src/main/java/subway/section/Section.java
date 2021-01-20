@@ -1,4 +1,6 @@
-package subway.line;
+package subway.section;
+
+import subway.line.Line;
 
 import java.util.Objects;
 
@@ -45,6 +47,20 @@ public class Section {
         return getDownStationId() == stationId;
     }
 
+    public boolean isExist(Section another) {
+        if (upStationId.equals(another.upStationId) &&
+                distance != VIRTUAL_DISTANCE &&
+                distance <= another.distance) {
+            return true;
+        }
+        if (downStationId.equals(another.downStationId) &&
+                distance != VIRTUAL_DISTANCE &&
+                distance <= another.distance) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isHeadSection() {
         return getUpStationId() == Line.HEAD;
     }
@@ -79,8 +95,10 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(lineId, section.lineId) && (Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId)
-                || Objects.equals(upStationId, section.downStationId) && Objects.equals(downStationId, section.upStationId));
+        return Objects.equals(lineId, section.lineId) &&
+                (upStationId.equals(section.upStationId) && downStationId.equals(section.downStationId)) ||
+                (upStationId.equals(section.upStationId) && downStationId.equals(section.upStationId));
+
     }
 
     @Override

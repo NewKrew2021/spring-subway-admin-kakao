@@ -42,7 +42,7 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
+        String sql = "select * from line limit 5";
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
@@ -61,8 +61,8 @@ public class LineDao {
                 lineRequest.getName(), lineRequest.getColor(), id);
     }
 
-    public int findByName(String name) {
-        String sql = "select count(*) from line where name = ?";
+    public int countByName(String name) {
+        String sql = "select count(*) from line where name = ? limit 1";
         return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 }

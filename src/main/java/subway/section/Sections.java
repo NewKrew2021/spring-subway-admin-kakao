@@ -1,33 +1,25 @@
-package subway.line;
+package subway.section;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Sections {
 
-    private final List<Section> sections;
+    private final List<? extends Section> sections;
 
-    public Sections(List<Section> sections) {
+    public Sections(List<? extends Section> sections) {
         this.sections = sections;
     }
 
-    public Section findHeadSection() {
-        return sections.stream()
+    public <T extends Section> T findHeadSection() {
+        return (T) sections.stream()
                 .filter(Section::isHeadSection)
                 .findAny()
                 .get();
     }
 
-    public Section findTailSection() {
-        return sections.stream()
-                .filter(Section::isTailSection)
-                .findAny()
-                .get();
-    }
-
-    public Section findRearOfGivenSection(Long stationId) {
-        return sections.stream()
+    public <T extends Section> T findRearOfGivenSection(Long stationId) {
+        return (T) sections.stream()
                 .filter(section -> section.isUpStation(stationId))
                 .findAny()
                 .get();
@@ -40,12 +32,13 @@ public class Sections {
                 .get();
     }
 
-    public int size() {
-        return sections.size();
+    public boolean hasSameSection(Section another) {
+        return sections.stream()
+                .anyMatch(section -> section.equals(another) || section.isExist(another));
     }
 
-    public boolean contains(Section section) {
-        return sections.contains(section);
+    public int size() {
+        return sections.size();
     }
 
     public List<Long> getSectionIds() {
@@ -53,10 +46,6 @@ public class Sections {
                 .mapToLong(Section::getId)
                 .boxed()
                 .collect(Collectors.toList());
-    }
-
-    public List<Section> getSections() {
-        return Collections.unmodifiableList(sections);
     }
 
 }

@@ -1,11 +1,5 @@
 package subway.line;
 
-import subway.station.Station;
-import subway.station.StationResponse;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class Line {
     private Long id;
     private String name;
@@ -25,11 +19,8 @@ public class Line {
         this(0L, name, color, startStationId, endStationId);
     }
 
-    public static Line fromRequest(LineRequest lineRequest) {
-        return new Line(lineRequest.getName(),
-                lineRequest.getColor(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId());
+    public Line(LineRequest lineRequest) {
+        this(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
     }
 
     public Long getId() {
@@ -50,17 +41,6 @@ public class Line {
 
     public Long getEndStationId() {
         return endStationId;
-    }
-
-    public LineResponse toResponse(List<Station> stations) {
-        List<StationResponse> stationResponses = stations.stream()
-                .map(Station::toResponse)
-                .collect(Collectors.toList());
-        return new LineResponse(getId(), getName(), getColor(), stationResponses);
-    }
-
-    public LineResponse toResponseWithoutStation() {
-        return new LineResponse(getId(), getName(), getColor(), null);
     }
 
     public Line getLineEndStationChanged(long newEndStationId) {

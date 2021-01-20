@@ -30,7 +30,7 @@ public class LineController {
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         // TODO transaction 처리
-        Line newLine = lineService.createLine(Line.fromRequest(lineRequest), lineRequest.getDistance());
+        Line newLine = lineService.createLine(new Line(lineRequest), lineRequest.getDistance());
         Section newSection = new Section(newLine.getStartStationId(),
                 newLine.getEndStationId(),
                 lineRequest.getDistance(),
@@ -38,13 +38,13 @@ public class LineController {
         sectionService.createSection(newSection);
         List<Station> stations = stationService.convertIdsToStations(
                 sectionService.getStationIdsOfLine(newLine));
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(newLine.toResponse(stations));
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine, stations));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResponses = lineService.getAllLines().stream()
-                .map(Line::toResponseWithoutStation)
+                .map(LineResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(lineResponses);
     }
@@ -54,12 +54,12 @@ public class LineController {
         Line line = lineService.getLine(id);
         List<Station> stations = stationService.convertIdsToStations(
                 sectionService.getStationIdsOfLine(line));
-        return ResponseEntity.ok().body(line.toResponse(stations));
+        return ResponseEntity.ok().body(new LineResponse(line, stations));
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
-        lineService.updateLine(id, Line.fromRequest(lineRequest));
+        lineService.updateLine(id, new Line(lineRequest));
         return ResponseEntity.ok().build();
     }
 
@@ -71,7 +71,7 @@ public class LineController {
 
     @PostMapping(value = "/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        sectionService.addSection(id, Section.fromRequest(sectionRequest, id));
+        sectionService.addSection(id, new Section(sectionRequest, id));
         return ResponseEntity.ok().build();
     }
 

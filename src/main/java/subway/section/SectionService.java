@@ -47,7 +47,7 @@ public class SectionService {
     }
 
     public void updateSection(long id, Section section) {
-        sectionDao.updateSection(id, section);
+        sectionDao.updateById(id, section);
     }
 
     public void addSection(long id, Section section) {
@@ -101,6 +101,7 @@ public class SectionService {
         return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
     }
 
+    // TODO 결과를 체크해줘야 함.
     private void extendDownwardEdge(Section section, Line line) {
         createSection(section);
         lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getDownStationId()));
@@ -144,7 +145,7 @@ public class SectionService {
     private void deleteMiddleStation(Line line, long stationId) {
         Section upSection = sectionDao.findByDownStationIdAndLineId(stationId, line.getId());
         Section downSection = sectionDao.findByUpStationIdAndLineId(stationId, line.getId());
-        sectionDao.updateSection(upSection.getId(), upSection.getMergedSection(downSection));
+        sectionDao.updateById(upSection.getId(), upSection.getMergedSection(downSection));
         sectionDao.deleteById(downSection.getId());
     }
 

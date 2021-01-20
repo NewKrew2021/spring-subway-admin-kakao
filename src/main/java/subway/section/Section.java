@@ -22,8 +22,8 @@ public class Section {
         this(0L, upStationId, downStationId, distance, lineId);
     }
 
-    public static Section fromRequest(SectionRequest sectionRequest, long lineId) {
-        return new Section(sectionRequest.getUpStationId(),
+    public Section(SectionRequest sectionRequest, long lineId) {
+        this(sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(),
                 sectionRequest.getDistance(),
                 lineId);

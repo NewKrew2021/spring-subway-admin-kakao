@@ -1,14 +1,14 @@
-package subway.station;
+package subway.station.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.service.StationService;
+import subway.station.domain.StationRequest;
+import subway.station.domain.StationResponse;
 
-import javax.annotation.Resource;
-import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")

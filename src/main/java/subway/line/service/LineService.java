@@ -1,15 +1,19 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import subway.exception.DeleteSectionException;
 import subway.exception.SectionDistanceExceedException;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.section.SectionRequest;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.line.dao.LineDao;
+import subway.line.domain.Line;
+import subway.line.domain.LineRequest;
+import subway.line.domain.LineResponse;
+import subway.section.domain.Section;
+import subway.section.dao.SectionDao;
+import subway.section.domain.SectionRequest;
+import subway.station.domain.Station;
+import subway.station.dao.StationDao;
 
 import javax.annotation.Resource;
 import java.net.URI;

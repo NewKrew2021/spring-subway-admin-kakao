@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.dao;
 
 public enum SectionQuery {
     SAVE("insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)"),

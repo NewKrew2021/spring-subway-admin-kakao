@@ -1,7 +1,8 @@
-package subway.section;
+package subway.section.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import subway.section.domain.Section;
 
 import javax.annotation.Resource;
 import java.util.List;

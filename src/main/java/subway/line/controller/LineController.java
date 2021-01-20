@@ -1,10 +1,13 @@
-package subway.line;
+package subway.line.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionRequest;
+import subway.line.service.LineService;
+import subway.line.domain.LineRequest;
+import subway.line.domain.LineResponse;
+import subway.section.domain.SectionRequest;
 
 import java.util.List;
 

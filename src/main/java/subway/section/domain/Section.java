@@ -1,6 +1,6 @@
-package subway.section;
+package subway.section.domain;
 
-import subway.line.Line;
+import subway.line.domain.Line;
 
 import java.util.List;
 import java.util.Map;

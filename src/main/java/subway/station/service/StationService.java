@@ -1,7 +1,11 @@
-package subway.station;
+package subway.station.service;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import subway.station.dao.StationDao;
+import subway.station.domain.Station;
+import subway.station.domain.StationRequest;
+import subway.station.domain.StationResponse;
 
 import javax.annotation.Resource;
 import java.net.URI;

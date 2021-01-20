@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.dao;
 
 public enum StationQuery {
     SAVE("insert into STATION (name) values (?)"),

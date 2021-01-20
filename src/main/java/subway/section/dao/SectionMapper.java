@@ -1,21 +1,20 @@
-package subway.line;
+package subway.section.dao;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import subway.station.Station;
+import subway.section.domain.Section;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class LineMapper implements RowMapper<Line>, Serializable {
+public class SectionMapper implements RowMapper<Section>, Serializable {
 
     @Override
-    public Line mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Line(rs.getLong("id"),
-                rs.getString("name"),
-                rs.getString("color"),
+    public Section mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Section(rs.getLong("id"),
+                rs.getLong("line_id"),
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
                 rs.getInt("distance"));

@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.dao;
 
 public enum LineQuery {
     SAVE("insert into LINE (name, color, up_station_id, down_station_id, distance) values (?, ?, ?, ?, ?)"),

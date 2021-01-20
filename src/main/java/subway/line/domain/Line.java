@@ -1,6 +1,6 @@
-package subway.line;
+package subway.line.domain;
 
-import subway.section.Section;
+import subway.section.domain.Section;
 
 import java.util.Objects;
 

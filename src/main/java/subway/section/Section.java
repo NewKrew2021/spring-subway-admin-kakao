@@ -31,6 +31,7 @@ public class Section {
     }
 
     public Section(Long lineId, SectionDto sectionDto) {
+        validationCheck(sectionDto.getUpStationId(), sectionDto.getDownStationId(), sectionDto.getDistance());
         this.lineId = lineId;
         this.upStationId = sectionDto.getUpStationId();
         this.downStationId = sectionDto.getDownStationId();

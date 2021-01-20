@@ -11,14 +11,13 @@ import subway.service.SectionService;
 
 @RestController
 public class SectionController {
-
     private final SectionService sectionService;
     private final LineService lineService;
 
     @Autowired
-    public SectionController(SectionService sectionService,LineService lineService){
-        this.sectionService=sectionService;
-        this.lineService=lineService;
+    public SectionController(SectionService sectionService, LineService lineService) {
+        this.sectionService = sectionService;
+        this.lineService = lineService;
     }
 
     @PostMapping("/lines/{lineId}/sections")
@@ -35,6 +34,5 @@ public class SectionController {
         sectionService.deleteStation(nowLine, stationId);
         return ResponseEntity.ok().build();
     }
-
 
 }

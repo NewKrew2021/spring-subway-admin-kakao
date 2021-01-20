@@ -27,7 +27,7 @@ public class LineController {
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         try {
             lineService.insertLine(new Line(lineRequest));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         Line newLine = lineService.findLineByName(lineRequest.getName());

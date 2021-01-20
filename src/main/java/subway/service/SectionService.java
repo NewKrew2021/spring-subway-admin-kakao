@@ -20,9 +20,9 @@ public class SectionService {
     private final SectionDao sectionDao;
     private final LineDao lineDao;
 
-    private final int NOTHING=0;
-    private final int MATCHED_ONE_STATION=1;
-    private final int MATCHED_TWO_STATION=2;
+    private final int NOTHING = 0;
+    private final int MATCHED_ONE_STATION = 1;
+    private final int MATCHED_TWO_STATION = 2;
 
     @Autowired
     public SectionService(StationDao stationDao, SectionDao sectionDao, LineDao lineDao) {

@@ -8,7 +8,7 @@ public class StationResponses {
     private final List<StationResponse> stationResponses;
 
     public StationResponses(List<Station> stations) {
-        stationResponses=new ArrayList<>();
+        stationResponses = new ArrayList<>();
         for (Station station : stations) {
             stationResponses.add(new StationResponse(station));
         }

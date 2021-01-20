@@ -10,7 +10,7 @@ public class Stations {
         this.stations = stations;
     }
 
-    public List<Station> getStations(){
+    public List<Station> getStations() {
         return Collections.unmodifiableList(stations);
     }
 }

@@ -10,7 +10,6 @@ import java.util.List;
 
 @Service
 public class StationService {
-
     private final StationDao stationDao;
 
     @Autowired
@@ -40,6 +39,5 @@ public class StationService {
     public void deleteStation(Long id) {
         stationDao.deleteById(id);
     }
-
 
 }

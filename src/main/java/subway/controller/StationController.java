@@ -24,11 +24,9 @@ public class StationController {
         Station station = new Station(stationRequest.getName());
         try {
             stationService.insertStation(station);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-
-
         Station newStation = stationService.findStationByName(station.getName());
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);

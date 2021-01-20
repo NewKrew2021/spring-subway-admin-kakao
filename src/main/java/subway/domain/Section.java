@@ -1,7 +1,6 @@
 package subway.domain;
 
 public class Section {
-
     private Long id;
     private Long lineId;
     private Long upStationId;
@@ -27,57 +26,45 @@ public class Section {
         this.distance = distance;
     }
 
-    public boolean isInsert(Section newSection){
-        if(validateDistance(newSection)&&(isMatchedOnlyUpStationId(newSection)||isMatchedOnlyDownStationId(newSection))){
-            return true;
-        }
-        return false;
+    public boolean isInsert(Section newSection) {
+        return validateDistance(newSection) && (isMatchedOnlyUpStationId(newSection) || isMatchedOnlyDownStationId(newSection));
     }
 
-    private boolean validateDistance(Section newSection){
-        return this.distance> newSection.distance;
+    private boolean validateDistance(Section newSection) {
+        return this.distance > newSection.distance;
     }
 
-    private boolean isMatchedOnlyUpStationId(Section newSection){
-        if(this.upStationId==newSection.upStationId&&this.downStationId!=newSection.downStationId){
-            return true;
-        }
-        return false;
+    private boolean isMatchedOnlyUpStationId(Section newSection) {
+        return this.upStationId.equals(newSection.upStationId) && !this.downStationId.equals(newSection.downStationId);
     }
 
-    private boolean isMatchedOnlyDownStationId(Section newSection){
-        if(this.downStationId==newSection.downStationId&&this.upStationId!=newSection.upStationId){
-            return true;
-        }
-        return false;
+    private boolean isMatchedOnlyDownStationId(Section newSection) {
+        return this.downStationId.equals(newSection.downStationId) && !this.upStationId.equals(newSection.upStationId);
     }
 
-    public boolean isContainStation(Long stationId){
-        if(upStationId.equals(stationId)||downStationId.equals(stationId)){
-            return true;
-        }
-        return false;
+    public boolean isContainStation(Long stationId) {
+        return upStationId.equals(stationId) || downStationId.equals(stationId);
     }
 
-    public void mergeSection(Section section){
-        if(upStationId.equals(section.downStationId)){
-            this.distance+= section.distance;
-            this.upStationId= section.upStationId;
+    public void mergeSection(Section section) {
+        if (upStationId.equals(section.downStationId)) {
+            this.distance += section.distance;
+            this.upStationId = section.upStationId;
         }
-        if(this.downStationId.equals(section.upStationId)){
-            this.distance+=section.distance;
-            this.downStationId= section.downStationId;
+        if (this.downStationId.equals(section.upStationId)) {
+            this.distance += section.distance;
+            this.downStationId = section.downStationId;
         }
     }
 
     public void modifyMatchedSection(Section newSection) {
         if (isMatchedOnlyUpStationId(newSection)) {
-            this.upStationId= newSection.downStationId;;
-            this.distance-= newSection.distance;
+            this.upStationId = newSection.downStationId;
+            this.distance -= newSection.distance;
         }
         if (isMatchedOnlyDownStationId(newSection)) {
-            this.downStationId= newSection.upStationId;
-            this.distance-= newSection.distance;
+            this.downStationId = newSection.upStationId;
+            this.distance -= newSection.distance;
         }
     }
 

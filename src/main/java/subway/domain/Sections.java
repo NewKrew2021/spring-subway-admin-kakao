@@ -21,10 +21,7 @@ public class Sections {
     }
 
     public boolean validateSectionDelete() {
-        if (sections.size() == MIN_SECTION_SIZE) {
-            return false;
-        }
-        return true;
+        return sections.size() != MIN_SECTION_SIZE;
     }
 
     public List<Section> findDeleteSections(Long stationId) {

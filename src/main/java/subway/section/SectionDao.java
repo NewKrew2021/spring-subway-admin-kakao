@@ -1,7 +1,6 @@
 package subway.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -51,14 +50,14 @@ public class SectionDao {
     }
 
     public List<Section> getSectionsByLineId(Long lineId) {
-        String sql = "select * from SECTION where line_id = ?";
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?";
+
         return jdbcTemplate.query(sql, actorRowMapper, lineId);
     }
 
-    public void deleteById(Long id) throws EmptyResultDataAccessException {
-        if (jdbcTemplate.update("delete from SECTION where id = ?", id) == 0) {
-            throw new EmptyResultDataAccessException("삭제하려는 section이 존재하지 않습니다.", 1);
-        }
-        ;
+    public int deleteById(Long id) {
+        String sql = "delete from SECTION where id = ?";
+
+        return jdbcTemplate.update(sql, id);
     }
 }

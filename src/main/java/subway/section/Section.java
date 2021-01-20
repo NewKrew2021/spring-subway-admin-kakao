@@ -2,9 +2,6 @@ package subway.section;
 
 import subway.line.LineRequest;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Section {
     private Long id;
     private Long lineId;
@@ -50,6 +47,22 @@ public class Section {
         return new Section(lineId, upStationId, downStationId, distance);
     }
 
+    public boolean equalsWithUpStationId(Long stationId) {
+        return stationId.equals(upStationId);
+    }
+
+    public boolean equalsWithDownStationId(Long stationId) {
+        return stationId.equals(downStationId);
+    }
+
+    public boolean containStation(Long stationId) {
+        return equalsWithUpStationId(stationId) || equalsWithDownStationId(stationId);
+    }
+
+    public boolean isShorterThan(Section section) {
+        return distance <= section.getDistance();
+    }
+
     public Long getId() {
         return id;
     }
@@ -68,16 +81,5 @@ public class Section {
 
     public int getDistance() {
         return distance;
-    }
-
-    public boolean isSameSection(Section newSection) {
-        boolean same1 = upStationId.equals(newSection.getUpStationId()) && downStationId.equals(newSection.getDownStationId());
-        boolean same2 = upStationId.equals(newSection.getDownStationId()) && downStationId.equals(newSection.getUpStationId());
-        return same1 || same2;
-    }
-
-    public boolean containStation(Section newSection) {
-        List<Long> stationIds = Arrays.asList(newSection.getUpStationId(), newSection.getDownStationId());
-        return stationIds.contains(upStationId) || stationIds.contains(downStationId);
     }
 }

@@ -3,22 +3,18 @@ package subway.section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subway.exceptions.InvalidAddException;
+import subway.exceptions.InvalidDeleteException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
-    private static final int UNIQUE_MATCH = 1;
     private static final int FIRST_INDEX = 0;
     private static final int MIN_SECTION_SIZE = 1;
     private static final int SECOND_INDEX = 1;
 
-    private SectionDao sectionDao;
-    private List<Section> sections;
+    private final SectionDao sectionDao;
 
     @Autowired
     SectionService(SectionDao sectionDao) {
@@ -27,40 +23,22 @@ public class SectionService {
 
     @Transactional
     public void addSectionToLine(Section newSection) {
-        sections = sectionDao.getSectionsByLineId(newSection.getLineId());
+        Sections sections = new Sections(sectionDao.getSectionsByLineId(newSection.getLineId()));
+        sections.validateAddSection(newSection);
 
-        checkSameSection(newSection);
-        checkNoStation(newSection);
-
-        if (isFirstSection(newSection) || isLastSection(newSection)) {
+        if (sections.isFirstSection(newSection) || sections.isLastSection(newSection)) {
             sectionDao.save(newSection);
             return;
         }
-        addInMiddle(newSection);
+
+        addInMiddle(sections, newSection);
     }
 
-    private void checkSameSection(Section newSection) {
-        if (sections.stream()
-                .anyMatch(section -> section.isSameSection(newSection))) {
-            throw new IllegalArgumentException("같은 구역이 이미 등록되어 있습니다.");
-        }
-    }
-
-    private void checkNoStation(Section newSection) {
-        if (sections.stream()
-                .noneMatch(section -> section.containStation(newSection))) {
-            throw new IllegalArgumentException("노선과 연결할 수 있는 역이 없습니다.");
-        }
-    }
-
-    private void addInMiddle(Section newSection) {
-        Section matchedUpSection = sections.stream()
-                .filter(section -> section.getUpStationId().equals(newSection.getUpStationId()))
-                .findFirst()
-                .orElse(null);
+    private void addInMiddle(Sections sections, Section newSection) {
+        Section matchedUpSection = sections.getMatchedUpStation(newSection);
 
         if (matchedUpSection != null) {
-            checkDistance(matchedUpSection.getDistance(), newSection.getDistance());
+            checkDistance(newSection, matchedUpSection);
             sectionDao.save(newSection);
             sectionDao.update(matchedUpSection.getId(), Section.of(
                     matchedUpSection.getId(),
@@ -71,12 +49,9 @@ public class SectionService {
             return;
         }
 
-        Section matchedDownSection = sections.stream()
-                .filter(section -> section.getDownStationId().equals(newSection.getDownStationId()))
-                .findFirst()
-                .orElse(null);
+        Section matchedDownSection = sections.getMatchedDownStation(newSection);
 
-        checkDistance(matchedDownSection.getDistance(), newSection.getDistance());
+        checkDistance(newSection, matchedDownSection);
         sectionDao.save(newSection);
         sectionDao.update(matchedDownSection.getId(), Section.of(
                 matchedDownSection.getId(),
@@ -86,104 +61,66 @@ public class SectionService {
                 matchedDownSection.getDistance() - newSection.getDistance()));
     }
 
-    private void checkDistance(int originDistance, int newDistance) {
-        if (originDistance <= newDistance) {
-            throw new IllegalArgumentException("새로 추가할 구간의 거리가 더 큽니다.");
+    private void checkDistance(Section newSection, Section matchedUpSection) {
+        if (matchedUpSection.isShorterThan(newSection)) {
+            throw new InvalidAddException("추가하려는 구간이 기존의 구간보다 같거나 더 깁니다.");
         }
-    }
-
-    private boolean isLastSection(Section newSection) {
-        boolean uniqueContain = sections.stream()
-                .filter(section -> section.getDownStationId().equals(newSection.getUpStationId()))
-                .count() == UNIQUE_MATCH;
-        boolean notContain = sections.stream()
-                .noneMatch(section -> section.getUpStationId().equals(newSection.getUpStationId()));
-
-        return notContain && uniqueContain;
-    }
-
-    private boolean isFirstSection(Section newSection) {
-        boolean notContain = sections.stream()
-                .noneMatch(section -> section.getDownStationId().equals(newSection.getDownStationId()));
-        boolean uniqueContain = sections.stream()
-                .filter(section -> section.getUpStationId().equals(newSection.getDownStationId()))
-                .count() == UNIQUE_MATCH;
-
-        return notContain && uniqueContain;
     }
 
     @Transactional
     public void deleteSection(Long lineId, Long stationId) {
-        sections = sectionDao.getSectionsByLineId(lineId);
-        checkOneSection();
+        Sections sections = new Sections(sectionDao.getSectionsByLineId(lineId));
+        checkSectionsSize(sections);
 
-        List<Section> endPointSections = sections.stream()
-                .filter(section -> section.getUpStationId().equals(stationId) || section.getDownStationId().equals(stationId))
-                .collect(Collectors.toList());
+        List<Section> sectionsContainStationId = sections.getSectionsContainStationId(stationId);
 
-        if (endPointSections.size() == 1) {
-            sectionDao.deleteById(endPointSections.get(FIRST_INDEX).getId());
+        if (sectionsContainStationId.size() == 1) {
+            sectionDao.deleteById(sectionsContainStationId.get(FIRST_INDEX).getId());
             return;
         }
 
-        mergeSection(stationId, endPointSections);
+        deleteAndMergeSection(stationId, sectionsContainStationId);
     }
 
-    private void checkOneSection() {
+    private void checkSectionsSize(Sections sections) {
         if (sections.size() == MIN_SECTION_SIZE) {
-            throw new IllegalArgumentException("제거할 수 없습니다.");
+            throw new InvalidDeleteException("구간이 하나 남았을 때는 더 이상 제거할 수 없습니다.");
         }
     }
 
-    private void mergeSection(Long id, List<Section> sections) {
+    private void deleteAndMergeSection(Long stationId, List<Section> sections) {
+        Section sectionA = sections.get(FIRST_INDEX);
+        Section sectionB = sections.get(SECOND_INDEX);
+
+        Long upStationId = sectionB.equalsWithDownStationId(stationId) ?
+                sectionB.getUpStationId() : sectionA.getUpStationId();
+
+        Long downStationId = sectionA.equalsWithUpStationId(stationId) ?
+                sectionA.getDownStationId() : sectionB.getDownStationId();
+
         int distance = sections.stream()
                 .mapToInt(Section::getDistance)
                 .sum();
 
-        Long downStationId = sections.get(FIRST_INDEX).getUpStationId().equals(id) ?
-                sections.get(FIRST_INDEX).getDownStationId() : sections.get(SECOND_INDEX).getDownStationId();
-        Long upStationId = sections.get(SECOND_INDEX).getDownStationId().equals(id) ?
-                sections.get(SECOND_INDEX).getUpStationId() : sections.get(FIRST_INDEX).getUpStationId();
+        sectionDao.deleteById(sectionA.getId());
+        sectionDao.deleteById(sectionB.getId());
 
-        sectionDao.deleteById(sections.get(FIRST_INDEX).getId());
-        sectionDao.deleteById(sections.get(SECOND_INDEX).getId());
-        sectionDao.save(Section.of(sections.get(FIRST_INDEX).getLineId(), upStationId, downStationId, distance));
+        sectionDao.save(Section.of(sectionA.getLineId(), upStationId, downStationId, distance));
     }
 
     public List<Long> getStationIds(Long lineId) {
-        sections = sectionDao.getSectionsByLineId(lineId);
+        Sections sections = new Sections(sectionDao.getSectionsByLineId(lineId));
 
-        List<Long> sectionIds = getSectionIds(sections);
-        Section firstSection = findFirstSection(sections, sectionIds);
-
-        Map<Long, Section> longToSection = new HashMap<>();
-        for (Section section : sections) {
-            longToSection.put(section.getUpStationId(), section);
-        }
-
-        List<Long> stationIds = new ArrayList<>();
-        stationIds.add(firstSection.getUpStationId());
-        for (Section iter = firstSection; iter != null; iter = longToSection.get(iter.getDownStationId())) {
-            stationIds.add(iter.getDownStationId());
-        }
-
-        return stationIds;
-    }
-
-    private Section findFirstSection(List<Section> sections, List<Long> sectionIds) {
-        return sections.stream()
-                .filter(section -> !sectionIds.contains(section.getUpStationId()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private List<Long> getSectionIds(List<Section> sections) {
-        return sections.stream()
-                .map(Section::getDownStationId)
-                .collect(Collectors.toList());
+        return sections.getStationIds();
     }
 
     public void save(Section section) {
         sectionDao.save(section);
+    }
+
+    public void delete(Long id) throws InvalidDeleteException {
+        if (sectionDao.deleteById(id) == 0) {
+            throw new InvalidDeleteException("삭제하려는 section이 존재하지 않습니다.");
+        }
     }
 }

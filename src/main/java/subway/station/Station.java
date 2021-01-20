@@ -10,7 +10,7 @@ public class Station {
     }
 
     public Station(String name) {
-        this(null, name);
+        this(0L, name);
     }
 
     public static Station fromRequest(StationRequest stationRequest) {

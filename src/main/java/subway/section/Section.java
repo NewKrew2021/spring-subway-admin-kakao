@@ -19,7 +19,7 @@ public class Section {
     }
 
     public Section(Long upStationId, Long downStationId, int distance, Long lineId) {
-        this(null, upStationId, downStationId, distance, lineId);
+        this(0L, upStationId, downStationId, distance, lineId);
     }
 
     public static Section fromRequest(SectionRequest sectionRequest, long lineId) {

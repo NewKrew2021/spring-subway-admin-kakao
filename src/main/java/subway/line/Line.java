@@ -22,7 +22,7 @@ public class Line {
     }
 
     public Line(String name, String color, Long startStationId, Long endStationId) {
-        this(null, name, color, startStationId, endStationId);
+        this(0L, name, color, startStationId, endStationId);
     }
 
     public static Line fromRequest(LineRequest lineRequest) {

@@ -13,6 +13,19 @@ import java.util.List;
 
 @Repository
 public class SectionDao {
+    private static final String FIND_BY_UP_STATION_ID_AND_LIND_ID_SQL = "select id, up_station_id, down_station_id, distance, line_id " +
+                    "from section " +
+                    "where up_station_id = ? and line_id = ?";
+    private static final String FIND_BY_DOWN_STATION_ID_AND_LIND_ID_SQL = "select id, up_station_id, down_station_id, distance, line_id " +
+                    "from section " +
+                    "where down_station_id = ? and line_id = ?";
+    private static final String FIND_ALL_BY_LINE_ID_SQL = "select id, up_station_id, down_station_id, distance, line_id " +
+                    "from section " +
+                    "where line_id = ?";
+    private static final String UPDATE_BY_ID_SQL = "update section " +
+            "set up_station_id = ?, down_station_id = ? , distance = ?, line_id = ? where id = ?";
+    private static final String DELETE_BY_ID_SQL = "delete from section where id = ?";
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
 
@@ -41,34 +54,30 @@ public class SectionDao {
     }
 
     public Section findByUpStationIdAndLineId(long upstationId, long lineId) {
-        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where up_station_id = ? and line_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, upstationId, lineId);
+            return jdbcTemplate.queryForObject(FIND_BY_UP_STATION_ID_AND_LIND_ID_SQL, actorRowMapper, upstationId, lineId);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
+
     public Section findByDownStationIdAndLineId(long downStationId, long lineId) {
-        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where down_station_id = ? and line_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, downStationId , lineId);
+            return jdbcTemplate.queryForObject(FIND_BY_DOWN_STATION_ID_AND_LIND_ID_SQL, actorRowMapper, downStationId, lineId);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     public List<Section> findAllByLineId(long lineId) {
-        String sql = "select id, up_station_id, down_station_id, distance, line_id from section where line_id = ?";
-        return jdbcTemplate.query(sql, actorRowMapper, lineId);
+        return jdbcTemplate.query(FIND_ALL_BY_LINE_ID_SQL, actorRowMapper, lineId);
     }
 
-    public int updateSection(long id, Section section) {
-        String sql = "update section set up_station_id = ?, down_station_id = ? , distance = ?, line_id = ? where id = ?";
-        return jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId() , id);
+    public int updateById(long id, Section section) {
+        return jdbcTemplate.update(UPDATE_BY_ID_SQL, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getLineId(), id);
     }
 
     public int deleteById(long id) {
-        String sql = "delete from section where id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(DELETE_BY_ID_SQL, id);
     }
 }

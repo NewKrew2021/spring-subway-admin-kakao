@@ -13,6 +13,11 @@ import java.util.List;
 
 @Repository
 public class StationDao {
+    private static final String FIND_ALL_SQL = "select id, name from station";
+    private static final String DELETE_BY_ID_SQL = "delete from station where id = ?";
+    private static final String FIND_BY_ID_SQL = "select id, name from station where id = ?";
+    private static final String COUNT_BY_NAME_SQL = "select count(*) from station where name = ?";
+    private static final String COUNT_BY_ID_SQL = "select count(*) from station where id = ?";
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
@@ -25,11 +30,10 @@ public class StationDao {
     }
 
     private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
-        Station station = new Station(
+        return new Station(
                 resultSet.getLong("id"),
                 resultSet.getString("name")
         );
-        return station;
     };
 
     public Station save(Station station) {
@@ -39,31 +43,26 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station";
-        return jdbcTemplate.query(sql, actorRowMapper);
+        return jdbcTemplate.query(FIND_ALL_SQL, actorRowMapper);
     }
 
     public int deleteById(Long id) {
-        String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(DELETE_BY_ID_SQL, id);
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from station where id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+            return jdbcTemplate.queryForObject(FIND_BY_ID_SQL, actorRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     public int countByName(String name) {
-        String sql = "select count(*) from station where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+        return jdbcTemplate.queryForObject(COUNT_BY_NAME_SQL, Integer.class, name);
     }
 
     public int countById(Long id) {
-        String sql = "select count(*) from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return jdbcTemplate.queryForObject(COUNT_BY_ID_SQL, Integer.class, id);
     }
 }

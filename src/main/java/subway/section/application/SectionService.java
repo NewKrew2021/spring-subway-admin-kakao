@@ -1,10 +1,14 @@
-package subway.section;
+package subway.section.application;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.StationNotFoundException;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.section.presentation.SectionRequest;
+import subway.section.domain.Section;
+import subway.section.domain.SectionDao;
+import subway.section.domain.Sections;
+import subway.station.domain.StationDao;
+import subway.station.presentation.StationResponse;
 
 import java.util.List;
 

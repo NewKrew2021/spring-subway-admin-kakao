@@ -1,10 +1,14 @@
-package subway.line;
+package subway.line.application;
 
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.LineNotFoundException;
-import subway.section.SectionService;
+import subway.line.presentation.LineRequest;
+import subway.line.presentation.LineResponse;
+import subway.line.domain.Line;
+import subway.line.domain.LineDao;
+import subway.section.application.SectionService;
 
 import java.util.List;
 

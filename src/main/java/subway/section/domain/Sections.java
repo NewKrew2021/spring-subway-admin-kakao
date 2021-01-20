@@ -1,4 +1,6 @@
-package subway.section;
+package subway.section.domain;
+
+import subway.section.presentation.SectionRequest;
 
 import java.util.Arrays;
 import java.util.Collections;

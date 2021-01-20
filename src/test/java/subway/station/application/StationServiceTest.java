@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import subway.station.application.StationService;
+import subway.station.domain.Station;
+import subway.station.domain.StationDao;
+import subway.station.presentation.StationRequest;
+import subway.station.presentation.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;

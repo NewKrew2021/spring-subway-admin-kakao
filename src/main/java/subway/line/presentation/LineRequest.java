@@ -1,6 +1,7 @@
-package subway.line;
+package subway.line.presentation;
 
-import subway.section.SectionRequest;
+import subway.line.domain.Line;
+import subway.section.presentation.SectionRequest;
 
 public class LineRequest {
     private String name;

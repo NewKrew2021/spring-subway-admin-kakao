@@ -1,10 +1,11 @@
-package subway.line;
+package subway.line.presentation;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionRequest;
-import subway.section.SectionService;
+import subway.line.application.LineService;
+import subway.section.presentation.SectionRequest;
+import subway.section.application.SectionService;
 
 import java.net.URI;
 import java.util.List;

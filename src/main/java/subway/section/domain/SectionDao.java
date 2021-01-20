@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import subway.section.domain.Section;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;

@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.domain;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;

@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.presentation;
 
 public class SectionRequest {
     private Long upStationId;

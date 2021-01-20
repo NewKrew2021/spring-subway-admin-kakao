@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 public class Section {
     private final Long id;

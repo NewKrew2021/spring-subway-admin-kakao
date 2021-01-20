@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.domain;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;

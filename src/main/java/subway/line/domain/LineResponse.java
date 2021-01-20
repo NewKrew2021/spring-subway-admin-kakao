@@ -29,11 +29,8 @@ public class LineResponse {
     }
 
     public LineResponse(Line line) {
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
+        this(line.getId(), line.getName(), line.getColor());
     }
-
 
     public LineResponse(Line line, List<Station> stations) {
         if (!validator(line)) {

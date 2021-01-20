@@ -1,4 +1,4 @@
-package subway.response;
+package subway.controller.response;
 
 import subway.domain.Line;
 

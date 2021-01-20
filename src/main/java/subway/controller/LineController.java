@@ -4,14 +4,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.Line;
-import subway.request.LineRequest;
-import subway.response.LineResponse;
+import subway.controller.request.LineRequest;
+import subway.controller.response.LineResponse;
 import subway.domain.Section;
-import subway.request.SectionRequest;
+import subway.controller.request.SectionRequest;
 import subway.service.LineService;
 import subway.service.SectionService;
 import subway.domain.Station;
-import subway.response.StationResponse;
+import subway.controller.response.StationResponse;
 import subway.service.StationService;
 
 import java.net.URI;

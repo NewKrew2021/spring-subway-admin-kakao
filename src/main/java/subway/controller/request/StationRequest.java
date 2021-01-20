@@ -1,4 +1,4 @@
-package subway.request;
+package subway.controller.request;
 
 import subway.domain.Station;
 

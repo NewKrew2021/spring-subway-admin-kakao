@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import subway.exception.custom.SameUpstationDownStationException;
 import subway.request.SectionRequest;
 import subway.response.LineResponse;
 import subway.response.StationResponse;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static subway.controller.LineControllerTest.지하철_노선_등록되어_있음;
 import static subway.controller.LineControllerTest.지하철_노선_조회_요청;
 import static subway.controller.StationControllerTest.지하철역_등록되어_있음;
@@ -118,10 +120,8 @@ public class SectionControllerTest extends ControllerTest {
     @Test
     void addLineSectionWithSameStation() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 양재역, 3);
-
-        // then
-        지하철_구간_등록_실패됨(response);
+        assertThatThrownBy(() -> 지하철_구간_생성_요청(신분당선, 양재역, 양재역, 3))
+                .isInstanceOf(SameUpstationDownStationException.class);
     }
 
     @DisplayName("지하철 노선에 불가능한 길이로 구간을 등록한다.")

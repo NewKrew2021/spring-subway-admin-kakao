@@ -2,6 +2,7 @@ package subway.domain;
 
 import subway.exception.custom.DifferentLineIdException;
 import subway.exception.custom.IllegalDistanceException;
+import subway.exception.custom.SameUpstationDownStationException;
 
 import java.util.Objects;
 
@@ -13,11 +14,21 @@ public class Section {
     private final Long id;
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+        validateSection(upStationId, downStationId, distance);
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    private void validateSection(Long upStationId, Long downStationId, int distance) {
+        if (upStationId.equals(downStationId)) {
+            throw new SameUpstationDownStationException();
+        }
+        if (distance < 1 || distance > 100000) {
+            throw new IllegalDistanceException();
+        }
     }
 
     public Section(Long lineId, Long upStationId, Long downStationId, int distance) {

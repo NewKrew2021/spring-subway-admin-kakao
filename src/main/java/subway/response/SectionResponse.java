@@ -2,6 +2,8 @@ package subway.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import subway.domain.Section;
+import subway.exception.custom.IllegalDistanceException;
+import subway.exception.custom.SameUpstationDownStationException;
 
 public class SectionResponse {
     private final Long id;
@@ -25,6 +27,16 @@ public class SectionResponse {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        validateSection(upStationId, downStationId, distance);
+    }
+
+    private void validateSection(Long upStationId, Long downStationId, int distance) {
+        if (upStationId.equals(downStationId)) {
+            throw new SameUpstationDownStationException();
+        }
+        if (distance < 1 || distance > 100000) {
+            throw new IllegalDistanceException();
+        }
     }
 
     public Long getId() {

@@ -75,22 +75,14 @@ public class LineController {
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        sectionService.delete(lineId);
         lineService.delete(lineId);
 
         return ResponseEntity.noContent().build();
-
     }
 
     @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = new Section(lineId,
-                sectionRequest.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                sectionRequest.getDistance(),
-                SectionService.NOT_FIRST_SECTION,
-                SectionService.NOT_LAST_SECTION);
-
+        Section section = sectionRequest.getSection(lineId);
         sectionService.validateCreate(section, stationService.getStations(lineId));
         sectionService.create(lineId, section);
 
@@ -101,7 +93,6 @@ public class LineController {
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         sectionService.validateDelete(lineId);
         sectionService.delete(lineId, stationId);
-        stationService.delete(stationId);
 
         return ResponseEntity.ok().build();
     }

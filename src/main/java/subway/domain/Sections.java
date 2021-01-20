@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 public class Sections {
     public static final int FIRST = 0;
     public static final int SECOND = 1;
-    private List<Section> sections;
+    private final List<Section> sections;
 
     public Sections(List<Section> sections) {
         this.sections = sections;
@@ -21,6 +21,12 @@ public class Sections {
     public Map<Long, Section> getReverseOrderedSections() {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
+    }
+
+    public Sections getContainSections(Long stationId) {
+        return new Sections(sections.stream()
+                .filter(section -> section.getUpStationId().equals(stationId) || section.getDownStationId().equals(stationId))
+                .collect(Collectors.toList()));
     }
 
     public Section getMergeSection(Long stationId) {

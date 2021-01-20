@@ -10,7 +10,6 @@ import java.util.List;
 public class SectionDao {
     private static final String SAVE_SQL = "insert into SECTION (line_id, up_station_id, down_station_id, distance, first_section, last_section) values (?, ?, ?, ?, ?, ?)";
     private static final String FIND_BY_LINE_ID_SQL = "select id, line_id, up_station_id, down_station_id, distance, first_section, last_section from SECTION where line_id = ?";
-    private static final String FIND_BY_STATION_ID_AND_LINE_ID_SQL = "select id, line_id, up_station_id, down_station_id, distance, first_section, last_section from SECTION where line_id = ? and (up_station_id = ? or down_station_id = ?)";
     private static final String FIND_FIRST_BY_LINE_ID_SQL = "select id, line_id, up_station_id, down_station_id, distance, first_section, last_section from SECTION where line_id = ? and first_section";
     private static final String FIND_LAST_BY_LINE_ID_SQL = "select id, line_id, up_station_id, down_station_id, distance, first_section, last_section from SECTION where line_id = ? and last_section";
     private static final String UPDATE_SQL = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ?, first_section = ?, last_section = ? where id = ?";
@@ -37,10 +36,6 @@ public class SectionDao {
 
     public List<Section> findByLineId(Long lineId) {
         return jdbcTemplate.query(FIND_BY_LINE_ID_SQL, sectionMapper, lineId);
-    }
-
-    public List<Section> findByStationIdAndLineId(Long stationId, Long lineId) {
-        return jdbcTemplate.query(FIND_BY_STATION_ID_AND_LINE_ID_SQL, sectionMapper, lineId, stationId, stationId);
     }
 
     public Section findFirstByLineId(Long lineId) {

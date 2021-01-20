@@ -14,10 +14,6 @@ import java.util.Map;
 
 @Service
 public class SectionService {
-    private static final boolean LAST_SECTION = true;
-    private static final boolean FIRST_SECTION = true;
-    public static final boolean NOT_FIRST_SECTION = false;
-    public static final boolean NOT_LAST_SECTION = false;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
 
@@ -61,17 +57,14 @@ public class SectionService {
         throw new IllegalArgumentException();
     }
 
-    public void delete(Long lineId) {
-        sectionDao.deleteByLineId(lineId);
-    }
-
     public void delete(Long lineId, Long stationId) {
-        Sections sections = new Sections(sectionDao.findByStationIdAndLineId(stationId, lineId));
+        Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section firstSection = sectionDao.findFirstByLineId(lineId);
         Section lastSection = sectionDao.findLastByLineId(lineId);
 
         Map<Long, Section> orderedSections = sections.getOrderedSections();
         Map<Long, Section> reverseOrderedSections = sections.getReverseOrderedSections();
+        Sections containSections = sections.getContainSections(stationId);
 
         if (stationId.equals(firstSection.getUpStationId())) {
             Section nextSection = orderedSections.get(firstSection.getDownStationId());
@@ -82,15 +75,15 @@ public class SectionService {
         }
 
         if (stationId.equals(lastSection.getDownStationId())) {
-            Section previousSection = reverseOrderedSections.get(firstSection.getUpStationId());
+            Section previousSection = reverseOrderedSections.get(lastSection.getUpStationId());
             previousSection.setLastSection(true);
             sectionDao.deleteById(lastSection.getId());
             sectionDao.update(previousSection);
             return;
         }
 
-        Section mergeSection = sections.getMergeSection(stationId);
-        Section deleteSection = sections.getDeleteSection();
+        Section mergeSection = containSections.getMergeSection(stationId);
+        Section deleteSection = containSections.getDeleteSection();
         sectionDao.deleteById(deleteSection.getId());
         sectionDao.update(mergeSection);
     }
@@ -122,15 +115,15 @@ public class SectionService {
     }
 
     private void addLastStation(Section section, Section lastSection) {
-        lastSection.setLastSection(NOT_LAST_SECTION);
-        section.setLastSection(LAST_SECTION);
+        lastSection.setLastSection(Section.NOT_LAST_SECTION);
+        section.setLastSection(Section.LAST_SECTION);
         sectionDao.update(lastSection);
         sectionDao.save(section);
     }
 
     private void addFirstStation(Section section, Section firstSection) {
-        firstSection.setFirstSection(NOT_FIRST_SECTION);
-        section.setFirstSection(FIRST_SECTION);
+        firstSection.setFirstSection(Section.NOT_FIRST_SECTION);
+        section.setFirstSection(Section.FIRST_SECTION);
         sectionDao.update(firstSection);
         sectionDao.save(section);
     }
@@ -153,7 +146,7 @@ public class SectionService {
                         sectionRequest.getDownStationId(),
                         sectionRequest.getDistance() - distanceSum,
                         section.isFirstSection(),
-                        NOT_LAST_SECTION);
+                        Section.NOT_LAST_SECTION);
 
                 sectionDao.save(newSection);
 
@@ -163,7 +156,7 @@ public class SectionService {
                         sectionRequest.getDownStationId(),
                         section.getDownStationId(),
                         distanceSum + section.getDistance() - sectionRequest.getDistance(),
-                        NOT_FIRST_SECTION,
+                        Section.NOT_FIRST_SECTION,
                         section.isLastSection());
 
                 sectionDao.update(updateSection);
@@ -193,7 +186,7 @@ public class SectionService {
                         sectionRequest.getUpStationId(),
                         downStationId,
                         sectionRequest.getDistance() - distanceSum,
-                        NOT_FIRST_SECTION,
+                        Section.NOT_FIRST_SECTION,
                         section.isLastSection());
 
                 sectionDao.save(newSection);
@@ -205,7 +198,7 @@ public class SectionService {
                         sectionRequest.getUpStationId(),
                         distanceSum + section.getDistance() - sectionRequest.getDistance(),
                         section.isFirstSection(),
-                        NOT_LAST_SECTION);
+                        Section.NOT_LAST_SECTION);
 
                 sectionDao.update(updateSection);
                 return;

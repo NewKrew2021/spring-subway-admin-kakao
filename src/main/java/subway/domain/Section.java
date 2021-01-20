@@ -1,6 +1,10 @@
 package subway.domain;
 
 public class Section {
+    public static final boolean LAST_SECTION = true;
+    public static final boolean FIRST_SECTION = true;
+    public static final boolean NOT_FIRST_SECTION = false;
+    public static final boolean NOT_LAST_SECTION = false;
     private Long id;
     private Long lineId;
     private Long upStationId;

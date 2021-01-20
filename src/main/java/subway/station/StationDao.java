@@ -6,10 +6,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Repository
 public class StationDao {
@@ -30,40 +30,33 @@ public class StationDao {
                 return st;
             }, keyHolder);
         } catch (DataAccessException ignored) {
-            throw new IllegalArgumentException(String.format("Station with name %s already exists", station.getName()));
+            return null;
         }
 
         return new Station(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {
-        String sql = "select * from station";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        return jdbcTemplate.query("select * from station", stationRowMapper);
     }
 
-    public Station findByID(Long id) {
-        String sql = "select id, name from station where id = ?";
-        Station station;
+    public Station findByID(Station station) {
+        return jdbcTemplate.queryForObject("select id, name from station where id = ?",
+                stationRowMapper, station.getID());
+    }
 
-        station = jdbcTemplate.queryForObject(sql, stationRowMapper, id);
-        if (stationDoesNotExist(station)) {
-            throw new NoSuchElementException(String.format("Could not find station with id: %d", id));
+    public Station deleteByID(Station station) {
+        int affectedRows = jdbcTemplate.update("delete from station where id = ?", station.getID());
+
+        if (isNotDeleted(affectedRows)) {
+            return station;
         }
 
-        return station;
+        return null;
     }
 
-    public void deleteByID(Long id) {
-        String sql = "delete from station where id = ?";
-        int affectedRows = jdbcTemplate.update(sql, id);
-
-        if (affectedRows != 1) {
-            throw new NoSuchElementException(String.format("Could not delete station %d", id));
-        }
-    }
-
-    private boolean stationDoesNotExist(Station station) {
-        return station == null;
+    private boolean isNotDeleted(int affectedRows) {
+        return affectedRows != 1;
     }
 
     private final RowMapper<Station> stationRowMapper =

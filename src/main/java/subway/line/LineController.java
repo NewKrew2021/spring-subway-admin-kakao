@@ -8,7 +8,8 @@ import subway.section.SectionDao;
 import subway.section.SectionRequest;
 import subway.section.Sections;
 import subway.station.StationDao;
-import subway.station.Stations;
+import subway.station.domain.Station;
+import subway.station.domain.Stations;
 
 import java.net.URI;
 import java.util.List;
@@ -37,7 +38,7 @@ public class LineController {
         final Section downSection = new Section(newLine.getID(), request.getDownStationID(), request.getDistance());
         sectionDao.insert(upSection, downSection);
 
-        LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
+        LineResponse lineResponse = newLine.toResultValue(getStationsByLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
     }
 
@@ -45,7 +46,7 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> res = lineDao.findAll()
                 .stream()
-                .map(line -> line.toDto(getStationsByLine(line)))
+                .map(line -> line.toResultValue(getStationsByLine(line)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(res);
@@ -54,7 +55,7 @@ public class LineController {
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
         Line line = lineDao.findOne(lineID);
-        return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
+        return ResponseEntity.ok(line.toResultValue(getStationsByLine(line)));
     }
 
     @PutMapping("/{lineID}")
@@ -89,6 +90,7 @@ public class LineController {
     private Stations getStationsByLine(Line line) {
         Sections sections = sectionDao.findAllSectionsOf(line.getID());
         return new Stations(sections.getStationIDs().stream()
+                .map(id -> new Station(id, "unused"))
                 .map(stationDao::findByID)
                 .collect(Collectors.toList()));
     }

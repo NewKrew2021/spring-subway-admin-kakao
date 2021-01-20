@@ -11,6 +11,7 @@ public class Sections {
 
     public Sections(List<Section> sections) {
         this.sections = Collections.unmodifiableList(sections);
+
         checkAreValidSections();
     }
 

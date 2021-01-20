@@ -1,7 +1,10 @@
 package subway.line;
 
 import org.apache.commons.lang3.StringUtils;
-import subway.station.Stations;
+import subway.station.domain.Stations;
+import subway.station.vo.StationResultValue;
+
+import java.util.stream.Collectors;
 
 public class Line {
     private final Long id;
@@ -13,15 +16,18 @@ public class Line {
     }
 
     public Line(Long id, String name, String color) {
-        checkHasInvalidArgument(id, name, color);
-
         this.id = id;
         this.name = name;
         this.color = color;
+
+        checkAreValidArgument();
     }
 
-    public LineResponse toDto(Stations stations) {
-        return new LineResponse(id, name, color, stations.allToDto());
+    public LineResponse toResultValue(Stations stations) {
+        return new LineResponse(id, name, color, stations.allToResultValues()
+                .stream()
+                .map(StationResultValue::toResponse)
+                .collect(Collectors.toList()));
     }
 
     public Long getID() {
@@ -36,8 +42,8 @@ public class Line {
         return color;
     }
 
-    private void checkHasInvalidArgument(Long id, String name, String color) {
-        if (isNegative(id)) {
+    private void checkAreValidArgument() {
+        if (isNegativeID()) {
             throw new IllegalArgumentException("Line ID cannot be negative");
         }
 
@@ -50,7 +56,7 @@ public class Line {
         }
     }
 
-    private boolean isNegative(Long id) {
+    private boolean isNegativeID() {
         return id < 0;
     }
 }

@@ -2,7 +2,7 @@ package subway.line;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.station.Stations;
+import subway.station.domain.Stations;
 
 import java.util.Collections;
 
@@ -25,7 +25,7 @@ public class LineTest {
     @DisplayName("Line에서 LineDTO를 올바르게 생성한다")
     @Test
     void testToDto() {
-        LineResponse response = new Line(1L, "hi", "red").toDto(new Stations(Collections.emptyList()));
+        LineResponse response = new Line(1L, "hi", "red").toResultValue(new Stations(Collections.emptyList()));
 
         assertThat(response.getID()).isEqualTo(1L);
         assertThat(response.getName()).isEqualTo("hi");

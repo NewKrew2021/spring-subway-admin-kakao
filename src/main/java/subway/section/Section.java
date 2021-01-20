@@ -13,14 +13,12 @@ public class Section implements Comparable<Section> {
     }
 
     public Section(long id, long lineID, long stationID, int distance) {
-        if (isNegative(id)) {
-            throw new IllegalArgumentException("Line ID cannot be negative");
-        }
-
         this.id = id;
         this.lineID = lineID;
         this.stationID = stationID;
         this.distance = distance;
+
+        checkIsValidSection();
     }
 
     public int distanceDiff(Section downSection) {
@@ -75,7 +73,13 @@ public class Section implements Comparable<Section> {
         return distance - that.getDistance();
     }
 
-    private boolean isNegative(Long id) {
+    private void checkIsValidSection() {
+        if (isNegativeID()) {
+            throw new IllegalArgumentException("Line ID cannot be negative");
+        }
+    }
+
+    private boolean isNegativeID() {
         return id < 0;
     }
 }

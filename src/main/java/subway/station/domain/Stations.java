@@ -1,4 +1,6 @@
-package subway.station;
+package subway.station.domain;
+
+import subway.station.vo.StationResultValue;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,15 +12,23 @@ public class Stations {
     public Stations(List<Station> stations) {
         this.stations = Collections.unmodifiableList(stations);
 
-        if (!(areValidNames() && areValidIDs())) {
+        checkAreValidSections();
+    }
+
+    public List<StationResultValue> allToResultValues() {
+        return stations.stream()
+                .map(Station::toResultValue)
+                .collect(Collectors.toList());
+    }
+
+    private void checkAreValidSections() {
+        if (areInvalidNamesAndIDs()) {
             throw new IllegalArgumentException("There cannot be multiple stations with same name or ID");
         }
     }
 
-    public List<StationResponse> allToDto() {
-        return stations.stream()
-                .map(Station::toDto)
-                .collect(Collectors.toList());
+    private boolean areInvalidNamesAndIDs() {
+        return !(areValidNames() && areValidIDs());
     }
 
     private boolean areValidNames() {

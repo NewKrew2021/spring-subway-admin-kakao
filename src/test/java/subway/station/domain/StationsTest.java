@@ -1,10 +1,13 @@
-package subway.station;
+package subway.station.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.station.dto.StationResponse;
+import subway.station.vo.StationResultValue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,7 +42,10 @@ public class StationsTest {
                 new Station(2L, "hello")
         ));
 
-        List<StationResponse> response = stations.allToDto();
+        List<StationResponse> response = stations.allToResultValues()
+                .stream()
+                .map(StationResultValue::toResponse)
+                .collect(Collectors.toList());
 
         assertThat(response.get(0).getID()).isEqualTo(1L);
         assertThat(response.get(0).getName()).isEqualTo("hi");

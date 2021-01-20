@@ -6,7 +6,7 @@ import java.util.List;
 
 @Service
 public class StationService {
-    StationDao stationDao;
+    private final StationDao stationDao;
 
     public StationService(StationDao stationDao) {
         this.stationDao = stationDao;

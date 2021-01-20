@@ -12,8 +12,8 @@ import java.util.Map;
 
 @Service
 public class SectionService {
-    SectionDao sectionDao;
-    StationService stationService;
+    private final SectionDao sectionDao;
+    private final StationService stationService;
 
     public SectionService(SectionDao sectionDao, StationService stationService) {
         this.sectionDao = sectionDao;

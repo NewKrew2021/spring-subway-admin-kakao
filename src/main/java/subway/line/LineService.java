@@ -10,8 +10,8 @@ import java.util.List;
 
 @Service
 public class LineService {
-    LineDao lineDao; //private으로 하면??
-    SectionService sectionService;
+    private final LineDao lineDao; //private으로 하면??
+    private final SectionService sectionService;
 
     public LineService(LineDao lineDao, SectionService sectionService){
         this.lineDao = lineDao;

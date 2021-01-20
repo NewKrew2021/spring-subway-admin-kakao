@@ -17,9 +17,9 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public Station save(Station station) {
-        validateDuplicateStationName(station.getName());
-        return stationDao.save(station);
+    public Station save(StationRequest stationRequest) {
+        validateDuplicateStationName(stationRequest.getName());
+        return stationDao.save(stationRequest.toStation());
     }
 
     private void validateDuplicateStationName(String name) {

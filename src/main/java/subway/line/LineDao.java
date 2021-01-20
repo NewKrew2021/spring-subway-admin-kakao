@@ -35,17 +35,17 @@ public class LineDao {
         return line;
     };
 
-    public long save(LineRequest lineRequest) {
+    public long save(Line line) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement pstmt = connection.prepareStatement(
                     "insert into LINE(name, color, start_station_id, end_station_id) VALUES(?, ?, ?, ?)",
                     new String[] {"id"}
                     );
-            pstmt.setString(1, lineRequest.getName());
-            pstmt.setString(2, lineRequest.getColor());
-            pstmt.setLong(3, lineRequest.getUpStationId());
-            pstmt.setLong(4, lineRequest.getDownStationId());
+            pstmt.setString(1, line.getName());
+            pstmt.setString(2, line.getColor());
+            pstmt.setLong(3, line.getStartStationId());
+            pstmt.setLong(4, line.getEndStationId());
             return pstmt;
         }, keyHolder);
         return keyHolder.getKey().longValue();
@@ -71,10 +71,10 @@ public class LineDao {
         }
     }
 
-    public Line updateLine(long id, LineRequest lineRequest) {
+    public Line updateLine(long id, Line line) {
         jdbcTemplate.update(
                 "update LINE set name = ?, color = ? where id = ?",
-                lineRequest.getName(), lineRequest.getColor(), id
+                line.getName(), line.getColor(), id
         );
         return findById(id);
     }

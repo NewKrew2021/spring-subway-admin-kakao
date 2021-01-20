@@ -1,7 +1,5 @@
 package subway.section;
 
-import subway.line.LineRequest;
-
 public class SectionRequest {
     private long upStationId;
     private long downStationId;
@@ -16,10 +14,8 @@ public class SectionRequest {
         this.distance = distance;
     }
 
-    public static SectionRequest of(LineRequest lineRequest) {
-        return new SectionRequest(
-                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()
-        );
+    public Section toSection() {
+        return new Section(upStationId, downStationId, distance);
     }
 
     public long getUpStationId() {

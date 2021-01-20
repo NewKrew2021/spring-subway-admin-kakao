@@ -43,4 +43,8 @@ public class Line {
     public long getStartStationId() {
         return startStationId;
     }
+
+    public long getEndStationId() {
+        return endStationId;
+    }
 }

@@ -33,7 +33,7 @@ public class SectionDao {
         return section;
     };
 
-    public long save(long lineId, SectionRequest sectionRequest) {
+    public long save(long lineId, Section section) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement pstmt = connection.prepareStatement(
@@ -41,9 +41,9 @@ public class SectionDao {
                     new String[] {"id"}
                     );
             pstmt.setLong(1, lineId);
-            pstmt.setLong(2, sectionRequest.getUpStationId());
-            pstmt.setLong(3, sectionRequest.getDownStationId());
-            pstmt.setLong(4, sectionRequest.getDistance());
+            pstmt.setLong(2, section.getUpStationId());
+            pstmt.setLong(3, section.getDownStationId());
+            pstmt.setLong(4, section.getDistance());
             return pstmt;
         }, keyHolder);
         return keyHolder.getKey().longValue();

@@ -1,6 +1,7 @@
 package subway.line;
 
 import subway.exception.exceptions.InvalidLineArgumentException;
+import subway.section.Section;
 
 public class LineRequest {
 
@@ -22,6 +23,14 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line toLine() {
+        return new Line(name, color, upStationId, downStationId);
+    }
+
+    public Section toSection() {
+        return new Section(upStationId, downStationId, distance);
     }
 
     public void validateLineRequest() {

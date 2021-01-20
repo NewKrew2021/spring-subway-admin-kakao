@@ -33,41 +33,42 @@ public class Sections {
                 .getDownStationId();
     }
 
-    public void validateAlreadyExistBothStationsOrNothing(SectionRequest sectionRequest) {
-        long upStationCount = countStationsEqualUpStationOf(sectionRequest);
-        long downStationCount = countStationsEqualDownStationOf(sectionRequest);
+    public void validateAlreadyExistBothStationsOrNothing(Section newSection) {
+        long upStationCount = countStationsEqualUpStationOf(newSection);
+        long downStationCount = countStationsEqualDownStationOf(newSection);
         if ((upStationCount > 0) == (downStationCount > 0)) {
             throw new InvalidSectionException(UNABLE_STATION_MESSAGE);
         }
     }
 
-    private long countStationsEqualUpStationOf(SectionRequest sectionRequest) {
+    private long countStationsEqualUpStationOf(Section newSection) {
         return sections.stream()
-                .filter(section -> (section.getUpStationId() == sectionRequest.getUpStationId()
-                        || section.getDownStationId() == sectionRequest.getUpStationId()))
+                .filter(section -> (section.getUpStationId() == newSection.getUpStationId()
+                        || section.getDownStationId() == newSection.getUpStationId()))
                 .count();
     }
 
-    private long countStationsEqualDownStationOf(SectionRequest sectionRequest) {
+    private long countStationsEqualDownStationOf(Section newSection) {
         return sections.stream()
-                .filter(section -> (section.getUpStationId() == sectionRequest.getDownStationId()
-                        || section.getDownStationId() == sectionRequest.getDownStationId()))
+                .filter(section -> (section.getUpStationId() == newSection.getDownStationId()
+                        || section.getDownStationId() == newSection.getDownStationId()))
                 .count();
     }
 
-    public Section getUpdatedSection(SectionRequest sectionRequest) {
+    public Section getUpdatedSection(Section newSection) {
         Optional<Section> updatedSection = sections.stream()
-                .filter(section -> section.getUpStationId() == sectionRequest.getUpStationId())
+                .filter(section -> section.getUpStationId() == newSection.getUpStationId())
                 .findFirst();
         if (updatedSection.isPresent()) {
-            updatedSection.get().updateUpStationAndDistance(sectionRequest.getDownStationId(), sectionRequest.getDistance());
+            updatedSection.get().updateUpStationAndDistance(newSection.getDownStationId(), newSection.getDistance());
             return updatedSection.get();
         }
+
         updatedSection = sections.stream()
-                .filter(section -> section.getDownStationId() == sectionRequest.getDownStationId())
+                .filter(section -> section.getDownStationId() == newSection.getDownStationId())
                 .findFirst();
         if (updatedSection.isPresent()) {
-            updatedSection.get().updateDownStationAndDistance(sectionRequest.getUpStationId(), sectionRequest.getDistance());
+            updatedSection.get().updateDownStationAndDistance(newSection.getUpStationId(), newSection.getDistance());
             return updatedSection.get();
         }
         throw new FailedSaveSectionException(NOT_INCLUDED_STATION_MESSAGE);

@@ -61,7 +61,7 @@ public class SectionsTest {
     @Test
     void alreadyExistBothStations() {
         assertThatThrownBy(() -> {
-            sections.validateAlreadyExistBothStationsOrNothing(sectionRequest2);
+            sections.validateAlreadyExistBothStationsOrNothing(sectionRequest2.toSection());
         }).isInstanceOf(InvalidSectionException.class);
     }
 
@@ -69,7 +69,7 @@ public class SectionsTest {
     @Test
     void nothingStation() {
         assertThatThrownBy(() -> {
-            sections.validateAlreadyExistBothStationsOrNothing(sectionRequest4);
+            sections.validateAlreadyExistBothStationsOrNothing(sectionRequest4.toSection());
         }).isInstanceOf(InvalidSectionException.class);
     }
 
@@ -78,7 +78,7 @@ public class SectionsTest {
     void findUpdatedNextSection() {
         Section expectedSection = new Section(2, 1, 10, 8, 10);
 
-        Section updatedSection = sections.getUpdatedSection(sectionRequest1);
+        Section updatedSection = sections.getUpdatedSection(sectionRequest1.toSection());
 
         assertThat(updatedSection).isEqualTo(expectedSection);
     }
@@ -88,7 +88,7 @@ public class SectionsTest {
     void findUpdatedPreviousSection() {
         Section expectedSection = new Section(4, 1, 6, 14, 5);
 
-        Section updatedSection = sections.getUpdatedSection(sectionRequest3);
+        Section updatedSection = sections.getUpdatedSection(sectionRequest3.toSection());
 
         assertThat(updatedSection).isEqualTo(expectedSection);
     }
@@ -97,7 +97,7 @@ public class SectionsTest {
     @Test
     void unableUpdateSection() {
         assertThatThrownBy(() -> {
-            sections.getUpdatedSection(sectionRequest4);
+            sections.getUpdatedSection(sectionRequest4.toSection());
         }).isInstanceOf(FailedSaveSectionException.class);
     }
 

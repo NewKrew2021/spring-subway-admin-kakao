@@ -34,9 +34,6 @@ public class LineController {
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable(name = "lineId") long id) {
         Line showLine = lineService.findById(id);
-        if (showLine == null) {
-            return ResponseEntity.badRequest().build();
-        }
         List<Station> stations = lineService.getStationsById(showLine.getId());
         List<StationResponse> stationResponses = stations.stream()
                 .map(StationResponse::new)
@@ -62,11 +59,8 @@ public class LineController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable long id) {
-        boolean isLineDeleted = lineService.deleteById(id);
-        if (isLineDeleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.badRequest().build();
+        lineService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{lineId}/sections")

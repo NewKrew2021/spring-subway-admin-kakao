@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.stereotype.Service;
 import subway.exception.exceptions.DuplicateLineNameException;
+import subway.exception.exceptions.FailedDeleteLineException;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;
@@ -18,6 +19,8 @@ public class LineService {
     private static final int MIN_DUPLICATE_LINE_NAME_COUNT = 1;
 
     private static final String DUPLICATE_LINE_NAME_MESSAGE = "중복된 노선 이름입니다.";
+    private static final String FAIL_DELETE_LINE_MESSAGE = "노선을 삭제할 수 없습니다.";
+    private static final String FAIL_DELETE_SECTIONS_MESSAGE = "노선 내 모든 구간 정보를 삭제할 수 없습니다.";
 
     private final LineDao lineDao;
     private final SectionDao sectionDao;
@@ -32,8 +35,8 @@ public class LineService {
     public Line save(LineRequest lineRequest) {
         lineRequest.validateLineRequest();
         validateDuplicateLineName(lineRequest.getName());
-        long lineId = lineDao.save(lineRequest);
-        sectionDao.save(lineId, SectionRequest.of(lineRequest));
+        long lineId = lineDao.save(lineRequest.toLine());
+        sectionDao.save(lineId, lineRequest.toSection());
         return findById(lineId);
     }
 
@@ -51,12 +54,17 @@ public class LineService {
         return lineDao.findById(id);
     }
 
-    public boolean deleteById(long id) {
-        return (lineDao.deleteById(id) == 1) && (sectionDao.deleteAllByLineId(id) > 0);
+    public void deleteById(long id) {
+        if (lineDao.deleteById(id) != 1) {
+            throw new FailedDeleteLineException(FAIL_DELETE_LINE_MESSAGE);
+        }
+        if (sectionDao.deleteAllByLineId(id) <= 0) {
+            throw new FailedDeleteLineException(FAIL_DELETE_SECTIONS_MESSAGE);
+        }
     }
 
     public Line updateLine(long id, LineRequest lineRequest) {
-        return lineDao.updateLine(id, lineRequest);
+        return lineDao.updateLine(id, lineRequest.toLine());
     }
 
     public List<Station> getStationsById(long lineId) {
@@ -73,44 +81,47 @@ public class LineService {
 
     public Line saveSection(long lineId, SectionRequest sectionRequest) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        sections.validateAlreadyExistBothStationsOrNothing(sectionRequest);
+        Section newSection = sectionRequest.toSection();
+        sections.validateAlreadyExistBothStationsOrNothing(newSection);
+
         Line line = lineDao.findById(lineId);
-        if (line.isLineStartStation(sectionRequest.getDownStationId())) {
-            return saveSectionsHead(lineId, sectionRequest);
+        if (line.isLineStartStation(newSection.getDownStationId())) {
+            return saveSectionsHead(lineId, newSection);
         }
-        if (line.isLineEndStation(sectionRequest.getUpStationId())) {
-            return saveSectionsTail(lineId, sectionRequest);
+        if (line.isLineEndStation(newSection.getUpStationId())) {
+            return saveSectionsTail(lineId, newSection);
         }
-        return saveBetweenSections(lineId, sectionRequest);
+        return saveBetweenSections(lineId, newSection);
     }
 
-    private Line saveSectionsHead(long lineId, SectionRequest sectionRequest) {
-        lineDao.updateLineStartStation(lineId, sectionRequest.getUpStationId());
-        sectionDao.save(lineId, sectionRequest);
+    private Line saveSectionsHead(long lineId, Section newSection) {
+        lineDao.updateLineStartStation(lineId, newSection.getUpStationId());
+        sectionDao.save(lineId, newSection);
         return lineDao.findById(lineId);
     }
 
-    private Line saveSectionsTail(long lineId, SectionRequest sectionRequest) {
-        lineDao.updateLineEndStation(lineId, sectionRequest.getDownStationId());
-        sectionDao.save(lineId, sectionRequest);
+    private Line saveSectionsTail(long lineId, Section newSection) {
+        lineDao.updateLineEndStation(lineId, newSection.getDownStationId());
+        sectionDao.save(lineId, newSection);
         return lineDao.findById(lineId);
     }
 
-    private Line saveBetweenSections(long lineId, SectionRequest sectionRequest) {
-        Section newSection = makeUpdateCandidateSection(lineId, sectionRequest);
-        sectionDao.updateSection(newSection);
-        sectionDao.save(lineId, sectionRequest);
+    private Line saveBetweenSections(long lineId, Section newSection) {
+        Section updatedSection = makeUpdateCandidateSection(lineId, newSection);
+        sectionDao.updateSection(updatedSection);
+        sectionDao.save(lineId, newSection);
         return lineDao.findById(lineId);
     }
 
-    private Section makeUpdateCandidateSection(long lineId, SectionRequest sectionRequest) {
+    private Section makeUpdateCandidateSection(long lineId, Section newSection) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        return sections.getUpdatedSection(sectionRequest);
+        return sections.getUpdatedSection(newSection);
     }
 
     public void deleteStationById(long lineId, long stationId) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         sections.validateLineContainsOnlyOneSection();
+
         Line line = lineDao.findById(lineId);
         if (line.isLineStartStation(stationId)) {
             deleteStartStation(lineId, stationId);
@@ -141,9 +152,10 @@ public class LineService {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section surviveDownStationSection = sections.findSectionByUpStationId(stationId);
         Section surviveUpStationSection = sections.findSectionByDownStationId(stationId);
+
         sectionDao.deleteByLineIdAndUpStationId(lineId, stationId);
         sectionDao.deleteByLineIdAndDownStationId(lineId, stationId);
-        sectionDao.save(lineId, new SectionRequest(
+        sectionDao.save(lineId, new Section(
                 surviveUpStationSection.getUpStationId(),
                 surviveDownStationSection.getDownStationId(),
                 surviveDownStationSection.getDistance() + surviveUpStationSection.getDistance()

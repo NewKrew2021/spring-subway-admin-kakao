@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.StationResponse;
+import subway.util.ResponseUtil;
 
 import java.net.URI;
 import java.util.List;
@@ -12,62 +13,63 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
-    private LineDao lineDao;
     private SectionService sectionService;
     private LineService lineService;
-    private SectionDao sectionDao;
 
-    public LineController(LineDao lineDao, SectionService sectionService, LineService lineService, SectionDao sectionDao) {
-        this.lineDao = lineDao;
+    public LineController(SectionService sectionService, LineService lineService) {
         this.sectionService = sectionService;
         this.lineService = lineService;
     }
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createStation(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        Line newLine = lineDao.save(line);
-        if (newLine == null) {
+        try {
+            Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+
+            Line newLine = lineService.insert(line, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+
+            List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(newLine));
+
+            LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
+
+            return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+        } catch (LineAlreadyExistException e) {
             return ResponseEntity.badRequest().build();
         }
-        sectionService.insert(new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor());
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> responses = lineDao.findAll().stream()
-                .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
-                .collect(Collectors.toList());
+        List<LineResponse> responses = ResponseUtil.getLineResponses(lineService.findAll());
 
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineDao.findLineById(lineId);
-        if (line == null) {
+        try {
+            Line line = lineService.findById(lineId);
+
+            List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(line));
+
+            LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
+
+            return ResponseEntity.ok(lineResponse);
+        } catch (LineNotFoundException e) {
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = lineService.getStations(line).stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
-                .collect(Collectors.toList());
-
-        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
-        return ResponseEntity.ok(lineResponse);
     }
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest.getName(), lineRequest.getColor());
-        lineDao.updateById(id, line);
+        lineService.updateById(id, line);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        lineDao.deleteById(id);
+        lineService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -76,7 +78,7 @@ public class LineController {
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         try {
             sectionService.insert(newSection);
-        } catch (IllegalArgumentException illegalArgumentException) {
+        } catch (SectionInsertException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();
@@ -86,10 +88,9 @@ public class LineController {
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         try {
             sectionService.delete(lineId, stationId);
-        } catch (IllegalArgumentException illegalArgumentException) {
+        } catch (SectionInsertException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok().build();
     }
-
 }

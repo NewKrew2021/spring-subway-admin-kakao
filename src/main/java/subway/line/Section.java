@@ -50,7 +50,7 @@ public class Section {
     private void checkSameSection(List<Section> sections) {
         if (sections.stream()
                 .anyMatch(section -> section.getUpStationId().equals(upStationId) && section.getDownStationId().equals(downStationId))) {
-            throw new IllegalArgumentException("같은 section이 추가될 수 없습니다.");
+            throw new SectionInsertException("같은 section이 추가될 수 없습니다.");
         }
     }
 
@@ -58,13 +58,13 @@ public class Section {
         if (sections.size() > 0 && !sections.stream()
                 .anyMatch(section -> section.getUpStationId().equals(upStationId) || section.getDownStationId().equals(downStationId)
                         || section.getUpStationId().equals(downStationId) || section.getDownStationId().equals(upStationId))) {
-            throw new IllegalArgumentException("어떤 station도 없으면 추가할 수 없습니다.");
+            throw new SectionInsertException("어떤 station도 없으면 추가할 수 없습니다.");
         }
     }
 
     private void checkValidDistance(Section section) {
         if (this.distance <= section.getDistance()) {
-            throw new IllegalArgumentException("추가하려는 거리가 기존의 거리보다 클 수 없습니다.");
+            throw new SectionInsertException("추가하려는 거리가 기존의 거리보다 클 수 없습니다.");
         }
     }
 

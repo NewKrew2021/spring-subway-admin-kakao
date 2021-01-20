@@ -27,10 +27,7 @@ public class LineDao {
     };
 
     public Line save(Line line) {
-        List<Line> lines = findLineByName(line.getName());
-        if (lines.size() > 0) {
-            return null;
-        }
+        Lines lines = new Lines(findLineByName(line.getName()));
         String sql = "insert into line (name, color) values (?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();

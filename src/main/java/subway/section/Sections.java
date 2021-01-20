@@ -23,11 +23,7 @@ public class Sections {
                 .collect(Collectors.toList());
     }
 
-    public Section insert(SectionRequest request) {
-        Long upStationId = request.getUpStationId();
-        Long downStationId = request.getDownStationId();
-
-        int distance = request.getDistance();
+    public Section insert(Long upStationId, Long downStationId, int distance) {
         if (!validateStations(upStationId, downStationId)) {
             return null;
         }

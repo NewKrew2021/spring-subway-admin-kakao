@@ -4,10 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.section.SectionRequest;
-import subway.section.Sections;
+import subway.section.*;
 import subway.station.StationDao;
 import subway.station.Stations;
 
@@ -19,12 +16,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/lines")
 public class LineController {
     private final LineDao lineDao;
-    private final SectionDao sectionDao;
+    private final SectionService sectionService;
     private final StationDao stationDao;
 
-    public LineController(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineController(LineDao lineDao, SectionService sectionService, StationDao stationDao) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
+        this.sectionService = sectionService;
         this.stationDao = stationDao;
     }
 
@@ -40,7 +37,7 @@ public class LineController {
             return ResponseEntity.badRequest().build();
         }
 
-        boolean created = sectionDao.insertOnCreateLine(newLine.getId(), request);
+        boolean created = sectionService.insertOnCreateLine(newLine.getId(), request);
         if (!created) {
             return ResponseEntity.badRequest().build();
         }
@@ -87,7 +84,7 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<?> addSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
-        boolean created = sectionDao.insert(lineId, request);
+        boolean created = sectionService.insert(lineId, request);
         if (!created) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -97,9 +94,7 @@ public class LineController {
 
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity<?> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        final Section section = new Section(lineId, stationId, 0);
-
-        boolean deleted = sectionDao.delete(section);
+        boolean deleted = sectionService.delete(lineId, stationId);
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -108,7 +103,7 @@ public class LineController {
     }
 
     private Stations getStationsByLine(Line line) {
-        Sections sections = sectionDao.findByLineId(line.getId());
+        Sections sections = sectionService.findByLineId(line.getId());
         return new Stations(sections.getStationIds().stream()
                 .map(stationDao::findById)
                 .collect(Collectors.toList()));

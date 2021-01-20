@@ -13,51 +13,47 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insertOnCreateLine(Long lineId, LineRequest request) {
-
-        Section upSection = new Section(lineId, request.getUpStationId(), 0);
-        Section downSection = new Section(lineId, request.getDownStationId(), request.getDistance());
-
-        if (upSection.equals(downSection)) {
+    public boolean insertOnCreateLine(Long lineId, Long upStationId, Long downStationId, int distance) {
+        if (upStationId == downStationId) {
             return false;
         }
 
-        insertSection(upSection);
-        insertSection(downSection);
+        insertSection(lineId, upStationId, 0);
+        insertSection(lineId, downStationId, distance);
 
         return true;
     }
 
-    public boolean insert(Long lineId, SectionRequest request) {
+    public boolean insert(Long lineId, Long upStationId, Long downStationId, int distance) {
         Sections sections = findByLineId(lineId);
 
-        Section newSection = sections.insert(request);
+        Section newSection = sections.insert(upStationId, downStationId, distance);
         if (newSection == null) {
             return false;
         }
 
-        insertSection(newSection);
+        insertSection(newSection.getLineId(), newSection.getStationId(), newSection.getDistance());
         return true;
     }
 
-    public boolean delete(Section section) {
-        Sections sections = findByLineId(section.getLineId());
+    public boolean delete(Long lineId, Long stationId) {
+        Sections sections = findByLineId(lineId);
         if (sections.hasOnlyTwoSections()) {
             return false;
         }
 
-        deleteSection(section);
+        deleteSection(lineId, stationId);
         return true;
     }
 
-    private boolean insertSection(Section section) {
+    private boolean insertSection(Long lineId, Long stationId, int distance) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-        return jdbcTemplate.update(sql, section.getLineId(), section.getStationId(), section.getDistance()) > 0;
+        return jdbcTemplate.update(sql, lineId, stationId, distance) > 0;
     }
 
-    private boolean deleteSection(Section section) {
+    private boolean deleteSection(Long lineId, Long stationId) {
         String sql = "delete from section where line_id = ? and station_id = ?";
-        return jdbcTemplate.update(sql, section.getLineId(), section.getStationId()) > 0;
+        return jdbcTemplate.update(sql, lineId, stationId) > 0;
     }
 
     public Sections findByLineId(Long lineId) {

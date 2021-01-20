@@ -53,4 +53,10 @@ public class SectionDao {
         String sql = "delete from section where line_id = ?";
         return jdbcTemplate.update(sql, lineId);
     }
+
+    public List<Section> findByStationId(long stationId) {
+        String sql = "select * from section where station_id = ?";
+        return jdbcTemplate.query(sql, actorRowMapper, stationId);
+    }
+
 }

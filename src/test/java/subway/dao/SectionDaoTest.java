@@ -83,5 +83,14 @@ public class SectionDaoTest {
         assertThat(sectionDao.findAllStationsByLineId(2L).size()).isZero();
     }
 
+    @Test
+    @DisplayName("stationId 값으로 구간을 찾는다.")
+    public void findByStationId() {
+        sectionDao.save(new Section(1L, 10, 2L));
+        sectionDao.save(new Section(1L,20,3L));
+
+        assertThat(sectionDao.findByStationId(1L).size()).isEqualTo(2);
+    }
+
 
 }

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import subway.domain.line.Line;
 import subway.domain.station.Station;
+import subway.exception.InvalidStationException;
 import subway.exception.NotExistException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +18,9 @@ public class StationServiceTest {
 
     @Autowired
     StationService stationService;
+
+    @Autowired
+    SectionService sectionService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -61,10 +64,22 @@ public class StationServiceTest {
         stationService.deleteStation(target.getId());
 
         //then
-        assertThatThrownBy(()-> stationService.getStation(target.getId()))
+        assertThatThrownBy(() -> stationService.getStation(target.getId()))
                 .isInstanceOf(NotExistException.class)
                 .hasMessage(StationService.NOT_EXIST_STATION_ERROR_MESSAGE);
 
+    }
+
+    @Test
+    @DisplayName("해당 역을 참조하는 구간이 존재할 때 삭제를 시도해본다.")
+    public void invalidDeleteStation() {
+        Station target = stationService.createStation("오이도역");
+        sectionService.createSection(target.getId(), 0, 2L);
+
+        assertThatThrownBy(() ->
+                stationService.deleteStation(target.getId()))
+                .isInstanceOf(InvalidStationException.class)
+                .hasMessage(StationService.CANNOT_DELETE_STATION_ERROR_MESSAGE);
     }
 
 }

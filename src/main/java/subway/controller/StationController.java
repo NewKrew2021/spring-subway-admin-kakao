@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.domain.station.Station;
 import subway.domain.station.StationRequest;
 import subway.domain.station.StationResponse;
+import subway.service.SectionService;
 import subway.service.StationService;
 
 import java.net.URI;
@@ -17,9 +18,11 @@ import java.util.stream.Collectors;
 public class StationController {
 
     private final StationService stationService;
+    private final SectionService sectionService;
 
-    public StationController(StationService stationService) {
+    public StationController(StationService stationService, SectionService sectionService) {
         this.stationService = stationService;
+        this.sectionService = sectionService;
     }
 
     @PostMapping("")

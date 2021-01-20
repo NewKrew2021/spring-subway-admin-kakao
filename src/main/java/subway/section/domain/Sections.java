@@ -15,7 +15,6 @@ public class Sections {
     private static final String CANNOT_REMOVE_INITIAL_SECTIONS_EXCEPTION_MESSAGE = "해당 노선은 지하철역을 삭제할 수 없습니다";
 
     private static final int INITIAL_SIZE = 2;
-    private static final int NEXT_INDEX = 1;
     private static final int INITIAL_DEFAULT_POSITION = 0;
 
     private final List<Section> sections;
@@ -46,8 +45,8 @@ public class Sections {
     }
 
     public Section createSection(SectionCreateValue createValue) {
-        Optional<Section> newDownSideSection = createDownSideSection(createValue);
-        Optional<Section> newUpSideSection = createUpSideSection(createValue);
+        Optional<Section> newDownSideSection = createSection(DownSideSectionGenerator.from(createValue, getLastIndex()));
+        Optional<Section> newUpSideSection = createSection(UpSideSectionGenerator.from(createValue));
         if ((newDownSideSection.isPresent() && newUpSideSection.isPresent())
                 || (!newDownSideSection.isPresent() && !newUpSideSection.isPresent())) {
             throw new IllegalArgumentException(UP_OR_DOWN_ONLY_ONE_EXCEPTION_MESSAGE);
@@ -84,56 +83,30 @@ public class Sections {
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 구간이 없습니다"));
     }
 
-    private Optional<Section> createDownSideSection(SectionCreateValue createValue) {
-        return findSectionByStation(createValue.getUpStationId())
-                .map(section ->
-                        createNextDownSectionOf(section, createValue.getDownStationId(), createValue.getDistance()));
+    private Optional<Section> createSection(SectionGenerateStrategy strategy) {
+        return findSectionByStation(strategy.getStartStationId())
+                .map(section -> createNextSectionOf(section, strategy));
     }
 
-    private Section createNextDownSectionOf(Section section, Long stationId, int distance) {
-        if (!isDownTerminal(section) && getNextDownSection(section).getDifferenceOfPosition(section) <= distance) {
+    private Section createNextSectionOf(Section section, SectionGenerateStrategy strategy) {
+        int idx = getIndexOf(section);
+        if (strategy.isNotTerminalIndex(idx)
+                && getNextSection(strategy, idx).getDifferenceOfPosition(section) <= strategy.getDistance()) {
             throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
         }
-        return new Section(section.getLineId(), stationId, section.calculateNextDownPosition(distance));
+        return strategy.createFrom(section);
     }
 
-    private Optional<Section> createUpSideSection(SectionCreateValue createValue) {
-        return findSectionByStation(createValue.getDownStationId())
-                .map(section ->
-                        createNextUpSectionOf(section, createValue.getUpStationId(), createValue.getDistance()));
-    }
-
-    private Section createNextUpSectionOf(Section section, Long stationId, int distance) {
-        if (!isUpTerminal(section) && getNextUpSection(section).getDifferenceOfPosition(section) <= distance) {
-            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
-        }
-        return new Section(section.getLineId(), stationId, section.calculateNextUpPosition(distance));
+    private Section getNextSection(SectionGenerateStrategy strategy, int idx) {
+        return sections.get(strategy.getNextIndexOf(idx));
     }
 
     private boolean isNotRemovable() {
         return sections.size() == INITIAL_SIZE;
     }
 
-    private boolean isUpTerminal(Section section) {
-        return getIndexOf(section) == 0;
-    }
-
-    private boolean isDownTerminal(Section section) {
-        return getIndexOf(section) == sections.size() - 1;
-    }
-
-    private Section getNextUpSection(Section section) {
-        if (isUpTerminal(section)) {
-            throw new IllegalArgumentException("해당 구간은 상행 종점입니다");
-        }
-        return sections.get(getIndexOf(section) - NEXT_INDEX);
-    }
-
-    private Section getNextDownSection(Section section) {
-        if (isDownTerminal(section)) {
-            throw new IllegalArgumentException("해당 구간은 하행 종점입니다");
-        }
-        return sections.get(getIndexOf(section) + NEXT_INDEX);
+    private int getLastIndex() {
+        return sections.size() - 1;
     }
 
     public List<Section> getSections() {

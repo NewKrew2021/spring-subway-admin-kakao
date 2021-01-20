@@ -11,13 +11,13 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class StationDao {
     private final JdbcTemplate jdbcTemplate;
     private final static RowMapper<Station> stationMapper = ((rs, rowNum) ->
-            new Station(rs.getLong("id"), rs.getString("name")));
+            new Station(rs.getLong("id"),
+                    rs.getString("name")));
 
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

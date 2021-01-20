@@ -1,4 +1,4 @@
-package subway.exceptions.exception;
+package subway.exceptions.sectionExceptions;
 
 public class SectionNoStationException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package subway.exceptions.exception;
+package subway.exceptions.lineExceptions;
 
 public class LineNotFoundException extends RuntimeException {
 

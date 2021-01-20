@@ -7,16 +7,24 @@ public class RelativeDistance {
         this.relativeDistance = relativeDistance;
     }
 
-    public int calculateUpStationRelativeDistance(int distance) {
-        return relativeDistance - distance;
+    static int upStationDistance(int distance) {
+        return -distance;
     }
 
-    public int calculateDownStationRelativeDistance(int distance) {
+    static int downStationDistance(int distance) {
+        return distance;
+    }
+
+    public int calculateRelativeDistance(int distance) {
         return relativeDistance + distance;
     }
 
     public int calculateDistanceDifference(RelativeDistance otherRelativeDistance) {
         return relativeDistance - otherRelativeDistance.relativeDistance;
+    }
+
+    public boolean isBetween(int upStationRelativeDistance, int downStationRelativeDistance) {
+        return relativeDistance >= upStationRelativeDistance && relativeDistance <= downStationRelativeDistance;
     }
 
     public int getRelativeDistance() {

@@ -1,4 +1,4 @@
-package subway.exceptions.exception;
+package subway.exceptions.stationExceptions;
 
 public class StationDeleteException extends RuntimeException {
 }

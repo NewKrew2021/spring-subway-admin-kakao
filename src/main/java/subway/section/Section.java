@@ -18,12 +18,9 @@ public class Section {
         this.lineId = lineId;
         this.relativeDistance = new RelativeDistance(distance);
     }
+
     public RelativeDistance getRelativeDistance() {
         return relativeDistance;
-    }
-
-    public int getRelativeDistanceByInteger() {
-        return relativeDistance.getRelativeDistance();
     }
 
     public Long getLineId() {

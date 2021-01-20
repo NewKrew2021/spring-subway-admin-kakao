@@ -5,10 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import subway.exceptions.exception.SectionDeleteException;
-import subway.exceptions.exception.SectionIllegalDistanceException;
-import subway.exceptions.exception.SectionNoStationException;
-import subway.exceptions.exception.SectionSameSectionException;
+import subway.exceptions.sectionExceptions.SectionDeleteException;
+import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
+import subway.exceptions.sectionExceptions.SectionNoStationException;
+import subway.exceptions.sectionExceptions.SectionSameSectionException;
 
 import java.util.ArrayList;
 import java.util.List;

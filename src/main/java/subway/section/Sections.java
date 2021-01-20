@@ -1,12 +1,15 @@
 package subway.section;
 
-import subway.exceptions.exception.SectionDeleteException;
-import subway.exceptions.exception.SectionIllegalDistanceException;
-import subway.exceptions.exception.SectionNoStationException;
-import subway.exceptions.exception.SectionSameSectionException;
+import subway.exceptions.sectionExceptions.SectionDeleteException;
+import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
+import subway.exceptions.sectionExceptions.SectionNoStationException;
+import subway.exceptions.sectionExceptions.SectionSameSectionException;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static subway.section.RelativeDistance.downStationDistance;
+import static subway.section.RelativeDistance.upStationDistance;
 
 public class Sections {
     private static final int NUM_OF_INITIAL_STATIONS = 2;
@@ -36,34 +39,12 @@ public class Sections {
         validateSameSection(upStationId, downStationId);
         validateNoStations(upStationId, downStationId);
         validateDistance(distance);
-        if (validateMakeDownStation(upStationId, downStationId, distance)) return;
-        if (validateMakeUpStation(upStationId, downStationId, distance)) return;
-    }
-
-    private void validateDistance(int distance) {
-        if (distance < MINIMUM_DISTANCE) {
-            throw new SectionIllegalDistanceException();
+        if (haveToMakeUpStation(upStationId, downStationId)) {
+            validateMakeStation(downStationId, upStationDistance(distance));
         }
-    }
-
-    private boolean validateMakeUpStation(Long upStationId, Long downStationId, int distance) {
-        if (!isStationIdExist(upStationId) && isStationIdExist(downStationId)) {
-            RelativeDistance downStationRelativeDistance = getRelativeDistanceByStationId(downStationId);
-            distanceValidate(downStationRelativeDistance.calculateUpStationRelativeDistance(distance),
-                    downStationRelativeDistance.getRelativeDistance());
-            return true;
+        if (haveToMakeDownStation(upStationId, downStationId)) {
+            validateMakeStation(upStationId, downStationDistance(distance));
         }
-        return false;
-    }
-
-    private boolean validateMakeDownStation(Long upStationId, Long downStationId, int distance) {
-        if (isStationIdExist(upStationId) && !isStationIdExist(downStationId)) {
-            RelativeDistance upStationRelativeDistance = getRelativeDistanceByStationId(upStationId);
-            distanceValidate(upStationRelativeDistance.getRelativeDistance(),
-                    upStationRelativeDistance.calculateDownStationRelativeDistance(distance));
-            return true;
-        }
-        return false;
     }
 
     private void validateNoStations(Long upStationId, Long downStationId) {
@@ -78,29 +59,54 @@ public class Sections {
         }
     }
 
+    private void validateDistance(int distance) {
+        if (distance < MINIMUM_DISTANCE) {
+            throw new SectionIllegalDistanceException();
+        }
+    }
+
+    private boolean haveToMakeUpStation(Long upStationId, Long downStationId) {
+        return !isStationIdExist(upStationId) && isStationIdExist(downStationId);
+    }
+
+    private boolean haveToMakeDownStation(Long upStationId, Long downStationId) {
+        return isStationIdExist(upStationId) && !isStationIdExist(downStationId);
+    }
+
+    private void validateMakeStation(Long StationId, int distance) {
+        RelativeDistance StationRelativeDistance = getRelativeDistanceByStationId(StationId);
+        int upStationRelativeDistance = Integer.min(StationRelativeDistance.calculateRelativeDistance(distance)
+                , StationRelativeDistance.getRelativeDistance());
+        int downStationRelativeDistance = Integer.max(StationRelativeDistance.calculateRelativeDistance(distance)
+                , StationRelativeDistance.getRelativeDistance());
+
+        distanceValidate(upStationRelativeDistance, downStationRelativeDistance);
+    }
+
     private RelativeDistance getRelativeDistanceByStationId(Long stationId) {
         return sections.stream().filter(section -> section.getStationId().equals(stationId))
                 .findFirst()
                 .map(Section::getRelativeDistance).get();
     }
 
-    private void distanceValidate(int upDistance, int downDistance) {
-        if (areThereAnyStationsBetweenNewSections(upDistance, downDistance)) {
+    private void distanceValidate(int upStationRelativeDistance, int downStationRelativeDistance) {
+        if (areThereAnyStationsBetween(upStationRelativeDistance, downStationRelativeDistance)) {
             throw new SectionIllegalDistanceException();
         }
     }
 
-    private boolean areThereAnyStationsBetweenNewSections(int upDistance, int downDistance) {
-        return sections.stream().map(Section::getRelativeDistanceByInteger)
-                .filter(distance -> (distance >= upDistance && distance <= downDistance))
+    private boolean areThereAnyStationsBetween(int upStationRelativeDistance, int downStationRelativeDistance) {
+        return sections.stream().map(Section::getRelativeDistance)
+                .filter(relativeDistance ->
+                        relativeDistance.isBetween(upStationRelativeDistance,downStationRelativeDistance))
                 .count() != BASIC_NUM_OF_NEW_SECTION;
     }
 
     public int calculateRelativeDistance(Long upStationId, Long downStationId, int distance) {
         if (isStationIdExist(upStationId)) {
-            return getRelativeDistanceByStationId(upStationId).calculateDownStationRelativeDistance(distance);
+            return getRelativeDistanceByStationId(upStationId).calculateRelativeDistance(downStationDistance(distance));
         }
-        return getRelativeDistanceByStationId(downStationId).calculateUpStationRelativeDistance(distance);
+        return getRelativeDistanceByStationId(downStationId).calculateRelativeDistance(upStationDistance(distance));
     }
 
     public List<Long> getSortedStationIdsByDistance() {

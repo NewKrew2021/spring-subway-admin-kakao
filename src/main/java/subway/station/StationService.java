@@ -1,8 +1,8 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.exception.StationDeleteException;
-import subway.exceptions.exception.StationDuplicateException;
+import subway.exceptions.stationExceptions.StationDeleteException;
+import subway.exceptions.stationExceptions.StationDuplicateException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +33,10 @@ public class StationService {
             throw new StationDeleteException();
         }
         stationDao.deleteById(StationId);
+    }
+
+    public StationResponse getStationResponseById(Long stationId) {
+        return StationResponse.from(stationDao.findById(stationId));
     }
 
 }

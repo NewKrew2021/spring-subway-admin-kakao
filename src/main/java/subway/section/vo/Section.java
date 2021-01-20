@@ -42,7 +42,7 @@ public class Section {
         }
 
         if (isInvalidDistance(distance)) {
-            throw new IllegalArgumentException("거리는 0보다 커야 합니다.");
+            throw new IllegalArgumentException("구간의 거리는 0보다 커야 합니다.");
         }
     }
 

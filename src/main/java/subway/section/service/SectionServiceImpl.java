@@ -3,6 +3,9 @@ package subway.section.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import subway.common.exception.NotDeletableEntityException;
+import subway.common.exception.NotExistEntityException;
+import subway.common.exception.NotUpdatableEntityException;
 import subway.section.dao.SectionDao;
 import subway.section.vo.Section;
 import subway.section.vo.Sections;
@@ -46,7 +49,7 @@ public class SectionServiceImpl implements SectionService {
     @Transactional(readOnly = true)
     public Section findSectionById(Long id) {
         return sectionDao.findSectionById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 구간입니다."));
+                .orElseThrow(() -> new NotExistEntityException("존재하지 않는 지하철 구간입니다."));
     }
 
     @Override
@@ -59,11 +62,11 @@ public class SectionServiceImpl implements SectionService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void update(Section section) {
         if (isNotExist(section.getId())) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 구간 입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 구간 입니다.");
         }
 
         if (isNotUpdated(sectionDao.update(section))) {
-            throw new IllegalStateException("지하철 구간을 수정할 수 없습니다.");
+            throw new NotUpdatableEntityException("지하철 구간을 수정할 수 없습니다.");
         }
     }
 
@@ -71,11 +74,11 @@ public class SectionServiceImpl implements SectionService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void delete(Long id) {
         if (isNotExist(id)) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 구간 입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 구간 입니다.");
         }
 
         if (isNotUpdated(sectionDao.delete(id))) {
-            throw new IllegalStateException("지하철 구간을 삭제할 수 없습니다.");
+            throw new NotDeletableEntityException("지하철 구간을 삭제할 수 없습니다.");
         }
     }
 
@@ -92,7 +95,7 @@ public class SectionServiceImpl implements SectionService {
         // 지하철 역을 삭제할 때는 삭제 가능 여부를 검사한다
         Sections sections = sectionDao.findSectionsByLineId(lineId);
         if (sections.isNotDeletable()) {
-            throw new IllegalStateException("삭제할 수 없는 지하철 구간 입니다.");
+            throw new NotDeletableEntityException("삭제할 수 없는 지하철 구간입니다.");
         }
 
         sections = sections.filterByStationId(stationId);

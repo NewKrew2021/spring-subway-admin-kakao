@@ -3,6 +3,9 @@ package subway.line.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import subway.common.exception.NotDeletableEntityException;
+import subway.common.exception.NotExistEntityException;
+import subway.common.exception.NotUpdatableEntityException;
 import subway.line.dao.LineDao;
 import subway.line.vo.Line;
 import subway.line.vo.Lines;
@@ -24,7 +27,7 @@ public class LineServiceImpl implements LineService {
     @Override
     public Line findLineById(Long id) {
         return lineDao.findLineById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
+                .orElseThrow(() -> new NotExistEntityException("존재하지 않는 지하철 노선입니다."));
     }
 
     @Override
@@ -36,11 +39,11 @@ public class LineServiceImpl implements LineService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void update(Line line) {
         if (isNotExist(line.getId())) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 노선입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 노선입니다.");
         }
 
         if (isNotUpdated(lineDao.update(line))) {
-            throw new IllegalStateException("지하철 노선을 수정할 수 없습니다.");
+            throw new NotUpdatableEntityException("지하철 노선을 수정할 수 없습니다.");
         }
     }
 
@@ -48,11 +51,11 @@ public class LineServiceImpl implements LineService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void delete(Long id) {
         if (isNotExist(id)) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 노선입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 노선입니다.");
         }
 
         if (isNotUpdated(lineDao.delete(id))) {
-            throw new IllegalStateException("지하철 노선을 삭제할 수 없습니다.");
+            throw new NotDeletableEntityException("지하철 노선을 삭제할 수 없습니다.");
         }
     }
 

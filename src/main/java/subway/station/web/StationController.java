@@ -9,7 +9,6 @@ import subway.station.service.StationService;
 import subway.station.vo.Station;
 
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,13 +47,5 @@ public class StationController {
         stationService.delete(id);
         return ResponseEntity.noContent()
                 .build();
-    }
-
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<String> handleSQLException(SQLException e) {
-        return ResponseEntity.badRequest()
-                .body(
-                        e.getMessage()
-                );
     }
 }

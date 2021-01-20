@@ -14,7 +14,6 @@ import subway.station.service.StationService;
 import subway.station.vo.Stations;
 
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,20 +100,5 @@ public class LineController {
         sectionService.deleteByLineIdAndStationId(lineId, stationId);
         stationService.delete(stationId);
         return ResponseEntity.ok().build();
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<String> handleSQLException(SQLException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

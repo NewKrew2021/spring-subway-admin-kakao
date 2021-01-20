@@ -3,6 +3,9 @@ package subway.station.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import subway.common.exception.NotDeletableEntityException;
+import subway.common.exception.NotExistEntityException;
+import subway.common.exception.NotUpdatableEntityException;
 import subway.station.dao.StationDao;
 import subway.station.vo.Station;
 import subway.station.vo.Stations;
@@ -28,7 +31,7 @@ public class StationServiceImpl implements StationService {
     @Transactional(readOnly = true)
     public Station findStationById(Long id) {
         return stationDao.findStationById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 역입니다."));
+                .orElseThrow(() -> new NotExistEntityException("존재하지 않는 지하철 역입니다."));
     }
 
     @Override
@@ -51,11 +54,11 @@ public class StationServiceImpl implements StationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void update(Station station) {
         if (isNotExist(station.getId())) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 역입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 역입니다.");
         }
 
         if (isNotUpdated(stationDao.update(station))) {
-            throw new IllegalStateException("지하철 역을 수정할 수 없습니다.");
+            throw new NotUpdatableEntityException("지하철 역을 수정할 수 없습니다.");
         }
     }
 
@@ -63,11 +66,11 @@ public class StationServiceImpl implements StationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void delete(Long id) {
         if (isNotExist(id)) {
-            throw new IllegalArgumentException("존재하지 않는 지하철 역입니다.");
+            throw new NotExistEntityException("존재하지 않는 지하철 역입니다.");
         }
 
         if (isNotUpdated(stationDao.delete(id))) {
-            throw new IllegalStateException("지하철 역을 삭제할 수 없습니다.");
+            throw new NotDeletableEntityException("지하철 역을 삭제할 수 없습니다.");
         }
     }
 

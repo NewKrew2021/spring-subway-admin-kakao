@@ -1,5 +1,6 @@
 package subway.domain;
 
+import subway.dto.StationResponse;
 import subway.exception.IllegalStationException;
 
 import java.util.ArrayList;
@@ -70,4 +71,7 @@ public class Line {
         return sections.getEndStation();
     }
 
+    public List<Station> getStations() {
+        return sections.getStations();
+    }
 }

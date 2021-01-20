@@ -69,25 +69,4 @@ public class LineServiceImpl implements LineService {
             throw new UpdateImpossibleException();
         }
     }
-
-    //TODO 리스폰스 수정
-    @Override
-    public LineResponseWithStation findOneResponse(Long lineId) {
-        Line line = findOne(lineId);
-        Sections sections = sectionService.getSectionsByLineId(lineId);
-        Set<Long> stationIds = new LinkedHashSet<>();
-        sections.getSections()
-                .forEach(section -> {
-                    stationIds.add(section.getUpStationId());
-                    stationIds.add(section.getDownStationId());
-                });
-
-        List<StationResponse> stationResponses = stationIds.stream()
-                .map(id -> {
-                    Station station = stationService.findOne(id);
-                    return new StationResponse(station);
-                })
-                .collect(Collectors.toList());
-        return new LineResponseWithStation(line.getId(), line.getName(), line.getColor(), stationResponses);
-    }
 }

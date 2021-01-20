@@ -18,7 +18,4 @@ public interface LineService {
     Line findOne(Long lineId);
 
     void update(Line line);
-
-    LineResponseWithStation findOneResponse(Long lineId);
-
 }

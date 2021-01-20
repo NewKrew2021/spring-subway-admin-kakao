@@ -128,4 +128,8 @@ public class Sections {
     public Long getLineId(){
         return sections.get(0).getLineId();
     }
+
+    public List<Station> getStations() {
+        return stations;
+    }
 }

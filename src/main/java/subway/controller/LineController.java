@@ -38,8 +38,7 @@ public class LineController {
     //TODO 리스폰스 변경.
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponseWithStation> showLine(@PathVariable Long lineId) {
-        LineResponseWithStation lineResponseWithStation = lineService.findOneResponse(lineId);
-        return ResponseEntity.ok(lineResponseWithStation);
+        return ResponseEntity.ok(LineConvertor.convertLineWithResponse(lineService.findOne(lineId)));
     }
 
     @PutMapping("/{lineId}")

@@ -1,6 +1,7 @@
 package subway.line;
 
 import subway.exceptions.InvalidLineArgumentException;
+import subway.section.Section;
 
 public class LineRequest {
 
@@ -39,6 +40,14 @@ public class LineRequest {
         if (upStationId == downStationId) {
             throw new InvalidLineArgumentException(SAME_STATION_MESSAGE);
         }
+    }
+
+    public Line toLine() {
+        return new Line(name, color, upStationId, downStationId);
+    }
+
+    public Section toSection(Long lineId) {
+        return new Section(lineId, upStationId, downStationId, distance);
     }
 
     public String getName() {

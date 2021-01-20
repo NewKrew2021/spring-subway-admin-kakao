@@ -29,9 +29,9 @@ public class LineService {
 
     public Line save(LineRequest lineRequest) {
         lineRequest.checkLineRequest();
-        Line line = new Line(lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
+        Line line = lineRequest.toLine();
         Line newLine = lineDao.save(line);
-        Section section = new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        Section section = lineRequest.toSection(newLine.getId());
         sectionDao.save(section);
         return findById(newLine.getId());
     }
@@ -69,7 +69,7 @@ public class LineService {
         if (sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
             throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
         }
-        Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section newSection = sectionRequest.toSection(line.getId());
         if (line.isStartStation(newSection.getDownStationId())) {
             return saveSectionsHead(newSection, line);
         }

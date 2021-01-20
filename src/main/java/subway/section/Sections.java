@@ -103,6 +103,6 @@ public class Sections {
     }
 
     public boolean isRemovable() {
-        return sections.size() >= MINIMUM_SECTION_SIZE;
+        return sections.size() > MINIMUM_SECTION_SIZE;
     }
 }

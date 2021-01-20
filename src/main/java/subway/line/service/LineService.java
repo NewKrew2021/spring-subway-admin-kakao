@@ -40,9 +40,9 @@ public class LineService {
     public LineResponse createLine(LineRequest lineRequest) throws DuplicateKeyException {
         Line line = new Line(lineRequest);
 
-        lineDao.save(line);
+        Long lineId = lineDao.save(line);
 
-        Line newLine = lineDao.findByName(line.getName());
+        Line newLine = lineDao.findById(lineId);
 
         Long sectionId = sectionDao.save(new Section(newLine));
 

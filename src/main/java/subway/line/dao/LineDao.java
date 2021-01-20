@@ -2,9 +2,13 @@ package subway.line.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
+import subway.section.dao.SectionQuery;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -19,10 +23,22 @@ public class LineDao {
         this.lineMapper = lineMapper;
     }
 
-    public void save(Line line) {
-        jdbcTemplate.update(LineQuery.SAVE.getQuery(),
-                line.getName(), line.getColor(), line.getUpStationId(),
-                line.getDownStationId(), line.getDistance());
+    public Long save(Line line) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(LineQuery.SAVE.getQuery(), new String[]{"id"});
+
+            preparedStatement.setString(1, line.getName());
+            preparedStatement.setString(2, line.getColor());
+            preparedStatement.setLong(3, line.getUpStationId());
+            preparedStatement.setLong(4, line.getDownStationId());
+            preparedStatement.setInt(5, line.getDistance());
+
+            return preparedStatement;
+        },keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public List<Line> findAll() {

@@ -1,4 +1,4 @@
-package subway.dao;
+package subway.section.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.domain.Section;
+import subway.section.domain.Section;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -30,11 +30,9 @@ public class SectionDao {
     );
 
     public Section save(Section section) {
-        String sql = "insert into SECTION (line_id, up_station_id, down_station_id, distance) values (?, ?, ?, ?)";
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(SectionSql.INSERT.getSql(), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, section.getLineId());
             ps.setLong(2, section.getUpStationId());
             ps.setLong(3, section.getDownStationId());
@@ -46,16 +44,18 @@ public class SectionDao {
     }
 
     public void update(Long originSectionId, Section newSection) {
-        String sql = "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
-        jdbcTemplate.update(sql, newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance(), originSectionId);
+        jdbcTemplate.update(SectionSql.UPDATE.getSql(), newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance(), originSectionId);
     }
 
     public List<Section> getSectionsByLineId(Long lineId) {
-        String sql = "select * from SECTION where line_id = ?";
-        return jdbcTemplate.query(sql, actorRowMapper, lineId);
+        return jdbcTemplate.query(SectionSql.SELECT_BY_LINE_ID.getSql(), actorRowMapper, lineId);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from SECTION where id = ?", id);
+        jdbcTemplate.update(SectionSql.DELETE_BY_ID.getSql(), id);
+    }
+
+    public void deleteByLineId(Long lineId) {
+        jdbcTemplate.update(SectionSql.DELETE_BY_LINE_ID.getSql(), lineId);
     }
 }

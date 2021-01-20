@@ -26,9 +26,8 @@ public class StationDao {
     };
 
     public Station save(Station station) {
-        List<Station> findStation = findStationByName(station.getName());
-        if (findStation.size() > 0) {
-            return null;
+        if (countByName(station.getName()) > 0) {
+            throw new IllegalArgumentException("이미 존재하는 역입니다.");
         }
         String sql = "insert into station (name) values (?)";
 
@@ -43,8 +42,13 @@ public class StationDao {
 
     }
 
+    public int countByName(String name) {
+        String sql = "select count(*) from station where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+    }
+
     public List<Station> findAll() {
-        String sql = "select id, name from station";
+        String sql = "select id, name from station limit 50";
         return jdbcTemplate.query(sql, stationRowMapper);
     }
 

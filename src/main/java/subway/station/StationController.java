@@ -10,26 +10,27 @@ import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
-    private StationDao stationDao;
+    private StationService stationService;
 
-    public StationController(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = stationDao.save(station);
-        if (newStation == null) {
+        try{
+            Station station = new Station(stationRequest.getName());
+            Station newStation = stationService.createStation(station);
+            StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+            return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+        } catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> responses = stationDao.findAll().stream()
+        List<StationResponse> responses = stationService.getStations().stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
 
@@ -38,7 +39,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteStationById(id);
+        stationService.deleteStationById(id);
         return ResponseEntity.noContent().build();
     }
 }

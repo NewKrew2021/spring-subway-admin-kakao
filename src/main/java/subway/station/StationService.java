@@ -19,5 +19,16 @@ public class StationService {
                 .collect(Collectors.toList());
     }
 
+    public Station createStation(Station station){
+       return stationDao.save(station);
+    }
+
+    public List<Station> getStations(){
+        return stationDao.findAll();
+    }
+
+    public void deleteStationById(Long id){
+        stationDao.deleteStationById(id);
+    }
 
 }

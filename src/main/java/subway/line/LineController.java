@@ -4,8 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.*;
-import subway.station.StationDao;
+import subway.section.SectionRequest;
+import subway.section.SectionService;
+import subway.section.Sections;
+import subway.station.StationService;
 import subway.station.Stations;
 
 import java.net.URI;
@@ -15,56 +17,37 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/lines")
 public class LineController {
-    private final LineDao lineDao;
+    private final LineService lineService;
     private final SectionService sectionService;
-    private final StationDao stationDao;
+    private final StationService stationService;
 
-    public LineController(LineDao lineDao, SectionService sectionService, StationDao stationDao) {
-        this.lineDao = lineDao;
+    public LineController(LineService lineService, SectionService sectionService, StationService stationService) {
+        this.lineService = lineService;
         this.sectionService = sectionService;
-        this.stationDao = stationDao;
+        this.stationService = stationService;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
-        final Line line = new Line(request.getName(), request.getColor());
-
-        if (lineDao.isDuplicatedName(line)) {
-            return ResponseEntity.badRequest().build();
-        }
-        Line newLine = lineDao.insert(line);
-        if (newLine == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        boolean created = sectionService.insertOnCreateLine(newLine.getId(), request);
-        if (!created) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
-        return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
+        LineResponse response = lineService.insert(request);
+        return ResponseEntity.created(URI.create("/lines/" + response.getId())).body(response);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> res = lineDao.findAll()
-                .stream()
-                .map(line -> line.toDto(getStationsByLine(line)))
-                .collect(Collectors.toList());
-
+        List<LineResponse> res = lineService.findAll();
         return ResponseEntity.ok(res);
     }
 
     @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineDao.findById(lineId);
+        Line line = lineService.findById(lineId);
         return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        boolean updated = lineDao.update(id, lineRequest);
+        boolean updated = lineService.update(id, lineRequest);
         if (!updated) {
             return ResponseEntity.badRequest().build();
         }
@@ -74,7 +57,7 @@ public class LineController {
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity<?> deleteLine(@PathVariable Long lineId) {
-        boolean deleted = lineDao.delete(lineId);
+        boolean deleted = lineService.delete(lineId);
         if (!deleted) {
             return ResponseEntity.badRequest().build();
         }
@@ -102,10 +85,10 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
+
     private Stations getStationsByLine(Line line) {
         Sections sections = sectionService.findByLineId(line.getId());
-        return new Stations(sections.getStationIds().stream()
-                .map(stationDao::findById)
-                .collect(Collectors.toList()));
+        return sectionService.getStations(sections);
     }
 }
+

@@ -24,15 +24,12 @@ public class Sections {
     }
 
     public Section insert(Long upStationId, Long downStationId, int distance) {
-        if (!validateStations(upStationId, downStationId)) {
-            return null;
-        }
+        validateStations(upStationId, downStationId);
 
         Section existingSection = findExistingSection(upStationId, downStationId);
         Section newSection = makeNewSection(upStationId, downStationId, distance);
-        if (!validateDistance(existingSection.getDistance(), newSection.getDistance())) {
-            return null;
-        }
+
+        validateDistance(existingSection.getDistance(), newSection.getDistance());
 
         return newSection;
     }
@@ -62,24 +59,26 @@ public class Sections {
         return isExisting(upSection) ? upSection : downSection;
     }
 
-    private boolean validateDistance(int existingSectionDistance, int newSectionDistance) {
+    private void validateDistance(int existingSectionDistance, int newSectionDistance) {
         int distanceGap = newSectionDistance - existingSectionDistance;
 
         for (Integer distance : getDistances()) {
             int tempGap = distance - existingSectionDistance;
-            if (distanceGap * tempGap > 0 && Math.abs(distanceGap) >= Math.abs(tempGap))
-                return false;
+            if (distanceGap * tempGap > 0 && Math.abs(distanceGap) >= Math.abs(tempGap)) {
+                throw new IllegalArgumentException("구간의 거리가 유효하지 않습니다.");
+            }
         }
 
-        return true;
     }
 
     private boolean isExisting(Section section) {
         return section != null;
     }
 
-    private boolean validateStations(Long upStationId, Long downStationId) {
-        return isExisting(findByStationId(upStationId)) != isExisting(findByStationId(downStationId));
+    private void validateStations(Long upStationId, Long downStationId) {
+        if (isExisting(findByStationId(upStationId)) == isExisting(findByStationId(downStationId))) {
+            throw new IllegalArgumentException("구간의 두 역이 유효하지 않습니다.");
+        }
     }
 
     public boolean hasOnlyTwoSections() {

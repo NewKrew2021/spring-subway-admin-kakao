@@ -18,27 +18,20 @@ public class LineDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Line insert(Line line) {
-        if (isDuplicatedName(line)) {
-            return null;
-        }
+    public Line insert(String name, String color) {
+        validateName(name);
 
         String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(con -> {
+        jdbcTemplate.update(con -> {
                 PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, line.getName());
-                st.setString(2, line.getColor());
+                st.setString(1, name);
+                st.setString(2, color);
                 return st;
             }, keyHolder);
-        } catch (DataAccessException ignored) {
-            return null;
-        }
 
-        return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
+        return new Line(keyHolder.getKey().longValue(), name, color);
     }
-    //atomic insert 구현 필요
 
 
     public boolean update(Long id, LineRequest lineRequest) {
@@ -65,16 +58,10 @@ public class LineDao {
         }
     }
 
-    public boolean isDuplicatedName(Line line) {
-        return findByName(line.getName()) != null;
-    }
-
-    private Line findByName(String name) {
-        String sql = "select * from line where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
-        } catch (DataAccessException e) {
-            return null;
+    public void validateName(String name) {
+        String sql = "select count(*) from line where name = ?";
+        if (jdbcTemplate.queryForObject(sql, int.class, name) != 0) {
+            throw new IllegalArgumentException("이미 등록된 노선 입니다.");
         }
     }
 

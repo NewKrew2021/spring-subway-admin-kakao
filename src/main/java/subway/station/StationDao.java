@@ -18,17 +18,17 @@ public class StationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Station insert(Station station) {
+    public Station insert(String name) {
         String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
             PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-            st.setString(1, station.getName());
+            st.setString(1, name);
             return st;
         }, keyHolder);
 
-        return new Station(keyHolder.getKey().longValue(), station.getName());
+        return new Station(keyHolder.getKey().longValue(), name);
     }
 
     public List<Station> findAll() {
@@ -41,19 +41,16 @@ public class StationDao {
         return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
-    public boolean isExistingName(String name) {
-        String sql = "select id, name from station where name = ?";
-        try {
-            jdbcTemplate.queryForObject(sql, stationRowMapper, name);
-        } catch (DataAccessException ignored) {
-            return false;
-        }
-        return true;
-    }
-
     public boolean deleteById(Long id) {
         String sql = "delete from station where id = ?";
         return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    public void validateName(String name) {
+        String sql = "select count(*) from station where name = ?";
+        if (jdbcTemplate.queryForObject(sql, int.class, name) != 0) {
+            throw new IllegalArgumentException("이미 등록된 지하철역 입니다.");
+        }
     }
 
     private final RowMapper<Station> stationRowMapper =

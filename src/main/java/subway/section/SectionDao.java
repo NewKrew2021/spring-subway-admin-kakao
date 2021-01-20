@@ -2,8 +2,14 @@ package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.LineRequest;
+import subway.station.Station;
+
+import java.sql.PreparedStatement;
+import java.util.List;
 
 @Repository
 public class SectionDao {
@@ -13,15 +19,13 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insertOnCreateLine(Long lineId, Long upStationId, Long downStationId, int distance) {
-        if (upStationId == downStationId) {
-            return false;
-        }
+    public Sections insertOnCreateLine(Long lineId, Long upStationId, Long downStationId, int distance) {
+        List<Section> sections = null;
 
-        insertSection(lineId, upStationId, 0);
-        insertSection(lineId, downStationId, distance);
+        sections.add(insertSection(lineId, upStationId, 0));
+        sections.add(insertSection(lineId, downStationId, distance));
 
-        return true;
+        return new Sections(sections);
     }
 
     public boolean insert(Long lineId, Long upStationId, Long downStationId, int distance) {
@@ -46,9 +50,19 @@ public class SectionDao {
         return true;
     }
 
-    private boolean insertSection(Long lineId, Long stationId, int distance) {
+    public Section insertSection(Long lineId, Long stationId, int distance) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-        return jdbcTemplate.update(sql, lineId, stationId, distance) > 0;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setLong(1, lineId);
+            st.setLong(2, stationId);
+            st.setInt(3, distance);
+            return st;
+        }, keyHolder);
+
+        return new Section(keyHolder.getKey().longValue(), lineId, stationId, distance);
     }
 
     private boolean deleteSection(Long lineId, Long stationId) {

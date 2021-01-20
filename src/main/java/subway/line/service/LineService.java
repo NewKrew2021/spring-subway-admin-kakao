@@ -269,21 +269,21 @@ public class LineService {
         }
 
         // 1.
-        Sections updateSectionList = new Sections(sectionDao.findByStationIdAndLineId(stationId, id));
+        Sections updateSections = new Sections(sectionDao.findByStationIdAndLineId(stationId, id));
 
         Line line = lineDao.findById(id);
 
         // 2.
-        if (line.isEndStation(updateSectionList.size())) {
-            Section endSection = updateSectionList.get(0);
+        if (line.isEndStation(updateSections.size())) {
+            Section endSection = updateSections.get(0);
             line.updateEndStation(endSection, stationId);
             sectionDao.deleteById(endSection.getId());
         }
 
         // 3.
-        if (!line.isEndStation(updateSectionList.size())) {
-            sectionDao.deleteBySectionList(updateSectionList);
-            sectionDao.save(updateSectionList.merge(updateSectionList, stationId));
+        if (!line.isEndStation(updateSections.size())) {
+            sectionDao.deleteBySections(updateSections);
+            sectionDao.save(updateSections.merge(stationId));
         }
 
         // 4.

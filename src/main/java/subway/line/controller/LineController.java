@@ -2,21 +2,14 @@ package subway.line.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
 import subway.line.service.LineService;
-import subway.section.domain.Section;
 import subway.section.dto.SectionRequest;
-import subway.section.domain.Sections;
 import subway.section.service.SectionService;
-import subway.station.domain.Station;
-import subway.station.dto.StationResponse;
+
 
 import java.net.URI;
-import java.util.stream.Collectors;
-
-import java.util.ArrayList;
 import java.util.List;
 
 

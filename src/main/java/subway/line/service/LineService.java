@@ -1,8 +1,6 @@
 package subway.line.service;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
@@ -10,7 +8,6 @@ import subway.line.dto.LineResponse;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
-import subway.section.dto.SectionRequest;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.dto.StationResponse;

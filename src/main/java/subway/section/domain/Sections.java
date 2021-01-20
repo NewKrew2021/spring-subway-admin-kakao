@@ -1,7 +1,5 @@
 package subway.section.domain;
 
-import subway.section.domain.Section;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

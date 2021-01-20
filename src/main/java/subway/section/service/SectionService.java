@@ -1,7 +1,6 @@
 package subway.section.service;
 
 import org.springframework.stereotype.Service;
-import subway.line.domain.Line;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;

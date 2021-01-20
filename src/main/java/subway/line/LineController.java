@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.Section;
+import subway.section.SectionDao;
 import subway.section.SectionRequest;
 import subway.section.SectionService;
 import subway.station.StationDao;
@@ -81,6 +82,7 @@ public class LineController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         lineDao.deleteById(id);
+        sectionService.deleteLineId(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -55,4 +55,8 @@ public class SectionDao {
     public void deleteById(Long id) {
         jdbcTemplate.update("delete from SECTION where id = ?", id);
     }
+
+    public void deleteByLineId(Long lineId) {
+        jdbcTemplate.update("delete from SECTION where line_id = ?", lineId);
+    }
 }

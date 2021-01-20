@@ -184,4 +184,8 @@ public class SectionService {
     public void save(Section section) {
         sectionDao.save(section);
     }
+
+    public void deleteLineId(Long lineId) {
+        sectionDao.deleteByLineId(lineId);
+    }
 }

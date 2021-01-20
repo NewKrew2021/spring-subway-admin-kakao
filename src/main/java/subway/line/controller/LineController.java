@@ -27,13 +27,7 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        LineResponse response = null;
-
-        try {
-            response = lineService.createLine(lineRequest);
-        } catch (DuplicateKeyException dke) {
-            return ResponseEntity.badRequest().build();
-        }
+        LineResponse response = lineService.createLine(lineRequest);
 
         return ResponseEntity
                 .created(URI.create("/lines/" + response.getId()))
@@ -73,12 +67,7 @@ public class LineController {
     @PostMapping(value = "/{id}/sections")
     public ResponseEntity createSection(@PathVariable Long id,
                                         @RequestBody SectionRequest sectionRequest) {
-        try {
-            lineService.createSection(id, sectionRequest);
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
+        lineService.createSection(id, sectionRequest);
         return ResponseEntity
                 .ok()
                 .build();

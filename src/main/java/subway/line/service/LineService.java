@@ -38,7 +38,7 @@ public class LineService {
     }
 
     @Transactional
-    public LineResponse createLine(LineRequest lineRequest) throws DuplicateKeyException {
+    public LineResponse createLine(LineRequest lineRequest) {
         Line line = new Line(lineRequest);
 
         Long lineId = lineDao.save(line);
@@ -131,7 +131,7 @@ public class LineService {
             Section section = orderedSections.get(upStationId);
 
             if (distanceSum + section.getDistance() == sectionRequest.getDistance()) {
-                throw new SectionDistanceExceedException("");
+                throw new SectionDistanceExceedException();
             }
 
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {

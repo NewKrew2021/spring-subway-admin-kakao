@@ -47,14 +47,6 @@ public class LineController {
         return ResponseEntity.ok().body(lineResponses);
     }
 
-    @DeleteMapping("/{lineId}")
-    public ResponseEntity deleteLine(@PathVariable Long lineId) {
-        lineService.delete(lineId);
-
-        return ResponseEntity.noContent().build();
-
-    }
-
     @GetMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
         Line line = lineService.getLine(lineId);
@@ -70,9 +62,18 @@ public class LineController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{lineId}")
+    public ResponseEntity deleteLine(@PathVariable Long lineId) {
+        sectionService.delete(lineId);
+        lineService.delete(lineId);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
     @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        sectionService.validateCreate(lineId, sectionRequest, stationService.getStations(lineId));
+        sectionService.validateCreate(sectionRequest, stationService.getStations(lineId));
         sectionService.create(lineId, sectionRequest);
 
         return ResponseEntity.ok().build();
@@ -82,6 +83,7 @@ public class LineController {
     public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         sectionService.validateDelete(lineId);
         sectionService.delete(lineId, stationId);
+        stationService.delete(stationId);
 
         return ResponseEntity.ok().build();
     }

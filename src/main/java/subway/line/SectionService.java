@@ -55,9 +55,11 @@ public class SectionService {
         throw new IllegalArgumentException();
     }
 
-    public void delete(Long lineId, Long stationId) {
-        stationDao.deleteById(stationId);
+    public void delete(Long lineId) {
+        sectionDao.deleteByLineId(lineId);
+    }
 
+    public void delete(Long lineId, Long stationId) {
         List<Section> sections = sectionDao.findByStationIdAndLineId(stationId, lineId);
         Line line = lineDao.findById(lineId);
 
@@ -74,12 +76,12 @@ public class SectionService {
         sectionDao.update(mergeSection);
     }
 
-    public void validateCreate(Long lineId, SectionRequest sectionRequest, List<Station> stations) {
-        if (hasDuplicatedStation(lineId, sectionRequest, stations)) {
+    public void validateCreate(SectionRequest sectionRequest, List<Station> stations) {
+        if (hasDuplicatedStation(sectionRequest, stations)) {
             throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
         }
 
-        if (!containsEndStation(lineId, sectionRequest, stations)) {
+        if (!containsEndStation(sectionRequest, stations)) {
             throw new IllegalArgumentException("상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음");
         }
     }
@@ -90,12 +92,12 @@ public class SectionService {
         }
     }
 
-    private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest, List<Station> stations) {
+    private boolean hasDuplicatedStation(SectionRequest sectionRequest, List<Station> stations) {
         return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
                 && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
-    private boolean containsEndStation(Long id, SectionRequest sectionRequest, List<Station> stations) {
+    private boolean containsEndStation(SectionRequest sectionRequest, List<Station> stations) {
         return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
                 || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }

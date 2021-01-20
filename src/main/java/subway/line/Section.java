@@ -48,11 +48,11 @@ public class Section {
     }
 
     public Section merge(Section section, Long stationId) {
-        if (this.upStationId == stationId) {
+        if (this.upStationId.equals(stationId)) {
             this.upStationId = section.getUpStationId();
         }
 
-        if (this.downStationId == stationId) {
+        if (this.downStationId.equals(stationId)) {
             this.downStationId = section.getDownStationId();
         }
 

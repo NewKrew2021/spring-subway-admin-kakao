@@ -4,6 +4,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.line.LineService;
+import subway.line.SectionService;
 
 import javax.annotation.Resource;
 import java.net.URI;
@@ -15,6 +17,10 @@ public class StationController {
 
     @Resource
     private StationService stationService;
+    @Resource
+    private LineService lineService;
+    @Resource
+    private SectionService sectionService;
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
@@ -38,6 +44,13 @@ public class StationController {
 
     @DeleteMapping("/{stationId}")
     public ResponseEntity deleteStation(@PathVariable Long stationId) {
+        lineService.getLines().stream()
+                .filter(line -> stationService.getStations(line.getId()).stream()
+                        .anyMatch(station -> station.getId().equals(stationId)))
+                .forEach(line -> {
+                    sectionService.validateDelete(line.getId());
+                    sectionService.delete(line.getId(), stationId);
+                });
         stationService.delete(stationId);
 
         return ResponseEntity.noContent().build();

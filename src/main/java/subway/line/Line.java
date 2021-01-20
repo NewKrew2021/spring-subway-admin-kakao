@@ -51,11 +51,11 @@ public class Line {
     }
 
     public void updateEndStation(Section endSection, Long stationId) {
-        if (stationId == endSection.getUpStationId()) {
+        if (stationId.equals(endSection.getUpStationId())) {
             this.upStationId = endSection.getDownStationId();
         }
 
-        if (stationId == endSection.getDownStationId()) {
+        if (stationId.equals(endSection.getDownStationId())) {
             this.downStationId = endSection.getUpStationId();
         }
 

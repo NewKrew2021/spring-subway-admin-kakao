@@ -13,10 +13,14 @@ import java.util.Map;
 
 @Service
 public class StationService {
+    private final LineService lineService;
+    private final SectionService sectionService;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
 
-    public StationService(StationDao stationDao, SectionDao sectionDao) {
+    public StationService(LineService lineService, SectionService sectionService, StationDao stationDao, SectionDao sectionDao) {
+        this.lineService = lineService;
+        this.sectionService = sectionService;
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
     }
@@ -47,6 +51,11 @@ public class StationService {
     }
 
     public void delete(Long stationId) {
+        lineService.getLines().stream()
+                .filter(line -> getStations(line.getId()).stream()
+                        .anyMatch(station -> station.getId().equals(stationId)))
+                .forEach(line -> sectionService.delete(line.getId(), stationId));
+
         stationDao.deleteById(stationId);
     }
 }

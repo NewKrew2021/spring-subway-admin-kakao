@@ -49,13 +49,6 @@ public class StationController {
 
     @DeleteMapping("/{stationId}")
     public ResponseEntity deleteStation(@PathVariable Long stationId) {
-        lineService.getLines().stream()
-                .filter(line -> stationService.getStations(line.getId()).stream()
-                        .anyMatch(station -> station.getId().equals(stationId)))
-                .forEach(line -> {
-                    sectionService.validateDelete(line.getId());
-                    sectionService.delete(line.getId(), stationId);
-                });
         stationService.delete(stationId);
 
         return ResponseEntity.noContent().build();

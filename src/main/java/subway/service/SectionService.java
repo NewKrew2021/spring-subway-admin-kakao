@@ -14,10 +14,12 @@ import java.util.Map;
 
 @Service
 public class SectionService {
+    private final StationService stationService;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
 
-    public SectionService(StationDao stationDao, SectionDao sectionDao) {
+    public SectionService(StationService stationService, StationDao stationDao, SectionDao sectionDao) {
+        this.stationService = stationService;
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
     }
@@ -27,6 +29,8 @@ public class SectionService {
     }
 
     public void create(Long lineId, Section section) {
+        validateCreate(section, stationService.getStations(lineId));
+
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section firstSection = sectionDao.findFirstByLineId(lineId);
         Section lastSection = sectionDao.findLastByLineId(lineId);

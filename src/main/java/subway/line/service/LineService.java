@@ -26,7 +26,6 @@ public class LineService {
 
     private final int SECTION_DISTANCE_SUM_DEFAULT = 0;
 
-
     private final LineDao lineDao;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
@@ -52,8 +51,8 @@ public class LineService {
     }
 
     public List<LineResponse> showLines() {
-        List<Line> lines = lineDao.findAll();
-        return lines.stream()
+        return lineDao.findAll()
+                .stream()
                 .map(LineResponse::new)
                 .collect(Collectors.toList());
     }
@@ -64,8 +63,7 @@ public class LineService {
     }
 
     public LineResponse showLine(Long id) {
-        Line line = lineDao.findById(id);
-        return new LineResponse(line, getStations(line.getId()));
+        return new LineResponse(lineDao.findById(id), getStations(id));
     }
 
     @Transactional

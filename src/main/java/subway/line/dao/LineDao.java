@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
-import subway.section.dao.SectionQuery;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -18,7 +17,7 @@ public class LineDao {
     private final LineMapper lineMapper;
 
     @Autowired
-    public LineDao(JdbcTemplate jdbcTemplate, LineMapper lineMapper){
+    public LineDao(JdbcTemplate jdbcTemplate, LineMapper lineMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.lineMapper = lineMapper;
     }
@@ -36,7 +35,7 @@ public class LineDao {
             preparedStatement.setInt(5, line.getDistance());
 
             return preparedStatement;
-        },keyHolder);
+        }, keyHolder);
 
         return keyHolder.getKey().longValue();
     }

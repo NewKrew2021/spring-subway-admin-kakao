@@ -4,17 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DeleteSectionException;
-import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.service.LineService;
 import subway.section.dao.SectionDao;
-import subway.section.domain.Section;
 import subway.section.domain.Sections;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
-import subway.station.domain.Stations;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,8 +41,7 @@ public class StationService {
     }
 
     public List<StationResponse> showStations() {
-        Stations stations = new Stations(stationDao.findAll());
-        return stations.getStations()
+        return stationDao.findAll()
                 .stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());

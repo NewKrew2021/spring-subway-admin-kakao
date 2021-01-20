@@ -57,7 +57,7 @@ public class Sections {
         return sections.get(index);
     }
 
-    public Long getLineId(){
+    public Long getLineId() {
         return sections.get(0).getLineId();
     }
 }

@@ -1,6 +1,6 @@
 package subway.exception;
 
-public class DeleteSectionException extends RuntimeException{
+public class DeleteSectionException extends RuntimeException {
 
     private String message;
 

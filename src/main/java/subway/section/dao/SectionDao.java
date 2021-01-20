@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
-import subway.station.dao.StationQuery;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -36,7 +35,7 @@ public class SectionDao {
             preparedStatement.setInt(4, section.getDistance());
 
             return preparedStatement;
-        },keyHolder);
+        }, keyHolder);
 
         return keyHolder.getKey().longValue();
     }
@@ -51,7 +50,7 @@ public class SectionDao {
         }
     }
 
-    public List<Section> findByStationId(Long stationId){
+    public List<Section> findByStationId(Long stationId) {
         return jdbcTemplate.query(SectionQuery.FIND_BY_STATION_ID.getQuery(), sectionMapper, stationId, stationId);
     }
 

@@ -1,9 +1,6 @@
 package subway.line.domain;
 
-import subway.station.domain.Station;
 import subway.station.domain.Stations;
-
-import java.util.List;
 
 public class LineResponse {
     private int status;

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.domain.Line;
+import subway.exception.DuplicateNameException;
 
 import java.util.List;
 
@@ -16,11 +17,11 @@ public class LineService {
         this.lineDao = lineDao;
     }
 
-    public boolean insertLine(Line line) {
+    public void insertLine(Line line) {
         if (lineDao.isContainSameName(line.getName())) {
-            return false;
+            throw new DuplicateNameException();
         }
-        return lineDao.save(line) != 0;
+        lineDao.save(line);
     }
 
     public Line findLineByName(String name) {

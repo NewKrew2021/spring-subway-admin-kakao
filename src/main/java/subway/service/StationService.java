@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import subway.dao.StationDao;
 import subway.domain.Station;
+import subway.exception.DuplicateNameException;
 
 import java.util.List;
 
@@ -17,11 +18,11 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public boolean insertStation(Station station) {
+    public void insertStation(Station station) {
         if (checkDuplicatedStationName(station.getName())) {
-            return false;
+            throw new DuplicateNameException();
         }
-        return stationDao.save(station) != 0;
+        stationDao.save(station);
     }
 
     public boolean checkDuplicatedStationName(String name) {

@@ -22,12 +22,14 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if (!stationService.insertStation(station)) {
+        try {
+            stationService.insertStation(station);
+        }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
 
-        Station newStation = stationService.findStationByName(station.getName());
 
+        Station newStation = stationService.findStationByName(station.getName());
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
@@ -40,7 +42,7 @@ public class StationController {
     }
 
     @DeleteMapping("/stations/{id}")
-    public ResponseEntity deleteStation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteStation(@PathVariable Long id) {
         stationService.deleteStation(id);
         return ResponseEntity.noContent().build();
     }

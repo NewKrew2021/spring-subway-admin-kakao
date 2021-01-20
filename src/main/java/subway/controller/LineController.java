@@ -25,7 +25,9 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (!lineService.insertLine(new Line(lineRequest))) {
+        try {
+            lineService.insertLine(new Line(lineRequest));
+        }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
         Line newLine = lineService.findLineByName(lineRequest.getName());
@@ -44,7 +46,6 @@ public class LineController {
                         new LineResponse(line, sectionService.getStationsByLine(line).getStations())
                 ))
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok().body(response);
     }
 

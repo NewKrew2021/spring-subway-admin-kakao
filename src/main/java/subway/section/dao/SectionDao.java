@@ -31,8 +31,10 @@ public class SectionDao {
         Section section = new Section(
                 resultSet.getLong("id"),
                 lineDao.findById(resultSet.getLong("line_id")),
-                stationDao.findById(resultSet.getLong("up_station_id")).orElse(new Station(Line.HEAD, Line.TERMINAL_NAME)),
-                stationDao.findById(resultSet.getLong("down_station_id")).orElse(new Station(Line.TAIL, Line.TERMINAL_NAME)),
+                stationDao.findById(resultSet.getLong("up_station_id"))
+                        .orElse(new Station(Line.HEAD, Line.TERMINAL_NAME)),
+                stationDao.findById(resultSet.getLong("down_station_id"))
+                        .orElse(new Station(Line.TAIL, Line.TERMINAL_NAME)),
                 resultSet.getInt("distance")
         );
         return section;

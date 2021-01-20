@@ -1,7 +1,7 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.dao.StationDao;
+import subway.repository.dao.StationDao;
 import subway.domain.Station;
 import subway.exception.DuplicateException;
 import subway.exception.NotFoundException;

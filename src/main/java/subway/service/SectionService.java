@@ -3,12 +3,12 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.domain.Line;
-import subway.dao.LineDao;
+import subway.repository.dao.LineDao;
 import subway.domain.Section;
-import subway.dao.SectionDao;
+import subway.repository.dao.SectionDao;
 import subway.domain.SectionsInLine;
 import subway.domain.Station;
-import subway.dao.StationDao;
+import subway.repository.dao.StationDao;
 import subway.exception.NotFoundException;
 
 import java.util.List;

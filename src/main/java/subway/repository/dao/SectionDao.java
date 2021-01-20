@@ -1,4 +1,4 @@
-package subway.dao;
+package subway.repository.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,7 +12,7 @@ import subway.domain.Station;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-import static subway.query.SectionQuery.*;
+import static subway.repository.query.SectionQuery.*;
 
 @Repository
 public class SectionDao {

@@ -1,4 +1,4 @@
-package subway.query;
+package subway.repository.query;
 
 public class LineQuery {
     public static final String insertQuery = "insert into line (name, color) values(?, ?)";

@@ -1,4 +1,4 @@
-package subway.query;
+package subway.repository.query;
 
 public class StationQuery {
     public static final String insertQuery = "insert into station (name) values(?)";

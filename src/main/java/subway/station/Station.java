@@ -4,7 +4,7 @@ public class Station {
     private Long id;
     private String name;
 
-    public Station() {
+    private Station() {
     }
 
     private Station(Long id, String name) {

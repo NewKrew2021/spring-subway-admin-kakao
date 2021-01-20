@@ -1,7 +1,6 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +12,18 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/stations")
 public class StationController {
-    public StationDao stationDao;
+
+    StationService stationService;
 
     @Autowired
-    public StationController(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = Station.of(stationRequest.getName());
-        Station newStation = stationDao.save(station);
+        Station newStation = stationService.save(station);
         StationResponse stationResponse = StationResponse.of(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId()))
                 .body(stationResponse);
@@ -31,7 +31,7 @@ public class StationController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<Station> stations = stationDao.findAll();
+        List<Station> stations = stationService.findAll();
         List<StationResponse> stationResponses = stations.stream()
                 .map(StationResponse::of)
                 .collect(Collectors.toList());
@@ -41,19 +41,15 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        stationDao.deleteById(id);
+        stationService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity exceptionHandler(Exception exception) {
-        exception.printStackTrace();
+    public ResponseEntity exceptionHandler(Exception e) {
+        e.printStackTrace();
 
-        if (exception instanceof DuplicateKeyException) {
-            return ResponseEntity.badRequest().body("요청한 이름의 station이 이미 존재합니다.");
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
 }

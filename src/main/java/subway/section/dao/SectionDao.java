@@ -2,10 +2,14 @@ package subway.section.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
+import subway.station.dao.StationQuery;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -20,11 +24,21 @@ public class SectionDao {
         this.sectionMapper = sectionMapper;
     }
 
+    public Long save(Section section) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement(SectionQuery.SAVE.getQuery(), new String[]{"id"});
 
-    public void save(Section section) {
-        jdbcTemplate.update(SectionQuery.SAVE.getQuery(),
-                section.getLineId(), section.getUpStationId(),
-                section.getDownStationId(), section.getDistance());
+            preparedStatement.setLong(1, section.getLineId());
+            preparedStatement.setLong(2, section.getUpStationId());
+            preparedStatement.setLong(3, section.getDownStationId());
+            preparedStatement.setInt(4, section.getDistance());
+
+            return preparedStatement;
+        },keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public void deleteById(Long id) {

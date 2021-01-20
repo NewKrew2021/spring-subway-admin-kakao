@@ -44,9 +44,9 @@ public class LineService {
 
         Line newLine = lineDao.findByName(line.getName());
 
-        sectionDao.save(new Section(newLine));
+        Long sectionId = sectionDao.save(new Section(newLine));
 
-        return new LineResponse(newLine, getStations(newLine.getId()));
+        return new LineResponse(newLine, getStations(sectionId));
     }
 
     public List<LineResponse> showLines() {
@@ -189,7 +189,7 @@ public class LineService {
             downStationId = section.getUpStationId();
             distanceSum += section.getDistance();
         }
-        
+
         throw new SectionDistanceExceedException();
     }
 

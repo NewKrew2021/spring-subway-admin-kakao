@@ -68,9 +68,9 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 
-    public void updateById(Long id, Line line) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        jdbcTemplate.update(sql, line.getName(), line.getColor(), id);
+    public void update(Line line) {
+        String sql = "update line set color = ?, up_station_id = ?, down_station_id = ? where id = ?";
+        jdbcTemplate.update(sql, line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getId());
     }
 
     public void deleteById(Long id) {

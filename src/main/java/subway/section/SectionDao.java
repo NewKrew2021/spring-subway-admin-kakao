@@ -49,19 +49,34 @@ public class SectionDao {
         return new Section(number.longValue(), section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
     }
 
-    public Section findByUpStationId(Long upStationId) {
-        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where up_station_id = ?";
-        return jdbcTemplate.queryForObject(sql, sectionRowMapper, upStationId);
+    public Section findByLineIdAndUpStationId(Long lineId, Long upStationId) {
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ? and up_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, upStationId);
     }
 
-    public Section findByDownStationId(Long downStationId) {
-        String sql = "select line_id, up_station_id, down_station_id, distance from SECTION where down_station_id = ?";
-        return jdbcTemplate.queryForObject(sql, sectionRowMapper, downStationId);
+    public Section findByLineIdAndDownStationId(Long lineId, Long downStationId) {
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ? and down_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, downStationId);
     }
 
     public int delete(Section section) {
-        String sql = "delete from section where id = ? and up_station_id = ? and down_station_id = ?";
-        return jdbcTemplate.update(sql, section.getId(), section.getUpStationId(), section.getDownStationId());
+        String sql = "delete from section where id = ?";
+        return jdbcTemplate.update(sql, section.getId());
+    }
+
+    public int countByLineIdAndUpStationId(Long lineId, Long upStationId) {
+        String sql = "select count(*) from section where line_id = ? and up_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, upStationId);
+    }
+
+    public int countByLineIdAndDownStationId(Long lineId, Long downStationId) {
+        String sql = "select count(*) from section where line_id = ? and down_station_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, downStationId);
+    }
+
+    public int countByLineId(Long lineId) {
+        String sql = "select count(*) from section where line_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, lineId);
     }
 
 }

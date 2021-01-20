@@ -17,7 +17,7 @@ public class SectionController {
     public ResponseEntity<LineResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         try {
-            sectionService.insert(newSection);
+            sectionService.insertNewSection(newSection);
         } catch (IllegalArgumentException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -27,7 +27,7 @@ public class SectionController {
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         try {
-            sectionService.delete(lineId, stationId);
+            sectionService.deleteSection(lineId, stationId);
         } catch (IllegalArgumentException illegalArgumentException) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

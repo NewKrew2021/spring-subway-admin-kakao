@@ -2,28 +2,31 @@ package subway.line;
 
 import org.springframework.stereotype.Service;
 import subway.section.Section;
+import subway.section.SectionDao;
 import subway.section.SectionService;
 import subway.station.Station;
-import subway.station.StationDao;
 import subway.station.StationService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class LineService {
     private LineDao lineDao;
     private StationService stationService;
-    private SectionService sectionService;
+    private SectionDao sectionDao;
 
-    public LineService(LineDao lineDao, StationService stationService, SectionService sectionService) {
+    public LineService(LineDao lineDao, StationService stationService, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationService = stationService;
-        this.sectionService = sectionService;
+        this.sectionDao = sectionDao;
     }
 
     public List<Station> getStations(Long id) {
-        List<Section> sections = sectionService.showAll(id);
+        List<Section> sections = sortedSectionsByLineId(id);
         List<Long> stationIds = sections.stream()
                 .map(Section::getUpStationId)
                 .collect(Collectors.toList());
@@ -32,11 +35,34 @@ public class LineService {
         return stationService.getStationsById(stationIds);
     }
 
+    public List<Section> sortedSectionsByLineId(Long lineId) {
+        Map<Long, Section> sections = sectionDao.findByLineId(lineId).stream()
+                .collect(Collectors.toMap(Section::getUpStationId, Function.identity()));
+
+        return getSortedSections(lineId, sections);
+    }
+
+    private List<Section> getSortedSections(Long lineId, Map<Long, Section> sections) {
+        Line line = lineDao.findLineById(lineId);
+        Long headStationId = line.getUpStationId();
+        Long tailStationId = line.getDownStationId();
+
+        List<Section> result = new ArrayList<>();
+        Section section;
+        Long iterStationId = headStationId;
+        do {
+            section = sections.get(iterStationId);
+            result.add(section);
+            iterStationId = section.getDownStationId();
+        } while (iterStationId != tailStationId);
+
+        return result;
+    }
 
     public Line createLine(Line line) {
         Line newLine = lineDao.save(line);
         Section newSection = new Section(newLine.getId(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
-        sectionService.createSection(newSection);
+        sectionDao.insert(newSection);
         return newLine;
     }
 
@@ -48,8 +74,8 @@ public class LineService {
         return lineDao.findLineById(lineId);
     }
 
-    public void updateLineById(Long id, Line line){
-        lineDao.updateById(id, line);
+    public void updateLine(Line line){
+        lineDao.update(line);
     }
 
     public void deleteLineById(Long id){

@@ -3,6 +3,7 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.domain.Line;
+import subway.exception.DuplicateException;
 import subway.exception.NotFoundException;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class LineService {
     }
 
     public Line createLine(Line line) {
+        if(lineDao.hasDuplicateName(line.getName())) throw new DuplicateException();
         return lineDao.save(line);
     }
 

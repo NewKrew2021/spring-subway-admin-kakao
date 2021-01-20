@@ -3,6 +3,7 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import subway.dao.StationDao;
 import subway.domain.Station;
+import subway.exception.DuplicateException;
 import subway.exception.NotFoundException;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class StationService {
     }
 
     public Station createStation(Station station) {
+        if(stationDao.hasDuplicateName(station.getName())) throw new DuplicateException();
         return stationDao.save(station);
     }
 

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.DuplicateException;
 import subway.domain.Line;
 
 import java.sql.PreparedStatement;
@@ -27,9 +26,6 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        if (hasDuplicateName(line.getName())) {
-            throw new DuplicateException();
-        }
         return insertAtDB(line);
     }
 

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.DuplicateException;
 import subway.domain.Station;
 
 import java.sql.PreparedStatement;
@@ -27,10 +26,6 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        if (hasDuplicateName(station.getName())) {
-            throw new DuplicateException();
-        }
-
         return insertAtDB(station);
     }
 
@@ -51,7 +46,7 @@ public class StationDao {
         jdbcTemplate.update(deleteByIdQuery, id);
     }
 
-    private boolean hasDuplicateName(String name) {
+    public boolean hasDuplicateName(String name) {
         return jdbcTemplate.queryForObject(countByNameQuery, int.class, name) != 0;
     }
 

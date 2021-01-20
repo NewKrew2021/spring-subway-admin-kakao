@@ -1,9 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
-import subway.line.Line;
 import subway.line.LineDao;
-import subway.station.StationDao;
 
 @Service
 public class SectionService {
@@ -15,22 +13,17 @@ public class SectionService {
         this.sectionDao = sectionDao;
     }
 
-    public SectionResponse createSection(Long lineId, SectionRequest sectionRequest){
-        Line line = lineDao.findById(lineId);
-        Section section = new Section(line.getId(),
-                sectionRequest.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                sectionRequest.getDistance());
+    public void createSection(Long lineId, SectionRequest sectionRequest){
+        Sections sections = new Sections(sectionDao.findByLineId(lineId));
+        Section section = sections.addSection(sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
 
-        Section newSection = sectionDao.save(section);
-        return new SectionResponse(newSection.getUpStationId(),
-                newSection.getDownStationId(),
-                newSection.getDistance());
+        sectionDao.save(section);
     }
 
     public void deleteSection(Long lineId, Long stationId){
-        sectionDao.deleteById(lineId, stationId);
-
+        Sections sections = new Sections(sectionDao.findByLineId(lineId));
+        sections.checkDeleteValidationSection();
+        sectionDao.deleteById(stationId);
     }
 
 }

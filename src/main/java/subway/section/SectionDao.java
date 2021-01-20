@@ -6,10 +6,13 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import subway.exceptions.InvalidValueException;
+import org.springframework.jdbc.core.RowMapper;
 
 @Repository
 public class SectionDao {
+    private static final String FIND_BY_STATION_ID_SQL = "SELECT * FROM section WHERE station_id = ?";
+    private static final String FIND_BY_LINE_ID_SQL = "SELECT * FROM section WHERE line_id = ? ORDER BY distance";
+    private static final String DELETE_BY_STATION_ID_SQL = "DELETE FROM section WHERE station_id = ?";
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert simpleJdbcInsert;
@@ -21,99 +24,32 @@ public class SectionDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    public Section save(Section newSection) {
-        AlignSections sections = new AlignSections(findByLineId(newSection.getLineId()));
-        sections.addSection(newSection);
-
-        jdbcTemplate.update("delete FROM SECTION WHERE LINE_ID = ?", newSection.getLineId());
-        sections.applyToAllSection((Section section) -> {
-            MapSqlParameterSource params = new MapSqlParameterSource()
-                    .addValue("LINE_ID", section.getLineId())
-                    .addValue("UP_STATION_ID", section.getUpStationId())
-                    .addValue("DOWN_STATION_ID", section.getDownStationId())
-                    .addValue("DISTANCE", section.getDistance());
-            simpleJdbcInsert.executeAndReturnKey(params);
-        });
-
-        return sections.findByStationId(newSection.getUpStationId(), newSection.getDownStationId());
+    public void save(Section newSection) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("LINE_ID", newSection.getLineId())
+                .addValue("STATION_ID", newSection.getStationId())
+                .addValue("DISTANCE", newSection.getDistance());
+        simpleJdbcInsert.executeAndReturnKey(params);
     }
 
     public List<Section> findByStationId(Long stationId) {
-        return jdbcTemplate.query("select * from SECTION where up_station_id = ? or down_station_id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")
-                ),
-                stationId, stationId);
+        return jdbcTemplate.query(FIND_BY_STATION_ID_SQL, sectionRowMapper, stationId);
     }
 
-    public void deleteById(Long lineId, Long stationId) {
-        List<Section> sections = findByLineId(lineId);
-
-        int sectionsLength = sections.size();
-        if (sections.size() == 1){
-            throw new InvalidValueException();
-        }
-
-        if (sections.get(0).getUpStationId() == stationId){
-            deleteById(sections.get(0).getId());
-            return;
-        }
-
-        if (sections.get(sections.size()-1).getDownStationId() == stationId){
-            deleteById(sections.get(sections.size()-1).getId());
-            return;
-        }
-
-        for (int i = 0; i < sectionsLength; i++) {
-            if (sections.get(i).getDownStationId() == stationId) {
-                Section leftSection = sections.get(i);
-                Section rightSection = sections.get(i+1);
-
-                update(sections.get(i).getId(), new Section(
-                        sections.get(i).getLineId(), // line
-                        sections.get(i).getUpStationId(), // up
-                        sections.get(i+1).getDownStationId(), // down
-                        sections.get(i).getDistance() + sections.get(i+1).getDistance() // dis
-                ));
-
-                deleteById(sections.get(i+1).getId());
-                break;
-            }
-        }
-
-    }
-
-    public void deleteById(Long sectionId){
-        jdbcTemplate.update("delete from section where id = ?", sectionId);
-    }
-
-    public void deleteByLineId(Long lineId){
-        jdbcTemplate.update("delete from section where line_id = ?", lineId);
-    }
-
-    public void update(Long sectionId, Section section){
-        jdbcTemplate.update("update section set up_station_id = ?, down_station_id = ?, distance = ?, line_id = ? where id = ?",
-                        section.getUpStationId(),
-                        section.getDownStationId(),
-                        section.getDistance(),
-                        section.getLineId(),
-                        sectionId);
+    public void deleteById(Long stationId){
+        jdbcTemplate.update(DELETE_BY_STATION_ID_SQL, stationId);
     }
 
     public List<Section> findByLineId(Long lineId){
-        return jdbcTemplate.query("SELECT * FROM SECTION WHERE line_id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("line_id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")),
-                lineId);
+        return jdbcTemplate.query(FIND_BY_LINE_ID_SQL, sectionRowMapper, lineId);
     }
 
-
+    private final RowMapper<Section> sectionRowMapper = (rs, rowNum) -> {
+        Section section = new Section(rs.getLong("id"),
+            rs.getLong("line_id"),
+            rs.getLong("station_id"),
+            rs.getInt("distance"));
+        return section;
+    };
 
 }

@@ -32,11 +32,8 @@ public class LineService {
                 lineRequest.getExtraFare());
 
         Line newline = lineDao.save(line, lineRequest);
-        sectionDao.save(new Section(newline.getId(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance()));
-
+        sectionDao.save(new Section(newline.getId(), lineRequest.getUpStationId(), 0));
+        sectionDao.save(new Section(newline.getId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
 
         return makeLineResponse(newline);
     }
@@ -64,7 +61,7 @@ public class LineService {
         List<Station> stations = new ArrayList<>();
 
         for (Section section : sectionDao.findByLineId(id)) {
-            stations.addAll(stationDao.findByUpDownId(section.getUpStationId(), section.getDownStationId()));
+            stations.addAll(stationDao.findByUpDownId(section.getStationId()));
         }
 
         return stations.stream()
@@ -87,3 +84,4 @@ public class LineService {
         lineDao.deleteById(id);
     }
 }
+

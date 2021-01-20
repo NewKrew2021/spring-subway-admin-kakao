@@ -13,14 +13,14 @@ import java.util.ArrayList;
 
 @Repository
 public class StationDao {
+    private static final String FIND_ALL_STATION_SQL = "SELECT id, name FROM STATION";
+    private static final String FIND_STATION_SQL = "SELECT id, name FROM STATION where id = ?";
+    private static final String DELETE_STATION_SQL = "DELETE FROM STATION WHERE id = ?";
     private static final String DUPLICATE_STATION_EXCEPTION = "지하철역의 이름은 중복될 수 없습니다.";
-    private static final String USING_STATION = "해당 지하철역은 현재 노선이나 구간에 사용중입니다.";
-    private SectionDao sectionDao;
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert simpleJdbcInsert;
 
-    public StationDao(JdbcTemplate jdbcTemplate, SectionDao sectionDao) {
-        this.sectionDao = sectionDao;
+    public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         simpleJdbcInsert
@@ -34,36 +34,32 @@ public class StationDao {
                     .addValue("name", station.getName());
             Number id = simpleJdbcInsert.executeAndReturnKey(params);
 
-            return findById(id.longValue());
+            return new Station(id.longValue(), station.getName());
         } catch (DataIntegrityViolationException e){
             throw new BadRequestException(DUPLICATE_STATION_EXCEPTION);
         }
     }
 
     public List<Station> findAll() {
-        return this.jdbcTemplate.query("SELECT id, name FROM STATION",
+        return this.jdbcTemplate.query(FIND_ALL_STATION_SQL,
                 (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")));
     }
 
     public Station findById(Long stationId) {
-        return this.jdbcTemplate.queryForObject("SELECT id, name FROM STATION where id = ?",
+        return this.jdbcTemplate.queryForObject(FIND_STATION_SQL,
                 (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")),
                 stationId);
     }
 
     public void deleteById(Long id) {
-        if (sectionDao.findByStationId(id).size() > 0 ){
-            throw new BadRequestException(USING_STATION);
-        }
-        jdbcTemplate.update("DELETE FROM STATION WHERE id = ?", id);
+        jdbcTemplate.update(DELETE_STATION_SQL, id);
     }
 
-    public List<Station> findByUpDownId(Long upStationId, Long downStationId) {
+    public List<Station> findByUpDownId(Long stationId) {
         List<Station> stations = new ArrayList<>();
-        stations.add(findById(upStationId));
-        stations.add(findById(downStationId));
+        stations.add(findById(stationId));
 
         return stations;
-
     }
+
 }

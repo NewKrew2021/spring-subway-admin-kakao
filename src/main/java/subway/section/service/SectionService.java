@@ -1,23 +1,34 @@
 package subway.section.service;
 
 import org.springframework.stereotype.Service;
+import subway.line.dao.LineDao;
+import subway.line.domain.Line;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
 import subway.section.dto.SectionRequest;
+import subway.station.dao.StationDao;
 
 @Service
 public class SectionService {
 
+    private static final int MINIMUM_SECTION_COUNT = 3;
     private SectionDao sectionDao;
+    private LineDao lineDao;
+    private StationDao stationDao;
 
-    public SectionService(SectionDao sectionDao) {
+    public SectionService(SectionDao sectionDao, LineDao lineDao, StationDao stationDao) {
         this.sectionDao = sectionDao;
+        this.lineDao = lineDao;
+        this.stationDao = stationDao;
     }
 
     public void add(Long id, SectionRequest sectionRequest) {
         Sections sections = new Sections(sectionDao.findSectionsByLineId(id));
-        Section newSection = new Section(id, sectionRequest);
+        Section newSection = new Section(lineDao.findById(id),
+                stationDao.findById(sectionRequest.getUpStationId()).get(),
+                stationDao.findById(sectionRequest.getDownStationId()).get(),
+                sectionRequest.getDistance());
 
         if(sections.hasSameSection(newSection)){
             throw new IllegalArgumentException("이미 존재하는 구간입니다.");
@@ -38,7 +49,7 @@ public class SectionService {
     public void delete(Long id, Long stationId) {
         int sectionsCount = sectionDao.countByLineId(id);
 
-        if(sectionsCount <= 3) {
+        if(sectionsCount <= MINIMUM_SECTION_COUNT) {
             throw new IllegalArgumentException("마지막 구간은 삭제할 수 없습니다");
         }
 
@@ -49,9 +60,10 @@ public class SectionService {
 
         int distance = front.getDistance() + rear.getDistance();
 
-        sectionDao.save(new Section(id,
-                front.getUpStationId(),
-                rear.getDownStationId(),
+        sectionDao.save(new Section(
+                lineDao.findById(id),
+                front.getUpStation(),
+                rear.getDownStation(),
                 distance));
     }
 

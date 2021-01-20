@@ -36,12 +36,12 @@ public class LineService {
 
         Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
 
-        sectionDao.save(
-                new Section(newLine.getId(), Line.HEAD, lineRequest.getUpStationId(), Line.INF));
-        sectionDao.save(
-                new Section(newLine.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        sectionDao.save(
-                new Section(newLine.getId(), lineRequest.getDownStationId(), Line.TAIL, Line.INF));
+        Station upStation = stationDao.findById(lineRequest.getUpStationId()).get();
+        Station downStation = stationDao.findById(lineRequest.getDownStationId()).get();
+
+        sectionDao.save(new Section(newLine, new Station(Line.HEAD, Line.TERMINAL_NAME), upStation, Line.INF));
+        sectionDao.save(new Section(newLine, upStation, downStation, lineRequest.getDistance()));
+        sectionDao.save(new Section(newLine, downStation, new Station(Line.TAIL, Line.TERMINAL_NAME), Line.INF));
 
         return new LineResponse(newLine, getSortedStations(newLine.getId()));
     }
@@ -78,8 +78,8 @@ public class LineService {
         Section currentSection = sectionDao.findSectionByLineIdAndUpStationId(id, Line.HEAD);
 
         List<Station> stations = new ArrayList<>();
-        while (currentSection.getDownStationId() != Line.TAIL) {
-            stations.add(stationDao.findById(currentSection.getDownStationId()));
+        while (currentSection.getDownStation().getId() != Line.TAIL) {
+            stations.add(stationDao.findById(currentSection.getDownStation().getId()).get());
             currentSection = sections.findNextSection(currentSection);
         }
 

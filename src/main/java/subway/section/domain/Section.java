@@ -1,43 +1,45 @@
 package subway.section.domain;
 
+import subway.line.domain.Line;
 import subway.section.dto.SectionRequest;
+import subway.station.domain.Station;
 
 import java.util.Objects;
 
 public class Section {
     private Long id;
-    private Long lineId;
-    private Long upStationId;
-    private Long downStationId;
+    private Line line;
+    private Station upStation;
+    private Station downStation;
     private int distance;
 
     public Section() {
     }
 
-    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+    public Section(Line line, Station upStation, Station downStation, int distance) {
         validateDistance(distance);
-        this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this.line = line;
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
     }
 
-    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+    public Section(Long id, Line line, Station upStation, Station downStation, int distance) {
         validateDistance(distance);
         this.id = id;
-        this.lineId = lineId;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this.line = line;
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
     }
 
-    public Section(Long lineId, SectionRequest sectionRequest){
-        validateDistance(sectionRequest.getDistance());
-        this.lineId = lineId;
-        this.upStationId = sectionRequest.getUpStationId();
-        this.downStationId = sectionRequest.getDownStationId();
-        this.distance = sectionRequest.getDistance();
-    }
+//    public Section(Long lineId, SectionRequest sectionRequest){
+//        validateDistance(sectionRequest.getDistance());
+//        this.lineId = lineId;
+//        this.upStationId = sectionRequest.getUpStationId();
+//        this.downStationId = sectionRequest.getDownStationId();
+//        this.distance = sectionRequest.getDistance();
+//    }
 
     private void validateDistance(int distance) {
         if(distance <= 0) {
@@ -49,16 +51,16 @@ public class Section {
         return id;
     }
 
-    public Long getLineId() {
-        return lineId;
+    public Line getLine() {
+        return line;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
+    public Station getUpStation() {
+        return upStation;
     }
 
-    public Long getDownStationId() {
-        return downStationId;
+    public Station getDownStation() {
+        return downStation;
     }
 
     public int getDistance() {
@@ -66,15 +68,15 @@ public class Section {
     }
 
     public boolean existStation(Section other) {
-        return upStationId.equals(other.getUpStationId()) || upStationId.equals(other.getDownStationId())
-                || downStationId.equals(other.getDownStationId()) || downStationId.equals(other.getUpStationId());
+        return upStation.equals(other.getUpStation()) || upStation.equals(other.getDownStation())
+                || downStation.equals(other.getDownStation()) || downStation.equals(other.getUpStation());
     }
 
     public Section getSubSection(Section newSection) {
-        if(upStationId == newSection.getUpStationId()) {
-            return new Section(lineId, newSection.getDownStationId(), downStationId, distance - newSection.getDistance());
+        if(upStation.equals(newSection.getUpStation())) {
+            return new Section(line, newSection.getDownStation(), downStation, distance - newSection.getDistance());
         }
-        return new Section(lineId, upStationId, newSection.getUpStationId(), distance - newSection.getDistance());
+        return new Section(line, upStation, newSection.getUpStation(), distance - newSection.getDistance());
     }
 
     @Override
@@ -82,14 +84,14 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(lineId, section.lineId)
-                && (Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId)
-                || Objects.equals(upStationId, section.downStationId) && Objects.equals(downStationId, section.upStationId));
+        return Objects.equals(line, section.line)
+                && (Objects.equals(upStation, section.getUpStation()) && Objects.equals(downStation, section.getDownStation())
+                || Objects.equals(upStation, section.getDownStation()) && Objects.equals(downStation, section.getUpStation()));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineId, upStationId, downStationId, distance);
+        return Objects.hash(line, upStation, downStation, distance);
     }
 
 }

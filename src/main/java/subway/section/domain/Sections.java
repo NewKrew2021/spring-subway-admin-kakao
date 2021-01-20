@@ -13,7 +13,7 @@ public class Sections {
 
     public Section sameUpStationOrDownStation(Section other) {
         return sections.stream()
-                .filter(s -> s.getUpStationId() == other.getUpStationId() || s.getDownStationId() == other.getDownStationId())
+                .filter(s -> s.getUpStation().equals(other.getUpStation()) || s.getDownStation().equals(other.getDownStation()))
                 .findAny()
                 .get();
     }
@@ -34,7 +34,7 @@ public class Sections {
 
     public Section findNextSection(Section currentSection) {
         return sections.stream()
-                .filter(section -> section.getUpStationId() == currentSection.getDownStationId())
+                .filter(section -> section.getUpStation().equals(currentSection.getDownStation()))
                 .findAny()
                 .get();
     }

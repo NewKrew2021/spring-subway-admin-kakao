@@ -7,6 +7,7 @@ import subway.station.domain.Station;
 import subway.station.query.StationQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class StationDao {
@@ -45,16 +46,21 @@ public class StationDao {
         });
     }
 
-    public Station findById (Long id){
-        return jdbcTemplate.queryForObject(
-                StationQuery.SELECT_BY_ID,
-                (resultSet, rowNum) -> {
-                    Station station = new Station(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name")
-                    );
-                    return station;
-                }, id);
+    public Optional<Station> findById (Long id){
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(
+                    StationQuery.SELECT_BY_ID,
+                    (resultSet, rowNum) -> {
+                        Station station = new Station(
+                                resultSet.getLong("id"),
+                                resultSet.getString("name")
+                        );
+                        return station;
+                    }, id));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 
     public void deleteById(Long id) {

@@ -30,6 +30,10 @@ public class StationService {
         return stationDao.findAll();
     }
 
+    public Station find(Long id) {
+        return stationDao.findById(id);
+    }
+
     public void delete(Long id) throws InvalidDeleteException {
         if (stationDao.deleteById(id) == 0) {
             throw new InvalidDeleteException("삭제하려는 station이 존재하지 않습니다.");

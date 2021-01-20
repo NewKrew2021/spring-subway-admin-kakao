@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.Section;
 import subway.section.SectionService;
-import subway.station.StationDao;
 import subway.station.StationResponse;
+import subway.station.StationService;
 
 import java.net.URI;
 import java.util.List;
@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/lines")
 public class LineController {
 
-    private final StationDao stationDao;
+    private final StationService stationService;
     private final LineService lineService;
     private final SectionService sectionService;
 
-    public LineController(StationDao stationDao, LineService lineService, SectionService sectionService) {
-        this.stationDao = stationDao;
+    public LineController(StationService stationService, LineService lineService, SectionService sectionService) {
+        this.stationService = stationService;
         this.lineService = lineService;
         this.sectionService = sectionService;
     }
@@ -39,7 +39,7 @@ public class LineController {
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineService.find(id);
         List<StationResponse> stationResponses = sectionService.getStationIds(id).stream()
-                .map(stationId -> StationResponse.of(stationDao.findById(stationId)))
+                .map(stationId -> StationResponse.of(stationService.find(stationId)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(LineResponse.of(line, stationResponses));

@@ -58,7 +58,7 @@ public class LineDao {
         return jdbcTemplate.query(SELECT_ALL_LINES, lineRowMapper);
     }
 
-    public Line updateLine(Line line) {
+    public Line updateById(Line line) {
         jdbcTemplate.update(UPDATE_LINE_BY_ID, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId(), line.getId());
         return findById(line.getId());
     }

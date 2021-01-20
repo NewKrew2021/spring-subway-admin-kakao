@@ -51,7 +51,7 @@ public class LineService {
     public Line updateLine(Long id, LineRequest lineRequest) {
         Line line = lineDao.findById(id);
         line.updateLineInfo(lineRequest);
-        return lineDao.updateLine(line);
+        return lineDao.updateById(line);
     }
 
     public List<StationResponse> getStationResponsesById(Long lineId) {
@@ -80,7 +80,7 @@ public class LineService {
 
     private Line saveSectionsHeadOrTail(Section newSection, Line line) {
         line.updateStationInfoWhenInserted(newSection);
-        lineDao.updateLine(line);
+        lineDao.updateById(line);
         sectionDao.save(newSection);
         return lineDao.findById(newSection.getLineId());
     }
@@ -116,7 +116,7 @@ public class LineService {
     private void deleteStartOrEndStation(Sections sections, Long stationId, Line line) {
         Section section = getStartOrEndSection(sections, stationId, line);
         line.updateStationInfoWhenDeleted(section);
-        lineDao.updateLine(line);
+        lineDao.updateById(line);
         sectionDao.deleteById(section.getId());
     }
 

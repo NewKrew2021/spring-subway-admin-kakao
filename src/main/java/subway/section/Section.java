@@ -65,10 +65,6 @@ public class Section {
         return getUpStationId() == Line.HEAD;
     }
 
-    public boolean isTailSection() {
-        return getDownStationId() == Line.TAIL;
-    }
-
     public Long getId() {
         return id;
     }

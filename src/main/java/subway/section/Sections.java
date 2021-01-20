@@ -18,7 +18,7 @@ public class Sections {
                 .get();
     }
 
-    public <T extends Section> T findRearOfGivenSection(Long stationId) {
+    public <T extends Section> T findRearOfGivenStation(Long stationId) {
         return (T) sections.stream()
                 .filter(section -> section.isUpStation(stationId))
                 .findAny()

@@ -1,22 +1,29 @@
-package subway.line;
+package subway.line.domain;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class LineDao {
+    private static final RowMapper<Line> lineMapper = (rs, rowNum) -> new Line(
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getString("color")
+    );
+
     private final JdbcTemplate jdbcTemplate;
 
     public LineDao(JdbcTemplate jdbcTemplate) {
@@ -25,7 +32,13 @@ public class LineDao {
 
     public Line save(Line line) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
+        jdbcTemplate.update(insertLine(line), keyHolder);
+        Long id = (Long) keyHolder.getKey();
+        return new Line(id, line.getName(), line.getColor());
+    }
+
+    private PreparedStatementCreator insertLine(Line line) {
+        return con -> {
             PreparedStatement psmt = con.prepareStatement(
                     "insert into line (name, color) values (?, ?)",
                     Statement.RETURN_GENERATED_KEYS
@@ -33,10 +46,26 @@ public class LineDao {
             psmt.setString(1, line.getName());
             psmt.setString(2, line.getColor());
             return psmt;
-        }, keyHolder);
+        };
+    }
 
-        Long id = (Long) keyHolder.getKey();
-        return new Line(id, line.getName(), line.getColor());
+    @Transactional(readOnly = true)
+    public List<Line> findAll() {
+        return jdbcTemplate.query("select * from line", lineMapper);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Line> findById(Long id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("select * from line where id = ?", lineMapper, id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existBy(String name) {
+        return jdbcTemplate.queryForObject("select count(*) from line where name = ?", int.class, name) != 0;
     }
 
     public void update(Line line) {
@@ -46,35 +75,7 @@ public class LineDao {
         }
     }
 
-    public List<Line> findAll() {
-        return jdbcTemplate.query("select * from line", new LineMapper());
-    }
-
-    public Optional<Line> findById(Long id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("select * from line where id = ?", new LineMapper(), id));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    public boolean existBy(String name) {
-        return jdbcTemplate.queryForObject("select count(*) from line where name = ?", int.class, name) != 0;
-    }
-
     public void deleteById(Long id) {
         jdbcTemplate.update("delete from line where id = ?", id);
-    }
-
-    private final static class LineMapper implements RowMapper<Line> {
-
-        @Override
-        public Line mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Line(
-                    rs.getLong("id"),
-                    rs.getString("name"),
-                    rs.getString("color")
-            );
-        }
     }
 }

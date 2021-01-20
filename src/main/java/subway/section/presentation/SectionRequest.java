@@ -1,17 +1,23 @@
-package subway.section;
+package subway.section.presentation;
+
+import subway.section.domain.SectionCreateValue;
 
 public class SectionRequest {
     private Long upStationId;
     private Long downStationId;
     private int distance;
 
-    public SectionRequest() {
+    SectionRequest() {
     }
 
     public SectionRequest(Long upStationId, Long downStationId, int distance) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public SectionCreateValue toCreateValue(Long lineId) {
+        return new SectionCreateValue(lineId, upStationId, downStationId, distance);
     }
 
     public Long getUpStationId() {

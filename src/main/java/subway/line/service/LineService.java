@@ -15,6 +15,7 @@ import subway.section.domain.SectionRequest;
 import subway.section.domain.Sections;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
+import subway.station.domain.Stations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,17 +63,17 @@ public class LineService {
 
     public LineResponse showLine(Long id) {
         Line line = lineDao.findById(id);
-        return new LineResponse(line, getStations(id));
+        return new LineResponse(line, getStations(line.getId()));
     }
 
     public void updateLine(Long id, LineRequest lineRequest) {
         lineDao.update(Line.getLineToLineRequest(id, lineRequest));
     }
 
-    public List<Station> getStations(Long id) {
+    public Stations getStations(Long id) {
         Line line = lineDao.findById(id);
         Sections sections = new Sections(sectionDao.findByLineId(id));
-        List<Station> stations = new ArrayList<>();
+        Stations stations = new Stations();
 
         Map<Long, Section> orderedSections = sections.getOrderedSections();
         Long upStationId = line.getUpStationId();
@@ -232,7 +233,7 @@ public class LineService {
     }
 
     private boolean containsEndStation(Long id, SectionRequest sectionRequest) {
-        List<Station> stations = getStations(id);
+        Stations stations = getStations(id);
 
         return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
                 || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
@@ -249,7 +250,7 @@ public class LineService {
     }
 
     private boolean hasDuplicatedStation(Long id, SectionRequest sectionRequest) {
-        List<Station> stations = getStations(id);
+        Stations stations = getStations(id);
 
         return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
                 && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));

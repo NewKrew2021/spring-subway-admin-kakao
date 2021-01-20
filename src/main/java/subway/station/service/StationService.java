@@ -7,6 +7,7 @@ import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
+import subway.station.domain.Stations;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,8 +32,9 @@ public class StationService {
     }
 
     public List<StationResponse> showStations() {
-        List<Station> stations = stationDao.findAll();
-        return stations.stream()
+        Stations stations = new Stations(stationDao.findAll());
+        return stations.getStations()
+                .stream()
                 .map(StationResponse::new)
                 .collect(Collectors.toList());
     }

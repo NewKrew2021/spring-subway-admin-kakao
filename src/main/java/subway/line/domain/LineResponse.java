@@ -1,6 +1,7 @@
 package subway.line.domain;
 
 import subway.station.domain.Station;
+import subway.station.domain.Stations;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class LineResponse {
     private String name;
     private String color;
     private int extraFare;
-    private List<Station> stations;
+    private Stations stations;
 
     public LineResponse() {
     }
@@ -21,7 +22,7 @@ public class LineResponse {
         this.color = color;
     }
 
-    public LineResponse(Long id, String name, String color, List<Station> stations) {
+    public LineResponse(Long id, String name, String color, Stations stations) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -32,7 +33,7 @@ public class LineResponse {
         this(line.getId(), line.getName(), line.getColor());
     }
 
-    public LineResponse(Line line, List<Station> stations) {
+    public LineResponse(Line line, Stations stations) {
         if (!validator(line)) {
             throw new IllegalArgumentException("노선 정보가 존재하지 않습니다.");
         }
@@ -54,7 +55,7 @@ public class LineResponse {
         return color;
     }
 
-    public List<Station> getStations() {
+    public Stations getStations() {
         return stations;
     }
 

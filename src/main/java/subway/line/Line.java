@@ -1,5 +1,4 @@
 package subway.line;
-import subway.section.SectionDao;
 
 public class Line {
 
@@ -9,6 +8,10 @@ public class Line {
     private String name;
 
     public Line(){}
+
+    public Line(Long id){
+        this.id = id;
+    }
 
     public Line(Long id, String name, String color, int extraFare) {
         this(name, color, extraFare);
@@ -35,11 +38,4 @@ public class Line {
 
     public int getExtraFare() { return extraFare;}
 
-    public Long getUpStationId(SectionDao sectionDao) {
-        return sectionDao.getUpStationId(id);
-    }
-
-    public Long getDownStationId(SectionDao sectionDao) {
-        return sectionDao.getDownStationId(id);
-    }
 }

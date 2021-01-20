@@ -114,13 +114,6 @@ public class SectionDao {
                 lineId);
     }
 
-    public Long getDownStationId(Long lineId){
-        List<Section> sections = findByLineId(lineId);
-        return sections.get(sections.size()-1).getDownStationId();
-    }
 
-    public Long getUpStationId(Long lineId){
-        List<Section> sections = findByLineId(lineId);
-        return sections.get(0).getUpStationId();
-    }
-    }
+
+}

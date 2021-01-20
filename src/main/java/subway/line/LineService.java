@@ -3,12 +3,16 @@ package subway.line;
 import org.springframework.stereotype.Service;
 import subway.section.Section;
 import subway.section.SectionDao;
+import subway.station.Station;
 import subway.station.StationDao;
 import subway.station.StationResponse;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 
 @Service
 public class LineService {
@@ -57,18 +61,22 @@ public class LineService {
     }
 
     private List<StationResponse> getStationInfo(Long id) {
-        List<Long> stations = new ArrayList<>();
+        List<Station> stations = new ArrayList<>();
 
-        sectionDao.findByLineId(id).stream()
-                .forEach(section -> {
-                    stations.add(stationDao.findById(section.getUpStationId()).getId());
-                    stations.add(stationDao.findById(section.getDownStationId()).getId());
-                });
+        for (Section section : sectionDao.findByLineId(id)) {
+            stations.addAll(stationDao.findByUpDownId(section.getUpStationId(), section.getDownStationId()));
+        }
 
         return stations.stream()
                 .distinct()
-                .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
+                .filter(distinctByKey(station -> station.getName()))
+                .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     public void updateLine(Long id, LineRequest lineRequest){
@@ -77,6 +85,5 @@ public class LineService {
 
     public void deleteById(Long id){
         lineDao.deleteById(id);
-        sectionDao.deleteByLineId(id);
     }
 }

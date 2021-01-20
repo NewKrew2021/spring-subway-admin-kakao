@@ -9,8 +9,7 @@ public class Line {
     private Long id;
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
+    private Sections sections;
 
     public Line() {
     }
@@ -27,13 +26,18 @@ public class Line {
         }
         this.color = color;
         this.name = name;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
     }
 
     public Line(Long id, String name, String color, Long upStationId, Long downStationId) {
         this(name, color, upStationId, downStationId);
         this.id = id;
+    }
+
+    public Line(Long id, String name, String color, Sections sections) {
+        this.id=id;
+        this.name=name;
+        this.color=color;
+        this.sections = sections;
     }
 
     private boolean checkProblemStationId(Long upStationId, Long downStationId) {
@@ -59,11 +63,11 @@ public class Line {
     }
 
     public Long getUpStationId() {
-        return upStationId;
+        return sections.getStartStation();
     }
 
     public Long getDownStationId() {
-        return downStationId;
+        return sections.getEndStation();
     }
 
 }

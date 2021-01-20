@@ -32,6 +32,7 @@ public class SectionServiceImpl implements SectionService {
         return sectionDao.getSectionsByLineId(lineId);
     }
 
+    //TODO 가볍게 변경
     @Override
     @Transactional
     public void saveSection(Section section) {
@@ -43,41 +44,28 @@ public class SectionServiceImpl implements SectionService {
 
     private void checkAndAddSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
-        Long existStationId = sections.findStationExist(section);
-        if (existStationId == -1) {
+        if (!sections.isCanSaveSection(section)) {
             throw new IllegalStationException();
         }
         save(section);
-        if (section.getUpStationId() == existStationId) {
+        if(sections.isExistUpStationAndMiddleSection(section)){
             addSectionBack(sections, section);
         }
-        if (section.getDownStationId() == existStationId) {
+        if(sections.isExistDownStationAndMiddleSection(section)){
             addSectionFront(sections, section);
         }
     }
 
     private void addSectionBack(Sections sections, Section section) {
-        Long existStationId = section.getUpStationId();
-        Line line = lineDao.findOne(section.getLineId());
-        Section nextSection = sections.findSectionByUpStationId(existStationId);
-        if (existStationId == line.getDownStationId()) {
-            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), section.getDownStationId()));
-            return;
-        }
+        Section nextSection = sections.findSectionByUpStationId(section.getUpStationId());
         deleteSectionById(nextSection.getSectionId());
-        save(new Section(section.getDownStationId(), nextSection.getDownStationId(), nextSection.getDistance() - section.getDistance(), line.getId()));
+        save(new Section(section.getDownStationId(), nextSection.getDownStationId(), nextSection.getDistance() - section.getDistance(), section.getLineId()));
     }
 
     private void addSectionFront(Sections sections, Section section) {
-        Long existStationId = section.getDownStationId();
-        Line line = lineDao.findOne(section.getLineId());
-        Section prevSection = sections.findSectionByDownStationId(existStationId);
-        if (existStationId == line.getUpStationId()) {
-            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), section.getUpStationId(), line.getDownStationId()));
-            return;
-        }
+        Section prevSection = sections.findSectionByDownStationId(section.getDownStationId());
         deleteSectionById(prevSection.getSectionId());
-        save(new Section(prevSection.getUpStationId(), section.getUpStationId(), prevSection.getDistance() - section.getDistance(), line.getId()));
+        save(new Section(prevSection.getUpStationId(), section.getUpStationId(), prevSection.getDistance() - section.getDistance(), section.getLineId()));
     }
 
     @Override

@@ -7,13 +7,19 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Section;
 import subway.domain.Sections;
+import subway.domain.Station;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final StationDao stationDao;
 
-    public SectionDao(JdbcTemplate jdbcTemplate) {
+    public SectionDao(JdbcTemplate jdbcTemplate, StationDao stationDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.stationDao = stationDao;
     }
 
     public boolean existSection(Section section) {
@@ -31,11 +37,17 @@ public class SectionDao {
 
     public Sections getSectionsByLineId(Long lineId) {
         String sql = "select * from SECTION where line_id = ?";
-        return new Sections(jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
+        Sections sections = new Sections(jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
                 rs.getInt("distance"),
                 rs.getLong("line_id")), lineId));
+        List<Long> ids = sections.getStationIds();
+        sections = new Sections(sections.getSections(), ids.stream().map(id -> {
+            Station station = stationDao.findOne(id);
+            return new Station(station.getId(), station.getName());
+        }).collect(Collectors.toList()));
+        return sections;
     }
 
     public int deleteSectionById(Long sectionId) {

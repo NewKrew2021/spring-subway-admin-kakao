@@ -6,32 +6,35 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class LineDao {
-    private List<Line> lines = new ArrayList<>();
-    private JdbcTemplate jdbcTemplate;
-    private SectionDao sectionDao;
+    private final JdbcTemplate jdbcTemplate;
+    private final SectionDao sectionDao;
 
-    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate) {
-        this.sectionDao = sectionDao;
+    public LineDao(JdbcTemplate jdbcTemplate, SectionDao sectionDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.sectionDao = sectionDao;
     }
 
-    public Line save(Line line) {
+    public Line save(Line line, Section section) {
+        Long lineId;
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
+                .usingGeneratedKeyColumns("id");
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         try {
-            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
-                    .usingGeneratedKeyColumns("id");
-            SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
-            Long id = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-            return new Line(id, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
-        } catch (Exception e) {
+            lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+            sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), lineId));
+        } catch (RuntimeException e) {
             throw new AlreadyExistDataException();
         }
+        return findOne(lineId);
+
     }
 
     public int deleteById(Long lineId) {
@@ -40,13 +43,16 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select * from LINE";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color"), rs.getLong("up_station_id"), rs.getLong("down_station_id")));
+        String sql = "select id from LINE";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
     }
 
     public Line findOne(Long lineId) {
-        String sql = "select * from LINE where id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color"), rs.getLong("up_station_id"), rs.getLong("down_station_id")), lineId);
+        String getLineSql = "select * from LINE where id = ?";
+        Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
+        Sections sections = sectionDao.getSectionsByLineId(lineId);
+
+        return new Line(line.getId(),line.getName(),line.getColor(),sections);
     }
 
     public int update(Line line) {
@@ -55,7 +61,7 @@ public class LineDao {
     }
 
     public int updateAll(Line line) {
-        String sql = "update LINE set color = ?, name = ?, up_station_id = ?, down_station_id = ? where id = ?";
-        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getUpStationId(), line.getDownStationId(), line.getId());
+        String sql = "update LINE set color = ?, name = ? where id = ?";
+        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId());
     }
 }

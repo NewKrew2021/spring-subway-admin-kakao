@@ -33,8 +33,8 @@ public class LineServiceImpl implements LineService {
     @Override
     @Transactional
     public Line save(Line line, Section section) {
-        Line newLine = lineDao.save(line);
-        sectionService.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
+
+        Line newLine = lineDao.save(line, section);
         return newLine;
     }
 
@@ -72,6 +72,7 @@ public class LineServiceImpl implements LineService {
         }
     }
 
+    //TODO 리스폰스 수정
     @Override
     public LineResponseWithStation findOneResponse(Long lineId) {
         Line line = findOne(lineId);

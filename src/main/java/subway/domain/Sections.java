@@ -1,47 +1,66 @@
 package subway.domain;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import subway.exception.DataEmptyException;
+
+import java.util.*;
 
 public class Sections {
     List<Section> sections;
-
-    public Sections() {
-        sections = new ArrayList<>();
-    }
+    List<Station> stations;
 
     public Sections(List<Section> sections) {
-        Long cur = getStartStation(sections);
+        Long cur = getStartStationId(sections);
+        Long dest = getEndStationId(sections);
         List<Section> orderedSections = new LinkedList<>();
-
-        while (orderedSections.size() != sections.size()) {
+        while (!cur.equals(dest)) {
             Long finalCur = cur;
             Section section = sections.stream()
                     .filter(sec -> sec.getUpStationId().equals(finalCur))
                     .findFirst()
                     .get();
-            System.out.println(section);
             orderedSections.add(section);
             cur = section.getDownStationId();
         }
         this.sections = Collections.unmodifiableList(orderedSections);
     }
 
-    private Long getStartStation(List<Section> sections) {
-        for (Section section : sections) {
-            boolean connectFlag = false;
-            for (Section section1 : sections) {
-                if (section.getUpStationId().equals(section1.getDownStationId())) {
-                    connectFlag = true;
-                }
-            }
-            if (!connectFlag) {
-                return section.getUpStationId();
-            }
-        }
-        return -1L;
+    public Sections(List<Section> sections, List<Station> stations) {
+        this(sections);
+        this.stations = stations;
+    }
+
+    private Long getStartStationId(List<Section> sections) {
+        return sections.stream()
+                .filter(section -> isInSectionUpStation(sections, section))
+                .findFirst()
+                .orElseThrow(DataEmptyException::new)
+                .getUpStationId();
+    }
+
+    private boolean isInSectionUpStation(List<Section> sections, Section section) {
+        return sections.stream()
+                .noneMatch(section1 -> section.getUpStationId().equals(section1.getDownStationId()));
+    }
+
+    private Long getEndStationId(List<Section> sections) {
+        return sections.stream()
+                .filter(section -> isInSectionDownStation(sections, section))
+                .findFirst()
+                .orElseThrow(DataEmptyException::new)
+                .getDownStationId();
+    }
+
+    private boolean isInSectionDownStation(List<Section> sections, Section section) {
+        return sections.stream()
+                .noneMatch(section1 -> section.getDownStationId().equals(section1.getUpStationId()));
+    }
+
+    public Long getStartStation() {
+        return this.sections.get(0).getUpStationId();
+    }
+
+    public Long getEndStation() {
+        return this.sections.get(this.sections.size() - 1).getDownStationId();
     }
 
     public Section findSectionByUpStationId(Long id) {
@@ -65,17 +84,8 @@ public class Sections {
                 .orElse(null);
     }
 
-    public Long findStationExist(Section section) {
-        for (Section sec : sections) {
-            if (sec.getUpStationId().equals(section.getUpStationId()) || sec.getDownStationId().equals(section.getUpStationId())) {
-                return section.getUpStationId();
-            }
-            if (sec.getUpStationId().equals(section.getDownStationId()) || sec.getDownStationId().equals(section.getDownStationId())) {
-                return section.getDownStationId();
-            }
-        }
-
-        return -1L;
+    public boolean isCanSaveSection(Section section) {
+        return sections.stream().anyMatch(sec -> sec.getUpStationId().equals(section.getUpStationId()) || sec.getDownStationId().equals(section.getUpStationId()) || sec.getUpStationId().equals(section.getDownStationId()) || sec.getDownStationId().equals(section.getDownStationId()));
     }
 
     public boolean isPossibleToDelete() {
@@ -91,5 +101,23 @@ public class Sections {
         return "Sections{" +
                 "sections=" + sections +
                 '}';
+    }
+
+    public List<Long> getStationIds() {
+        Set<Long> stationIds = new LinkedHashSet<>();
+        sections.stream()
+                .forEach(section -> {
+                    stationIds.add(section.getUpStationId());
+                    stationIds.add(section.getDownStationId());
+                });
+        return new ArrayList<>(stationIds);
+    }
+
+    public boolean isExistUpStationAndMiddleSection(Section section) {
+        return findSectionByUpStationId(section.getUpStationId()) != null && !getEndStation().equals(section.getDownStationId());
+    }
+
+    public boolean isExistDownStationAndMiddleSection(Section section) {
+        return findSectionByDownStationId(section.getDownStationId()) != null && !getStartStation().equals(section.getDownStationId());
     }
 }

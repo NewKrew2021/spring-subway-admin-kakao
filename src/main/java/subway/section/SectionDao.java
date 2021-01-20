@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.exceptions.NotFoundException;
 import subway.exceptions.CannotConstructRightSectionsForLine;
+import subway.station.Station;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -115,28 +116,7 @@ public class SectionDao {
         return jdbcTemplate.query(query, new SectionMapper(), id);
     }
 
-    private Long getFirstStationId(Long id) {
-        List<Section> sections = findAllByLineId(id);
 
-        Map<Long, Boolean> isStartPoint = new HashMap<>();
-
-        /* 모든 station에 대해 start point = true 라는 의미로 초기화 */
-        for(Section section : sections) {
-            isStartPoint.put(section.getUpStationId(), true);
-            isStartPoint.put(section.getDownStationId(), true);
-        }
-
-        /* 모든 section의 downStation Id에 대해 false 처리함 */
-        for(Section section : sections) {
-            isStartPoint.put(section.getDownStationId(), false);
-        }
-
-        /* downStation으로 등장하지 않은 한개의 노드(시작점) 을 return */
-        return isStartPoint.keySet().stream()
-                .filter(key -> isStartPoint.get(key))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("first station을 찾는데 실패했습니다."));
-    }
 
     /**
      * 한 라인에 존재하는 모든 section들 중에서, upstationId가 일치하는 section을 return
@@ -162,28 +142,7 @@ public class SectionDao {
         }
     }
 
-    public List<Long> findSortedStationIdsByLineId(Long lineId) {
-        /* 주어진 Line 위에 정의된 모든 section들을 collect */
-        List<Section> sections = findAllByLineId(lineId);
 
-        /* 현재 station에서 다음 station을 참조할 수 있는 map을 생성 */
-        Map<Long, Long> upStationToDownStation = new HashMap<>();
-        for(Section section : sections) {
-            upStationToDownStation.put(section.getUpStationId(), section.getDownStationId());
-        }
-
-        /* 정렬된 station id가 저장될 곳 */
-        List<Long> stationIds = new ArrayList<>();
-
-        /* 일렬로 탐색하면서 station id를 수집한다. */
-        Long currentId = getFirstStationId(lineId);
-        while(currentId != null) {
-            stationIds.add(currentId);
-            currentId = upStationToDownStation.get(currentId);
-        }
-
-        return stationIds;
-    }
 
     public boolean canInsert(Section section) {
 

@@ -16,6 +16,17 @@ public class Line {
         this.color = color;
     }
 
+    public Line(LineDto lineDto){
+        this.name = lineDto.getName();
+        this.color = lineDto.getColor();
+    }
+
+    public Line(Long id, LineDto lineDto){
+        this.id = id;
+        this.name = lineDto.getName();
+        this.color = lineDto.getColor();
+    }
+
     public Long getId() {
         return id;
     }

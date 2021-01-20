@@ -23,4 +23,8 @@ public class StationService {
     public void deleteById(Long id) {
         stationDao.deleteById(id);
     }
+
+    public Station findById(Long stationId) {
+        return stationDao.findById(stationId);
+    }
 }

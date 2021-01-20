@@ -3,7 +3,8 @@ package subway.section;
 import subway.exceptions.IllegalSectionCreateException;
 
 public class Section {
-    private Long id, upStationId, downStationId, lineId;
+    private Long id, lineId;
+    private Long upStationId, downStationId;
     private int distance;
 
     public Section() {
@@ -27,6 +28,13 @@ public class Section {
         this.downStationId = downStationId;
         this.lineId = lineId;
         this.distance = distance;
+    }
+
+    public Section(Long lineId, SectionDto sectionDto) {
+        this.lineId = lineId;
+        this.upStationId = sectionDto.getUpStationId();
+        this.downStationId = sectionDto.getDownStationId();
+        this.distance = sectionDto.getDistance();
     }
 
     public static void validationCheck(Long upStationId, Long downStationId, int distance) {

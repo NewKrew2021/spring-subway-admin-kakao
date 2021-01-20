@@ -1,4 +1,4 @@
-package subway.station;
+package subway.controller;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.domain.station.StationRequest;
+import subway.domain.station.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +58,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_삭제됨(response);
+    }
+
+    @DisplayName("이미 존재하는 지하철 역을 추가한다.")
+    @Test
+    void createDuplicateStation() {
+        // given
+        지하철역_생성_요청(강남역);
+
+        //when
+        ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+
+        //then
+        지하철역_생성_실패됨(response);
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {
@@ -113,5 +128,9 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static void 지하철역_생성_실패됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

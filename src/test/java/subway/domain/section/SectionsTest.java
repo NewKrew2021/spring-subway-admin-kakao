@@ -5,7 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.domain.station.Station;
 import subway.domain.station.Stations;
-import subway.exception.SectionOperationException;
+import subway.exception.section.InvalidStationException;
+import subway.exception.section.SectionDeletionException;
+import subway.exception.section.SectionSplitException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,10 +70,10 @@ public class SectionsTest {
     @DisplayName("요청에 의한 새로운 섹션 생성 가능 여부 테스트")
     public void validateSectionRequestTest() {
         // 2개 역 모두 포함돼있을 경우
-        assertThatThrownBy(() -> sections.validateSectionRequest(광교_강남)).isInstanceOf(SectionOperationException.class);
+        assertThatThrownBy(() -> sections.validateSectionSplit(광교_강남)).isInstanceOf(SectionSplitException.class);
         // 2개 역 모두 포함되지 않을 경우
         List<Section> sectionList = Arrays.asList(강남_역삼);
-        assertThatThrownBy(() -> new Sections(sectionList).validateSectionRequest(광교_망포)).isInstanceOf(SectionOperationException.class);
+        assertThatThrownBy(() -> new Sections(sectionList).validateSectionSplit(광교_망포)).isInstanceOf(SectionSplitException.class);
     }
 
     @Test
@@ -123,9 +125,9 @@ public class SectionsTest {
     @Test
     @DisplayName("sections에서 station을 지울 수 있는 지 테스트")
     public void validateDeleteTest() {
-        assertThatThrownBy(() -> sections.validateDeleteSection(망포역.getId())).isInstanceOf(SectionOperationException.class);
+        assertThatThrownBy(() -> sections.validateDeleteSection(망포역.getId())).isInstanceOf(InvalidStationException.class);
 
         List<Section> sectionList = Arrays.asList(강남_역삼);
-        assertThatThrownBy(() -> new Sections(sectionList).validateDeleteSection(강남역.getId())).isInstanceOf(SectionOperationException.class);
+        assertThatThrownBy(() -> new Sections(sectionList).validateDeleteSection(강남역.getId())).isInstanceOf(SectionDeletionException.class);
     }
 }

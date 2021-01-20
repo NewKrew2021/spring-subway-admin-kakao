@@ -1,9 +1,11 @@
 package subway.domain.section;
 
-import subway.exception.IllegalSectionsException;
-import subway.exception.SectionOperationException;
 import subway.domain.station.Station;
 import subway.domain.station.Stations;
+import subway.exception.section.IllegalSectionsException;
+import subway.exception.section.InvalidStationException;
+import subway.exception.section.SectionDeletionException;
+import subway.exception.section.SectionSplitException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,10 +33,10 @@ public class Sections {
         return new Stations(stations);
     }
 
-    public void validateSectionRequest(Section section) {
+    public void validateSectionSplit(Section section) {
         Stations stations = getAllStations();
         if (stations.contain(section.getUpStationId()) == stations.contain(section.getDownStationId())) {
-            throw new SectionOperationException(SectionOperationException.SECTION_SPLIT_ERROR);
+            throw new SectionSplitException();
         }
     }
 
@@ -71,10 +73,10 @@ public class Sections {
 
     public void validateDeleteSection(Long stationId) {
         if(!contain(stationId)) {
-            throw new SectionOperationException(SectionOperationException.SECTION_DELETE_ERROR_NO_STATION);
+            throw new InvalidStationException(stationId);
         }
         if(sections.size() == 1) {
-            throw new SectionOperationException(SectionOperationException.SECTION_DELETE_ERROR_ONE_SECTION);
+            throw new SectionDeletionException();
         }
     }
 

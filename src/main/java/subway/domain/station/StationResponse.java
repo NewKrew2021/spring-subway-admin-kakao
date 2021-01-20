@@ -6,7 +6,6 @@ public class StationResponse {
     private Long id;
     private String name;
 
-    // TODO 뭔진 모르겠지만 default 생성자가 필요.
     public StationResponse() {
     }
 

@@ -1,8 +1,10 @@
 package subway.domain.section;
 
-import subway.exception.SectionCreateException;
-import subway.exception.SectionOperationException;
 import subway.domain.station.Station;
+import subway.exception.section.SectionAttachException;
+import subway.exception.section.SectionDistanceException;
+import subway.exception.section.SectionSplitException;
+import subway.exception.section.StationDuplicationException;
 
 import java.util.Objects;
 
@@ -37,7 +39,7 @@ public class Section {
 
     public Section split(Section section) {
         if(!getUpStationId().equals(section.getUpStationId()) && !getDownStationId().equals(section.getDownStationId())) {
-            throw new SectionOperationException(SectionOperationException.SECTION_SPLIT_ERROR);
+            throw new SectionSplitException();
         }
         if(getUpStationId().equals(section.getUpStationId())) {
             return new Section(null, lineId, section.downStation, downStation, distance - section.distance);
@@ -47,20 +49,20 @@ public class Section {
 
     public Section attach(Section other) {
         if(!downStation.getId().equals(other.getUpStationId())) {
-            throw new SectionOperationException(SectionOperationException.SECTION_ATTACH_ERROR);
+            throw new SectionAttachException();
         }
         return new Section(null, lineId, upStation, other.downStation, distance + other.distance);
     }
 
     private void checkStations(Station upStation, Station downStation) {
         if(upStation.getId().equals(downStation.getId())) {
-            throw new SectionCreateException(SectionCreateException.DUPLICATE_STATION_EXCEPTION);
+            throw new StationDuplicationException();
         }
     }
 
     private void checkDistance(int distance) {
         if(distance <= 0) {
-            throw new SectionCreateException(SectionCreateException.DISTANCE_EXCEPTION + distance);
+            throw new SectionDistanceException(distance);
         }
     }
 

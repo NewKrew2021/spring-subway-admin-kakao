@@ -8,7 +8,6 @@ import subway.dao.StationDao;
 import subway.domain.station.Station;
 import subway.domain.station.StationRequest;
 import subway.domain.station.StationResponse;
-import subway.exception.InvalidIdException;
 import subway.service.StationService;
 
 import java.net.URI;
@@ -41,9 +40,7 @@ public class StationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        if(!stationService.deleteStation(id)) {
-            throw new InvalidIdException("해당하는 ID가 없습니다. : Station ID : " + id);
-        }
+        stationService.deleteStation(id);
         return ResponseEntity.noContent().build();
     }
 }

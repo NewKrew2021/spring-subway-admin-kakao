@@ -4,10 +4,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
-import subway.exception.InvalidIdException;
 import subway.domain.line.Line;
 import subway.domain.section.Section;
 import subway.domain.section.Sections;
+import subway.exception.id.InvalidLineIdException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class LineService {
         try {
             line = lineDao.getById(id);
         } catch(EmptyResultDataAccessException e) {
-            throw new InvalidIdException(InvalidIdException.INVALID_LINE_ID_ERROR + id);
+            throw new InvalidLineIdException(id);
         }
         Sections sections = sectionService.getSectionsByLineId(id);
         return new Line(line, sections);
@@ -63,7 +63,7 @@ public class LineService {
 
     private void validateId(Long id) {
         if(!lineDao.contain(id)) {
-            throw new InvalidIdException(InvalidIdException.INVALID_LINE_ID_ERROR + id);
+            throw new InvalidLineIdException(id);
         }
     }
 }

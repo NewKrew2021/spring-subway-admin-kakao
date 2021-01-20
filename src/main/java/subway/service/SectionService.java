@@ -43,7 +43,7 @@ public class SectionService {
     @Transactional
     public Section createSection(Section section) {
         Sections sections = getSectionsByLineId(section.getLineId());
-        sections.validateSectionRequest(section);
+        sections.validateSectionSplit(section);
         if(sections.checkSplit(section)) {
             Section sectionToSplit = sections.findSectionToSplit(section);
             Section splitedSection = sectionToSplit.split(section);

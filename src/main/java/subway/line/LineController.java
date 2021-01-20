@@ -28,11 +28,13 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        if (lineService.existName(lineRequest.getName())) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        // TODO transaction 처리
         Line newLine = lineService.createLine(Line.fromRequest(lineRequest), lineRequest.getDistance());
+        Section newSection = new Section(newLine.getStartStationId(),
+                newLine.getEndStationId(),
+                lineRequest.getDistance(),
+                newLine.getId());
+        sectionService.createSection(newSection);
         List<Station> stations = stationService.convertIdsToStations(
                 sectionService.getStationIdsOfLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(newLine.toResponse(stations));
@@ -54,7 +56,7 @@ public class LineController {
         return ResponseEntity.ok().body(line.toResponse(stations));
     }
 
-    @RequestMapping(value = "/lines/{id}", method = RequestMethod.PUT)
+    @PutMapping(value = "/lines/{id}")
     public ResponseEntity updateLine(@PathVariable long id, @RequestBody LineRequest lineRequest) {
         lineService.updateLine(id, Line.fromRequest(lineRequest));
         return ResponseEntity.ok().build();

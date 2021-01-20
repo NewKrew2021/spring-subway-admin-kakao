@@ -62,5 +62,8 @@ public class StationDao {
         return jdbcTemplate.queryForObject(sql, Integer.class, name);
     }
 
-
+    public int countById(Long id) {
+        String sql = "select count(*) from line where id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, id);
+    }
 }

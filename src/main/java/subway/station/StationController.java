@@ -18,9 +18,6 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        if (stationService.existName(stationRequest.getName())) {
-            return ResponseEntity.badRequest().build();
-        }
         Station station = stationService.createStation(Station.fromRequest(stationRequest));
         return ResponseEntity.created(URI.create("/stations/" + station.getId())).body(station.toResponse());
     }

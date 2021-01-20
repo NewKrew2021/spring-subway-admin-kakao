@@ -2,6 +2,7 @@ package subway.section;
 
 import org.springframework.stereotype.Service;
 import subway.exception.InvalidSectionException;
+import subway.exception.NotExistException;
 import subway.line.Line;
 import subway.line.LineDao;
 import subway.station.StationDao;
@@ -21,21 +22,28 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    public void createSection(Section section) {
-        sectionDao.save(section);
+    private void validateSection(boolean upStationExist, boolean downStationExist) {
+        if (upStationExist && downStationExist) {
+            throw new InvalidSectionException("등록하려는 노선이 이미 존재합니다.");
+        }
+        if (!upStationExist && !downStationExist) {
+            throw new InvalidSectionException("이어진 노선이 존재하지 않습니다.");
+        }
+    }
+
+    public Section createSection(Section section) {
+        if (stationDao.countById(section.getUpStationId()) == 0) {
+            throw new NotExistException("상행역이 존재하지 않습니다.");
+        }
+        if (stationDao.countById(section.getDownStationId()) == 0) {
+            throw new NotExistException("하행역이 존재하지 않습니다.");
+        }
+        return sectionDao.save(section);
     }
 
     public List<Long> getStationIdsOfLine(Line line) {
         Sections sections = new Sections(sectionDao.findAllByLineId(line.getId()));
         return sections.getSortedStationIds(line.getStartStationId());
-    }
-
-    public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {
-        return sectionDao.findByUpStationIdAndLineId(upStationId, lineId);
-    }
-
-    public Section getSectionByDownstationIdAndLineId(Long downStationId, Long lineId) {
-        return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
     }
 
     public void updateSection(long id, Section section) {
@@ -44,6 +52,10 @@ public class SectionService {
 
     public void addSection(long id, Section section) {
         Line line = lineDao.findById(id);
+        if (line == null) {
+            throw new NotExistException("해당 노선이 존재하지 않습니다.");
+        }
+
         List<Long> stationIds = getStationIdsOfLine(line);
 
         boolean upStationExist = stationIds.stream()
@@ -81,6 +93,14 @@ public class SectionService {
         addSectionDownward(section, existingSection);
     }
 
+    public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {
+        return sectionDao.findByUpStationIdAndLineId(upStationId, lineId);
+    }
+
+    public Section getSectionByDownstationIdAndLineId(Long downStationId, Long lineId) {
+        return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
+    }
+
     private void extendDownwardEdge(Section section, Line line) {
         createSection(section);
         lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getDownStationId()));
@@ -101,17 +121,15 @@ public class SectionService {
         createSection(section);
     }
 
-    private void validateSection(boolean upStationExist, boolean downStationExist) {
-        if (upStationExist && downStationExist) {
-            throw new InvalidSectionException("등록하려는 노선이 이미 존재합니다.");
-        }
-        if (!upStationExist && !downStationExist) {
-            throw new InvalidSectionException("이어진 노선이 존재하지 않습니다.");
-        }
-    }
-
     public void deleteSection(long lineId, long stationId) {
         Line line = lineDao.findById(lineId);
+        if (line == null) {
+            throw new NotExistException("해당 노선이 존재하지 않습니다.");
+        }
+        if (stationDao.countById(stationId) == 0) {
+            throw new NotExistException("해당 역이 존재하지 않습니다.");
+        }
+
         if (line.isStartStation(stationId)) {
             deleteStartStation(line, stationId);
             return;

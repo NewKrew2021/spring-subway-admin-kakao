@@ -25,6 +25,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
     private LineRequest lineRequest1;
     private LineRequest lineRequest2;
 
+    private final LineResponse NOT_EXIST_LINE = new LineResponse(1000L, "TEST", "TEST", List.of());
+
     @BeforeEach
     public void setUp() {
         super.setUp();
@@ -88,6 +90,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_응답됨(response, lineResponse);
     }
 
+    @DisplayName("존재하지 않는 노선ID로 지하철 노선을 조회한다.")
+    @Test
+    void getLine_notExistId() {
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_조회_요청(NOT_EXIST_LINE);
+
+        // then
+        지하철_노선ID_존재하지_않음(response);
+    }
+
     @DisplayName("지하철 노선을 수정한다.")
     @Test
     void updateLine() {
@@ -101,6 +113,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_수정됨(response);
     }
 
+    @DisplayName("존재하지 않는 노선ID로 지하철 노선을 수정한다.")
+    @Test
+    void updateLine_notExistId() {
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_수정_요청(NOT_EXIST_LINE, lineRequest2);
+
+        // then
+        지하철_노선ID_존재하지_않음(response);
+    }
+
     @DisplayName("지하철 노선을 제거한다.")
     @Test
     void deleteLine() {
@@ -112,6 +134,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_노선_삭제됨(response);
+    }
+
+    @DisplayName("존재하지 않는 노선ID로 지하철 노선을 제거한다.")
+    @Test
+    void deleteLine_notExistId() {
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_제거_요청(NOT_EXIST_LINE);
+
+        // then
+        지하철_노선ID_존재하지_않음(response);
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
@@ -207,5 +239,9 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철_노선_삭제됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    public static void 지하철_노선ID_존재하지_않음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

@@ -58,11 +58,11 @@ public class Section {
     }
 
     public Section getMergedSection(Section otherSection) {
-        return new Section(getId(), getUpStationId(), otherSection.downStationId,getDistance() + otherSection.distance, getLineId());
+        return new Section(getId(), getUpStationId(), otherSection.downStationId, getDistance() + otherSection.distance, getLineId());
     }
 
     private void validateDistance(int distance) {
-        if(distance <= 0) {
+        if (distance <= 0) {
             throw new InvalidSectionException("구간의 길이는 0보다 커야 합니다.");
         }
     }

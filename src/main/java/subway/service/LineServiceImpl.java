@@ -5,29 +5,20 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.domain.Line;
 import subway.domain.Section;
-import subway.domain.Sections;
-import subway.domain.Station;
-import subway.dto.LineResponseWithStation;
-import subway.dto.StationResponse;
 import subway.exception.DataEmptyException;
 import subway.exception.DeleteImpossibleException;
 import subway.exception.UpdateImpossibleException;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class LineServiceImpl implements LineService {
     private final LineDao lineDao;
     private final SectionService sectionService;
-    private final StationService stationService;
 
-    public LineServiceImpl(LineDao lineDao, SectionService sectionService, StationService stationService) {
+    public LineServiceImpl(LineDao lineDao, SectionService sectionService) {
         this.lineDao = lineDao;
         this.sectionService = sectionService;
-        this.stationService = stationService;
     }
 
     @Override

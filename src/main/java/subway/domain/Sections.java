@@ -56,11 +56,15 @@ public class Sections {
     }
 
     public Long getStartStation() {
-        return this.sections.get(0).getUpStationId();
+        return this.sections
+                .get(0)
+                .getUpStationId();
     }
 
     public Long getEndStation() {
-        return this.sections.get(this.sections.size() - 1).getDownStationId();
+        return this.sections
+                .get(this.sections.size() - 1)
+                .getDownStationId();
     }
 
     public Section findSectionByUpStationId(Long id) {
@@ -100,17 +104,9 @@ public class Sections {
         return sections;
     }
 
-    @Override
-    public String toString() {
-        return "Sections{" +
-                "sections=" + sections +
-                '}';
-    }
-
     public List<Long> getStationIds() {
         Set<Long> stationIds = new LinkedHashSet<>();
-        sections.stream()
-                .forEach(section -> {
+        sections.forEach(section -> {
                     stationIds.add(section.getUpStationId());
                     stationIds.add(section.getDownStationId());
                 });

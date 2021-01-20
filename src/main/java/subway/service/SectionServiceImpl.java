@@ -2,7 +2,6 @@ package subway.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Section;
 import subway.domain.Sections;
@@ -14,11 +13,9 @@ import subway.exception.IllegalStationException;
 public class SectionServiceImpl implements SectionService {
 
     private final SectionDao sectionDao;
-    private final LineDao lineDao;
 
-    public SectionServiceImpl(SectionDao sectionDao, LineDao lineDao) {
+    public SectionServiceImpl(SectionDao sectionDao) {
         this.sectionDao = sectionDao;
-        this.lineDao = lineDao;
     }
 
     @Override

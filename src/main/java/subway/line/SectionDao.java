@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import subway.station.StationDao;
 
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -23,12 +24,12 @@ public class SectionDao {
         String sql = "insert into section (line_id, up_station_id, down_station_id, distance) values (?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setLong(1, section.getLineId());
-            ps.setLong(2, section.getUpStation().getId());
-            ps.setLong(3, section.getDownStation().getId());
-            ps.setLong(4, section.getDistance());
-            return ps;
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setLong(1, section.getLineId());
+            pstmt.setLong(2, section.getUpStation().getId());
+            pstmt.setLong(3, section.getDownStation().getId());
+            pstmt.setLong(4, section.getDistance());
+            return pstmt;
         }, keyHolder);
         return new Section(
                 keyHolder.getKey().longValue(),
@@ -69,12 +70,12 @@ public class SectionDao {
         String sql = "update section set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setLong(1, section.getUpStation().getId());
-            ps.setLong(2, section.getDownStation().getId());
-            ps.setInt(3, section.getDistance());
-            ps.setLong(4, section.getId());
-            return ps;
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setLong(1, section.getUpStation().getId());
+            pstmt.setLong(2, section.getDownStation().getId());
+            pstmt.setInt(3, section.getDistance());
+            pstmt.setLong(4, section.getId());
+            return pstmt;
         }, keyHolder);
         return new Section(keyHolder.getKey().longValue(),
                 section.getLineId(),

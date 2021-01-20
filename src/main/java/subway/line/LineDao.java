@@ -1,12 +1,12 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -24,10 +24,10 @@ public class LineDao {
         String sql = "insert into line (name, color) values (?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setString(1, line.getName());
-            ps.setString(2, line.getColor());
-            return ps;
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, line.getName());
+            pstmt.setString(2, line.getColor());
+            return pstmt;
         }, keyHolder);
         return new Line(
                 keyHolder.getKey().longValue(),
@@ -63,11 +63,11 @@ public class LineDao {
         String sql = "update line set name = ?, color = ? where id = ?";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setString(1, line.getName());
-            ps.setString(2, line.getColor());
-            ps.setLong(3, id);
-            return ps;
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, line.getName());
+            pstmt.setString(2, line.getColor());
+            pstmt.setLong(3, id);
+            return pstmt;
         }, keyHolder);
         return new Line(keyHolder.getKey().longValue(),
                 line.getName(),

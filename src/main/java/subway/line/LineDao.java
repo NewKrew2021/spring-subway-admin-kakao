@@ -1,16 +1,22 @@
 package subway.line;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.exception.exceptions.EmptyLineException;
+import subway.exception.exceptions.InvalidLineException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
 public class LineDao {
+
+    private static final String NOT_FOUND_LINE_MESSAGE = "노선을 찾을 수 없습니다.";
+    private static final String EMPTY_LINE_MESSAGE = "라인 내에 구간이 존재하지 않습니다.";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -50,11 +56,19 @@ public class LineDao {
     }
 
     public Line findById(long id) {
-        return jdbcTemplate.queryForObject("select * from LINE where id = ?", lineRowMapper, id);
+        try {
+            return jdbcTemplate.queryForObject("select * from LINE where id = ?", lineRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new InvalidLineException(NOT_FOUND_LINE_MESSAGE+" : "+e.getMessage());
+        }
     }
 
     public List<Line> findAll() {
-        return jdbcTemplate.query("select * from LINE limit 10", lineRowMapper);
+        try {
+            return jdbcTemplate.query("select * from LINE limit 10", lineRowMapper);
+        } catch (EmptyResultDataAccessException e) {
+            throw new EmptyLineException(EMPTY_LINE_MESSAGE+" : "+e.getMessage());
+        }
     }
 
     public Line updateLine(long id, LineRequest lineRequest) {

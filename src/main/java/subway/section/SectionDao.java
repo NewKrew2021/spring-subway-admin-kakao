@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.exception.exceptions.EmptySectionException;
-import subway.exception.exceptions.InvalidSectionException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.List;
 @Repository
 public class SectionDao {
 
-    private static final String NOT_FOUND_SECTION_MESSAGE = "구간을 찾을 수 없습니다.";
     private static final String EMPTY_SECTION_MESSAGE = "라인 내에 구간이 존재하지 않습니다.";
 
     private final JdbcTemplate jdbcTemplate;
@@ -49,17 +47,6 @@ public class SectionDao {
             return pstmt;
         }, keyHolder);
         return keyHolder.getKey().longValue();
-    }
-
-    public Section findById(long id) {
-        try {
-            return jdbcTemplate.queryForObject(
-                    "select * from SECTION where id = ?",
-                    sectionRowMapper, id
-            );
-        } catch (EmptyResultDataAccessException e) {
-            throw new InvalidSectionException(NOT_FOUND_SECTION_MESSAGE+" : "+e.getMessage());
-        }
     }
 
     public List<Section> findByLineId(long id) {

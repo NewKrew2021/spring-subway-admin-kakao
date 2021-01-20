@@ -111,7 +111,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 지하철_노선_수정_요청(lineResponse, lineRequest2);
 
         // then
-        지하철_노선_수정_실패함(response);
+        지하철_노선_없음(response);
     }
 
     @DisplayName("지하철 노선을 제거한다.")
@@ -137,7 +137,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
 
         // then
-        지하철_노선_삭제_실패함(response);
+        지하철_노선_없음(response);
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
@@ -241,5 +241,9 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     private static void 지하철_노선_삭제_실패함(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    private static void 지하철_노선_없음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 }

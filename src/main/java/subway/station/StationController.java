@@ -29,20 +29,12 @@ public class StationController {
     @GetMapping(value = "/stations/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> showStation(@PathVariable Long id) {
         StationResponse response = stationService.findById(id);
-        if (response == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity<?> deleteStation(@PathVariable Long id) {
-        boolean deleted = stationService.deleteById(id);
-        if (!deleted) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        stationService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

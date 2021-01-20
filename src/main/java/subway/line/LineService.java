@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import subway.exception.EntityNotFoundException;
 import subway.section.Section;
 import subway.section.SectionService;
 import subway.section.Sections;
@@ -36,12 +37,20 @@ public class LineService {
         return newLine.toDto(Stations);
     }
 
-    public boolean delete(Long lineId) {
-        return lineDao.delete(lineId);
+    public void delete(Long lineId) {
+        boolean deleted = lineDao.delete(lineId);
+
+        if (!deleted) {
+            throw new EntityNotFoundException("삭제하려는 노선이 존재하지 않습니다.");
+        }
     }
 
-    public boolean update(Long id, LineRequest lineRequest) {
-        return lineDao.update(id, lineRequest);
+    public void update(Long id, LineRequest lineRequest) {
+        boolean updated = lineDao.update(id, lineRequest);
+
+        if (!updated) {
+            throw new EntityNotFoundException("수정하려는 노선이 존재하지 않습니다.");
+        }
     }
 
     public Line findById(Long lineId) {

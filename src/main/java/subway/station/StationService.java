@@ -1,6 +1,8 @@
 package subway.station;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import subway.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -32,7 +34,10 @@ public class StationService {
         return stationDao.findById(id).toDto();
     }
 
-    public boolean deleteById(Long id) {
-        return stationDao.deleteById(id);
+    public void deleteById(Long id) {
+        boolean deleted = stationDao.deleteById(id);
+        if (!deleted) {
+            throw new EntityNotFoundException("삭제하려는 역이 존재하지 않습니다.");
+        }
     }
 }

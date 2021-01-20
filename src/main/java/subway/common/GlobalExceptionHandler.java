@@ -1,5 +1,6 @@
 package subway.common;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,4 +18,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalException(RuntimeException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
+
+//    @ExceptionHandler(DataAccessException.class)
+//    public ResponseEntity<String> handleDataAccessException(RuntimeException e) {
+//        return ResponseEntity.badRequest().body(e.getMessage());
+//    }
 }

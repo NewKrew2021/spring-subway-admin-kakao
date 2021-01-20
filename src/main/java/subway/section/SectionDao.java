@@ -9,6 +9,7 @@ import subway.line.LineRequest;
 import subway.station.Station;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -20,7 +21,7 @@ public class SectionDao {
     }
 
     public Sections insertOnCreateLine(Long lineId, Long upStationId, Long downStationId, int distance) {
-        List<Section> sections = null;
+        List<Section> sections = new ArrayList<>();
 
         sections.add(insertSection(lineId, upStationId, 0));
         sections.add(insertSection(lineId, downStationId, distance));
@@ -40,16 +41,6 @@ public class SectionDao {
         return true;
     }
 
-    public boolean delete(Long lineId, Long stationId) {
-        Sections sections = findByLineId(lineId);
-        if (sections.hasOnlyTwoSections()) {
-            return false;
-        }
-
-        deleteSection(lineId, stationId);
-        return true;
-    }
-
     public Section insertSection(Long lineId, Long stationId, int distance) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -65,7 +56,7 @@ public class SectionDao {
         return new Section(keyHolder.getKey().longValue(), lineId, stationId, distance);
     }
 
-    private boolean deleteSection(Long lineId, Long stationId) {
+    public boolean delete(Long lineId, Long stationId) {
         String sql = "delete from section where line_id = ? and station_id = ?";
         return jdbcTemplate.update(sql, lineId, stationId) > 0;
     }
@@ -81,4 +72,9 @@ public class SectionDao {
                     resultSet.getLong("line_id"),
                     resultSet.getLong("station_id"),
                     resultSet.getInt("distance"));
+
+    public int countByLineId(Long lineId) {
+        String sql = "select count(*) from section where line_id = ?";
+        return jdbcTemplate.queryForObject(sql, int.class, lineId);
+    }
 }

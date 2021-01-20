@@ -81,7 +81,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
 
         // then
-        지하철역_삭제_실패함(response);
+        지하철역_없음(response);
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {
@@ -136,6 +136,11 @@ public class StationAcceptanceTest extends AcceptanceTest {
     public static void 지하철역_삭제_실패함(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
+
+    public static void 지하철역_없음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {
         List<Long> expectedLineIds = createdResponses.stream()

@@ -35,10 +35,6 @@ public class Section implements Comparable<Section> {
         return distance;
     }
 
-    public int distanceDiffWith(Section existingSection) {
-        return distance - existingSection.distance;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

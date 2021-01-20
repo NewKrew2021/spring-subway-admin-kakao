@@ -47,41 +47,25 @@ public class LineController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
-        boolean updated = lineService.update(id, lineRequest);
-        if (!updated) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        lineService.update(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{lineId}")
     public ResponseEntity<?> deleteLine(@PathVariable Long lineId) {
-        boolean deleted = lineService.delete(lineId);
-        if (!deleted) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        lineService.delete(lineId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<?> addSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
-        boolean created = sectionService.insert(lineId, request);
-        if (!created) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
+        sectionService.insert(lineId, request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{lineId}/sections")
     public ResponseEntity<?> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        boolean deleted = sectionService.delete(lineId, stationId);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
+        sectionService.delete(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 

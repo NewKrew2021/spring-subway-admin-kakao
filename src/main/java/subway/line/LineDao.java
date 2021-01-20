@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.exception.EntityNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -51,11 +52,7 @@ public class LineDao {
 
     public Line findById(Long id) {
         String sql = "select * from line where id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
-        } catch (DataAccessException e) {
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
     public void validateName(String name) {

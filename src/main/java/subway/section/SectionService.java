@@ -22,14 +22,7 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    public Stations getStations(Sections sections) {
-        return new Stations(
-                sections.getStationIds()
-                .stream()
-                .map(stationId -> stationDao.findById(stationId))
-                .collect(Collectors.toList())
-                );
-    }
+
 
     public Sections insertOnCreateLine(Long lineId, LineRequest request) {
         validateStations(request.getUpStationId(), request.getDownStationId());
@@ -56,11 +49,21 @@ public class SectionService {
     }
 
     public boolean delete(Long lineId, Long stationId) {
+        validateMinimumSections(lineId);
         return sectionDao.delete(lineId, stationId);
     }
 
     public Sections findByLineId(Long id) {
         return sectionDao.findByLineId(id);
+    }
+
+    public Stations getStations(Sections sections) {
+        return new Stations(
+                sections.getStationIds()
+                        .stream()
+                        .map(stationId -> stationDao.findById(stationId))
+                        .collect(Collectors.toList())
+        );
     }
 
     private void validateStations(Long upStationId, Long downStationId) {
@@ -75,4 +78,9 @@ public class SectionService {
         }
     }
 
+    private void validateMinimumSections(Long lineId) {
+        if (sectionDao.countByLineId(lineId) <= 2) {
+            throw new IllegalArgumentException("노선에 역이 두 개밖에 없습니다.");
+        }
+    }
 }

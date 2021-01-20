@@ -24,7 +24,7 @@ public class Section {
     }
 
     private Section(Long lineId, Long upStationId, Long downStationId, int distance) {
-        this(null, lineId, upStationId, downStationId, distance);
+        this(0L, lineId, upStationId, downStationId, distance);
     }
 
     public static Section of(Long lineId, LineRequest lineRequest) {

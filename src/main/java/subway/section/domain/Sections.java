@@ -57,14 +57,14 @@ public class Sections {
         return notContain && uniqueContain;
     }
 
-    public Section sameUpSationId(Long id) {
+    public Section getMatchedUpStationId(Long id) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Section sameDownSationId(Long id) {
+    public Section getMatchedDownStationId(Long id) {
         return sections.stream()
                 .filter(section -> section.getDownStationId().equals(id))
                 .findFirst()
@@ -77,7 +77,7 @@ public class Sections {
         }
     }
 
-    public List<Section> getEndPointSections(Long stationId) {
+    public List<Section> getMatchedSections(Long stationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(stationId) || section.getDownStationId().equals(stationId))
                 .collect(Collectors.toList());

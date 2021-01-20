@@ -15,6 +15,7 @@ import java.util.List;
 public class SectionService {
     private static final int FIRST_INDEX = 0;
     private static final int SECOND_INDEX = 1;
+    public static final int MINIMUM_SIZE = 1;
 
     private SectionDao sectionDao;
 
@@ -28,15 +29,19 @@ public class SectionService {
         Line line = Line.of(lineId, sectionDao.getSectionsByLineId(lineId));
         line.checkOneSection();
 
-        List<Section> endPointSections = line.getEndPointSections(stationId);
+        List<Section> matchedSections = line.getMatchedSections(stationId);
 
-        if (endPointSections.size() == 1) {
-            sectionDao.deleteById(endPointSections.get(FIRST_INDEX).getId());
+        if (isEndPointSection(matchedSections)) {
+            sectionDao.deleteById(matchedSections.get(FIRST_INDEX).getId());
             return LineResponse.of(line);
         }
 
-        mergeSection(stationId, endPointSections);
+        mergeSection(stationId, matchedSections);
         return LineResponse.of(line);
+    }
+
+    private boolean isEndPointSection(List<Section> endPointSections) {
+        return endPointSections.size() == MINIMUM_SIZE;
     }
 
     private void mergeSection(Long id, List<Section> sections) {

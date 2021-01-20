@@ -26,17 +26,17 @@ public class StationDao {
             resultSet.getString("name")
     );
 
-    public Station save(String name) {
+    public Station save(Station station) {
         String sql = "insert into STATION (name) values (?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, name);
+            ps.setString(1, station.getName());
             return ps;
         }, keyHolder);
 
-        return Station.of(keyHolder.getKey().longValue(), name);
+        return Station.of(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {

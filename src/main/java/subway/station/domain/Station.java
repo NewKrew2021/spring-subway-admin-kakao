@@ -13,7 +13,7 @@ public class Station {
     }
 
     private Station(String name) {
-        this(null, name);
+        this(0L, name);
     }
 
     public static Station of(String name) {

@@ -3,6 +3,7 @@ package subway.line.domain;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Line {
@@ -12,11 +13,11 @@ public class Line {
     private Sections sections;
 
     private Line(String name, String color) {
-        this(null, name, color);
+        this(0L, name, color);
     }
 
     private Line(Long id, String name, String color) {
-        this(id, name, color, null);
+        this(id, name, color, new ArrayList<>());
     }
 
     private Line(Long id, String name, String color, List<Section> sections) {
@@ -64,18 +65,18 @@ public class Line {
     }
 
     public Section sameUpSationId(Long stationId) {
-        return sections.sameUpSationId(stationId);
+        return sections.getMatchedUpStationId(stationId);
     }
 
     public Section sameDownSationId(Long stationId) {
-        return sections.sameDownSationId(stationId);
+        return sections.getMatchedDownStationId(stationId);
     }
 
     public void checkOneSection() {
         sections.checkOneSection();
     }
 
-    public List<Section> getEndPointSections(Long stationId) {
-        return sections.getEndPointSections(stationId);
+    public List<Section> getMatchedSections(Long stationId) {
+        return sections.getMatchedSections(stationId);
     }
 }

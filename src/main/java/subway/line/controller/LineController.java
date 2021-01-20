@@ -34,8 +34,7 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
-        lineService.addSectionToLine(lineId, sectionRequest);
-        return ResponseEntity.ok().body(LineResponse.of(lineService.findById(lineId)));
+        return ResponseEntity.ok().body(lineService.addSectionToLine(lineId, sectionRequest));
     }
 
     @ExceptionHandler(RuntimeException.class)

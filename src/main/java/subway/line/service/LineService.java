@@ -46,17 +46,19 @@ public class LineService {
     }
 
     @Transactional
-    public void addSectionToLine(Long lindId, SectionRequest sectionRequest) {
-        Line line = Line.of(lindId, sectionService.getSectionsByLineId(lindId));
-        Section newSection = Section.of(lindId, sectionRequest);
+    public LineResponse addSectionToLine(Long lineId, SectionRequest sectionRequest) {
+        Line line = Line.of(lineId, sectionService.getSectionsByLineId(lineId));
+        Section newSection = Section.of(lineId, sectionRequest);
 
         line.checkAddSectionException(newSection);
 
         if (line.isEndPointSection(newSection)) {
             sectionService.save(newSection);
-            return;
+            return LineResponse.of(lineDao.findById(lineId));
         }
         addInMiddle(line, newSection);
+
+        return LineResponse.of(lineDao.findById(lineId));
     }
 
 
@@ -111,6 +113,7 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteLine(Long id) {
         lineDao.deleteById(id);
         sectionService.deleteSectionByLineId(id);

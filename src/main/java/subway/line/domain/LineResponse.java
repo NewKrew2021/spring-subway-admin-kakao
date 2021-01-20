@@ -2,6 +2,7 @@ package subway.line.domain;
 
 import subway.station.domain.StationResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LineResponse {
@@ -15,7 +16,7 @@ public class LineResponse {
     }
 
     private LineResponse(Long id, String name, String color) {
-        this(id, name, color, null);
+        this(id, name, color, new ArrayList<>());
     }
 
     private LineResponse(Long id, String name, String color, List<StationResponse> stations) {

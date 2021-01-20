@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.station.dao.StationDao;
+import subway.station.domain.Station;
 import subway.station.domain.StationRequest;
 import subway.station.domain.StationResponse;
 
@@ -34,7 +35,7 @@ public class StationService {
 
     @Transactional
     public StationResponse save(StationRequest stationRequest) {
-        return StationResponse.of(stationDao.save(stationRequest.getName()));
+        return StationResponse.of(stationDao.save(Station.of(stationRequest.getName())));
     }
 
     public StationResponse findById(Long id) {

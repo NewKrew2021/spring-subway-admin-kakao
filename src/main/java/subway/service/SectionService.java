@@ -7,8 +7,10 @@ import subway.dao.SectionDao;
 import subway.domain.section.Section;
 import subway.domain.section.Sections;
 import subway.domain.station.Station;
+import subway.exception.section.SectionDeletionException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,17 +60,30 @@ public class SectionService {
         Sections sections = getSectionsByLineId(lineId);
         sections.validateDeleteSection(stationId);
 
-        Section upsideSectionToDelete = sections.getSectionFromDownStationId(stationId);
-        Section downsideSectionToDelete = sections.getSectionFromUpStationId(stationId);
-        if (downsideSectionToDelete == null || upsideSectionToDelete == null) {
-            Section deleteSection = (downsideSectionToDelete == null ? upsideSectionToDelete : downsideSectionToDelete);
-            sectionDao.deleteById(deleteSection.getId());
+        Optional<Section> upsideSectionToDelete = sections.getSectionFromDownStationId(stationId);
+        Optional<Section> downsideSectionToDelete = sections.getSectionFromUpStationId(stationId);
+        if(checkDeleteSections(upsideSectionToDelete, downsideSectionToDelete)) {
+            deleteBothSection(upsideSectionToDelete, downsideSectionToDelete);
             return;
         }
+        deleteOneSection(upsideSectionToDelete, downsideSectionToDelete);
+    }
 
-        Section newSection = upsideSectionToDelete.attach(downsideSectionToDelete);
-        sectionDao.deleteById(downsideSectionToDelete.getId());
-        sectionDao.deleteById(upsideSectionToDelete.getId());
+    private boolean checkDeleteSections(Optional<Section> upsideSectionToDelete, Optional<Section> downsideSectionToDelete) {
+        return upsideSectionToDelete.isPresent() && downsideSectionToDelete.isPresent();
+    }
+
+    private void deleteBothSection(Optional<Section> upsideSectionToDelete, Optional<Section> downsideSectionToDelete) {
+        Section upsideSection = upsideSectionToDelete.orElseThrow(SectionDeletionException::new);
+        Section downsideSection = downsideSectionToDelete.orElseThrow(SectionDeletionException::new);
+        Section newSection = upsideSection.attach(downsideSection);
+        sectionDao.deleteById(downsideSection.getId());
+        sectionDao.deleteById(upsideSection.getId());
         save(newSection);
+    }
+
+    private void deleteOneSection(Optional<Section> upsideSectionToDelete, Optional<Section> downsideSectionToDelete) {
+        Section deleteSection = upsideSectionToDelete.orElseGet(() -> downsideSectionToDelete.orElseThrow(SectionDeletionException::new));
+        sectionDao.deleteById(deleteSection.getId());
     }
 }

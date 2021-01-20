@@ -46,29 +46,23 @@ public class Sections {
     }
 
     public Section findSectionToSplit(Section newSection) {
-        Section sectionToSplit = getSectionFromUpStationId(newSection.getUpStationId());
-        if(sectionToSplit == null) {
-            return getSectionFromDownStationId(newSection.getDownStationId());
-        }
-        return sectionToSplit;
+        return getSectionFromUpStationId(newSection.getUpStationId()).orElseGet(() -> getSectionFromDownStationId(newSection.getDownStationId()).orElseThrow(SectionSplitException::new));
     }
 
     public boolean contain(Long stationId) {
         return getAllStations().contain(stationId);
     }
 
-    public Section getSectionFromUpStationId(Long stationId) {
+    public Optional<Section> getSectionFromUpStationId(Long stationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(stationId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
-    public Section getSectionFromDownStationId(Long stationId) {
+    public Optional<Section> getSectionFromDownStationId(Long stationId) {
         return sections.stream()
                 .filter(section -> section.getDownStationId().equals(stationId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     public void validateDeleteSection(Long stationId) {

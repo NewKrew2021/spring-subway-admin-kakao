@@ -2,7 +2,6 @@ package subway.station;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.exceptions.DuplicateStationNameException;
 
 import java.net.URI;
 import java.util.List;
@@ -16,11 +15,6 @@ public class StationController {
 
     public StationController(StationService stationService) {
         this.stationService = stationService;
-    }
-
-    @ExceptionHandler(DuplicateStationNameException.class)
-    public ResponseEntity<String> errorHandler(DuplicateStationNameException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @PostMapping

@@ -11,23 +11,23 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
-    private final StationDao dao;
+    private final StationDao stationDao;
 
     public StationController(StationDao dao) {
-        this.dao = dao;
+        this.stationDao = dao;
     }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        Station newStation = dao.save(station);
+        Station newStation = stationDao.save(station);
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> responses = dao.findAll().stream()
+        List<StationResponse> responses = stationDao.findAll().stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(responses);
@@ -35,7 +35,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        dao.deleteById(id);
+        stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

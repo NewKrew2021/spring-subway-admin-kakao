@@ -71,7 +71,7 @@ public class Sections {
         Section upSection = getUpSection(downSection);
 
         if (upSection != null && downSection.calculateDistance(upSection) <= distance) {
-            throw new InvalidSectionException("새 구간의 길이는 기존에 존재하던 구간의 길이보다 크지 않아야 합니다.");
+            throw new InvalidSectionException(INVALID_DISTANCE_SECTION_ADD_ERROR);
         }
 
         return new Section(upStationId, downSection.getDistance() - distance, downSection.getLineId());

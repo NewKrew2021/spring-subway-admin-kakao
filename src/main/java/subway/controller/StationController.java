@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/stations")
 public class StationController {
 
     private final StationService stationService;
@@ -21,13 +22,13 @@ public class StationController {
         this.stationService = stationService;
     }
 
-    @PostMapping("/stations")
+    @PostMapping("")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station newStation = stationService.createStation(new Station(stationRequest.getName()));
+        Station newStation = stationService.createStation(stationRequest.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(new StationResponse(newStation.getId(), newStation.getName()));
     }
 
-    @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<Station> stations = stationService.getAllStations();
         List<StationResponse> responses = stations.stream()
@@ -36,7 +37,7 @@ public class StationController {
         return ResponseEntity.ok().body(responses);
     }
 
-    @DeleteMapping("/stations/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         stationService.deleteStation(id);
         return ResponseEntity.noContent().build();

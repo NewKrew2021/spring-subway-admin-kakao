@@ -16,8 +16,8 @@ public class LineService {
         this.lineDao = lineDao;
     }
 
-    public Line createLine(Line line) {
-        Line newLine = lineDao.save(line);
+    public Line createLine(String lineName, String lineColor) {
+        Line newLine = lineDao.save(new Line(lineName,lineColor));
         return newLine;
     }
 

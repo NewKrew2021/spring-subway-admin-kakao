@@ -8,6 +8,7 @@ import subway.domain.section.Sections;
 import subway.dao.LineDao;
 import subway.domain.station.Station;
 import subway.dao.StationDao;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,15 +25,15 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    public void createSection(Section section) {
-        sectionDao.save(section);
+    public void createSection(long stationId, int distance, long lineId) {
+        sectionDao.save(new Section(stationId, distance, lineId));
     }
 
     public List<Station> getStationsOfLine(long lineId) {
         return sectionDao.findAllStationsByLineId(lineId)
                 .stream()
-                .map(section -> section.getStationId())
-                .map(stationId -> stationDao.findById(stationId))
+                .map(Section::getStationId)
+                .map(stationDao::findById)
                 .collect(Collectors.toList());
     }
 
@@ -40,7 +41,7 @@ public class SectionService {
     @Transactional
     public void addSection(long lineId, long upStationId, long downStationId, int distance) {
         Sections sections = makeSections(lineId);
-        Section newSection = sections.addSection(upStationId,downStationId,distance);
+        Section newSection = sections.addSection(upStationId, downStationId, distance);
         sectionDao.save(newSection);
     }
 

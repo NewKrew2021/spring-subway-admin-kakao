@@ -23,7 +23,7 @@
         ></v-select>
         <div class="d-flex">
           <v-select
-              v-model="sectionForm.upStationId"
+              v-model="sectionForm.upStationID"
               class="pr-5"
               :items="allStationsView"
               label="상행역"
@@ -34,7 +34,7 @@
               dense
           ></v-select>
           <v-select
-              v-model="sectionForm.downStationId"
+              v-model="sectionForm.downStationID"
               class="pl-5"
               :items="allStationsView"
               label="하행역"
@@ -151,8 +151,8 @@ export default {
     initSectionForm() {
       this.sectionForm = {
         lineId: '',
-        upStationId: '',
-        downStationId: '',
+        upStationID: '',
+        downStationID: '',
         distance: ''
       }
     }
@@ -162,8 +162,8 @@ export default {
       rules: { ...validator },
       sectionForm: {
         lineId: '',
-        upStationId: '',
-        downStationId: '',
+        upStationID: '',
+        downStationID: '',
         distance: ''
       },
       selectedLine: {},

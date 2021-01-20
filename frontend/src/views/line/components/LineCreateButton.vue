@@ -20,7 +20,7 @@
         ></v-text-field>
         <div class="d-flex">
           <v-select
-              v-model="lineForm.upStationId"
+              v-model="lineForm.upStationID"
               class="pr-4"
               :items="allStationsView"
               label="상행 종점"
@@ -32,7 +32,7 @@
           ></v-select>
           <v-icon class="relative bottom-15">mdi-arrow-left-right-bold</v-icon>
           <v-select
-              v-model="lineForm.downStationId"
+              v-model="lineForm.downStationID"
               class="pl-4"
               :items="allStationsView"
               label="하행 종점"
@@ -119,8 +119,8 @@ export default {
         this.lineForm = {
           name: '',
           color: '',
-          upStationId: '',
-          downStationId: '',
+          upStationID: '',
+          downStationID: '',
           distance: '',
           extraFare: ''
         }
@@ -155,8 +155,8 @@ export default {
       lineForm: {
         name: '',
         color: '',
-        upStationId: '',
-        downStationId: '',
+        upStationID: '',
+        downStationID: '',
         distance: '',
         extraFare: ''
       },

@@ -10,7 +10,7 @@ public class LineRequest {
     private int distance;
     private int extraFare;
 
-    @ConstructorProperties({"name", "color", "upStationId", "downStationId", "distance"})
+    @ConstructorProperties({"name", "color", "upStationID", "downStationID", "distance"})
     public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
         this.name = name;
         this.color = color;

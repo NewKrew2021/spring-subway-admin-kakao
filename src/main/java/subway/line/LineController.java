@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/lines")
 public class LineController {
+    private static final boolean FIRST_SECTION = true;
+    private static final boolean LAST_SECTION = true;
 
     @Resource
     private StationService stationService;
@@ -27,7 +29,7 @@ public class LineController {
         try {
             Line line = lineRequest.getLine();
             Long lindId = lineService.create(line);
-            Section section = new Section(lindId, line);
+            Section section = new Section(lindId, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance(), FIRST_SECTION, LAST_SECTION);
             sectionService.create(section);
             LineResponse lineResponse = new LineResponse(lindId, line.getName(), line.getColor(), stationService.getStations(lindId));
 
@@ -57,7 +59,8 @@ public class LineController {
 
     @PutMapping(value = "/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long lineId, @RequestBody LineRequest lineRequest) {
-        lineService.update(lineId, lineRequest);
+        Line line = lineRequest.getLine(lineId);
+        lineService.update(line);
 
         return ResponseEntity.ok().build();
     }

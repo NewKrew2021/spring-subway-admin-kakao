@@ -16,6 +16,8 @@ public class SectionMapper implements RowMapper<Section>, Serializable {
                 rs.getLong("line_id"),
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
-                rs.getInt("distance"));
+                rs.getInt("distance"),
+                rs.getBoolean("first_section"),
+                rs.getBoolean("last_section"));
     }
 }

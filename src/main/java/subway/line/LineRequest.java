@@ -39,6 +39,10 @@ public class LineRequest {
     }
 
     public Line getLine() {
-        return new Line(name, color, upStationId, downStationId, distance);
+        return new Line(name, color);
+    }
+
+    public Line getLine(Long id) {
+        return new Line(id, name, color);
     }
 }

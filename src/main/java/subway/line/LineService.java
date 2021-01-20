@@ -27,7 +27,7 @@ public class LineService {
         return lineDao.findById(lineId);
     }
 
-    public void update(Long lineId, LineRequest lineRequest) {
-        lineDao.update(new Line(lineId, lineRequest.getName(), lineRequest.getColor(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
+    public void update(Line line) {
+        lineDao.update(line);
     }
 }

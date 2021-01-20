@@ -12,9 +12,11 @@ import java.util.Map;
 
 @Service
 public class SectionService {
+    private static final boolean LAST_SECTION = true;
+    private static final boolean FIRST_SECTION = true;
+    private static final boolean NOT_FIRST_SECTION = false;
+    private static final boolean NOT_LAST_SECTION = false;
 
-    @Resource
-    private LineDao lineDao;
     @Resource
     private StationDao stationDao;
     @Resource
@@ -25,30 +27,36 @@ public class SectionService {
     }
 
     public void create(Long lineId, SectionRequest sectionRequest) {
-        Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section section = new Section(lineId,
+                sectionRequest.getUpStationId(),
+                sectionRequest.getDownStationId(),
+                sectionRequest.getDistance(),
+                NOT_FIRST_SECTION,
+                NOT_LAST_SECTION);
         List<Section> sections = sectionDao.findByLineId(lineId);
-        Line line = lineDao.findById(lineId);
+        Section firstSection = sectionDao.findFirstByLineId(lineId);
+        Section lastSection = sectionDao.findLastByLineId(lineId);
 
         Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
         Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
 
-        if (Section.isAddStation(sectionRequest.getUpStationId(), line.getDownStationId())) {
-            addLastStation(line, sectionRequest, newSection);
+        if (sectionRequest.getUpStationId().equals(lastSection.getDownStationId())) {
+            addLastStation(section, lastSection);
             return;
         }
 
-        if (Section.isAddStation(sectionRequest.getDownStationId(), line.getUpStationId())) {
-            addFirstStation(line, sectionRequest, newSection);
+        if (sectionRequest.getDownStationId().equals(firstSection.getUpStationId())) {
+            addFirstStation(section, firstSection);
             return;
         }
 
         if (orderedSections.containsKey(sectionRequest.getUpStationId())) {
-            addDownStation(orderedSections, line, sectionRequest);
+            addDownStation(orderedSections, lineId, sectionRequest);
             return;
         }
 
         if (reverseOrderedSections.containsKey(sectionRequest.getDownStationId())) {
-            addUpStation(reverseOrderedSections, line, sectionRequest);
+            addUpStation(reverseOrderedSections, lineId, sectionRequest);
             return;
         }
 
@@ -61,13 +69,25 @@ public class SectionService {
 
     public void delete(Long lineId, Long stationId) {
         List<Section> sections = sectionDao.findByStationIdAndLineId(stationId, lineId);
-        Line line = lineDao.findById(lineId);
+        Section firstSection = sectionDao.findFirstByLineId(lineId);
+        Section lastSection = sectionDao.findLastByLineId(lineId);
 
-        if (line.isEndStation(sections.size())) {
-            Section endSection = sections.get(0);
-            line.updateEndStation(endSection, stationId);
-            sectionDao.deleteById(endSection.getId());
-            lineDao.update(line);
+        Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
+        Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
+
+        if (stationId.equals(firstSection.getUpStationId())) {
+            Section nextSection = orderedSections.get(firstSection.getDownStationId());
+            nextSection.setFirstSection(true);
+            sectionDao.deleteById(firstSection.getId());
+            sectionDao.update(nextSection);
+            return;
+        }
+
+        if (stationId.equals(lastSection.getDownStationId())) {
+            Section previousSection = reverseOrderedSections.get(firstSection.getUpStationId());
+            previousSection.setLastSection(true);
+            sectionDao.deleteById(lastSection.getId());
+            sectionDao.update(previousSection);
             return;
         }
 
@@ -102,31 +122,21 @@ public class SectionService {
                 || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
-    private void addLastStation(Line line, SectionRequest sectionRequest, Section newSection) {
-        Line updateLine = new Line(line.getId(),
-                line.getName(),
-                line.getColor(),
-                line.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                line.getDistance() + sectionRequest.getDistance());
-
-        lineDao.update(updateLine);
-        sectionDao.save(newSection);
+    private void addLastStation(Section section, Section lastSection) {
+        lastSection.setLastSection(NOT_LAST_SECTION);
+        section.setLastSection(LAST_SECTION);
+        sectionDao.update(lastSection);
+        sectionDao.save(section);
     }
 
-    private void addFirstStation(Line line, SectionRequest sectionRequest, Section newSection) {
-        Line updateLine = new Line(line.getId(),
-                line.getName(),
-                line.getColor(),
-                sectionRequest.getUpStationId(),
-                line.getDownStationId(),
-                line.getDistance() + sectionRequest.getDistance());
-
-        lineDao.update(updateLine);
-        sectionDao.save(newSection);
+    private void addFirstStation(Section section, Section firstSection) {
+        firstSection.setFirstSection(NOT_FIRST_SECTION);
+        section.setFirstSection(FIRST_SECTION);
+        sectionDao.update(firstSection);
+        sectionDao.save(section);
     }
 
-    private void addDownStation(Map<Long, Section> orderedSections, Line line, SectionRequest sectionRequest) {
+    private void addDownStation(Map<Long, Section> orderedSections, Long lineId, SectionRequest sectionRequest) {
         Long upStationId = sectionRequest.getUpStationId();
         int distanceSum = 0;
 
@@ -139,19 +149,23 @@ public class SectionService {
 
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
                 Section newSection = new Section(
-                        line.getId(),
+                        lineId,
                         upStationId,
                         sectionRequest.getDownStationId(),
-                        sectionRequest.getDistance() - distanceSum);
+                        sectionRequest.getDistance() - distanceSum,
+                        section.isFirstSection(),
+                        NOT_LAST_SECTION);
 
                 sectionDao.save(newSection);
 
                 Section updateSection = new Section(
                         section.getId(),
-                        line.getId(),
+                        lineId,
                         sectionRequest.getDownStationId(),
                         section.getDownStationId(),
-                        distanceSum + section.getDistance() - sectionRequest.getDistance());
+                        distanceSum + section.getDistance() - sectionRequest.getDistance(),
+                        NOT_FIRST_SECTION,
+                        section.isLastSection());
 
                 sectionDao.update(updateSection);
                 return;
@@ -163,7 +177,7 @@ public class SectionService {
         throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
     }
 
-    private void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest
+    private void addUpStation(Map<Long, Section> reverseOrderedSections, Long lineId, SectionRequest
             sectionRequest) {
         Long downStationId = sectionRequest.getDownStationId();
         int distanceSum = 0;
@@ -177,19 +191,23 @@ public class SectionService {
 
             if (distanceSum + section.getDistance() > sectionRequest.getDistance()) {
                 Section newSection = new Section(
-                        line.getId(),
+                        lineId,
                         sectionRequest.getUpStationId(),
                         downStationId,
-                        sectionRequest.getDistance() - distanceSum);
+                        sectionRequest.getDistance() - distanceSum,
+                        NOT_FIRST_SECTION,
+                        section.isLastSection());
 
                 sectionDao.save(newSection);
 
                 Section updateSection = new Section(
                         section.getId(),
-                        line.getId(),
+                        lineId,
                         section.getUpStationId(),
                         sectionRequest.getUpStationId(),
-                        distanceSum + section.getDistance() - sectionRequest.getDistance());
+                        distanceSum + section.getDistance() - sectionRequest.getDistance(),
+                        section.isFirstSection(),
+                        NOT_LAST_SECTION);
 
                 sectionDao.update(updateSection);
                 return;

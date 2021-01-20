@@ -10,21 +10,21 @@ public class Section {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private boolean firstSection;
+    private boolean lastSection;
 
-    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance, boolean firstSection, boolean lastSection) {
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        this.firstSection = firstSection;
+        this.lastSection = lastSection;
     }
 
-    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
-        this(lineId, upStationId, downStationId, distance);
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance, boolean firstSection, boolean lastSection) {
+        this(lineId, upStationId, downStationId, distance, firstSection, lastSection);
         this.id = id;
-    }
-
-    public Section(Long lineId, Line line) {
-        this(lineId, line.getUpStationId(), line.getDownStationId(), line.getDistance());
     }
 
     public Long getId() {
@@ -45,6 +45,22 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    public boolean isFirstSection() {
+        return firstSection;
+    }
+
+    public void setFirstSection(boolean firstSection) {
+        this.firstSection = firstSection;
+    }
+
+    public boolean isLastSection() {
+        return lastSection;
+    }
+
+    public void setLastSection(boolean lastSection) {
+        this.lastSection = lastSection;
     }
 
     public Section merge(Section section, Long stationId) {
@@ -69,9 +85,5 @@ public class Section {
     public static Map<Long, Section> getReverseOrderedSections(List<Section> sections) {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
-    }
-
-    public static boolean isAddStation(Long sectionRequestStationId, Long lineStationId) {
-        return sectionRequestStationId.equals(lineStationId);
     }
 }

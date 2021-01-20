@@ -1,24 +1,17 @@
 package subway.line;
 
 public class Line {
-    private static final int END_STATION_SECTION_SIZE = 1;
     private Long id;
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
 
-    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
+    public Line(String name, String color) {
         this.name = name;
         this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
-        this.distance = distance;
     }
 
-    public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
-        this(name, color, upStationId, downStationId, distance);
+    public Line(Long id, String name, String color) {
+        this(name, color);
         this.id = id;
     }
 
@@ -32,33 +25,5 @@ public class Line {
 
     public String getColor() {
         return color;
-    }
-
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    public boolean isEndStation(int sectionListSize) {
-        return sectionListSize == END_STATION_SECTION_SIZE;
-    }
-
-    public void updateEndStation(Section endSection, Long stationId) {
-        if (stationId.equals(endSection.getUpStationId())) {
-            this.upStationId = endSection.getDownStationId();
-        }
-
-        if (stationId.equals(endSection.getDownStationId())) {
-            this.downStationId = endSection.getUpStationId();
-        }
-
-        this.distance -= endSection.getDistance();
     }
 }

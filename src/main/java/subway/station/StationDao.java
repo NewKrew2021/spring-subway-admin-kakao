@@ -12,10 +12,10 @@ import java.util.List;
 
 @Repository
 public class StationDao {
-    public static final String SAVE_SQL = "insert into STATION (name) values (?)";
-    public static final String FIND_ALL_SQL = "select id, name from STATION";
-    public static final String FIND_BY_ID_SQL = "select id, name from STATION where id = ?";
-    public static final String DELETE_SQL = "delete from STATION where id = ?";
+    private static final String SAVE_SQL = "insert into STATION (name) values (?)";
+    private static final String FIND_ALL_SQL = "select id, name from STATION";
+    private static final String FIND_BY_ID_SQL = "select id, name from STATION where id = ?";
+    private static final String DELETE_SQL = "delete from STATION where id = ?";
 
     @Resource
     JdbcTemplate jdbcTemplate;

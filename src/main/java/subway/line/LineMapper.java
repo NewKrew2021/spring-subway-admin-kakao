@@ -14,9 +14,6 @@ public class LineMapper implements RowMapper<Line>, Serializable {
     public Line mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Line(rs.getLong("id"),
                 rs.getString("name"),
-                rs.getString("color"),
-                rs.getLong("up_station_id"),
-                rs.getLong("down_station_id"),
-                rs.getInt("distance"));
+                rs.getString("color"));
     }
 }

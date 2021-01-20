@@ -1,8 +1,6 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
-import subway.line.Line;
-import subway.line.LineDao;
 import subway.line.Section;
 import subway.line.SectionDao;
 
@@ -17,8 +15,6 @@ public class StationService {
     @Resource
     public StationDao stationDao;
     @Resource
-    public LineDao lineDao;
-    @Resource
     public SectionDao sectionDao;
 
     public Long create(Station station) {
@@ -30,12 +26,11 @@ public class StationService {
     }
 
     public List<Station> getStations(Long lineId) {
-        Line line = lineDao.findById(lineId);
         List<Section> sections = sectionDao.findByLineId(lineId);
         List<Station> stations = new ArrayList<>();
 
         Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
-        Long upStationId = line.getUpStationId();
+        Long upStationId = sectionDao.findFirstByLineId(lineId).getUpStationId();
         stations.add(stationDao.findById(upStationId));
 
         while (orderedSections.containsKey(upStationId)) {

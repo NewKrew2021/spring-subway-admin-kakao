@@ -12,11 +12,11 @@ import java.util.List;
 
 @Repository
 public class LineDao {
-    public static final String SAVE_SQL = "insert into LINE (name, color, up_station_id, down_station_id, distance) values (?, ?, ?, ?, ?)";
-    public static final String FIND_ALL_SQL = "select id, name, color, up_station_id, down_station_id, distance from LINE";
-    public static final String FIND_BY_ID_SQL = "select id, name, color, up_station_id, down_station_id, distance from LINE where id = ?";
-    public static final String UPDATE_SQL = "update LINE set up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
-    public static final String DELETE_SQL = "delete from LINE where id = ?";
+    private static final String SAVE_SQL = "insert into LINE (name, color) values (?, ?)";
+    private static final String FIND_ALL_SQL = "select id, name, color from LINE";
+    private static final String FIND_BY_ID_SQL = "select id, name, color from LINE where id = ?";
+    private static final String UPDATE_SQL = "update LINE set name = ?, color = ? where id = ?";
+    private static final String DELETE_SQL = "delete from LINE where id = ?";
 
     @Resource
     JdbcTemplate jdbcTemplate;
@@ -30,9 +30,6 @@ public class LineDao {
             PreparedStatement ps = con.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, line.getName());
             ps.setString(2, line.getColor());
-            ps.setLong(3, line.getUpStationId());
-            ps.setLong(4, line.getDownStationId());
-            ps.setInt(5, line.getDistance());
             return ps;
         }, keyHolder);
 
@@ -48,7 +45,7 @@ public class LineDao {
     }
 
     public void update(Line line) {
-        jdbcTemplate.update(UPDATE_SQL, line.getUpStationId(), line.getDownStationId(), line.getDistance(), line.getId());
+        jdbcTemplate.update(UPDATE_SQL, line.getName(), line.getColor(), line.getId());
     }
 
     public void deleteById(Long id) {

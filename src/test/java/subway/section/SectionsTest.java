@@ -47,6 +47,25 @@ class SectionsTest {
                 .withMessage("구간에 포함되는 역의 갯수는 두개 이상이어야 합니다");
     }
 
+    @DisplayName("초기 구간은 2개의 구간으로 이루어진다")
+    @Test
+    void initialize() {
+        // given
+        long lineId = 1L;
+        SectionRequest request = new SectionRequest(2L, 3L, 5);
+
+        // when
+        Sections result = Sections.initialize(lineId, request);
+
+        // then
+        assertThat(result).extracting("sections")
+                .usingRecursiveComparison()
+                .isEqualTo(Arrays.asList(
+                        new Section(lineId, request.getUpStationId(), 0),
+                        new Section(lineId, request.getDownStationId(), 5)
+                ));
+    }
+
     /**
      * 10은 새로 추가될 구간의 역 id
      * <p>

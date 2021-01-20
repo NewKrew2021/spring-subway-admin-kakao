@@ -57,6 +57,11 @@ public class SectionDao {
         return jdbcTemplate.query("select * from section where line_id = ? order by distance", sectionMapper, lineId);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existBy(Long lineId) {
+        return jdbcTemplate.queryForObject("select count(*) from section where line_id = ?", int.class, lineId) != 0;
+    }
+
     public void delete(Section section) {
         jdbcTemplate.update("delete from section where id = ?", section.getId());
     }

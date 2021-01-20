@@ -1,5 +1,6 @@
 package subway.section;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ public class Sections {
 
     private static final int INITIAL_SIZE = 2;
     private static final int NEXT_INDEX = 1;
+    private static final int INITIAL_DEFAULT_POSITION = 0;
 
     private final List<Section> sections;
 
@@ -32,6 +34,15 @@ public class Sections {
 
     public static Sections from(List<Section> sections) {
         return new Sections(sections);
+    }
+
+    public static Sections initialize(Long lineId, SectionRequest request) {
+        return Sections.from(
+                Arrays.asList(
+                        new Section(lineId, request.getUpStationId(), INITIAL_DEFAULT_POSITION),
+                        new Section(lineId, request.getDownStationId(), request.getDistance() + INITIAL_DEFAULT_POSITION)
+                )
+        );
     }
 
     public Section createNewSection(long upStationId, long downStationId, int distance) {
@@ -115,5 +126,9 @@ public class Sections {
             throw new IllegalArgumentException("해당 구간은 하행 종점입니다");
         }
         return sections.get(getIndexOf(section) + NEXT_INDEX);
+    }
+
+    public List<Section> getSections() {
+        return sections;
     }
 }

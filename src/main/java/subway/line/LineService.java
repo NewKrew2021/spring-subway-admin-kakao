@@ -28,7 +28,7 @@ public class LineService {
         }
 
         Line newLine = lineDao.save(request.toEntity());
-        sectionService.initializeByLine(newLine.getId(), request.getSectionRequest());
+        sectionService.createSection(newLine.getId(), request.getSectionRequest());
         return LineResponse.from(newLine, sectionService.getStationsOf(newLine.getId()));
     }
 
@@ -56,5 +56,6 @@ public class LineService {
 
     public void delete(Long id) {
         lineDao.deleteById(id);
+        sectionService.removeSectionsByLine(id);
     }
 }

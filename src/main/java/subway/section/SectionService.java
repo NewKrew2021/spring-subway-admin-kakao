@@ -22,11 +22,6 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    public void initializeByLine(long lineId, SectionRequest request) {
-        sectionDao.save(new Section(lineId, request.getUpStationId(), 0));
-        sectionDao.save(new Section(lineId, request.getDownStationId(), request.getDistance()));
-    }
-
     @Transactional(readOnly = true)
     public List<StationResponse> getStationsOf(long lineId) {
         return getSectionsBy(lineId)
@@ -40,16 +35,33 @@ public class SectionService {
     }
 
     public void createSection(long lineId, SectionRequest request) {
+        if (!sectionDao.existBy(lineId)) {
+            saveInitialSections(lineId, request);
+            return;
+        }
+
         sectionDao.save(
                 getSectionsBy(lineId)
                         .createNewSection(request.getUpStationId(), request.getDownStationId(), request.getDistance())
         );
     }
 
+    private void saveInitialSections(long lineId, SectionRequest request) {
+        for (Section section : Sections.initialize(lineId, request).getSections()) {
+            sectionDao.save(section);
+        }
+    }
+
     public void removeSection(long lineId, long stationId) {
         getSectionsBy(lineId)
                 .findSectionToDeleteBy(stationId)
                 .ifPresent(sectionDao::delete);
+    }
+
+    public void removeSectionsByLine(long lineId) {
+        for (Section section : getSectionsBy(lineId).getSections()) {
+            sectionDao.delete(section);
+        }
     }
 
     public Sections getSectionsBy(long lineId) {

@@ -83,7 +83,6 @@ public class LineController {
         ));
         sectionDao.deleteById(next.getId());
         stationDao.deleteById(stationId);
-        line.deleteStation(stationId);
         return ResponseEntity.noContent().build();
     }
 

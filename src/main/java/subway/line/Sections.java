@@ -17,13 +17,12 @@ public class Sections {
         this.sections = new ArrayList<>();
     }
 
-    public Sections(List<Section> sections) {
-        this.sections = new ArrayList<>();
+    public void initSections(List<Section> sections) {
         Map<Station, List<Section>> countMap = new HashMap<>();
         sections.forEach(section -> {
-            countMap.computeIfAbsent(section.getUpStation(), (key) -> new ArrayList<>());
+            countMap.computeIfAbsent(section.getUpStation(), (key)->new ArrayList<>());
             countMap.get(section.getUpStation()).add(section);
-            countMap.computeIfAbsent(section.getDownStation(), (key) -> new ArrayList<>());
+            countMap.computeIfAbsent(section.getDownStation(),(key)->new ArrayList<>());
             countMap.get(section.getDownStation()).add(section);
         });
         Section firstSection = getFirstSection(countMap);

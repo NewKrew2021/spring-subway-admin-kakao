@@ -10,11 +10,11 @@ public class ExceptionController {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<String> badRequestException(){
-        return ResponseEntity.badRequest().body("BadRequestException");
+        return ResponseEntity.badRequest().build();
     }
 
-    @ExceptionHandler(InvalidValueException.class)
-    public ResponseEntity<String> handleInvalidValueException(){
+    @ExceptionHandler(InvalidSectionException.class)
+    public ResponseEntity<String> InvalidSectionException(){
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }

@@ -19,8 +19,8 @@ public class SectionService {
     }
 
     public SectionResponse addSectionToLine(SectionRequest sectionRequest) {
-        Sections sections = sectionDao.getByLineId(sectionRequest.getLineId());
-        OrderedSections orderedSections = new OrderedSections(sections);
+        OrderedSections orderedSections = new OrderedSections(
+                sectionDao.getByLineId(sectionRequest.getLineId()));
         Section sectionToAdd = sectionRequest.getDomain();
 
         orderedSections.validateSectionAddRequest(sectionToAdd);
@@ -33,7 +33,7 @@ public class SectionService {
     }
 
     public void deleteStationFromLine(Long lineId, Long stationId) {
-        Sections sections = sectionDao.getByLineId(lineId);
+        Sections sections = new Sections(sectionDao.getByLineId(lineId));
         Section upsideSectionToDelete = sections.getDownMatchSection(stationId);
         Section downsideSectionToDelete = sections.getUpMatchSection(stationId);
 

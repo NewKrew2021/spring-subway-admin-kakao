@@ -8,8 +8,9 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Section;
-import subway.domain.Sections;
 import subway.query.Sql;
+
+import java.util.List;
 
 @Repository
 public class SectionDao {
@@ -34,8 +35,8 @@ public class SectionDao {
                 section.getDownStationId(), section.getDistance());
     }
 
-    public Sections getByLineId(Long lineId) {
-        return new Sections(jdbcTemplate.query(Sql.SELECT_SECTION_WITH_LINE_ID, sectionMapper, lineId));
+    public List<Section> getByLineId(Long lineId) {
+        return jdbcTemplate.query(Sql.SELECT_SECTION_WITH_LINE_ID, sectionMapper, lineId);
     }
 
     public boolean deleteById(Long sectionId) {

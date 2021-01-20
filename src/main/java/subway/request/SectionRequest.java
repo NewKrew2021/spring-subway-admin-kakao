@@ -2,6 +2,7 @@ package subway.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import subway.domain.Section;
+import subway.exception.custom.SameUpstationDownStationException;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -30,6 +31,13 @@ public class SectionRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+        validateSection(upStationId, downStationId);
+    }
+
+    private void validateSection(Long upStationId, Long downStationId) {
+        if (upStationId.equals(downStationId)) {
+            throw new SameUpstationDownStationException();
+        }
     }
 
     public Section getDomain() {

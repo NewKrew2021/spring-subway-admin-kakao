@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 public class Sections {
     private final List<Section> sections;
 
-    public Sections(List<Section> Sections) {
-        this.sections = Sections;
+    public Sections(List<Section> sections) {
+        this.sections = sections;
     }
 
     public Section getUpMatchSection(Long stationId) {
@@ -45,10 +45,6 @@ public class Sections {
         Map<Long, Section> connection = new HashMap<>();
         sections.forEach(section -> connection.put(section.getUpStationId(), section));
         return connection;
-    }
-
-    public int size() {
-        return sections.size();
     }
 
     @Override

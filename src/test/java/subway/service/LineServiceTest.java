@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import subway.dao.SectionDao;
 import subway.domain.Section;
-import subway.domain.Sections;
 import subway.domain.Station;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
@@ -55,12 +54,12 @@ public class LineServiceTest {
     @Test
     public void deleteLineTest() {
         assertThat(sectionDao.getByLineId(분당선.getId())).isEqualTo(
-                new Sections(Arrays.asList(new Section(분당선.getId(), 강남역.getId(), 역삼역.getId(), 3),
-                        new Section(분당선.getId(), 역삼역.getId(), 광교역.getId(), 3)))
+                Arrays.asList(new Section(분당선.getId(), 강남역.getId(), 역삼역.getId(), 3),
+                        new Section(분당선.getId(), 역삼역.getId(), 광교역.getId(), 3))
         );
 
         lineService.deleteLine(분당선.getId());
-        assertThat(sectionDao.getByLineId(분당선.getId())).isEqualTo(new Sections(Collections.emptyList()));
+        assertThat(sectionDao.getByLineId(분당선.getId())).isEqualTo(Collections.emptyList());
     }
 
     @DisplayName("지하철 노선들을 기반으로 지하철역을 상행부터 하행 순으로 정렬한다.")

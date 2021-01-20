@@ -116,7 +116,25 @@ public class SectionServiceTest {
         assertThat(sectionService.getStationsOfLine(2L).stream()
                 .map(Station::getId)
                 .collect(Collectors.toList())).isEqualTo(Arrays.asList(1L,2L));
+    }
 
+    @Test
+    @DisplayName("해당 라인의 모든 구간을 삭제한다.")
+    public void deleteAllSections() {
+        //given
+        stationService.createStation("광교");
+        stationService.createStation("광교중앙");
+        stationService.createStation("상현");
+
+        sectionService.createSection(2L,512,2L);
+        sectionService.createSection(3L, 142,2L);
+        sectionService.createSection(1L,-53,2L);
+
+        //when
+        sectionService.deleteAllSectionsOfLine(2L);
+
+        //then
+        assertThat(sectionService.getStationsOfLine(2L).size()).isZero();
 
     }
 

@@ -50,6 +50,10 @@ public class SectionService {
         sectionDao.deleteByStationId(stationId);
     }
 
+    public void deleteAllSectionsOfLine(long lineId) {
+        sectionDao.deleteAllSectionsByLineId(lineId);
+    }
+
     private Sections makeSections(long lineId) {
         return new Sections(sectionDao.findAllStationsByLineId(lineId));
     }

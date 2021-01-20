@@ -8,23 +8,48 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/stations")
 public class StationController {
+    private final StationDao stationDao;
 
-    @PostMapping("/stations")
+    public StationController(StationDao stationDao) {
+        this.stationDao = stationDao;
+    }
+
+    @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = new Station(stationRequest.getName());
-        Station newStation = new StationDao().save(station);
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
-        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
+        Station newStation = stationDao.insert(new Station(stationRequest.getName()));
+        if (newStation == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        StationResponse response = newStation.toDto();
+        return ResponseEntity.created(URI.create("/stations/" + response.getID())).body(response);
     }
 
-    @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return ResponseEntity.ok().build();
+        Stations stations = new Stations(stationDao.findAll());
+        return ResponseEntity.ok(stations.allToDto());
     }
 
-    @DeleteMapping("/stations/{id}")
-    public ResponseEntity deleteStation(@PathVariable Long id) {
+    @GetMapping(value = "/{stationID}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StationResponse> showStation(@PathVariable Long stationID) {
+        Station station = stationDao.findByID(stationID);
+        if (station == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(station.toDto());
+    }
+
+    @DeleteMapping("/{stationID}")
+    public ResponseEntity<?> deleteStation(@PathVariable Long stationID) {
+        boolean deleted = stationDao.deleteByID(stationID);
+        if (!deleted) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.noContent().build();
     }
 }

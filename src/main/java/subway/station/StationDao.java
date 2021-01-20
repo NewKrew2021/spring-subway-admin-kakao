@@ -1,33 +1,57 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+    private final JdbcTemplate jdbcTemplate;
 
-    public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public Station insert(Station station) {
+        String sql = "insert into station (name) values(?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        try {
+            jdbcTemplate.update(con -> {
+                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+                st.setString(1, station.getName());
+                return st;
+            }, keyHolder);
+        } catch (DataAccessException ignored) {
+            return null;
+        }
+
+        return new Station(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {
-        return stations;
+        String sql = "select * from station";
+        return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+    public Station findByID(Long id) {
+        String sql = "select id, name from station where id = ?";
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public boolean deleteByID(Long id) {
+        String sql = "delete from station where id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
+
+    private final RowMapper<Station> stationRowMapper =
+            (resultSet, rowNum) -> new Station(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"));
 }

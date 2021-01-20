@@ -1,20 +1,21 @@
 package subway.line;
 
+import java.beans.ConstructorProperties;
+
 public class LineRequest {
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
+    private Long upStationID;
+    private Long downStationID;
     private int distance;
+    private int extraFare;
 
-    public LineRequest() {
-    }
-
-    public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
+    @ConstructorProperties({"name", "color", "upStationID", "downStationID", "distance"})
+    public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
         this.name = name;
         this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this.upStationID = upStationID;
+        this.downStationID = downStationID;
         this.distance = distance;
     }
 
@@ -26,15 +27,19 @@ public class LineRequest {
         return color;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
+    public Long getUpStationID() {
+        return upStationID;
     }
 
-    public Long getDownStationId() {
-        return downStationId;
+    public Long getDownStationID() {
+        return downStationID;
     }
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
     }
 }

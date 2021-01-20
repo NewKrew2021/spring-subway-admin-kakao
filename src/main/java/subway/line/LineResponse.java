@@ -2,15 +2,16 @@ package subway.line;
 
 import subway.station.StationResponse;
 
+import java.beans.ConstructorProperties;
 import java.util.List;
 
 public class LineResponse {
     private Long id;
     private String name;
     private String color;
-    private int extraFare;
     private List<StationResponse> stations;
 
+    @ConstructorProperties({"id", "name", "color", "stations"})
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;
@@ -18,7 +19,7 @@ public class LineResponse {
         this.stations = stations;
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

@@ -1,18 +1,18 @@
 package subway.station;
 
+import java.beans.ConstructorProperties;
+
 public class StationResponse {
     private Long id;
     private String name;
 
-    public StationResponse() {
-    }
-
+    @ConstructorProperties({"id", "name"})
     public StationResponse(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 

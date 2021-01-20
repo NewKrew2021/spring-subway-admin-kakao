@@ -4,37 +4,26 @@ import subway.exception.NoContentException;
 import subway.exception.TwoStationException;
 import subway.station.Station;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
-public class Line {
-    private Long id;
-    private String name;
-    private String color;
-    private final Sections sections;
+public class Sections {
+    private final List<Section> sections;
 
-    public Line() {
-        this.sections = new Sections();
+    public Sections() {
+        this.sections = new ArrayList<>();
     }
 
-    public Line(String name, String color) {
-        this();
-        this.name = name;
-        this.color = color;
-    }
-
-    public Line(Long id, String name, String color) {
-        this(name, color);
-        this.id = id;
-    }
-
-    public Line(Long id, String name, String color, List<Section> sections) {
-        this(id, name, color);
+    public Sections(List<Section> sections) {
+        this.sections = new ArrayList<>();
         Map<Station, List<Section>> countMap = new HashMap<>();
         sections.forEach(section -> {
-            countMap.computeIfAbsent(section.getUpStation(), (key)->new ArrayList<>());
+            countMap.computeIfAbsent(section.getUpStation(), (key) -> new ArrayList<>());
             countMap.get(section.getUpStation()).add(section);
-            countMap.computeIfAbsent(section.getDownStation(),(key)->new ArrayList<>());
+            countMap.computeIfAbsent(section.getDownStation(), (key) -> new ArrayList<>());
             countMap.get(section.getDownStation()).add(section);
         });
         Section firstSection = getFirstSection(countMap);
@@ -44,12 +33,12 @@ public class Line {
 
     private void fillSections(Map<Station, List<Section>> countMap, Section lastSection, Section present) {
         this.sections.add(present);
-        while(present.getDownStation()!= lastSection.getUpStation()){
+        while (present.getDownStation() != lastSection.getUpStation()) {
             Section finalPresent = present;
             present = countMap.get(present.getDownStation()).stream()
                     .filter(section -> finalPresent.getDownStation().getId().equals(section.getUpStation().getId()))
                     .findAny()
-                    .orElseThrow(()->{
+                    .orElseThrow(() -> {
                         throw new NoContentException("섹션이 도중에 없습니다.");
                     });
             this.sections.add(present);
@@ -95,32 +84,23 @@ public class Line {
         sections.remove(sectionIndex - 1);
     }
 
-
-    public Long getId() {
-        return id;
+    public int size() {
+        return sections.size();
     }
 
-    public String getName() {
-        return name;
+    public Section get(int index) {
+        return sections.get(index);
     }
 
-    public String getColor() {
-        return color;
+    public void add(Section section) {
+        sections.add(section);
     }
 
-    public Sections getSections() {
-        return sections;
+    public void set(int sectionIndex, Section section) {
+        sections.set(sectionIndex, section);
     }
 
-
-    @Override
-    public String toString() {
-        return "Line{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", color='" + color + '\'' +
-                ", sections=" + sections +
-                '}';
+    public void remove(int index) {
+        sections.remove(index);
     }
-
 }

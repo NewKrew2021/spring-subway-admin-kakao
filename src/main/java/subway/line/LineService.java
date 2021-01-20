@@ -26,7 +26,7 @@ public class LineService {
     }
 
     public Section addSection(Line line, Section section) {
-        List<Section> sections = line.getSections();
+        Sections sections = line.getSections();
         int targetIndex = -1;
 
         int upIndex = IntStream.range(1, sections.size())
@@ -48,7 +48,7 @@ public class LineService {
         return sections.get(targetIndex);
     }
 
-    private int getTargetIndexIfDownIndex(Line line, Section section, List<Section> sections, int targetIndex, int downIndex) {
+    private int getTargetIndexIfDownIndex(Line line, Section section, Sections sections, int targetIndex, int downIndex) {
         if (downIndex != -1) {
             Section present = sections.get(downIndex);
             Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
@@ -60,7 +60,7 @@ public class LineService {
         return targetIndex;
     }
 
-    private int getTargetIndexIfUpIndex(Line line, Section section, List<Section> sections, int targetIndex, int upIndex) {
+    private int getTargetIndexIfUpIndex(Line line, Section section, Sections sections, int targetIndex, int upIndex) {
         if (upIndex != -1) {
             Section present = sections.get(upIndex);
             Section newSection = new Section(line.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
@@ -72,7 +72,7 @@ public class LineService {
         return targetIndex;
     }
 
-    private void checkValidCondition(Section section, List<Section> sections, int upIndex, int downIndex) {
+    private void checkValidCondition(Section section, Sections sections, int upIndex, int downIndex) {
         if ((upIndex == -1) == (downIndex == -1)) {
             throw new NoContentException("둘 중 하나만 -1이여야함!");
         }

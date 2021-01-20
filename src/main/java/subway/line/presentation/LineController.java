@@ -4,8 +4,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.line.application.LineService;
-import subway.section.presentation.SectionRequest;
 import subway.section.application.SectionService;
+import subway.section.presentation.SectionRequest;
 
 import java.net.URI;
 import java.util.List;
@@ -23,7 +23,7 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
-        LineResponse response = lineService.create(request);
+        LineResponse response = lineService.create(request.toCreateValue(), request.toPendingSectionCreateValue());
         return ResponseEntity.created(URI.create("/lines/" + response.getId()))
                 .body(response);
     }
@@ -52,7 +52,7 @@ public class LineController {
 
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest request) {
-        sectionService.createSection(lineId, request);
+        sectionService.createSection(request.toCreateValue(lineId));
         return ResponseEntity.ok().build();
     }
 

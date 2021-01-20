@@ -1,7 +1,7 @@
 package subway.line.presentation;
 
-import subway.line.domain.Line;
-import subway.section.presentation.SectionRequest;
+import subway.line.domain.LineCreateValue;
+import subway.section.domain.SectionCreateValue;
 
 public class LineRequest {
     private String name;
@@ -21,16 +21,12 @@ public class LineRequest {
         this.distance = distance;
     }
 
-    public Line toEntity() {
-        return new Line(name, color);
+    public LineCreateValue toCreateValue() {
+        return new LineCreateValue(name, color);
     }
 
-    public Line toEntity(Long id) {
-        return new Line(id, name, color);
-    }
-
-    public SectionRequest getSectionRequest() {
-        return new SectionRequest(upStationId, downStationId, distance);
+    public SectionCreateValue.Pending toPendingSectionCreateValue() {
+        return new SectionCreateValue.Pending(upStationId, downStationId, distance);
     }
 
     public String getName() {

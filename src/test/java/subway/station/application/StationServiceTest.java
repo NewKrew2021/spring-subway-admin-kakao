@@ -6,10 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import subway.station.application.StationService;
 import subway.station.domain.Station;
+import subway.station.domain.StationCreateValue;
 import subway.station.domain.StationDao;
-import subway.station.presentation.StationRequest;
 import subway.station.presentation.StationResponse;
 
 import java.util.Arrays;
@@ -35,13 +34,13 @@ class StationServiceTest {
     void save() {
         // given
         String stationName = "분당역";
-        StationRequest request = new StationRequest(stationName);
+        StationCreateValue createValue = new StationCreateValue(stationName);
         given(stationDao.existsBy(stationName)).willReturn(false);
         Station newStation = new Station(1L, stationName);
         given(stationDao.save(any(Station.class))).willReturn(newStation);
 
         // when
-        StationResponse response = stationService.create(request);
+        StationResponse response = stationService.create(createValue);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -54,13 +53,13 @@ class StationServiceTest {
     void saveFail() {
         // given
         String stationName = "분당역";
-        StationRequest request = new StationRequest(stationName);
+        StationCreateValue createValue = new StationCreateValue(stationName);
         given(stationDao.existsBy(stationName)).willReturn(true);
 
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> stationService.create(request))
+                .isThrownBy(() -> stationService.create(createValue))
                 .withMessage("이미 등록된 지하철역 입니다.");
     }
 

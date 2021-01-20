@@ -2,9 +2,9 @@ package subway.station.application;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.station.presentation.StationRequest;
-import subway.station.presentation.StationResponse;
+import subway.station.domain.StationCreateValue;
 import subway.station.domain.StationDao;
+import subway.station.presentation.StationResponse;
 
 import java.util.List;
 
@@ -19,11 +19,11 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResponse create(StationRequest request) {
-        if (stationDao.existsBy(request.getName())) {
+    public StationResponse create(StationCreateValue createValue) {
+        if (stationDao.existsBy(createValue.getName())) {
             throw new IllegalArgumentException("이미 등록된 지하철역 입니다.");
         }
-        return StationResponse.from(stationDao.save(request.toEntity()));
+        return StationResponse.from(stationDao.save(createValue.toEntity()));
     }
 
     @Transactional(readOnly = true)

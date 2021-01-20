@@ -4,11 +4,13 @@ import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.LineNotFoundException;
+import subway.line.domain.Line;
+import subway.line.domain.LineCreateValue;
+import subway.line.domain.LineDao;
 import subway.line.presentation.LineRequest;
 import subway.line.presentation.LineResponse;
-import subway.line.domain.Line;
-import subway.line.domain.LineDao;
 import subway.section.application.SectionService;
+import subway.section.domain.SectionCreateValue;
 
 import java.util.List;
 
@@ -26,13 +28,13 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
-    public LineResponse create(LineRequest request) {
-        if (lineDao.existBy(request.getName())) {
+    public LineResponse create(LineCreateValue lineCreateValue, SectionCreateValue.Pending pendingSectionValue) {
+        if (lineDao.existBy(lineCreateValue.getName())) {
             throw new IllegalArgumentException("이미 등록된 지하철 노선 입니다.");
         }
 
-        Line newLine = lineDao.save(request.toEntity());
-        sectionService.createSection(newLine.getId(), request.getSectionRequest());
+        Line newLine = lineDao.save(lineCreateValue.toEntity());
+        sectionService.createSection(pendingSectionValue.toCreateValue(newLine.getId()));
         return LineResponse.from(newLine, sectionService.getStationsOf(newLine.getId()));
     }
 
@@ -52,7 +54,7 @@ public class LineService {
 
     public void update(LineRequest request, Long id) {
         try {
-            lineDao.update(request.toEntity(id));
+            lineDao.update(request.toCreateValue().toEntity(id));
         } catch (IncorrectUpdateSemanticsDataAccessException e) {
             throw new LineNotFoundException(id);
         }

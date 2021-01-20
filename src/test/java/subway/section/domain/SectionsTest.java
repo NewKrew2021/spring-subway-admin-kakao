@@ -4,8 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import subway.section.domain.Section;
-import subway.section.domain.Sections;
 import subway.section.presentation.SectionRequest;
 
 import java.util.Arrays;
@@ -56,9 +54,10 @@ class SectionsTest {
         // given
         long lineId = 1L;
         SectionRequest request = new SectionRequest(2L, 3L, 5);
+        SectionCreateValue sectionValue = request.toCreateValue(lineId);
 
         // when
-        Sections result = Sections.initialize(lineId, request);
+        Sections result = Sections.initialize(sectionValue);
 
         // then
         assertThat(result).extracting("sections")
@@ -81,16 +80,17 @@ class SectionsTest {
     @CsvSource({"1,10,2,2", "10,1,2,-2", "10,2,2,3", "2,10,2,7"})
     void createNewSection(long upStationId, long downStationId, int distance, int expectedPosition) {
         // given
+        long lineId = 1L;
         Sections sections = Sections.from(Arrays.asList(
-                new Section(1L, 1L, 1L, 0),
-                new Section(2L, 1L, 2L, 5)
+                new Section(1L, lineId, 1L, 0),
+                new Section(2L, lineId, 2L, 5)
         ));
         // when
-        Section newSection = sections.createNewSection(upStationId, downStationId, distance);
+        Section newSection = sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, distance));
 
         // then
         assertThat(newSection).usingRecursiveComparison()
-                .isEqualTo(new Section(1L, 10, expectedPosition));
+                .isEqualTo(new Section(lineId, 10, expectedPosition));
     }
 
     @DisplayName("새로운 구간 생성시, 상/하행역이 모두 기존 구간에 포함되어 있거나 모두 포함되어 있지 않다면 예외가 발생한다")
@@ -98,15 +98,16 @@ class SectionsTest {
     @CsvSource({"1,2", "100,101"})
     void createNewSectionFail1(long upStationId, long downStationId) {
         // given
+        long lineId = 1L;
         Sections sections = Sections.from(Arrays.asList(
-                new Section(1L, 1L, 1L, 0),
-                new Section(2L, 1L, 2L, 5)
+                new Section(1L, lineId, 1L, 0),
+                new Section(2L, lineId, 2L, 5)
         ));
 
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> sections.createNewSection(upStationId, downStationId, 2))
+                .isThrownBy(() -> sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, 2)))
                 .withMessage("상/하행역 중 하나만 일치해야합니다");
     }
 
@@ -115,15 +116,15 @@ class SectionsTest {
     @CsvSource({"1,10,5", "1,10,100", "10,2,5", "10,2,100"})
     void createNewSectionFail2(long upStationId, long downStationId, int distance) {
         // given
+        long lineId = 1L;
         Sections sections = Sections.from(Arrays.asList(
-                new Section(1L, 1L, 1L, 0),
-
-                new Section(2L, 1L, 2L, 5)
+                new Section(1L, lineId, 1L, 0),
+                new Section(2L, lineId, 2L, 5)
         ));
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> sections.createNewSection(upStationId, downStationId, distance))
+                .isThrownBy(() -> sections.createNewSection(new SectionCreateValue(lineId, upStationId, downStationId, distance)))
                 .withMessage("기존 구간보다 새로 생긴 구간의 거리가 더 짧아야합니다");
     }
 

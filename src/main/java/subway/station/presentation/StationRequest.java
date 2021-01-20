@@ -1,6 +1,6 @@
 package subway.station.presentation;
 
-import subway.station.domain.Station;
+import subway.station.domain.StationCreateValue;
 
 public class StationRequest {
     private String name;
@@ -12,8 +12,8 @@ public class StationRequest {
         this.name = name;
     }
 
-    public Station toEntity() {
-        return new Station(name);
+    public StationCreateValue toCreateValue() {
+        return new StationCreateValue(name);
     }
 
     public String getName() {

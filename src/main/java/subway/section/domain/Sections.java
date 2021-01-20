@@ -1,7 +1,5 @@
 package subway.section.domain;
 
-import subway.section.presentation.SectionRequest;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,27 +36,27 @@ public class Sections {
         return new Sections(sections);
     }
 
-    public static Sections initialize(Long lineId, SectionRequest request) {
+    public static Sections initialize(SectionCreateValue sectionValue) {
         return Sections.from(
                 Arrays.asList(
-                        new Section(lineId, request.getUpStationId(), INITIAL_DEFAULT_POSITION),
-                        new Section(lineId, request.getDownStationId(), request.getDistance() + INITIAL_DEFAULT_POSITION)
+                        new Section(sectionValue.getLineId(), sectionValue.getUpStationId(), INITIAL_DEFAULT_POSITION),
+                        new Section(sectionValue.getLineId(), sectionValue.getDownStationId(), sectionValue.getDistance() + INITIAL_DEFAULT_POSITION)
                 )
         );
     }
 
-    public Section createNewSection(long upStationId, long downStationId, int distance) {
-        Optional<Section> upSection = findSectionByStation(upStationId);
-        Optional<Section> downSection = findSectionByStation(downStationId);
+    public Section createNewSection(SectionCreateValue createValue) {
+        Optional<Section> upSection = findSectionByStation(createValue.getUpStationId());
+        Optional<Section> downSection = findSectionByStation(createValue.getDownStationId());
         if ((upSection.isPresent() && downSection.isPresent())
                 || (!upSection.isPresent() && !downSection.isPresent())) {
             throw new IllegalArgumentException(UP_OR_DOWN_ONLY_ONE_EXCEPTION_MESSAGE);
         }
 
         return upSection.map(section ->
-                createNextDownSectionOf(section, downStationId, distance)
+                createNextDownSectionOf(section, createValue.getDownStationId(), createValue.getDistance())
         ).orElseGet(() ->
-                createNextUpSectionOf(downSection.get(), upStationId, distance)
+                createNextUpSectionOf(downSection.get(), createValue.getUpStationId(), createValue.getDistance())
         );
     }
 

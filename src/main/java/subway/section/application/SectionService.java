@@ -3,8 +3,8 @@ package subway.section.application;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.StationNotFoundException;
-import subway.section.presentation.SectionRequest;
 import subway.section.domain.Section;
+import subway.section.domain.SectionCreateValue;
 import subway.section.domain.SectionDao;
 import subway.section.domain.Sections;
 import subway.station.domain.StationDao;
@@ -38,20 +38,17 @@ public class SectionService {
 
     }
 
-    public void createSection(long lineId, SectionRequest request) {
-        if (!sectionDao.existBy(lineId)) {
-            saveInitialSections(lineId, request);
+    public void createSection(SectionCreateValue createValue) {
+        if (!sectionDao.existBy(createValue.getLineId())) {
+            saveInitialSections(createValue);
             return;
         }
 
-        sectionDao.save(
-                getSectionsBy(lineId)
-                        .createNewSection(request.getUpStationId(), request.getDownStationId(), request.getDistance())
-        );
+        sectionDao.save(getSectionsBy(createValue.getLineId()).createNewSection(createValue));
     }
 
-    private void saveInitialSections(long lineId, SectionRequest request) {
-        for (Section section : Sections.initialize(lineId, request).getSections()) {
+    private void saveInitialSections(SectionCreateValue sectionValue) {
+        for (Section section : Sections.initialize(sectionValue).getSections()) {
             sectionDao.save(section);
         }
     }

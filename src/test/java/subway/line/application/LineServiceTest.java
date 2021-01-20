@@ -6,12 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import subway.line.application.LineService;
 import subway.line.domain.Line;
+import subway.line.domain.LineCreateValue;
 import subway.line.domain.LineDao;
 import subway.line.presentation.LineRequest;
 import subway.line.presentation.LineResponse;
 import subway.section.application.SectionService;
+import subway.section.domain.SectionCreateValue;
 import subway.station.domain.Station;
 import subway.station.presentation.StationResponse;
 
@@ -42,23 +43,24 @@ class LineServiceTest {
     void create() {
         // given
         long lineId = 1L;
-        LineRequest request = new LineRequest("1호선", "BLUE", 1L, 2L, 10);
-        given(lineDao.existBy(request.getName())).willReturn(false);
-        given(lineDao.save(any(Line.class))).willReturn(request.toEntity(lineId));
+        LineCreateValue createValue = new LineCreateValue("1호선", "BLUE");
+        SectionCreateValue.Pending sectionCreateValue = new SectionCreateValue.Pending(1L, 2L, 10);
+        given(lineDao.existBy(createValue.getName())).willReturn(false);
+        given(lineDao.save(any(Line.class))).willReturn(createValue.toEntity(lineId));
         given(sectionService.getStationsOf(lineId)).willReturn(Arrays.asList(
                 StationResponse.from(new Station(1L, "의정부역")),
                 StationResponse.from(new Station(2L, "시청역"))
         ));
 
         // when
-        LineResponse result = lineService.create(request);
+        LineResponse result = lineService.create(createValue, sectionCreateValue);
 
         // then
         verify(sectionService).getStationsOf(lineId);
         assertAll(
                 () -> assertThat(result).usingRecursiveComparison()
                         .ignoringFields("stations")
-                        .isEqualTo(request.toEntity(lineId)),
+                        .isEqualTo(createValue.toEntity(lineId)),
                 () -> assertThat(result.getStations()).hasSize(2)
         );
     }
@@ -67,13 +69,14 @@ class LineServiceTest {
     @Test
     void createFail() {
         // given
-        LineRequest request = new LineRequest("1호선", "BLUE", 1L, 2L, 10);
-        given(lineDao.existBy(request.getName())).willReturn(true);
+        LineCreateValue createValue = new LineCreateValue("1호선", "BLUE");
+        SectionCreateValue.Pending sectionCreateValue = new SectionCreateValue.Pending(1L, 2L, 10);
+        given(lineDao.existBy(createValue.getName())).willReturn(true);
 
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> lineService.create(request))
+                .isThrownBy(() -> lineService.create(createValue, sectionCreateValue))
                 .withMessage("이미 등록된 지하철 노선 입니다.");
     }
 

@@ -14,8 +14,8 @@ import java.util.Map;
 public class SectionService {
     private static final boolean LAST_SECTION = true;
     private static final boolean FIRST_SECTION = true;
-    private static final boolean NOT_FIRST_SECTION = false;
-    private static final boolean NOT_LAST_SECTION = false;
+    public static final boolean NOT_FIRST_SECTION = false;
+    public static final boolean NOT_LAST_SECTION = false;
 
     @Resource
     private StationDao stationDao;
@@ -26,37 +26,31 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public void create(Long lineId, SectionRequest sectionRequest) {
-        Section section = new Section(lineId,
-                sectionRequest.getUpStationId(),
-                sectionRequest.getDownStationId(),
-                sectionRequest.getDistance(),
-                NOT_FIRST_SECTION,
-                NOT_LAST_SECTION);
-        List<Section> sections = sectionDao.findByLineId(lineId);
+    public void create(Long lineId, Section section) {
+        Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section firstSection = sectionDao.findFirstByLineId(lineId);
         Section lastSection = sectionDao.findLastByLineId(lineId);
 
-        Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
-        Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
+        Map<Long, Section> orderedSections = sections.getOrderedSections();
+        Map<Long, Section> reverseOrderedSections = sections.getReverseOrderedSections();
 
-        if (sectionRequest.getUpStationId().equals(lastSection.getDownStationId())) {
+        if (section.getUpStationId().equals(lastSection.getDownStationId())) {
             addLastStation(section, lastSection);
             return;
         }
 
-        if (sectionRequest.getDownStationId().equals(firstSection.getUpStationId())) {
+        if (section.getDownStationId().equals(firstSection.getUpStationId())) {
             addFirstStation(section, firstSection);
             return;
         }
 
-        if (orderedSections.containsKey(sectionRequest.getUpStationId())) {
-            addDownStation(orderedSections, lineId, sectionRequest);
+        if (orderedSections.containsKey(section.getUpStationId())) {
+            addDownStation(orderedSections, lineId, section);
             return;
         }
 
-        if (reverseOrderedSections.containsKey(sectionRequest.getDownStationId())) {
-            addUpStation(reverseOrderedSections, lineId, sectionRequest);
+        if (reverseOrderedSections.containsKey(section.getDownStationId())) {
+            addUpStation(reverseOrderedSections, lineId, section);
             return;
         }
 
@@ -68,12 +62,12 @@ public class SectionService {
     }
 
     public void delete(Long lineId, Long stationId) {
-        List<Section> sections = sectionDao.findByStationIdAndLineId(stationId, lineId);
+        Sections sections = new Sections(sectionDao.findByStationIdAndLineId(stationId, lineId));
         Section firstSection = sectionDao.findFirstByLineId(lineId);
         Section lastSection = sectionDao.findLastByLineId(lineId);
 
-        Map<Long, Section> orderedSections = Section.getOrderedSections(sections);
-        Map<Long, Section> reverseOrderedSections = Section.getReverseOrderedSections(sections);
+        Map<Long, Section> orderedSections = sections.getOrderedSections();
+        Map<Long, Section> reverseOrderedSections = sections.getReverseOrderedSections();
 
         if (stationId.equals(firstSection.getUpStationId())) {
             Section nextSection = orderedSections.get(firstSection.getDownStationId());
@@ -91,17 +85,18 @@ public class SectionService {
             return;
         }
 
-        Section mergeSection = sections.get(0).merge(sections.get(1), stationId);
-        sectionDao.deleteById(sections.get(1).getId());
+        Section mergeSection = sections.getMergeSection(stationId);
+        Section deleteSection = sections.getDeleteSection();
+        sectionDao.deleteById(deleteSection.getId());
         sectionDao.update(mergeSection);
     }
 
-    public void validateCreate(SectionRequest sectionRequest, List<Station> stations) {
-        if (hasDuplicatedStation(sectionRequest, stations)) {
+    public void validateCreate(Section section, List<Station> stations) {
+        if (hasDuplicatedStation(section, stations)) {
             throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
         }
 
-        if (!containsEndStation(sectionRequest, stations)) {
+        if (!containsEndStation(section, stations)) {
             throw new IllegalArgumentException("상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음");
         }
     }
@@ -112,14 +107,14 @@ public class SectionService {
         }
     }
 
-    private boolean hasDuplicatedStation(SectionRequest sectionRequest, List<Station> stations) {
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
-                && stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
+    private boolean hasDuplicatedStation(Section section, List<Station> stations) {
+        return stations.contains(stationDao.findById(section.getUpStationId()))
+                && stations.contains(stationDao.findById(section.getDownStationId()));
     }
 
-    private boolean containsEndStation(SectionRequest sectionRequest, List<Station> stations) {
-        return stations.contains(stationDao.findById(sectionRequest.getUpStationId()))
-                || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
+    private boolean containsEndStation(Section section, List<Station> stations) {
+        return stations.contains(stationDao.findById(section.getUpStationId()))
+                || stations.contains(stationDao.findById(section.getDownStationId()));
     }
 
     private void addLastStation(Section section, Section lastSection) {
@@ -136,7 +131,7 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    private void addDownStation(Map<Long, Section> orderedSections, Long lineId, SectionRequest sectionRequest) {
+    private void addDownStation(Map<Long, Section> orderedSections, Long lineId, Section sectionRequest) {
         Long upStationId = sectionRequest.getUpStationId();
         int distanceSum = 0;
 
@@ -177,8 +172,7 @@ public class SectionService {
         throw new SectionDistanceExceedException("역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음");
     }
 
-    private void addUpStation(Map<Long, Section> reverseOrderedSections, Long lineId, SectionRequest
-            sectionRequest) {
+    private void addUpStation(Map<Long, Section> reverseOrderedSections, Long lineId, Section sectionRequest) {
         Long downStationId = sectionRequest.getDownStationId();
         int distanceSum = 0;
 

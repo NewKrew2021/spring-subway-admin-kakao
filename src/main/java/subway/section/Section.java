@@ -2,6 +2,8 @@ package subway.section;
 
 import subway.exception.exceptions.InvalidSectionException;
 
+import java.util.Objects;
+
 public class Section {
 
     private static final String INVALID_DISTANCE_MESSAGE = "추가될 구간의 거리가 기존 노선 거리보다 깁니다.";
@@ -67,5 +69,18 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return id == section.id && lineId == section.lineId && upStationId == section.upStationId && downStationId == section.downStationId && distance == section.distance;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, lineId, upStationId, downStationId, distance);
     }
 }

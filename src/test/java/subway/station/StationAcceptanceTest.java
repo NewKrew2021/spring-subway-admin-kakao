@@ -1,6 +1,5 @@
 package subway.station;
 
-import com.sun.net.httpserver.HttpsConfigurator;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;

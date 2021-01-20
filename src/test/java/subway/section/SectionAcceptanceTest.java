@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
 import subway.line.LineResponse;
-import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.util.Arrays;

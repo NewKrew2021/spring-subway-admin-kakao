@@ -23,7 +23,7 @@ public class LineTest {
         assertThat(line.isLineStartStation(startStationId)).isTrue();
     }
 
-    @DisplayName("특정 역이 이 노선의 종역인가")
+    @DisplayName("특정 역이 이 노선의 종착역인가")
     @Test
     void isEndStation() {
         long endStationId = 4;

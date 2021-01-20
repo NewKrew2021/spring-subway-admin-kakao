@@ -50,7 +50,7 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        return jdbcTemplate.query("select id, name from STATION limit 20", stationRowMapper);
+        return jdbcTemplate.query("select * from STATION limit 20", stationRowMapper);
     }
 
     public int deleteById(long id) {
@@ -58,6 +58,6 @@ public class StationDao {
     }
 
     public Station findById(long id) {
-        return jdbcTemplate.queryForObject("select id, name from STATION where id = ?", stationRowMapper, id);
+        return jdbcTemplate.queryForObject("select * from STATION where id = ?", stationRowMapper, id);
     }
 }

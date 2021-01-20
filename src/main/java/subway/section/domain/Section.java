@@ -14,9 +14,11 @@ public class Section {
     private Long downStationId;
     private int distance;
 
-    public Section(){}
+    public Section() {
+    }
 
-    public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
+    public Section(Long id, Long lineId, Long upStationId,
+                   Long downStationId, int distance) {
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -63,11 +65,11 @@ public class Section {
         Section frontSection = sectionList.get(0);
         Section backSection = sectionList.get(1);
 
-        if(frontSection.upStationId == stationId){
+        if (frontSection.upStationId == stationId) {
             frontSection.upStationId = backSection.getUpStationId();
         }
 
-        if(frontSection.downStationId == stationId){
+        if (frontSection.downStationId == stationId) {
             frontSection.downStationId = backSection.getDownStationId();
         }
 
@@ -76,12 +78,12 @@ public class Section {
         return frontSection;
     }
 
-    public static Map<Long, Section> getOrderedSections(List<Section> sections){
+    public static Map<Long, Section> getOrderedSections(List<Section> sections) {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getUpStationId, section -> section));
     }
 
-    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections){
+    public static Map<Long, Section> getReverseOrderedSections(List<Section> sections) {
         return sections.stream()
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
     }

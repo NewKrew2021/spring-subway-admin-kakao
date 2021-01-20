@@ -18,24 +18,30 @@ public class StationController {
     private final StationService stationService;
 
     @Autowired
-    public StationController(StationService stationService){
+    public StationController(StationService stationService) {
         this.stationService = stationService;
     }
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         StationResponse stationResponse = stationService.createStation(stationRequest);
-        return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
+        return ResponseEntity
+                .created(URI.create("/stations/" + stationResponse.getId()))
+                .body(stationResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        return ResponseEntity.ok().body(stationService.showStations());
+        return ResponseEntity
+                .ok()
+                .body(stationService.showStations());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
         stationService.deleteStation(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

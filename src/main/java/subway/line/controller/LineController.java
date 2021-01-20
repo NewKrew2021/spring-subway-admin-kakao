@@ -35,46 +35,61 @@ public class LineController {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.created(URI.create("/lines/" + response.getId()))
+        return ResponseEntity
+                .created(URI.create("/lines/" + response.getId()))
                 .body(response);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok().body(lineService.showLines());
+        return ResponseEntity
+                .ok()
+                .body(lineService.showLines());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
         lineService.deleteLine(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return ResponseEntity.ok(lineService.showLine(id));
+        return ResponseEntity
+                .ok(lineService.showLine(id));
     }
 
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+    public ResponseEntity updateLine(@PathVariable Long id,
+                                     @RequestBody LineRequest lineRequest) {
         lineService.updateLine(id, lineRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
     @PostMapping(value = "/{id}/sections")
-    public ResponseEntity createSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity createSection(@PathVariable Long id,
+                                        @RequestBody SectionRequest sectionRequest) {
         try {
             lineService.createSection(id, sectionRequest);
         } catch (IllegalArgumentException iae) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
     @DeleteMapping(value = "/{id}/sections")
-    public ResponseEntity deleteSection(@PathVariable Long id, @RequestParam Long stationId) {
+    public ResponseEntity deleteSection(@PathVariable Long id,
+                                        @RequestParam Long stationId) {
         lineService.deleteSection(id, stationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 }

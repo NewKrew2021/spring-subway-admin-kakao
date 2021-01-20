@@ -16,7 +16,8 @@ public class Line {
     private Long downStationId;
     private int distance;
 
-    public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
+    public Line(Long id, String name, String color,
+                Long upStationId, Long downStationId, int distance) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -71,7 +72,8 @@ public class Line {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, color, extraFare, upStationId, downStationId, distance);
+        return Objects.hash(id, name, color, extraFare,
+                upStationId, downStationId, distance);
     }
 
     public boolean isEndStation(int sectionListSize) {

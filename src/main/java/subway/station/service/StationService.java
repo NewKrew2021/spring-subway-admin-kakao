@@ -25,7 +25,9 @@ public class StationService {
 
     public List<StationResponse> showStations() {
         List<Station> stations = stationDao.findAll();
-        return stations.stream().map(StationResponse::new).collect(Collectors.toList());
+        return stations.stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
     }
 
     public void deleteStation(Long id) {

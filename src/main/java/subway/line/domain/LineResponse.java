@@ -12,7 +12,8 @@ public class LineResponse {
     private int extraFare;
     private List<Station> stations;
 
-    public LineResponse(){}
+    public LineResponse() {
+    }
 
     public LineResponse(Long id, String name, String color) {
         this.id = id;
@@ -35,7 +36,7 @@ public class LineResponse {
 
 
     public LineResponse(Line line, List<Station> stations) {
-        if(!validator(line)){
+        if (!validator(line)) {
             throw new IllegalArgumentException("노선 정보가 존재하지 않습니다.");
         }
         this.id = line.getId();
@@ -60,7 +61,7 @@ public class LineResponse {
         return stations;
     }
 
-    private boolean validator(Line line){
+    private boolean validator(Line line) {
         if (line == null) {
             return false;
         }

@@ -18,20 +18,21 @@ public class SectionDao {
 
     public void save(Section section) {
         jdbcTemplate.update(SectionQuery.SAVE.getQuery(),
-                section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
+                section.getLineId(), section.getUpStationId(),
+                section.getDownStationId(), section.getDistance());
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(),id);
+        jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), id);
     }
 
     public void deleteBySectionList(List<Section> sectionList) {
         for (Section section : sectionList) {
-            jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(),section.getId());
+            jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), section.getId());
         }
     }
 
-    public List<Section> findByLineId(Long lineId){
+    public List<Section> findByLineId(Long lineId) {
         return jdbcTemplate.query(SectionQuery.FIND_BY_LINE_ID.getQuery(), sectionMapper, lineId);
     }
 

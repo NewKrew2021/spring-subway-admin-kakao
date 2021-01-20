@@ -17,7 +17,7 @@ public class StationDao {
     StationMapper stationMapper;
 
     public Station save(Station station) {
-        jdbcTemplate.update(StationQuery.SAVE.getQuery(),station.getName());
+        jdbcTemplate.update(StationQuery.SAVE.getQuery(), station.getName());
         return station;
     }
 
@@ -26,15 +26,17 @@ public class StationDao {
     }
 
     public Station findById(Long id) {
-        return jdbcTemplate.queryForObject(StationQuery.FIND_BY_ID.getQuery(),stationMapper, id);
+        return jdbcTemplate.queryForObject(StationQuery.FIND_BY_ID.getQuery(),
+                stationMapper, id);
     }
 
     public Station findByName(String name) {
-        return jdbcTemplate.queryForObject(StationQuery.FIND_BY_NAME.getQuery(),stationMapper, name);
+        return jdbcTemplate.queryForObject(StationQuery.FIND_BY_NAME.getQuery(),
+                stationMapper, name);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update(StationQuery.DELETE_BY_ID.getQuery(),id);
+        jdbcTemplate.update(StationQuery.DELETE_BY_ID.getQuery(), id);
     }
 
 }

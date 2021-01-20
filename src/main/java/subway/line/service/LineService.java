@@ -46,7 +46,9 @@ public class LineService {
 
     public List<LineResponse> showLines() {
         List<Line> lines = lineDao.findAll();
-        return lines.stream().map(LineResponse::new).collect(Collectors.toList());
+        return lines.stream()
+                .map(LineResponse::new)
+                .collect(Collectors.toList());
     }
 
     public void deleteLine(Long id) {
@@ -59,7 +61,7 @@ public class LineService {
     }
 
     public void updateLine(Long id, LineRequest lineRequest) {
-        lineDao.update(Line.getLineToLineRequest(id,lineRequest));
+        lineDao.update(Line.getLineToLineRequest(id, lineRequest));
     }
 
     public List<Station> getStations(Long id) {
@@ -187,9 +189,10 @@ public class LineService {
 
 
     public void createSection(Long id, SectionRequest sectionRequest) {
-        sectionValidator(id,sectionRequest);
+        sectionValidator(id, sectionRequest);
 
-        Section newSection = new Section(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section newSection = new Section(id, sectionRequest.getUpStationId(),
+                sectionRequest.getDownStationId(), sectionRequest.getDistance());
         List<Section> sections = sectionDao.findByLineId(id);
         Line line = lineDao.findById(id);
 
@@ -220,7 +223,6 @@ public class LineService {
             return;
         }
 
-
         throw new IllegalArgumentException("생성 실패");
     }
 
@@ -231,7 +233,7 @@ public class LineService {
                 || stations.contains(stationDao.findById(sectionRequest.getDownStationId()));
     }
 
-    private void sectionValidator(Long id, SectionRequest sectionRequest){
+    private void sectionValidator(Long id, SectionRequest sectionRequest) {
         if (hasDuplicatedStation(id, sectionRequest)) {
             throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
         }
@@ -261,21 +263,21 @@ public class LineService {
         }
 
         // 1.
-        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId,id);
+        List<Section> sectionList = sectionDao.findByStationIdAndLineId(stationId, id);
 
         Line line = lineDao.findById(id);
 
         // 2.
-        if(line.isEndStation(sectionList.size())){
+        if (line.isEndStation(sectionList.size())) {
             Section endSection = sectionList.get(0);
-            line.updateEndStation(endSection,stationId);
+            line.updateEndStation(endSection, stationId);
             sectionDao.deleteById(endSection.getId());
         }
 
         // 3.
-        if(!line.isEndStation(sectionList.size())){
+        if (!line.isEndStation(sectionList.size())) {
             sectionDao.deleteBySectionList(sectionList);
-            sectionDao.save(Section.merge(sectionList,stationId));
+            sectionDao.save(Section.merge(sectionList, stationId));
         }
 
         // 4.

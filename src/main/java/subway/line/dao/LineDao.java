@@ -18,7 +18,8 @@ public class LineDao {
 
     public void save(Line line) {
         jdbcTemplate.update(LineQuery.SAVE.getQuery(),
-                line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
+                line.getName(), line.getColor(), line.getUpStationId(),
+                line.getDownStationId(), line.getDistance());
     }
 
     public List<Line> findAll() {
@@ -26,19 +27,20 @@ public class LineDao {
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update(LineQuery.DELETE_BY_ID.getQuery(),id);
+        jdbcTemplate.update(LineQuery.DELETE_BY_ID.getQuery(), id);
     }
 
     public Line findById(Long id) {
-        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_ID.getQuery(),lineMapper, id);
+        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_ID.getQuery(), lineMapper, id);
     }
 
     public Line findByName(String name) {
-        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_NAME.getQuery(),lineMapper, name);
+        return jdbcTemplate.queryForObject(LineQuery.FIND_BY_NAME.getQuery(), lineMapper, name);
     }
 
     public void update(Line line) {
         jdbcTemplate.update(LineQuery.UPDATE.getQuery(),
-                line.getUpStationId(), line.getDownStationId(), line.getDistance(), line.getId());
+                line.getUpStationId(), line.getDownStationId(),
+                line.getDistance(), line.getId());
     }
 }

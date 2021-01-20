@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.Locale;
 
 @Repository
 public class LineDao {

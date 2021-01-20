@@ -9,25 +9,25 @@ import java.util.stream.Collectors;
 public class StationService {
     private StationDao stationDao;
 
-    public StationService(StationDao stationDao){
+    public StationService(StationDao stationDao) {
         this.stationDao = stationDao;
     }
 
-    public List<Station> getStationsById(List<Long> stationIds){
+    public List<Station> getStationsById(List<Long> stationIds) {
         return stationIds.stream()
                 .map(stationDao::findStationById)
                 .collect(Collectors.toList());
     }
 
-    public Station createStation(Station station){
-       return stationDao.save(station);
+    public Station createStation(Station station) {
+        return stationDao.save(station);
     }
 
-    public List<Station> getStations(){
+    public List<Station> getStations() {
         return stationDao.findAll();
     }
 
-    public void deleteStationById(Long id){
+    public void deleteStationById(Long id) {
         stationDao.deleteStationById(id);
     }
 

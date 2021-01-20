@@ -18,12 +18,12 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        try{
+        try {
             Station station = new Station(stationRequest.getName());
             Station newStation = stationService.createStation(station);
             StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
             return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }

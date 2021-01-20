@@ -9,7 +9,7 @@ import subway.line.LineResponse;
 public class SectionController {
     private SectionService sectionService;
 
-    public SectionController(SectionService sectionService){
+    public SectionController(SectionService sectionService) {
         this.sectionService = sectionService;
     }
 

@@ -49,17 +49,17 @@ public class SectionService {
     }
 
     public int deleteSection(Long lineId, Long stationId) {
-        if(sectionDao.countByLineId(lineId) < 2){
+        if (sectionDao.countByLineId(lineId) < 2) {
             throw new IllegalArgumentException("구간이 하나 이하인 노선에서는 구간을 제거할 수 없습니다.");
         }
 
         Line line = lineService.getLineById(lineId);
-        if(line.getUpStationId() == stationId){ // 상행 종점 제거
+        if (line.getUpStationId() == stationId) { // 상행 종점 제거
             Section currentSection = sectionDao.findByLineIdAndUpStationId(lineId, stationId);
             lineService.updateLine(new Line(lineId, line.getName(), line.getColor(), currentSection.getDownStationId(), line.getDownStationId(), line.getDistance()));
             return sectionDao.delete(currentSection);
         }
-        if(line.getDownStationId() == stationId){ // 하행 종점 제거
+        if (line.getDownStationId() == stationId) { // 하행 종점 제거
             Section currentSection = sectionDao.findByLineIdAndDownStationId(lineId, stationId);
             lineService.updateLine(new Line(lineId, line.getName(), line.getColor(), line.getUpStationId(), currentSection.getUpStationId(), line.getDistance()));
             return sectionDao.delete(currentSection);

@@ -3,7 +3,6 @@ package subway.line;
 import org.springframework.stereotype.Service;
 import subway.section.Section;
 import subway.section.SectionDao;
-import subway.section.SectionService;
 import subway.station.Station;
 import subway.station.StationService;
 
@@ -66,7 +65,7 @@ public class LineService {
         return newLine;
     }
 
-    public List<Line> getAllLines(){
+    public List<Line> getAllLines() {
         return lineDao.findAll();
     }
 
@@ -74,11 +73,11 @@ public class LineService {
         return lineDao.findLineById(lineId);
     }
 
-    public void updateLine(Line line){
+    public void updateLine(Line line) {
         lineDao.update(line);
     }
 
-    public void deleteLineById(Long id){
+    public void deleteLineById(Long id) {
         lineDao.deleteById(id);
     }
 }

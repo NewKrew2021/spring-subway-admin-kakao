@@ -1,4 +1,4 @@
-package subway.station.exceptions;
+package subway.exceptions;
 
 public class InvalidDeleteException extends RuntimeException {
     public InvalidDeleteException(String message) {

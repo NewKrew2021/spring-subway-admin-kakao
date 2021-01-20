@@ -1,7 +1,5 @@
 package subway.line;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,20 +15,20 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/lines")
 public class LineController {
+
     private final StationDao stationDao;
-    private final LineDao lineDao;
+    private final LineService lineService;
     private final SectionService sectionService;
 
-    @Autowired
-    public LineController(StationDao stationDao, LineDao lineDao, SectionService sectionService) {
+    public LineController(StationDao stationDao, LineService lineService, SectionService sectionService) {
         this.stationDao = stationDao;
-        this.lineDao = lineDao;
+        this.lineService = lineService;
         this.sectionService = sectionService;
     }
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineDao.save(Line.of(lineRequest));
+        Line newLine = lineService.save(Line.of(lineRequest));
         sectionService.save(Section.of(newLine.getId(), lineRequest));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))
@@ -39,7 +37,7 @@ public class LineController {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineDao.findById(id);
+        Line line = lineService.find(id);
         List<StationResponse> stationResponses = sectionService.getStationIds(id).stream()
                 .map(stationId -> StationResponse.of(stationDao.findById(stationId)))
                 .collect(Collectors.toList());
@@ -49,7 +47,7 @@ public class LineController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<Line> lines = lineDao.findAll();
+        List<Line> lines = lineService.findAll();
         List<LineResponse> lineResponses = lines.stream()
                 .map(LineResponse::of)
                 .collect(Collectors.toList());
@@ -59,26 +57,22 @@ public class LineController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLine(@PathVariable Long id) {
-        lineDao.deleteById(id);
+        lineService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LineResponse> updateLine(@RequestBody LineRequest lineRequest, @PathVariable Long id) {
-        Line line = lineDao.findById(id);
+        Line line = lineService.find(id);
         line.updateNameAndColor(lineRequest.getName(), lineRequest.getColor());
-        lineDao.update(line);
+        lineService.update(line);
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity exceptionHandler(Exception exception) {
-        exception.printStackTrace();
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity exceptionHandler(Exception e) {
+        e.printStackTrace();
 
-        if (exception instanceof DuplicateKeyException) {
-            return ResponseEntity.badRequest().body("요청한 이름의 Line이 이미 존재합니다.");
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

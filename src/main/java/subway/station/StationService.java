@@ -3,8 +3,8 @@ package subway.station;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import subway.station.exceptions.DuplicateStationNameException;
-import subway.station.exceptions.InvalidDeleteException;
+import subway.exceptions.DuplicateNameException;
+import subway.exceptions.InvalidDeleteException;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public Station save(Station station) throws DuplicateStationNameException {
+    public Station save(Station station) throws DuplicateNameException {
         try {
             return stationDao.save(station);
         } catch (DuplicateKeyException e) {
-            throw new DuplicateStationNameException("중복된 이름의 Station은 추가할 수 없습니다.");
+            throw new DuplicateNameException("중복된 이름의 Station은 추가할 수 없습니다.");
         }
     }
 

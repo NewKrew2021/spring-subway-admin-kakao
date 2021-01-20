@@ -1,7 +1,6 @@
 package subway.section.domain;
 
 import subway.line.domain.Line;
-import subway.section.dto.SectionRequest;
 import subway.station.domain.Station;
 
 import java.util.Objects;

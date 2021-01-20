@@ -17,9 +17,8 @@ public class LineDao {
     public static final String SELECT_LINE_BY_NAME = "select * from LINE where name = ?";
     public static final String SELECT_LINE_BY_ID = "select * from LINE where id = ?";
     public static final String SELECT_ALL_LINES = "select * from LINE";
-    public static final String UPDATE_LINE_NAME_COLOR_BY_ID = "update LINE set name = ?, color = ? where id = ?";
     public static final String DELETE_LINE_BY_ID = "delete from line where id = ?";
-    public static final String UPDATE_LINE_START_END_STATIONS_BY_ID = "update LINE set start_station_id = ?, end_station_id = ? where id = ?";
+    public static final String UPDATE_LINE_BY_ID = "update LINE set name = ?, color = ?, start_station_id = ?, end_station_id = ? where id = ?";
     public static final int NO_DELETED_ROW = 1;
     private JdbcTemplate jdbcTemplate;
 
@@ -59,13 +58,8 @@ public class LineDao {
         return jdbcTemplate.query(SELECT_ALL_LINES, lineRowMapper);
     }
 
-    public Line updateLineNameAndColor(Line line) {
-        jdbcTemplate.update(UPDATE_LINE_NAME_COLOR_BY_ID, line.getName(), line.getColor(), line.getId());
-        return findById(line.getId());
-    }
-
-    public Line updateLineStartEndStations(Line line) {
-        jdbcTemplate.update(UPDATE_LINE_START_END_STATIONS_BY_ID, line.getStartStationId(), line.getEndStationId(), line.getId());
+    public Line updateLine(Line line) {
+        jdbcTemplate.update(UPDATE_LINE_BY_ID, line.getName(), line.getColor(), line.getStartStationId(), line.getEndStationId(), line.getId());
         return findById(line.getId());
     }
 

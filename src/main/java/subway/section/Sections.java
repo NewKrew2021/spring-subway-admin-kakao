@@ -10,16 +10,13 @@ public class Sections {
     public static final String NO_MATCHING_SECTION_ERROR_MESSAGE = "구간이 존재하지 않습니다.";
     public static final int MINIMUM_SECTION_SIZE = 1;
 
-    private List<Section> sections = new ArrayList<>();
+    private final List<Section> sections = new ArrayList<>();
 
     public Sections(List<Section> sections, Long startStationId) {
         Section startSection = sections.stream()
                 .filter(section -> section.getUpStationId() == startStationId)
                 .findFirst()
-                .orElse(null);
-        if (startSection == null) {
-            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
-        }
+                .orElseThrow(() -> new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE));
         this.sections.add(startSection);
         while (this.sections.size() < sections.size()) {
             addSectionAtLast(sections);
@@ -30,11 +27,7 @@ public class Sections {
         Section findSection = sections.stream()
                 .filter(section -> section.getUpStationId() == getLastStation())
                 .findFirst()
-                .orElse(null);
-
-        if (findSection == null) {
-            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
-        }
+                .orElseThrow(() -> new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE));
         this.sections.add(findSection);
     }
 
@@ -50,11 +43,7 @@ public class Sections {
         Section resultSection = sections.stream()
                 .filter(section -> section.getUpStationId() == stationId)
                 .findFirst()
-                .orElse(null);
-
-        if (resultSection == null) {
-            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
-        }
+                .orElseThrow(() -> new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE));
         return resultSection;
     }
 
@@ -62,11 +51,7 @@ public class Sections {
         Section resultSection = sections.stream()
                 .filter(section -> section.getDownStationId() == stationId)
                 .findFirst()
-                .orElse(null);
-
-        if (resultSection == null) {
-            throw new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE);
-        }
+                .orElseThrow(() -> new InvalidSectionException(NO_MATCHING_SECTION_ERROR_MESSAGE));
         return resultSection;
     }
 
@@ -81,16 +66,14 @@ public class Sections {
     }
 
     public Section findUpdatedSection(Section newSection) {
+        Section currentSection;
         try {
-            Section currentSection = findByUpStationId(newSection.getUpStationId());
-            return new Section(currentSection.getId(), newSection.getLineId(), newSection.getDownStationId(), currentSection.getDownStationId(),
-                    currentSection.getDistance() - newSection.getDistance());
-
+            currentSection = findByUpStationId(newSection.getUpStationId());
         } catch (InvalidSectionException e) {
-            Section currentSection = findByDownStationId(newSection.getDownStationId());
-            return new Section(currentSection.getId(), newSection.getLineId(), currentSection.getUpStationId(), newSection.getUpStationId(),
-                    currentSection.getDistance() - newSection.getDistance());
+            currentSection = findByDownStationId(newSection.getDownStationId());
         }
+        currentSection.updateSectionInfoWhenInserted(newSection);
+        return currentSection;
     }
 
     public List<Long> getStationsSortedSequence() {
@@ -100,6 +83,14 @@ public class Sections {
         }
         sequence.add(getLastStation());
         return sequence;
+    }
+
+    public Section getFirstSection() {
+        return sections.get(0);
+    }
+
+    public Section getLastSection() {
+        return sections.get(sections.size() - 1);
     }
 
     public boolean isRemovable() {

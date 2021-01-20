@@ -1,5 +1,7 @@
 package subway.line;
 
+import subway.section.Section;
+
 import java.util.Objects;
 
 public class Line {
@@ -62,6 +64,29 @@ public class Line {
 
     public Long getEndStationId() {
         return endStationId;
+    }
+
+    public void updateLineInfo(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+    }
+
+    public void updateStationInfoWhenInserted(Section section) {
+        if(section.getDownStationId() == startStationId) {
+            this.startStationId = section.getUpStationId();
+        }
+        if(section.getUpStationId() == endStationId) {
+            this.endStationId = section.getDownStationId();
+        }
+    }
+
+    public void updateStationInfoWhenDeleted(Section section) {
+        if(section.getUpStationId() == startStationId) {
+            startStationId = section.getDownStationId();
+        }
+        if(section.getDownStationId() == endStationId) {
+            endStationId = section.getUpStationId();
+        }
     }
 
     @Override

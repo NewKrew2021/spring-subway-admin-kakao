@@ -125,7 +125,7 @@ public class Sections {
         return findSectionByDownStationId(section.getDownStationId()) != null && !getStartStation().equals(section.getDownStationId());
     }
 
-    public Long getLineId(){
+    public Long getLineId() {
         return sections.get(0).getLineId();
     }
 

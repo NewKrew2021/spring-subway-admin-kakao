@@ -31,7 +31,6 @@ public class SectionServiceImpl implements SectionService {
         return sectionDao.getSectionsByLineId(lineId);
     }
 
-    //TODO 가볍게 변경
     @Override
     @Transactional
     public void saveSection(Section section) {

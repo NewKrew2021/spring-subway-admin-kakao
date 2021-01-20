@@ -42,7 +42,7 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public void deleteById(Long stationId) {
-        if(stationDao.deleteById(stationId) == 0){
+        if (stationDao.deleteById(stationId) == 0) {
             throw new DeleteImpossibleException();
         }
     }

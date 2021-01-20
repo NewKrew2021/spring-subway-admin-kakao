@@ -52,7 +52,7 @@ public class LineDao {
         Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
         Sections sections = sectionDao.getSectionsByLineId(lineId);
 
-        return new Line(line.getId(),line.getName(),line.getColor(),sections);
+        return new Line(line.getId(), line.getName(), line.getColor(), sections);
     }
 
     public int update(Line line) {

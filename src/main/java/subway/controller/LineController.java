@@ -35,7 +35,6 @@ public class LineController {
         return ResponseEntity.ok(LineConvertor.convertLines(lineService.findAll()));
     }
 
-    //TODO 리스폰스 변경.
     @GetMapping("/{lineId}")
     public ResponseEntity<LineResponseWithStation> showLine(@PathVariable Long lineId) {
         return ResponseEntity.ok(LineConvertor.convertLineWithResponse(lineService.findOne(lineId)));

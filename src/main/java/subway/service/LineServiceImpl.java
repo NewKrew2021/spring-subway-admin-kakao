@@ -65,7 +65,7 @@ public class LineServiceImpl implements LineService {
 
     @Override
     public void update(Line line) {
-        if(lineDao.update(line) == 0){
+        if (lineDao.update(line) == 0) {
             throw new UpdateImpossibleException();
         }
     }

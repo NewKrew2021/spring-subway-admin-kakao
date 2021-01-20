@@ -35,9 +35,9 @@ public class Line {
     }
 
     public Line(Long id, String name, String color, Sections sections) {
-        this.id=id;
-        this.name=name;
-        this.color=color;
+        this.id = id;
+        this.name = name;
+        this.color = color;
         this.sections = sections;
     }
 

@@ -30,10 +30,10 @@ public class LineController {
         }
         Line newLine = lineService.findLineByName(lineRequest.getName());
         sectionService.insertFirstSection(new Section(newLine.getId(), newLine.getUpStationId(), newLine.getDownStationId(), lineRequest.getDistance()));
-        List<Station> stations = sectionService.getStationsByLine(newLine);
+        Stations stations = sectionService.getStationsByLine(newLine);
         return ResponseEntity.created(
                 URI.create("/line/" + newLine.getId()))
-                .body(new LineResponse(newLine, stations));
+                .body(new LineResponse(newLine, stations.getStations()));
     }
 
     @GetMapping("/lines")
@@ -41,7 +41,7 @@ public class LineController {
         List<LineResponse> response = lineService.findAll()
                 .stream()
                 .map(line -> (
-                        new LineResponse(line, sectionService.getStationsByLine(line))
+                        new LineResponse(line, sectionService.getStationsByLine(line).getStations())
                 ))
                 .collect(Collectors.toList());
 
@@ -51,8 +51,8 @@ public class LineController {
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> getLine(@PathVariable Long lineId) {
         Line searchedLine = lineService.findById(lineId);
-        List<Station> stations = sectionService.getStationsByLine(searchedLine);
-        return ResponseEntity.ok().body(new LineResponse(searchedLine, stations));
+        Stations stations = sectionService.getStationsByLine(searchedLine);
+        return ResponseEntity.ok().body(new LineResponse(searchedLine, stations.getStations()));
     }
 
     @PutMapping("/lines/{lineId}")

@@ -36,9 +36,8 @@ public class Sections {
 
     public Map<Long, Long> getSectionMap() {
         Map<Long, Long> sectionMap = new HashMap<>();
-        for (Section section : sections) {
-            sectionMap.put(section.getUpStationId(), section.getDownStationId());
-        }
+        sections.stream()
+                .map(section -> sectionMap.put(section.getUpStationId(),section.getDownStationId()));
         return sectionMap;
     }
 

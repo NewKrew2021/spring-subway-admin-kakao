@@ -24,7 +24,6 @@ public class LineResponse {
                 .collect(Collectors.toList());
     }
 
-
     public Long getId() {
         return id;
     }

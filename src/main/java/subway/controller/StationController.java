@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.domain.Station;
-import subway.domain.StationRequest;
-import subway.domain.StationResponse;
+import subway.domain.*;
 import subway.service.StationService;
 
 import java.net.URI;
@@ -28,22 +26,16 @@ public class StationController {
         if (!stationService.insertStation(station)) {
             return ResponseEntity.badRequest().build();
         }
-
         Station newStation = stationService.findStationByName(station.getName());
-
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> StationResponses = new ArrayList<>();
-        List<Station> stations = stationService.findAllStations();
-        for (Station station : stations) {
-            StationResponses.add(new StationResponse(station.getId(), station.getName()));
-        }
-
-        return ResponseEntity.ok().body(StationResponses);
+        Stations stations =new Stations(stationService.findAllStations());
+        StationResponses stationResponses=new StationResponses(stations.getStations());
+        return ResponseEntity.ok().body(stationResponses.getStationResponses());
     }
 
     @DeleteMapping("/stations/{id}")

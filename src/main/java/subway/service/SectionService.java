@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.dao.StationDao;
-import subway.domain.Line;
-import subway.domain.Section;
-import subway.domain.Sections;
-import subway.domain.Station;
+import subway.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,16 +71,16 @@ public class SectionService {
         return false;
     }
 
-    public List<Station> getStationsByLine(Line line) {
+    public Stations getStationsByLine(Line line) {
         Sections sections = sectionDao.findSectionsByLineId(line.getId());
-        List<Station> result = new ArrayList<>();
+        List<Station> stations = new ArrayList<>();
         Map<Long, Long> sectionMap = sections.getSectionMap();
-        result.add(stationDao.findById(line.getUpStationId()));
+        stations.add(stationDao.findById(line.getUpStationId()));
         Long nextId = line.getUpStationId();
         while (sectionMap.get(nextId) != null) {
-            result.add(stationDao.findById(sectionMap.get(nextId)));
+            stations.add(stationDao.findById(sectionMap.get(nextId)));
             nextId = sectionMap.get(nextId);
         }
-        return result;
+        return new Stations(stations);
     }
 }

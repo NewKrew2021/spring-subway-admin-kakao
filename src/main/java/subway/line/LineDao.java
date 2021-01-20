@@ -49,7 +49,7 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select id, name, color, up_station_id, down_station_id from line";
+        String sql = "select id, name, color, up_station_id, down_station_id from line limit 50";
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
@@ -58,7 +58,7 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
-    public List<Line> findLineByName(String name) {
+    public List<Line> findLinesByName(String name) {
         String sql = "select id, name, color from line where name = ?";
         return jdbcTemplate.query(sql, lineRowMapper, name);
     }

@@ -47,4 +47,12 @@ public class LineService {
     public Line getLineById(Long lineId) {
         return lineDao.findLineById(lineId);
     }
+
+    public void updateLineById(Long id, Line line){
+        lineDao.updateById(id, line);
+    }
+
+    public void deleteLineById(Long id){
+        lineDao.deleteById(id);
+    }
 }

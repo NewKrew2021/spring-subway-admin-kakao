@@ -17,6 +17,7 @@ public class LineDao {
     private final String LINE_SELECT_BY_ID_SQL = "select id, name, color from line where id = ?";
     private final String LINE_UPDATE_SQL = "update line set name = ?, color = ? where id = ?";
     private final String LINE_DELETE_SQL = "delete from line where id = ?";
+    private final String LINE_SELECT_ID_COUNT_SQL = "select count(id) from line where id = ?";
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Line> lineMapper = (rs, rowNum) ->
@@ -46,5 +47,9 @@ public class LineDao {
 
     public boolean deleteById(Long id) {
         return this.jdbcTemplate.update(LINE_DELETE_SQL, id) > 0;
+    }
+
+    public boolean contain(Long id) {
+        return this.jdbcTemplate.queryForObject(LINE_SELECT_ID_COUNT_SQL, Integer.class, id) > 0;
     }
 }

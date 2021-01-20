@@ -1,5 +1,6 @@
 package subway.section;
 
+import subway.exception.SectionOperationException;
 import subway.station.Station;
 import subway.station.Stations;
 
@@ -52,7 +53,7 @@ public class Sections {
     public void validateSectionRequest(Section section) {
         Stations stations = getAllStations();
         if (stations.contain(section.getUpStationId()) == stations.contain(section.getDownStationId())) {
-            throw new IllegalArgumentException();
+            throw new SectionOperationException(SectionOperationException.SECTION_SPLIT_ERROR);
         }
     }
 
@@ -88,8 +89,11 @@ public class Sections {
     }
 
     public void validateDeleteSection(Long stationId) {
-        if(sections.size() == 1 || !contain(stationId)) {
-            throw new IllegalArgumentException();
+        if(!contain(stationId)) {
+            throw new SectionOperationException(SectionOperationException.SECTION_DELETE_ERROR_NO_STATION);
+        }
+        if(sections.size() == 1) {
+            throw new SectionOperationException(SectionOperationException.SECTION_DELETE_ERROR_ONE_SECTION);
         }
     }
 }

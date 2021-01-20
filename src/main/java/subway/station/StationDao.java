@@ -14,6 +14,7 @@ public class StationDao {
     private final String STATION_SELECT_BY_ID = "select id, name from station where id = ?";
     private final String STATION_SELECT_ALL = "select id, name from station";
     private final String STATION_DELETE_BY_ID = "delete from station where id = ?";
+    private final String STATION_SELECT_COUNT_ID = "select count(id) from station where id = ?";
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Station> stationMapper = (rs, rowNum) ->
@@ -39,5 +40,9 @@ public class StationDao {
 
     public boolean deleteById(Long id) {
         return this.jdbcTemplate.update(STATION_DELETE_BY_ID, id) > 0;
+    }
+
+    public boolean contain(Long id) {
+        return this.jdbcTemplate.queryForObject(STATION_SELECT_COUNT_ID, Integer.class, id) > 0;
     }
 }

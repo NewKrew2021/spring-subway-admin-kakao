@@ -1,15 +1,17 @@
 package subway.section;
 
+import subway.exception.SectionCreateException;
+import subway.exception.SectionOperationException;
 import subway.station.Station;
 
 import java.util.Objects;
 
 public class Section {
-    private Long lineId;
-    private Station upStation;
-    private Station downStation;
-    private int distance;
-    private Long id;
+    private final Long lineId;
+    private final Station upStation;
+    private final Station downStation;
+    private final int distance;
+    private final Long id;
 
     public Section(Station upStation, Station downStation, int distance) {
         this(null, null, upStation, downStation, distance);
@@ -24,13 +26,8 @@ public class Section {
     }
 
     public Section(Long id, Long lineId, Station upStation, Station downStation, int distance) {
-        //TODO
-        if(upStation.getId().equals(downStation.getId())) {
-            throw new IllegalArgumentException();
-        }
-        if(distance <= 0) {
-            throw new IllegalArgumentException();
-        }
+        checkStations(upStation, downStation);
+        checkDistance(distance);
         this.id = id;
         this.lineId = lineId;
         this.upStation = upStation;
@@ -40,7 +37,7 @@ public class Section {
 
     public Section split(Section section) {
         if(!getUpStationId().equals(section.getUpStationId()) && !getDownStationId().equals(section.getDownStationId())) {
-            throw new IllegalArgumentException();
+            throw new SectionOperationException(SectionOperationException.SECTION_SPLIT_ERROR);
         }
         if(getUpStationId().equals(section.getUpStationId())) {
             return new Section(null, lineId, section.downStation, downStation, distance - section.distance);
@@ -50,9 +47,21 @@ public class Section {
 
     public Section attach(Section other) {
         if(!downStation.getId().equals(other.getUpStationId())) {
-            throw new IllegalArgumentException();
+            throw new SectionOperationException(SectionOperationException.SECTION_ATTACH_ERROR);
         }
         return new Section(null, lineId, upStation, other.downStation, distance + other.distance);
+    }
+
+    private void checkStations(Station upStation, Station downStation) {
+        if(upStation.getId().equals(downStation.getId())) {
+            throw new SectionCreateException(SectionCreateException.DUPLICATE_STATION_EXCEPTION);
+        }
+    }
+
+    private void checkDistance(int distance) {
+        if(distance <= 0) {
+            throw new SectionCreateException(SectionCreateException.DISTANCE_EXCEPTION + distance);
+        }
     }
 
     public Long getId() {

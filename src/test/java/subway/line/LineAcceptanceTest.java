@@ -80,11 +80,13 @@ public class LineAcceptanceTest extends AcceptanceTest {
     void getLine() {
         // given
         LineResponse lineResponse = 지하철_노선_등록되어_있음(lineRequest1);
-
         // when
         ExtractableResponse<Response> response = 지하철_노선_조회_요청(lineResponse);
-
         // then
+        지하철_노선_응답됨(response, lineResponse);
+
+        지하철_노선_제거_요청(lineResponse);
+        지하철_노선_조회_요청(lineResponse);
         지하철_노선_응답됨(response, lineResponse);
     }
 

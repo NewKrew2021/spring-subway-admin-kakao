@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import subway.exception.InvalidIdException;
 import subway.section.Section;
@@ -33,22 +34,29 @@ public class LineService {
     }
 
     public Line showLine(Long id) {
-        Line line = lineDao.getById(id);
-        if (line == null) {
-            throw new InvalidIdException("존재하지 않는 Line ID 입니다. Line ID : " + id);
+        Line line;
+        try {
+            line = lineDao.getById(id);
+        } catch(EmptyResultDataAccessException e) {
+            throw new InvalidIdException(InvalidIdException.INVALID_LINE_ID_ERROR + id);
         }
-
         Sections sections = sectionService.getSectionsByLineId(id);
         return new Line(line, sections);
     }
 
     public void modifyLine(Long id, Line line) {
+        validateId(id);
         lineDao.update(id, line);
     }
 
     public void deleteLine(Long id) {
-        if(!lineDao.deleteById(id)) {
-            throw new InvalidIdException("존재하지 않는 Line ID 입니다. Line ID : " + id);
+        validateId(id);
+        lineDao.deleteById(id);
+    }
+
+    private void validateId(Long id) {
+        if(!lineDao.contain(id)) {
+            throw new InvalidIdException(InvalidIdException.INVALID_LINE_ID_ERROR + id);
         }
     }
 }

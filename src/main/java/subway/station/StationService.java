@@ -2,8 +2,7 @@ package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import subway.exception.InvalidIdException;
 
 @Service
 public class StationService {
@@ -27,8 +26,10 @@ public class StationService {
         return stationDao.getById(id);
     }
 
-    //TODO station 없을 경우
     public boolean deleteStation(Long id) {
+        if(!stationDao.contain(id)) {
+            throw new InvalidIdException(InvalidIdException.INVALID_SECTION_ID_ERROR + id);
+        }
         return stationDao.deleteById(id);
     }
 

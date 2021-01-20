@@ -62,7 +62,11 @@ public class LineController {
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok().body(lineService.getLines().stream().map(LineResponse::from).collect(Collectors.toList()));
+        return ResponseEntity.ok().body(lineService.getLines()
+                .stream()
+                .map(LineResponse::from)
+                .collect(Collectors.toList())
+        );
     }
 
     @GetMapping(value = "/{id}")

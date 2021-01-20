@@ -1,5 +1,6 @@
 package subway.station;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +13,12 @@ import java.util.stream.Collectors;
 @RestController
 public class StationController {
 
-    @Resource
-    private StationService stationService;
+    private final StationService stationService;
+
+    @Autowired
+    public StationController(StationService stationService){
+        this.stationService = stationService;
+    }
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {

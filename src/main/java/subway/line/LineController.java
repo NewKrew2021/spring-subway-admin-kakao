@@ -1,18 +1,22 @@
 package subway.line;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.section.SectionRequest;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
 public class LineController {
 
-    @Resource
-    private LineService lineService;
+    private final LineService lineService;
+
+    @Autowired
+    public LineController(LineService lineService) {
+        this.lineService = lineService;
+    }
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {

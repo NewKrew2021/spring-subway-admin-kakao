@@ -45,10 +45,14 @@ public class SectionDao {
         jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), id);
     }
 
-    public void deleteBySectionList(Sections sections) {
+    public void deleteBySections(Sections sections) {
         for (Section section : sections.getSections()) {
             jdbcTemplate.update(SectionQuery.DELETE_BY_ID.getQuery(), section.getId());
         }
+    }
+
+    public List<Section> findByStationId(Long stationId){
+        return jdbcTemplate.query(SectionQuery.FIND_BY_STATION_ID.getQuery(), sectionMapper, stationId, stationId);
     }
 
     public List<Section> findByLineId(Long lineId) {

@@ -2,7 +2,13 @@ package subway.station.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import subway.exception.DeleteSectionException;
+import subway.line.dao.LineDao;
+import subway.line.domain.Line;
+import subway.line.service.LineService;
 import subway.section.dao.SectionDao;
+import subway.section.domain.Section;
+import subway.section.domain.Sections;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
 import subway.station.domain.StationRequest;
@@ -15,13 +21,17 @@ import java.util.stream.Collectors;
 @Service
 public class StationService {
 
+    private final int EMPTY_STATION_SIZE = 0;
+
     private final StationDao stationDao;
     private final SectionDao sectionDao;
+    private final LineService lineService;
 
     @Autowired
-    public StationService(StationDao stationDao, SectionDao sectionDao) {
+    public StationService(StationDao stationDao, SectionDao sectionDao, LineService lineService) {
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
+        this.lineService = lineService;
     }
 
     public StationResponse createStation(StationRequest stationRequest) {
@@ -39,8 +49,18 @@ public class StationService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteStation(Long id) {
-        stationDao.deleteById(id);
+    public void deleteStation(Long stationId) {
+        Sections sections = new Sections(sectionDao.findByLineId(stationId));
+
+        if (sections.size() == Line.END_STATION_SECTION_SIZE) {
+            throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
+        }
+        
+        if (sections.size() == EMPTY_STATION_SIZE) {
+            return;
+        }
+
+        lineService.deleteSection(sections.getLineId(), stationId);
     }
 
 }

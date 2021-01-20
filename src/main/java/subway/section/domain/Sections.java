@@ -28,9 +28,9 @@ public class Sections {
                 .collect(Collectors.toMap(Section::getDownStationId, section -> section));
     }
 
-    public Section merge(Sections sections, Long stationId) {
-        Section frontSection = sections.getSections().get(0);
-        Section backSection = sections.getSections().get(1);
+    public Section merge(Long stationId) {
+        Section frontSection = this.getSections().get(0);
+        Section backSection = this.getSections().get(1);
 
         long upStationId = INIT_STATION_ID;
         long downStationId = INIT_STATION_ID;
@@ -55,5 +55,9 @@ public class Sections {
 
     public Section get(int index) {
         return sections.get(index);
+    }
+
+    public Long getLineId(){
+        return sections.get(0).getLineId();
     }
 }

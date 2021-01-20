@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class LineService {
+    static final String NOT_EXIST_LINE_ERROR_MESSAGE = "해당 노선이 존재하지 않습니다.";
     private final LineDao lineDao;
 
     public LineService(LineDao lineDao) {
@@ -39,7 +40,7 @@ public class LineService {
     public Line getLine(long id) {
         Line line = lineDao.findById(id);
         if (line == null) {
-            throw new NotExistException("해당 노선이 존재하지 않습니다.");
+            throw new NotExistException(NOT_EXIST_LINE_ERROR_MESSAGE);
         }
         return line;
     }

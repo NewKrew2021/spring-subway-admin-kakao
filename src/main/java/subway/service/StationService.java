@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class StationService {
+    static final String NOT_EXIST_STATION_ERROR_MESSAGE = "해당 역이 존재하지 않습니다.";
 
     private final StationDao stationDao;
 
@@ -30,7 +31,7 @@ public class StationService {
     public Station getStation(long stationId) {
         Station station = stationDao.findById(stationId);
         if (station == null) {
-            throw new NotExistException("해당 역이 존재하지 않습니다.");
+            throw new NotExistException(NOT_EXIST_STATION_ERROR_MESSAGE);
         }
         return station;
     }

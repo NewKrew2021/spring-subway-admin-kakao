@@ -15,18 +15,16 @@ import java.util.stream.Collectors;
 @Service
 public class SectionService {
 
-    private final LineDao lineDao;
     private final SectionDao sectionDao;
     private final StationDao stationDao;
 
-    public SectionService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
-        this.lineDao = lineDao;
+    public SectionService(SectionDao sectionDao, StationDao stationDao) {
         this.sectionDao = sectionDao;
         this.stationDao = stationDao;
     }
 
-    public void createSection(long stationId, int distance, long lineId) {
-        sectionDao.save(new Section(stationId, distance, lineId));
+    public Section createSection(long stationId, int distance, long lineId) {
+        return sectionDao.save(new Section(stationId, distance, lineId));
     }
 
     public List<Station> getStationsOfLine(long lineId) {

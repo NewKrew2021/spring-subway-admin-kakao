@@ -1,6 +1,8 @@
 package subway.line;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import subway.exception.ExistLineSaveException;
 import subway.section.*;
 
 import java.util.LinkedList;
@@ -19,6 +21,9 @@ public class LineService {
     }
 
     public Long requestToLine(LineDto lineDto) {
+        if( lineDao.hasLineName(lineDto.getName()) ) {
+            new ExistLineSaveException().printStackTrace();
+        }
         Line line = new Line(lineDto.getName(), lineDto.getColor());
         return lineDao.save(line);
     }

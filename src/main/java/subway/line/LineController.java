@@ -31,12 +31,6 @@ public class LineController {
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         LineDto lineDto = new LineDto(lineRequest);
-
-        if( lineDao.hasLineName(lineDto.getName()) ) {
-            new ExistLineSaveException().printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-
         Long id = lineService.requestToLine(lineDto);
         lineService.createTerminalSections(lineDto, id);
 

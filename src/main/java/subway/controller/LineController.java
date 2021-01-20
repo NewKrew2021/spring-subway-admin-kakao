@@ -1,19 +1,17 @@
 package subway.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import subway.convertor.LineConvertor;
-import subway.domain.Line;
 import subway.domain.Section;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
+import subway.dto.LineResponseWithStation;
 import subway.factory.LineFactory;
 import subway.service.LineService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/lines")
@@ -39,9 +37,9 @@ public class LineController {
 
     //TODO 리스폰스 변경.
     @GetMapping("/{lineId}")
-    public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        LineResponse lineResponse = lineService.findOneResponse(lineId);
-        return ResponseEntity.ok(lineResponse);
+    public ResponseEntity<LineResponseWithStation> showLine(@PathVariable Long lineId) {
+        LineResponseWithStation lineResponseWithStation = lineService.findOneResponse(lineId);
+        return ResponseEntity.ok(lineResponseWithStation);
     }
 
     @PutMapping("/{lineId}")

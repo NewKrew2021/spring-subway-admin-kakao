@@ -3,12 +3,13 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
-import subway.domain.*;
-import subway.dto.LineRequest;
-import subway.dto.LineResponse;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Sections;
+import subway.domain.Station;
+import subway.dto.LineResponseWithStation;
 import subway.dto.StationResponse;
 import subway.exception.DataEmptyException;
-import subway.dao.SectionDao;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ public class LineServiceImpl implements LineService {
         this.stationService = stationService;
     }
 
+    @Override
     @Transactional
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
@@ -34,15 +36,17 @@ public class LineServiceImpl implements LineService {
         return newLine;
     }
 
+    @Override
     @Transactional
     public boolean deleteById(Long lineId) {
-        if(lineDao.deleteById(lineId) == 0){
+        if (lineDao.deleteById(lineId) == 0) {
             return false;
         }
         sectionService.deleteSectionByLineId(lineId);
         return true;
     }
 
+    @Override
     public List<Line> findAll() {
         List<Line> lines = lineDao.findAll();
         if (lines.size() == 0) {
@@ -51,6 +55,7 @@ public class LineServiceImpl implements LineService {
         return lines;
     }
 
+    @Override
     public Line findOne(Long lineId) {
         Line line = lineDao.findOne(lineId);
         if (line == null) {
@@ -59,21 +64,13 @@ public class LineServiceImpl implements LineService {
         return line;
     }
 
+    @Override
     public boolean update(Line line) {
         return lineDao.update(line) != 0;
     }
 
-    public boolean updateAll(Line line) {
-        return lineDao.updateAll(line) != 0;
-    }
-
-    public List<LineResponse> findAllResponse() {
-        return findAll().stream()
-                .map(LineResponse::new)
-                .collect(Collectors.toList());
-    }
-
-    public LineResponse findOneResponse(Long lineId) {
+    @Override
+    public LineResponseWithStation findOneResponse(Long lineId) {
         Line line = findOne(lineId);
         Sections sections = sectionService.getSectionsByLineId(lineId);
         Set<Long> stationIds = new LinkedHashSet<>();
@@ -89,6 +86,6 @@ public class LineServiceImpl implements LineService {
                     return new StationResponse(station);
                 })
                 .collect(Collectors.toList());
-        return new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
+        return new LineResponseWithStation(line.getId(), line.getName(), line.getColor(), stationResponses);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
 import subway.dto.LineResponse;
+import subway.dto.LineResponseWithStation;
 import subway.dto.SectionRequest;
 import subway.dto.StationResponse;
 
@@ -124,7 +125,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선에_지하철역_순서_정렬됨(ExtractableResponse<Response> response, List<StationResponse> expectedStations) {
-        LineResponse line = response.as(LineResponse.class);
+        LineResponseWithStation line = response.as(LineResponseWithStation.class);
         List<Long> stationIds = line.getStations().stream()
                 .map(it -> it.getId())
                 .collect(Collectors.toList());

@@ -8,9 +8,6 @@ import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
 
-import java.util.LinkedList;
-import java.util.List;
-
 @Service
 public class SectionServiceImpl implements SectionService {
 
@@ -22,27 +19,17 @@ public class SectionServiceImpl implements SectionService {
         this.lineDao = lineDao;
     }
 
+    @Override
     public Section save(Section section) {
         return sectionDao.save(section);
     }
 
+    @Override
     public Sections getSectionsByLineId(Long lineId) {
-        return getOrderedSection(sectionDao.getSectionsByLineId(lineId), lineDao.findOne(lineId));
+        return sectionDao.getSectionsByLineId(lineId);
     }
 
-    private Sections getOrderedSection(Sections sections, Line line) {
-        Long cur = line.getUpStationId();
-        Long dest = line.getDownStationId();
-        List<Section> orderedSections = new LinkedList();
-
-        while (!cur.equals(dest)) {
-            Section section = sections.findSectionByUpStationId(cur);
-            orderedSections.add(section);
-            cur = section.getDownStationId();
-        }
-        return new Sections(orderedSections);
-    }
-
+    @Override
     @Transactional
     public boolean saveSection(Section section) {
         if (sectionDao.existSection(section)) {
@@ -90,6 +77,7 @@ public class SectionServiceImpl implements SectionService {
         save(new Section(prevSection.getUpStationId(), section.getUpStationId(), prevSection.getDistance() - section.getDistance(), line.getId()));
     }
 
+    @Override
     @Transactional
     public boolean deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
@@ -116,10 +104,12 @@ public class SectionServiceImpl implements SectionService {
         return true;
     }
 
+    @Override
     public boolean deleteSectionById(Long sectionId) {
         return sectionDao.deleteSectionById(sectionId) != 0;
     }
 
+    @Override
     public void deleteSectionByLineId(Long lineId) {
         sectionDao.deleteSectionByLineId(lineId);
     }

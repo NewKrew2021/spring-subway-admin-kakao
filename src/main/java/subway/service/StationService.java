@@ -15,7 +15,4 @@ public interface StationService {
 
     boolean deleteById(Long stationId);
 
-    List<StationResponse> findAllResponse();
-
-    StationResponse findOneResponse(Long stationId);
 }

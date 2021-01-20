@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
+import subway.dto.LineResponseWithStation;
 import subway.dto.StationResponse;
 
 import java.util.Arrays;
@@ -187,7 +188,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철_노선_응답됨(ExtractableResponse<Response> response, LineResponse lineResponse) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        LineResponse resultResponse = response.as(LineResponse.class);
+        LineResponse resultResponse = response.as(LineResponseWithStation.class);
         assertThat(resultResponse.getId()).isEqualTo(lineResponse.getId());
     }
 

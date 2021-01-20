@@ -4,6 +4,7 @@ import subway.domain.Line;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
 import subway.domain.Section;
+import subway.dto.LineResponseWithStation;
 
 import java.util.List;
 
@@ -18,10 +19,6 @@ public interface LineService {
 
     boolean update(Line line);
 
-    boolean updateAll(Line line);
-
-    List<LineResponse> findAllResponse();
-
-    LineResponse findOneResponse(Long lineId);
+    LineResponseWithStation findOneResponse(Long lineId);
 
 }

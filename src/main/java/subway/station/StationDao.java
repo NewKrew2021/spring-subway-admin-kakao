@@ -23,19 +23,19 @@ public class StationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Station save(Station station) {
+    public Station save(StationRequest stationRequest) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
                     "insert into station (name) values(?)",
                     Statement.RETURN_GENERATED_KEYS
             );
-            psmt.setString(1, station.getName());
+            psmt.setString(1, stationRequest.getName());
             return psmt;
         }, keyHolder);
 
         Long id = (Long) keyHolder.getKey();
-        return new Station(id, station.getName());
+        return new Station(id, stationRequest.getName());
     }
 
     public void deleteById(Long id) {
@@ -46,18 +46,20 @@ public class StationDao {
         return jdbcTemplate.query("select * from station", stationMapper);
     }
 
+    public Station findByName(String name) {
+        try {
+            return jdbcTemplate.queryForObject("select * from station where name = ?", stationMapper, name);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     public Station findById(long id) {
         try {
             return jdbcTemplate.queryForObject("select * from station where id = ?", stationMapper, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
-    }
-
-    public List<StationResponse> getStationResponses() {
-        return findAll().stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
-                .collect(Collectors.toList());
     }
 
 }

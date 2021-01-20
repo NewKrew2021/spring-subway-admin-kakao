@@ -44,4 +44,13 @@ public class ExceptionController {
         return ResponseEntity.badRequest().body("입력된 거리가 올바르지 않습니다.");
     }
 
+    @ExceptionHandler(StationDuplicateException.class)
+    public ResponseEntity StationDuplicateHandle() {
+        return ResponseEntity.badRequest().body("입력된 이름의 역이 이미 존재합니다.");
+    }
+
+    @ExceptionHandler(StationDeleteException.class)
+    public ResponseEntity StationDeleteHandle() {
+        return ResponseEntity.badRequest().body("해당 ID를 가진 역이 존재하지 않아, 삭제할 수 없습니다.");
+    }
 }

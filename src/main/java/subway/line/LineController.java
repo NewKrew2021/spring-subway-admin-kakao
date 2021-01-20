@@ -42,7 +42,7 @@ public class LineController {
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> responses = lineDao.findAll().stream()
+        List<LineResponse> responses = lineService.getAllLines().stream()
                 .map(line -> new LineResponse(line.getId(), line.getName(), line.getColor()))
                 .collect(Collectors.toList());
 
@@ -51,16 +51,17 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineDao.findLineById(lineId);
-        if (line == null) {
+        try{
+            Line line = lineService.getLineById(lineId);
+            List<StationResponse> stationResponses = lineService.getStations(lineId).stream()
+                    .map(station -> new StationResponse(station.getId(), station.getName()))
+                    .collect(Collectors.toList());
+            System.out.println("stationService.getStationById success");
+            LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
+            return ResponseEntity.ok(lineResponse);
+        } catch(Exception e){
             return ResponseEntity.badRequest().build();
         }
-        List<StationResponse> stationResponses = lineService.getStations(line).stream()
-                .map(station -> new StationResponse(station.getId(), station.getName()))
-                .collect(Collectors.toList());
-
-        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
-        return ResponseEntity.ok(lineResponse);
     }
 
     @PutMapping("/lines/{id}")

@@ -88,6 +88,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_응답됨(response, lineResponse);
     }
 
+    @DisplayName("저장하지 않은 지하철 노선을 조회한다.")
+    @Test
+    void getNoExistLine(){
+        // given
+        LineResponse lineResponse = new LineResponse(3L, "경강선", "bg-red-600");
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_조회_요청(lineResponse);
+
+        // then
+        지하철_노선_응답_실패됨(response);
+    }
+
     @DisplayName("지하철 노선을 수정한다.")
     @Test
     void updateLine() {
@@ -143,13 +156,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static ExtractableResponse<Response> 지하철_노선_조회_요청(LineResponse response) {
-        System.out.println(response.getId());
         return RestAssured
                 .given().log().all()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when().get("/lines/{lineId}", response.getId())
                 .then().log().all()
                 .extract();
+    }
+
+    public static void 지하철_노선_응답_실패됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static ExtractableResponse<Response> 지하철_노선_수정_요청(LineResponse response, LineRequest params) {

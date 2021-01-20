@@ -24,7 +24,7 @@ public class LineDao {
                 resultSet.getString("name"),
                 resultSet.getString("color"),
                 resultSet.getLong("up_station_id"),
-        resultSet.getLong("down_station_id")
+                resultSet.getLong("down_station_id")
         );
         return line;
     };
@@ -49,12 +49,12 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select id, name, color from line";
+        String sql = "select id, name, color, up_station_id, down_station_id from line";
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
     public Line findLineById(Long id) {
-        String sql = "select id, name, color from line where id = ?";
+        String sql = "select id, name, color, up_station_id, down_station_id from line where id = ?";
         return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 

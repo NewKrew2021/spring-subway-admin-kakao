@@ -5,6 +5,7 @@ import subway.section.Section;
 import subway.section.SectionService;
 import subway.station.Station;
 import subway.station.StationDao;
+import subway.station.StationService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,24 +13,23 @@ import java.util.stream.Collectors;
 @Service
 public class LineService {
     private LineDao lineDao;
-    private StationDao stationDao;
+    private StationService stationService;
     private SectionService sectionService;
 
-    public LineService(LineDao lineDao, StationDao stationDao, SectionService sectionService) {
+    public LineService(LineDao lineDao, StationService stationService, SectionService sectionService) {
         this.lineDao = lineDao;
-        this.stationDao = stationDao;
+        this.stationService = stationService;
         this.sectionService = sectionService;
     }
 
-    public List<Station> getStations(Line line) {
-        List<Section> sections = sectionService.showAll(line.getId());
+    public List<Station> getStations(Long id) {
+        List<Section> sections = sectionService.showAll(id);
         List<Long> stationIds = sections.stream()
                 .map(Section::getUpStationId)
                 .collect(Collectors.toList());
         stationIds.add(sections.get(sections.size() - 1).getDownStationId());
-        return stationIds.stream()
-                .map(stationDao::findStationById)
-                .collect(Collectors.toList());
+
+        return stationService.getStationsById(stationIds);
     }
 
 
@@ -38,5 +38,13 @@ public class LineService {
         Section newSection = new Section(newLine.getId(), line.getUpStationId(), line.getDownStationId(), line.getDistance());
         sectionService.createSection(newSection);
         return newLine;
+    }
+
+    public List<Line> getAllLines(){
+        return lineDao.findAll();
+    }
+
+    public Line getLineById(Long lineId) {
+        return lineDao.findLineById(lineId);
     }
 }

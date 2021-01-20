@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 @Service
 public class LineService {
 
+    private final int SECTION_DISTANCE_SUM_DEFAULT = 0;
+
     private final LineDao lineDao;
     private final StationDao stationDao;
     private final SectionDao sectionDao;
@@ -117,7 +119,7 @@ public class LineService {
 
     public void addDownStation(Map<Long, Section> orderedSections, Line line, SectionRequest sectionRequest) {
         Long upStationId = sectionRequest.getUpStationId();
-        int distanceSum = 0;
+        int distanceSum = SECTION_DISTANCE_SUM_DEFAULT;
 
         while (orderedSections.containsKey(upStationId)) {
             Section section = orderedSections.get(upStationId);
@@ -154,7 +156,7 @@ public class LineService {
 
     public void addUpStation(Map<Long, Section> reverseOrderedSections, Line line, SectionRequest sectionRequest) {
         Long downStationId = sectionRequest.getDownStationId();
-        int distanceSum = 0;
+        int distanceSum = SECTION_DISTANCE_SUM_DEFAULT;
 
         while (reverseOrderedSections.containsKey(downStationId)) {
             Section section = reverseOrderedSections.get(downStationId);

@@ -1,6 +1,8 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import subway.line.domain.Line;
+import subway.line.dao.LineDao;
 
 import javax.annotation.Resource;
 import java.util.List;

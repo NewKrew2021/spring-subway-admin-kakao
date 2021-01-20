@@ -1,7 +1,8 @@
-package subway.line;
+package subway.line.util;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import subway.line.domain.Line;
 
 import java.io.Serializable;
 import java.sql.ResultSet;

@@ -2,14 +2,12 @@ package subway.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import subway.domain.Station;
 import subway.dao.StationDao;
 
 import java.util.List;
 
 @Service
-@Transactional
 public class StationService {
 
     private final StationDao stationDao;

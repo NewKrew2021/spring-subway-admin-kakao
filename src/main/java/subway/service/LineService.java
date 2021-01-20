@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class LineService {
 
     private final StationDao stationDao;
@@ -47,6 +46,7 @@ public class LineService {
         return lineDao.findOne(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Station> showStationsByLineId(Long id) {
         SectionGroup sections = new SectionGroup(sectionDao.findAllByLineId(id));
         return sections.getAllStationId().stream()

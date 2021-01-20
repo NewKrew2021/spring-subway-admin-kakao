@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -65,6 +66,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void addLineSectionWithSameStation() {
         // when
+        지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
 
         // then
@@ -86,7 +88,23 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     void removeLineSection1() {
         // given
         지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
+
+
+        RestAssured
+                .given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/lines/{lineId}", 신분당선.getId())
+                .then().log().all()
+                .extract();
+
         지하철_구간_생성_요청(신분당선, 양재역, 정자역, 2);
+
+        RestAssured
+                .given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/lines/{lineId}", 신분당선.getId())
+                .then().log().all()
+                .extract();
 
         // when
         ExtractableResponse<Response> removeResponse = 지하철_노선에_지하철역_제외_요청(신분당선, 양재역);

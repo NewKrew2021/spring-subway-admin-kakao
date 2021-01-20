@@ -1,7 +1,6 @@
 package subway.line.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,16 +34,6 @@ public class LineController {
     @PostMapping("/{lineId}/sections")
     public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
         return ResponseEntity.ok().body(lineService.addSectionToLine(lineId, sectionRequest));
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> sectionHandle() {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("구간 등록 실패");
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> lineHandle() {
-        return ResponseEntity.badRequest().body("노선 등록 실패");
     }
 
     @PostMapping

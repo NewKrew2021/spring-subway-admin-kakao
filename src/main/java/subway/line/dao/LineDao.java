@@ -29,11 +29,9 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        String sql = "insert into LINE (name, color) values (?, ?)";
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(LineSql.INSERT.getSql(), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, line.getName());
             ps.setString(2, line.getColor());
             return ps;
@@ -43,25 +41,21 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select id, name, color from LINE";
-        return jdbcTemplate.query(sql, actorRowMapper);
+        return jdbcTemplate.query(LineSql.SELECT.getSql(), actorRowMapper);
     }
 
     public Line findById(Long id) {
-        String sql = "select id, name, color from LINE where id = ?";
-        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        return jdbcTemplate.queryForObject(LineSql.SELECT_BY_ID.getSql(), actorRowMapper, id);
     }
 
     public Integer existByName(String name) {
-        String sql = "select count(*) from LINE where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+        return jdbcTemplate.queryForObject(LineSql.SELECT_COUNT_BY_NAME.getSql(), Integer.class, name);
     }
 
     public void update(Line newLine) {
-        String sql = "update LINE set name = ?, color = ? where id = ?";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(LineSql.UPDATE.getSql(), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, newLine.getName());
             ps.setString(2, newLine.getColor());
             ps.setLong(3, newLine.getId());
@@ -70,7 +64,6 @@ public class LineDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "delete from LINE where id = ?";
-        jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(LineSql.DELETE.getSql(), id);
     }
 }

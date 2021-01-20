@@ -3,7 +3,6 @@ package subway.section.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.line.dao.LineDao;
 import subway.line.domain.Line;
 import subway.line.domain.LineResponse;
 import subway.section.dao.SectionDao;
@@ -20,7 +19,7 @@ public class SectionService {
     private SectionDao sectionDao;
 
     @Autowired
-    SectionService(LineDao lineDao, SectionDao sectionDao) {
+    SectionService(SectionDao sectionDao) {
         this.sectionDao = sectionDao;
     }
 

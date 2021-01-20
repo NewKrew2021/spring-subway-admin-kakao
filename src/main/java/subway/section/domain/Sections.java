@@ -1,5 +1,8 @@
 package subway.section.domain;
 
+import subway.line.exception.AddSectionException;
+import subway.line.exception.DeleteSectionException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,14 +25,14 @@ public class Sections {
     public void checkSameSection(Section newSection) {
         if (sections.stream()
                 .anyMatch(section -> section.isSameSection(newSection))) {
-            throw new RuntimeException("같은 구역이 이미 등록되어 있습니다.");
+            throw new AddSectionException();
         }
     }
 
     public void checkNoStation(Section newSection) {
         if (sections.stream()
                 .noneMatch(section -> section.containStation(newSection))) {
-            throw new RuntimeException("노선과 연결할 수 있는 역이 없습니다.");
+            throw new AddSectionException();
         }
     }
 
@@ -73,7 +76,7 @@ public class Sections {
 
     public void checkOneSection() {
         if (sections.size() == MIN_SECTION_SIZE) {
-            throw new RuntimeException("제거할 수 없습니다.");
+            throw new DeleteSectionException();
         }
     }
 

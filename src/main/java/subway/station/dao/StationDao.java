@@ -27,11 +27,9 @@ public class StationDao {
     );
 
     public Station save(Station station) {
-        String sql = "insert into STATION (name) values (?)";
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(StationSql.INSERT.getSql(), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, station.getName());
             return ps;
         }, keyHolder);
@@ -40,17 +38,14 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from STATION";
-        return jdbcTemplate.query(sql, actorRowMapper);
+        return jdbcTemplate.query(StationSql.SELECT.getSql(), actorRowMapper);
     }
 
     public void deleteById(Long id) {
-        String sql = "delete from STATION where id = ?";
-        jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(StationSql.DELETE_BY_ID.getSql(), id);
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from STATION where id = ?";
-        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        return jdbcTemplate.queryForObject(StationSql.SELECT_BY_ID.getSql(), actorRowMapper, id);
     }
 }

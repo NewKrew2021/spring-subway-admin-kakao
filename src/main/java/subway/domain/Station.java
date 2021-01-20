@@ -1,15 +1,17 @@
-package subway.station;
+package subway.domain;
 
-public class StationResponse {
+public class Station {
+
     private Long id;
     private String name;
 
-    public StationResponse() {
-    }
-
-    public StationResponse(Long id, String name) {
+    public Station(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Station(String name) {
+        this(null, name);
     }
 
     public Long getId() {
@@ -20,3 +22,4 @@ public class StationResponse {
         return name;
     }
 }
+

@@ -40,7 +40,7 @@ class LineServiceTest {
         LineRequest request = new LineRequest("1호선", "BLUE", 1L, 2L, 10);
         given(lineDao.existBy(request.getName())).willReturn(false);
         given(lineDao.save(any(Line.class))).willReturn(request.toEntity(lineId));
-        given(sectionService.findStationsOf(lineId)).willReturn(Arrays.asList(
+        given(sectionService.getStationsOf(lineId)).willReturn(Arrays.asList(
                 StationResponse.from(new Station(1L, "의정부역")),
                 StationResponse.from(new Station(2L, "시청역"))
         ));
@@ -49,7 +49,7 @@ class LineServiceTest {
         LineResponse result = lineService.create(request);
 
         // then
-        verify(sectionService).findStationsOf(lineId);
+        verify(sectionService).getStationsOf(lineId);
         assertAll(
                 () -> assertThat(result).usingRecursiveComparison()
                         .ignoringFields("stations")
@@ -79,7 +79,7 @@ class LineServiceTest {
         long lineId = 1L;
         Line savedLine = new Line(lineId, "1호선", "BLUE");
         given(lineDao.findById(lineId)).willReturn(Optional.of(savedLine));
-        given(sectionService.findStationsOf(lineId)).willReturn(Arrays.asList(
+        given(sectionService.getStationsOf(lineId)).willReturn(Arrays.asList(
                 StationResponse.from(new Station(1L, "의정부역")),
                 StationResponse.from(new Station(2L, "시청역"))
         ));

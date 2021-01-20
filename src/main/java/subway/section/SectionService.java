@@ -28,8 +28,8 @@ public class SectionService {
     }
 
     @Transactional(readOnly = true)
-    public List<StationResponse> findStationsOf(long lineId) {
-        return findSectionsBy(lineId)
+    public List<StationResponse> getStationsOf(long lineId) {
+        return getSectionsBy(lineId)
                 .getStations()
                 .stream()
                 .map(stationId -> stationDao.findById(stationId)
@@ -41,18 +41,18 @@ public class SectionService {
 
     public void createSection(long lineId, SectionRequest request) {
         sectionDao.save(
-                findSectionsBy(lineId)
+                getSectionsBy(lineId)
                         .createNewSection(request.getUpStationId(), request.getDownStationId(), request.getDistance())
         );
     }
 
     public void removeSection(long lineId, long stationId) {
-        findSectionsBy(lineId)
+        getSectionsBy(lineId)
                 .findSectionToDeleteBy(stationId)
                 .ifPresent(sectionDao::delete);
     }
 
-    public Sections findSectionsBy(long lineId) {
+    public Sections getSectionsBy(long lineId) {
         return Sections.from(sectionDao.findByLineId(lineId));
     }
 }

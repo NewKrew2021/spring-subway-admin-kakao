@@ -29,20 +29,20 @@ public class LineService {
 
         Line newLine = lineDao.save(request.toEntity());
         sectionService.initializeByLine(newLine.getId(), request.getSectionRequest());
-        return LineResponse.from(newLine, sectionService.findStationsOf(newLine.getId()));
+        return LineResponse.from(newLine, sectionService.getStationsOf(newLine.getId()));
     }
 
     @Transactional(readOnly = true)
     public LineResponse findBy(Long id) {
         Line line = lineDao.findById(id).orElseThrow(() -> new LineNotFoundException(id));
-        return LineResponse.from(line, sectionService.findStationsOf(line.getId()));
+        return LineResponse.from(line, sectionService.getStationsOf(line.getId()));
     }
 
     @Transactional(readOnly = true)
     public List<LineResponse> findAll() {
         return lineDao.findAll()
                 .stream()
-                .map(line -> LineResponse.from(line, sectionService.findStationsOf(line.getId())))
+                .map(line -> LineResponse.from(line, sectionService.getStationsOf(line.getId())))
                 .collect(toList());
     }
 

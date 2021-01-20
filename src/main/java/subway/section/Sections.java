@@ -69,7 +69,7 @@ public class Sections {
                 .findAny();
     }
 
-    private int findIndexOf(Section section) {
+    private int getIndexOf(Section section) {
         return sections.stream()
                 .filter(section::equals)
                 .map(sections::indexOf)
@@ -96,24 +96,24 @@ public class Sections {
     }
 
     private boolean isUpTerminal(Section section) {
-        return findIndexOf(section) == 0;
+        return getIndexOf(section) == 0;
     }
 
     private boolean isDownTerminal(Section section) {
-        return findIndexOf(section) == sections.size() - 1;
+        return getIndexOf(section) == sections.size() - 1;
     }
 
     private Section getNextUpSection(Section section) {
         if (isUpTerminal(section)) {
             throw new IllegalArgumentException("해당 구간은 상행 종점입니다");
         }
-        return sections.get(findIndexOf(section) - NEXT_INDEX);
+        return sections.get(getIndexOf(section) - NEXT_INDEX);
     }
 
     private Section getNextDownSection(Section section) {
         if (isDownTerminal(section)) {
             throw new IllegalArgumentException("해당 구간은 하행 종점입니다");
         }
-        return sections.get(findIndexOf(section) + NEXT_INDEX);
+        return sections.get(getIndexOf(section) + NEXT_INDEX);
     }
 }

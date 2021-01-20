@@ -30,16 +30,13 @@ public class LineDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    private final RowMapper<Line> actorRowMapper = (resultSet, rowNum) -> {
-        Line line = new Line(
-                resultSet.getLong("id"),
-                resultSet.getString("name"),
-                resultSet.getString("color"),
-                resultSet.getLong("start_station_id"),
-                resultSet.getLong("end_station_id")
-        );
-        return line;
-    };
+    private final RowMapper<Line> actorRowMapper = (resultSet, rowNum) -> new Line(
+            resultSet.getLong("id"),
+            resultSet.getString("name"),
+            resultSet.getString("color"),
+            resultSet.getLong("start_station_id"),
+            resultSet.getLong("end_station_id")
+    );
 
     public Line save(Line line) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);

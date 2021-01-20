@@ -36,16 +36,13 @@ public class SectionDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    private final RowMapper<Section> actorRowMapper = (resultSet, rowNum) -> {
-        Section section = new Section(
-                resultSet.getLong("id"),
-                resultSet.getLong("up_station_id"),
-                resultSet.getLong("down_station_id"),
-                resultSet.getInt("distance"),
-                resultSet.getLong("line_id")
-        );
-        return section;
-    };
+    private final RowMapper<Section> actorRowMapper = (resultSet, rowNum) -> new Section(
+            resultSet.getLong("id"),
+            resultSet.getLong("up_station_id"),
+            resultSet.getLong("down_station_id"),
+            resultSet.getInt("distance"),
+            resultSet.getLong("line_id")
+    );
 
     public Section save(Section section) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(section);

@@ -29,12 +29,10 @@ public class StationDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> {
-        return new Station(
-                resultSet.getLong("id"),
-                resultSet.getString("name")
-        );
-    };
+    private final RowMapper<Station> actorRowMapper = (resultSet, rowNum) -> new Station(
+            resultSet.getLong("id"),
+            resultSet.getString("name")
+    );
 
     public Station save(Station station) {
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(station);

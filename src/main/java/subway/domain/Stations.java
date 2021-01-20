@@ -1,6 +1,5 @@
 package subway.domain;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,5 +13,4 @@ public class Stations {
     public List<Station> getStations(){
         return Collections.unmodifiableList(stations);
     }
-
 }

@@ -53,7 +53,6 @@ public class Section {
     }
 
     public boolean isContainStation(Long stationId){
-        System.out.println("비교"+upStationId+" "+downStationId+":"+stationId);
         if(upStationId.equals(stationId)||downStationId.equals(stationId)){
             return true;
         }
@@ -70,7 +69,6 @@ public class Section {
             this.downStationId= section.downStationId;
         }
     }
-
 
     public void modifyMatchedSection(Section newSection) {
         if (isMatchedOnlyUpStationId(newSection)) {

@@ -36,7 +36,6 @@ public class StationDao {
     }
 
     public Station findByName(String name) {
-        System.out.println(name);
         String sql = "Select * from station where name=?";
         return jdbcTemplate.queryForObject(sql, stationRowMapper, name);
 

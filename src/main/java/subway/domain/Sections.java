@@ -1,6 +1,5 @@
 package subway.domain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +35,10 @@ public class Sections {
 
     public Map<Long, Long> getSectionMap() {
         Map<Long, Long> sectionMap = new HashMap<>();
-        sections.stream()
-                .map(section -> sectionMap.put(section.getUpStationId(),section.getDownStationId()));
+        for (Section section : sections) {
+            sectionMap.put(section.getUpStationId(), section.getDownStationId());
+        }
         return sectionMap;
     }
-
 
 }

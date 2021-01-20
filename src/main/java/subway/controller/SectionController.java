@@ -22,7 +22,7 @@ public class SectionController {
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) throws Exception {
         Line nowLine = lineService.findById(lineId);
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         sectionService.insertSection(nowLine, newSection);
@@ -30,7 +30,7 @@ public class SectionController {
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
+    public ResponseEntity deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) throws Exception {
         Line nowLine = lineService.findById(lineId);
         sectionService.deleteStation(nowLine, stationId);
         return ResponseEntity.ok().build();

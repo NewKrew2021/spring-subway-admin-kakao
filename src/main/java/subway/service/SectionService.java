@@ -28,7 +28,7 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public boolean insertSection(Line nowLine, Section newSection) {
+    public boolean insertSection(Line nowLine, Section newSection) throws Exception {
         Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(nowLine.getId());
         if (nowLine.isInsertModified(newSection)) {
             sectionDao.save(newSection);
@@ -42,17 +42,17 @@ public class SectionService {
             sectionDao.save(newSection);
             return true;
         }
-        return false;
+        throw new Exception();
     }
 
-    public boolean deleteStation(Line line, Long stationId) {
+    public boolean deleteStation(Line line, Long stationId) throws Exception {
         Sections sectionsFromNowLine = sectionDao.findSectionsByLineId(line.getId());
         if (!sectionsFromNowLine.validateSectionDelete()) {
-            return false;
+            throw new Exception();
         }
         List<Section> deleteSections = sectionsFromNowLine.findDeleteSections(stationId);
         if (deleteSections.size() == 0) {
-            return false;
+            throw new Exception();
         }
         if (deleteSections.size() == 1) {
             sectionDao.deleteSection(deleteSections.get(0).getId());
@@ -68,7 +68,7 @@ public class SectionService {
             sectionDao.deleteSection(deleteSection.getId());
             return true;
         }
-        return false;
+        throw new Exception();
     }
 
     public Stations getStationsByLine(Line line) {

@@ -9,7 +9,9 @@ public class StationResponses {
 
     public StationResponses(List<Station> stations) {
         stationResponses=new ArrayList<>();
-        stations.stream().map(station -> stationResponses.add(new StationResponse(station)));
+        for (Station station : stations) {
+            stationResponses.add(new StationResponse(station));
+        }
     }
 
     public List<StationResponse> getStationResponses() {

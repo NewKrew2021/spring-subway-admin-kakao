@@ -33,18 +33,16 @@ public class LineServiceImpl implements LineService {
     @Override
     @Transactional
     public Line save(Line line, Section section) {
-
-        Line newLine = lineDao.save(line, section);
-        return newLine;
+        return lineDao.save(line, section);
     }
 
     @Override
     @Transactional
     public void deleteById(Long lineId) {
+        sectionService.deleteSectionByLineId(lineId);
         if (lineDao.deleteById(lineId) == 0) {
             throw new DeleteImpossibleException();
         }
-        sectionService.deleteSectionByLineId(lineId);
     }
 
     @Override

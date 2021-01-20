@@ -85,7 +85,11 @@ public class Sections {
     }
 
     public boolean isCanSaveSection(Section section) {
-        return sections.stream().anyMatch(sec -> sec.getUpStationId().equals(section.getUpStationId()) || sec.getDownStationId().equals(section.getUpStationId()) || sec.getUpStationId().equals(section.getDownStationId()) || sec.getDownStationId().equals(section.getDownStationId()));
+        return sections.stream()
+                .anyMatch(sec -> sec.getUpStationId().equals(section.getUpStationId())
+                        || sec.getDownStationId().equals(section.getUpStationId())
+                        || sec.getUpStationId().equals(section.getDownStationId())
+                        || sec.getDownStationId().equals(section.getDownStationId()));
     }
 
     public boolean isPossibleToDelete() {
@@ -119,5 +123,9 @@ public class Sections {
 
     public boolean isExistDownStationAndMiddleSection(Section section) {
         return findSectionByDownStationId(section.getDownStationId()) != null && !getStartStation().equals(section.getDownStationId());
+    }
+
+    public Long getLineId(){
+        return sections.get(0).getLineId();
     }
 }

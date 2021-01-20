@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
-import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
@@ -48,10 +47,10 @@ public class SectionServiceImpl implements SectionService {
             throw new IllegalStationException();
         }
         save(section);
-        if(sections.isExistUpStationAndMiddleSection(section)){
+        if (sections.isExistUpStationAndMiddleSection(section)) {
             addSectionBack(sections, section);
         }
-        if(sections.isExistDownStationAndMiddleSection(section)){
+        if (sections.isExistDownStationAndMiddleSection(section)) {
             addSectionFront(sections, section);
         }
     }
@@ -72,25 +71,23 @@ public class SectionServiceImpl implements SectionService {
     @Transactional
     public void deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
-        Line line = lineDao.findOne(lineId);
-
         if (!sections.isPossibleToDelete() || sections.findSectionByStationId(stationId) == null) {
             throw new DeleteImpossibleException();
         }
+        delete(sections, stationId);
+    }
 
+    private void delete(Sections sections, Long stationId) {
         Section nextSection = sections.findSectionByUpStationId(stationId);
         Section prevSection = sections.findSectionByDownStationId(stationId);
-
+        if (prevSection != null) {
+            deleteSectionById(prevSection.getSectionId());
+        }
+        if (nextSection != null) {
+            deleteSectionById(nextSection.getSectionId());
+        }
         if (nextSection != null && prevSection != null) {
-            deleteSectionById(nextSection.getSectionId());
-            deleteSectionById(prevSection.getSectionId());
-            save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), lineId));
-        } else if (nextSection != null) {
-            deleteSectionById(nextSection.getSectionId());
-            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), nextSection.getDownStationId(), line.getDownStationId()));
-        } else if (prevSection != null) {
-            deleteSectionById(prevSection.getSectionId());
-            lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), prevSection.getUpStationId()));
+            save(new Section(prevSection.getUpStationId(), nextSection.getDownStationId(), prevSection.getDistance() + nextSection.getDistance(), sections.getLineId()));
         }
     }
 

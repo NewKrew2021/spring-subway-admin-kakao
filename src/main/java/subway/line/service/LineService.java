@@ -2,6 +2,7 @@ package subway.line.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exception.EntityNotFoundException;
 import subway.line.dao.LineDao;
 import subway.line.domain.Line;
@@ -26,6 +27,7 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
+    @Transactional
     public LineResponse insert(LineRequest request) {
         validateName(request.getName());
 

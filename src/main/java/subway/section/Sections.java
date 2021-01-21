@@ -36,25 +36,29 @@ public class Sections {
     }
 
     public void validateSection(Long upStationId, Long downStationId, int distance) {
-        validateSameSection(upStationId, downStationId);
-        validateNoStations(upStationId, downStationId);
+        boolean isUpStationExist = isStationIdExist(upStationId);
+        boolean isDownStationExist = isStationIdExist(downStationId);
+
+        validateSameSection(isUpStationExist, isDownStationExist);
+        validateNoStations(isUpStationExist, isDownStationExist);
         validateDistance(distance);
-        if (haveToMakeUpStation(upStationId, downStationId)) {
+
+        if (isDownStationExist) {
             validateMakeStation(downStationId, upStationDistance(distance));
         }
-        if (haveToMakeDownStation(upStationId, downStationId)) {
+        if (isUpStationExist) {
             validateMakeStation(upStationId, downStationDistance(distance));
         }
     }
 
-    private void validateNoStations(Long upStationId, Long downStationId) {
-        if (!isStationIdExist(upStationId) && !isStationIdExist(downStationId)) {
+    private void validateNoStations(boolean isUpStationExist, boolean isDownStationExist) {
+        if (!isUpStationExist && !isDownStationExist) {
             throw new SectionNoStationException();
         }
     }
 
-    private void validateSameSection(Long upStationId, Long downStationId) {
-        if (isStationIdExist(upStationId) && isStationIdExist(downStationId)) {
+    private void validateSameSection(boolean isUpStationExist, boolean isDownStationExist) {
+        if (isUpStationExist && isDownStationExist) {
             throw new SectionSameSectionException();
         }
     }
@@ -63,14 +67,6 @@ public class Sections {
         if (distance < MINIMUM_DISTANCE) {
             throw new SectionIllegalDistanceException();
         }
-    }
-
-    private boolean haveToMakeUpStation(Long upStationId, Long downStationId) {
-        return !isStationIdExist(upStationId) && isStationIdExist(downStationId);
-    }
-
-    private boolean haveToMakeDownStation(Long upStationId, Long downStationId) {
-        return isStationIdExist(upStationId) && !isStationIdExist(downStationId);
     }
 
     private void validateMakeStation(Long stationId, int distance) {
@@ -98,7 +94,7 @@ public class Sections {
     private boolean areThereAnyStationsBetween(int upStationRelativeDistance, int downStationRelativeDistance) {
         return sections.stream().map(Section::getRelativeDistance)
                 .filter(relativeDistance ->
-                        relativeDistance.isBetween(upStationRelativeDistance,downStationRelativeDistance))
+                        relativeDistance.isBetween(upStationRelativeDistance, downStationRelativeDistance))
                 .count() != BASIC_NUM_OF_NEW_SECTION;
     }
 

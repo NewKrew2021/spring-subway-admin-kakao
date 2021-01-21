@@ -10,6 +10,7 @@ public class LineRequest {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private int extraFare;
 
     public LineRequest() {
     }
@@ -50,4 +51,7 @@ public class LineRequest {
         return distance;
     }
 
+    public int getExtraFare() {
+        return extraFare;
+    }
 }

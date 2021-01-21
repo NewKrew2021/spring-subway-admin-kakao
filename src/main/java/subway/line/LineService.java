@@ -21,7 +21,7 @@ public class LineService {
         if (lineDao.findByName(lineRequest.getName()) != null) {
             throw new LineDuplicatedException();
         }
-        Long newLineId = lineDao.save(lineRequest).getId();
+        Long newLineId = lineDao.save(new Line(lineRequest)).getId();
         sectionService.lineInitialize(lineRequest.toFirstSection(newLineId), lineRequest.toSection(newLineId));
         return makeLineResponseByLine(lineDao.findById(newLineId));
     }

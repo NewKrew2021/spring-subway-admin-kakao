@@ -16,10 +16,11 @@ public class StationService {
     }
 
     public StationResponse createStation(StationRequest stationRequest) {
-        if (stationDao.findByName(stationRequest.getName()) != null) {
+        Station station = new Station(stationRequest.getName());
+        if (stationDao.findByName(station.getName()) != null) {
             throw new StationDuplicateException();
         }
-        return StationResponse.from(stationDao.save(stationRequest));
+        return StationResponse.from(stationDao.save(station));
     }
 
     public List<StationResponse> getStationResponses() {

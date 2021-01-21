@@ -1,5 +1,7 @@
 package subway.domain.station;
 
+import subway.exception.station.DuplicateStationNameException;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -8,7 +10,18 @@ public class Stations {
     private List<Station> stations;
 
     public Stations(List<Station> stations) {
+        validateStationNames(stations);
         this.stations = stations;
+    }
+
+    private void validateStationNames(List<Station> stations) {
+        long nameCount = stations.stream()
+                .map(Station::getName)
+                .distinct()
+                .count();
+        if(stations.size() != nameCount) {
+            throw new DuplicateStationNameException();
+        }
     }
 
     public boolean contain(Long stationId) {

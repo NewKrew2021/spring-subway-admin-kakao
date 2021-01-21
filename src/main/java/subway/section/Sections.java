@@ -30,6 +30,12 @@ public class Sections {
         }
     }
 
+    public void checkOneSection() {
+        if (sections.size() == MIN_SECTION_SIZE) {
+            throw new IllegalArgumentException("제거할 수 없습니다.");
+        }
+    }
+
     public boolean isFirstSection(Section newSection) {
         boolean notContain = sections.stream()
                 .noneMatch(section -> section.getDownStationId().equals(newSection.getDownStationId()));
@@ -48,12 +54,6 @@ public class Sections {
                 .noneMatch(section -> section.getUpStationId().equals(newSection.getUpStationId()));
 
         return notContain && uniqueContain;
-    }
-
-    public void checkOneSection() {
-        if (sections.size() == MIN_SECTION_SIZE) {
-            throw new IllegalArgumentException("제거할 수 없습니다.");
-        }
     }
 
     public Section getMatchedUpStation(Section newSection) {

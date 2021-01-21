@@ -59,15 +59,6 @@ public class SectionsTest {
     }
 
     @Test
-    @DisplayName("노선 시작 지점 테스트")
-    public void findFirstStationTest() {
-        assertThat(sections.findFirstStation()).isEqualTo(강남역.getId());
-
-        List<Section> sectionList = Arrays.asList(역삼_광교, 강남_역삼);
-        assertThat(new Sections(sectionList).findFirstStation()).isEqualTo(강남역.getId());
-    }
-
-    @Test
     @DisplayName("요청에 의한 새로운 섹션 생성 가능 여부 테스트")
     public void validateSectionRequestTest() {
         // 2개 역 모두 포함돼있을 경우

@@ -7,6 +7,7 @@ import subway.exception.section.SectionDeletionException;
 import subway.exception.section.SectionSplitException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Sections {
@@ -28,29 +29,31 @@ public class Sections {
         sortByOrder();
     }
 
-    private Map<Long, Section> generateConnection(SectionToStationId toStationId) {
-        Map<Long, Section> connection = new HashMap<>();
-        sections.forEach(section -> connection.put(toStationId.getStationId(section), section));
-        return connection;
+    private Map<Long, Section> generateConnection(Function<Section, Long> toStationId) {
+        return sections.stream()
+                .collect(Collectors.toMap(toStationId, Function.identity()));
     }
 
     private void sortByOrder() {
-        Long currentStation = findFirstStation();
-        List<Section> orderedSections = new ArrayList<>();
-        for (int i = 0; i < sections.size(); ++i) {
-            Section currentSection = upStationIdToSection.get(currentStation);
-            orderedSections.add(currentSection);
-            currentStation = currentSection.getDownStationId();
+        List<Section> upside = trackSectionsToMakeList(downStationIdToSection, Section::getUpStationId);
+        List<Section> downside = trackSectionsToMakeList(upStationIdToSection, Section::getDownStationId);
+        Collections.reverse(upside);
+        upside.addAll(downside);
+        if(upside.size() > sections.size()) {
+            throw new IllegalSectionsException();
         }
-        this.sections = orderedSections;
+        this.sections = upside;
     }
 
-    public Long findFirstStation() {
-        return sections.stream()
-                .map(Section::getUpStationId)
-                .filter(id -> !downStationIdToSection.containsKey(id))
-                .findFirst()
-                .orElseThrow(IllegalSectionsException::new);
+    private List<Section> trackSectionsToMakeList(Map<Long, Section> idToSectionMap, Function<Section, Long> toStationId) {
+        List<Section> orderedSections = new ArrayList<>();
+        Long current = sections.get(0).getUpStationId();
+        for (int i = 0; i < sections.size() && idToSectionMap.containsKey(current); i++) {
+            Section currentSection = idToSectionMap.get(current);
+            orderedSections.add(currentSection);
+            current = toStationId.apply(currentSection);
+        }
+        return orderedSections;
     }
 
     public Stations getAllStations() {
@@ -85,10 +88,10 @@ public class Sections {
     }
 
     public void validateDeleteSection(Long stationId) {
-        if(!contain(stationId)) {
+        if (!contain(stationId)) {
             throw new InvalidStationException(stationId);
         }
-        if(sections.size() == MIN_SECTIONS_SIZE) {
+        if (sections.size() == MIN_SECTIONS_SIZE) {
             throw new SectionDeletionException();
         }
     }

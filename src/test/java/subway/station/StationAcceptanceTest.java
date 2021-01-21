@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import subway.line.presentation.LineRequest;
-import subway.station.presentation.StationResponse;
-import subway.station.presentation.StationRequest;
+import subway.line.dto.LineRequest;
+import subway.station.dto.StationResponse;
+import subway.station.dto.StationRequest;
 import subway.station.domain.Station;
 import static org.assertj.core.api.Assertions.assertThat;
 import static subway.line.LineAcceptanceTest.지하철_노선_등록되어_있음;

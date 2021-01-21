@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.section.presentation.SectionRequest;
-import subway.station.presentation.StationResponse;
-import subway.line.presentation.LineResponse;
+import subway.section.dto.SectionRequest;
+import subway.station.dto.StationResponse;
+import subway.line.dto.LineResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -125,7 +125,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_구간_생성_요청(lineResponse, upStation, downStation, distance);
     }
 
-    public static ExtractableResponse<Response> 지하철_구간_생성_요청(subway.line.presentation.LineResponse line,
+    public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line,
                                                              StationResponse upStation,
                                                              StationResponse downStation,
                                                              int distance) {

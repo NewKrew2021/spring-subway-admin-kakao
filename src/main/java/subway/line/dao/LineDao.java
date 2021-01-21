@@ -1,9 +1,10 @@
-package subway.line.domain;
+package subway.line.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import subway.line.presentation.LineRequest;
-import subway.section.domain.SectionDao;
+import subway.line.domain.Line;
+import subway.line.dto.LineRequest;
+import subway.section.dao.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

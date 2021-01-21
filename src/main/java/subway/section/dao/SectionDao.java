@@ -1,4 +1,4 @@
-package subway.section.domain;
+package subway.section.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import org.springframework.jdbc.core.RowMapper;
+import subway.section.domain.Section;
 
 @Repository
 public class SectionDao {

@@ -9,16 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.presentation.StationResponse;
+import subway.station.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import subway.line.presentation.LineRequest;
-import subway.line.presentation.LineResponse;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static subway.line.SectionAcceptanceTest.지하철_구간_생성_요청;
 import static subway.line.SectionAcceptanceTest.지하철_구간_생성_요청;
 import static subway.station.StationAcceptanceTest.지하철역_등록되어_있음;
 

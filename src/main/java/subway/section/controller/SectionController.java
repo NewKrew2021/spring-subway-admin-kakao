@@ -1,8 +1,10 @@
-package subway.section.presentation;
+package subway.section.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.section.dto.SectionRequest;
+import subway.section.dto.SectionResponse;
 import subway.section.service.SectionService;
 
 @RestController

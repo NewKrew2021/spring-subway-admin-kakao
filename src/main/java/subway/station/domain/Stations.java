@@ -1,6 +1,6 @@
 package subway.station.domain;
 
-import subway.station.presentation.StationResponse;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 import java.util.Map;

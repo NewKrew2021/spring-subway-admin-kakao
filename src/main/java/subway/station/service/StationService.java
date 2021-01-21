@@ -2,11 +2,11 @@ package subway.station.service;
 
 import org.springframework.stereotype.Service;
 import subway.exceptions.BadRequestException;
-import subway.section.domain.SectionDao;
+import subway.section.dao.SectionDao;
 import subway.station.domain.Station;
-import subway.station.domain.StationDao;
-import subway.station.presentation.StationRequest;
-import subway.station.presentation.StationResponse;
+import subway.station.dao.StationDao;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

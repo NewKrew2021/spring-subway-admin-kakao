@@ -2,14 +2,14 @@ package subway.line.service;
 
 import org.springframework.stereotype.Service;
 import subway.line.domain.Line;
-import subway.line.domain.LineDao;
-import subway.line.presentation.LineRequest;
-import subway.line.presentation.LineResponse;
+import subway.line.dao.LineDao;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
 import subway.section.domain.Section;
-import subway.section.domain.SectionDao;
-import subway.station.domain.StationDao;
+import subway.section.dao.SectionDao;
+import subway.station.dao.StationDao;
 import subway.station.domain.Stations;
-import subway.station.presentation.StationResponse;
+import subway.station.dto.StationResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;

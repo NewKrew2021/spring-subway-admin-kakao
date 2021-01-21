@@ -39,7 +39,7 @@ public class SectionService {
     @Transactional(readOnly = true)
     public Sections getSectionsByLineId(Long lineId) {
         List<Section> sections = sectionDao.getByLineId(lineId);
-        Map<Long, Station> stationMap = generateStationMapFromSections(new Sections(sections));
+        Map<Long, Station> stationMap = generateStationMapFromSections(sections);
 
         return new Sections(sections.stream()
                 .map(section ->
@@ -48,9 +48,10 @@ public class SectionService {
                 .collect(Collectors.toList()));
     }
 
-    private Map<Long, Station> generateStationMapFromSections(Sections sections) {
+    private Map<Long, Station> generateStationMapFromSections(List<Section> sections) {
         Map<Long, Station> stationMap = new HashMap<>();
-        sections.getAllStations().stream()
+        sections.stream()
+                .flatMap(section -> section.getStations().stream())
                 .map(Station::getId)
                 .distinct()
                 .forEach(stationId -> stationMap.put(stationId, stationService.find(stationId)));

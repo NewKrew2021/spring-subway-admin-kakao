@@ -34,11 +34,11 @@ public class SectionTest {
 
     @Test
     @DisplayName("Section 분할 테스트")
-    public void splitSectionTest() {
-        assertThat(강남_망포.split(강남_역삼)).isEqualTo(new Section(null, LINE_ID, 역삼역, 망포역, 8));
-        assertThat(강남_망포.split(광교_망포)).isEqualTo(new Section(null, LINE_ID, 강남역, 광교역, 8));
+    public void excludeSectionTest() {
+        assertThat(강남_망포.exclude(강남_역삼)).isEqualTo(new Section(null, LINE_ID, 역삼역, 망포역, 8));
+        assertThat(강남_망포.exclude(광교_망포)).isEqualTo(new Section(null, LINE_ID, 강남역, 광교역, 8));
 
-        assertThatThrownBy(() -> 강남_망포.split(역삼_광교)).isInstanceOf(SectionSplitException.class);
+        assertThatThrownBy(() -> 강남_망포.exclude(역삼_광교)).isInstanceOf(SectionSplitException.class);
     }
 
     @Test
@@ -46,5 +46,14 @@ public class SectionTest {
     public void attachSectionTest() {
         assertThat(강남_역삼.attach(역삼_광교)).isEqualTo(new Section(null, LINE_ID, 강남역, 광교역, 7));
         assertThatThrownBy(() -> 강남_역삼.attach(강남_망포)).isInstanceOf(SectionAttachException.class);
+    }
+
+    @Test
+    @DisplayName("해당 ID를 가지는 station을 포함하는지 테스트")
+    public void containTest() {
+        assertThat(강남_역삼.contain(강남역.getId())).isTrue();
+        assertThat(강남_역삼.contain(역삼역.getId())).isTrue();
+        assertThat(강남_역삼.contain(망포역.getId())).isFalse();
+        assertThat(강남_역삼.contain(광교역.getId())).isFalse();
     }
 }

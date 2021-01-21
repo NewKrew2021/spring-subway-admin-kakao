@@ -39,7 +39,7 @@ public class Sections {
         List<Section> downside = trackSectionsToMakeList(upStationIdToSection, Section::getDownStationId);
         Collections.reverse(upside);
         upside.addAll(downside);
-        if(upside.size() > sections.size()) {
+        if (upside.size() > sections.size()) {
             throw new IllegalSectionsException();
         }
         this.sections = upside;
@@ -75,16 +75,22 @@ public class Sections {
                 .orElseGet(() -> getSectionFromDownStationId(newSection.getDownStationId()).orElse(null)));
     }
 
-    public boolean contain(Long stationId) {
-        return getAllStations().contain(stationId);
-    }
-
-    public Optional<Section> getSectionFromUpStationId(Long stationId) {
+    private Optional<Section> getSectionFromUpStationId(Long stationId) {
         return Optional.ofNullable(upStationIdToSection.get(stationId));
     }
 
-    public Optional<Section> getSectionFromDownStationId(Long stationId) {
+    private Optional<Section> getSectionFromDownStationId(Long stationId) {
         return Optional.ofNullable(downStationIdToSection.get(stationId));
+    }
+
+    public Sections findByStationId(Long stationId) {
+        return new Sections(sections.stream()
+                .filter(section -> section.contain(stationId))
+                .collect(Collectors.toList()));
+    }
+
+    public boolean contain(Long stationId) {
+        return getAllStations().contain(stationId);
     }
 
     public void validateDeleteSection(Long stationId) {
@@ -94,5 +100,17 @@ public class Sections {
         if (sections.size() == MIN_SECTIONS_SIZE) {
             throw new SectionDeletionException();
         }
+    }
+
+    public void forEach(Function<Section, Object> function) {
+        sections.forEach(function::apply);
+    }
+
+    public Section connect() {
+        Section connectedSection = sections.get(0);
+        for (int i = 1; i < sections.size(); i++) {
+            connectedSection = connectedSection.attach(sections.get(i));
+        }
+        return connectedSection;
     }
 }

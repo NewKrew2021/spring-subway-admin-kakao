@@ -91,27 +91,17 @@ public class SectionsTest {
     }
 
     @Test
-    @DisplayName("해당 station ID를 upStation으로 가진 섹션 테스트")
-    public void getSectionsFromUpStationIdTest() {
-        assertThat(sections.getSectionFromUpStationId(강남역.getId()).orElse(null)).isEqualTo(강남_역삼);
-        assertThat(sections.getSectionFromUpStationId(역삼역.getId()).orElse(null)).isEqualTo(역삼_광교);
-        assertThat(sections.getSectionFromUpStationId(광교역.getId()).orElse(null)).isEqualTo(null);
-    }
-
-    @Test
-    @DisplayName("해당 station ID를 downStation으로 가진 섹션 테스트")
-    public void getSectionsFromDownStationIdTest() {
-        assertThat(sections.getSectionFromDownStationId(강남역.getId()).orElse(null)).isEqualTo(null);
-        assertThat(sections.getSectionFromDownStationId(역삼역.getId()).orElse(null)).isEqualTo(강남_역삼);
-        assertThat(sections.getSectionFromDownStationId(광교역.getId()).orElse(null)).isEqualTo(역삼_광교);
-    }
-
-    @Test
     @DisplayName("sections에서 station을 지울 수 있는 지 테스트")
     public void validateDeleteTest() {
         assertThatThrownBy(() -> sections.validateDeleteSection(망포역.getId())).isInstanceOf(InvalidStationException.class);
 
         List<Section> sectionList = Arrays.asList(강남_역삼);
         assertThatThrownBy(() -> new Sections(sectionList).validateDeleteSection(강남역.getId())).isInstanceOf(SectionDeletionException.class);
+    }
+
+    @Test
+    @DisplayName("sections내 section 연결 테스트")
+    public void connectTest() {
+        assertThat(sections.connect()).isEqualTo(new Section(LINE_ID, 강남역, 광교역, 10));
     }
 }

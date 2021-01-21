@@ -43,7 +43,19 @@ public class Section {
         this.distance = distance;
     }
 
-    public Section split(Section section) {
+    private void checkStations(Station upStation, Station downStation) {
+        if(upStation.getId().equals(downStation.getId())) {
+            throw new StationDuplicationException();
+        }
+    }
+
+    private void checkDistance(int distance) {
+        if(distance <= 0) {
+            throw new SectionDistanceException(distance);
+        }
+    }
+
+    public Section exclude(Section section) {
         if(!getUpStationId().equals(section.getUpStationId()) && !getDownStationId().equals(section.getDownStationId())) {
             throw new SectionSplitException();
         }
@@ -60,16 +72,8 @@ public class Section {
         return new Section(lineId, upStation, other.downStation, distance + other.distance);
     }
 
-    private void checkStations(Station upStation, Station downStation) {
-        if(upStation.getId().equals(downStation.getId())) {
-            throw new StationDuplicationException();
-        }
-    }
-
-    private void checkDistance(int distance) {
-        if(distance <= 0) {
-            throw new SectionDistanceException(distance);
-        }
+    public boolean contain(Long stationId) {
+        return upStation.getId().equals(stationId) || downStation.getId().equals(stationId);
     }
 
     public Long getId() {

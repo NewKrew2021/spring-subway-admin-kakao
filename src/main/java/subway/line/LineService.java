@@ -65,15 +65,10 @@ public class LineService {
         Section rear = sections.findRearOfGivenStation(stationId);
 
         sectionService.deleteSections(sections);
-
-        int distance = zeroIfOneOfDistanceIsVirtual(front.getDistance(), rear.getDistance());
-        sectionService.save(new Section(lineId, front.getUpStationId(), rear.getDownStationId(), distance));
-    }
-
-    private int zeroIfOneOfDistanceIsVirtual(int distance1, int distance2) {
-        return Math.min(distance1, distance2) == Section.VIRTUAL_DISTANCE
-                ? Section.VIRTUAL_DISTANCE
-                : distance1 + distance2;
+        sectionService.save(new Section(
+                lineId, front.getUpStationId(),
+                rear.getDownStationId(),
+                front.sumDistance(rear)));
     }
 
 }

@@ -1,6 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
+import subway.distance.Distance;
 import subway.line.Line;
 import subway.line.LineRequest;
 
@@ -16,9 +17,9 @@ public class SectionService {
     }
 
     public void initialSave(Line line, LineRequest lineRequest) {
-        sectionDao.save(new Section(line.getId(), Line.HEADID, lineRequest.getUpStationId(), Section.VIRTUAL_DISTANCE));
+        sectionDao.save(new Section(line.getId(), Line.HEADID, lineRequest.getUpStationId(), Distance.VIRTUAL_DISTANCE));
         sectionDao.save(new Section(line.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        sectionDao.save(new Section(line.getId(), lineRequest.getDownStationId(), Line.TAILID, Section.VIRTUAL_DISTANCE));
+        sectionDao.save(new Section(line.getId(), lineRequest.getDownStationId(), Line.TAILID, Distance.VIRTUAL_DISTANCE));
     }
 
     public void save(Section section) {
@@ -46,16 +47,20 @@ public class SectionService {
     private void addSectionBasedUpStation(Long lineId, SectionRequest sectionRequest) {
         Section front = sectionDao.findSectionWithGivenUpStationId(lineId, sectionRequest.getUpStationId());
         sectionDao.save(new Section(lineId, sectionRequest));
-        sectionDao.save(new Section(lineId, sectionRequest.getDownStationId(), front.getDownStationId(),
-                front.getDistance() - sectionRequest.getDistance()));
+        sectionDao.save(new Section(lineId,
+                sectionRequest.getDownStationId(),
+                front.getDownStationId(),
+                front.subtractDistance(sectionRequest)));
         sectionDao.delete(front.getId());
     }
 
     private void addSectionBasedDownStation(Long lineId, SectionRequest sectionRequest) {
         Section front = sectionDao.findSectionWithGivenDownStationId(lineId, sectionRequest.getDownStationId());
-        sectionDao.save(new Section(lineId, front.getUpStationId(), sectionRequest.getUpStationId(),
-                front.getDistance() - sectionRequest.getDistance()));
         sectionDao.save(new Section(lineId, sectionRequest));
+        sectionDao.save(new Section(lineId,
+                front.getUpStationId(),
+                sectionRequest.getUpStationId(),
+                front.subtractDistance(sectionRequest)));
         sectionDao.delete(front.getId());
     }
 

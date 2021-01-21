@@ -1,18 +1,17 @@
 package subway.section;
 
+import subway.distance.Distance;
 import subway.line.Line;
 
 import java.util.Objects;
 
 public class Section {
 
-    public static final int VIRTUAL_DISTANCE = 0;
-
     private Long id;
     private Long lineId;
     private Long upStationId;
     private Long downStationId;
-    private int distance;
+    private Distance distance;
 
     public Section() {
     }
@@ -21,7 +20,7 @@ public class Section {
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
-        this.distance = distance;
+        this.distance = new Distance(distance);
     }
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
@@ -29,14 +28,29 @@ public class Section {
         this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
-        this.distance = distance;
+        this.distance = new Distance(distance);
     }
 
     public Section(Long lineId, SectionRequest sectionRequest) {
         this.lineId = lineId;
         this.upStationId = sectionRequest.getUpStationId();
         this.downStationId = sectionRequest.getDownStationId();
-        this.distance = sectionRequest.getDistance();
+        this.distance = new Distance(sectionRequest.getDistance());
+    }
+
+    public Section(Long id, Long lineId, Long upStationId, Long downStationId, Distance distance) {
+        this.id = id;
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+    }
+
+    public Section(Long lineId, Long upStationId, Long downStationId, Distance distance) {
+        this.lineId = lineId;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
     }
 
     public boolean isUpStation(Long stationId) {
@@ -48,14 +62,10 @@ public class Section {
     }
 
     public boolean isExist(Section another) {
-        if (upStationId.equals(another.upStationId) &&
-                distance != VIRTUAL_DISTANCE &&
-                distance <= another.distance) {
+        if (upStationId.equals(another.upStationId) && distance.isExist(another.distance)) {
             return true;
         }
-        if (downStationId.equals(another.downStationId) &&
-                distance != VIRTUAL_DISTANCE &&
-                distance <= another.distance) {
+        if (downStationId.equals(another.downStationId) && distance.isExist(another.distance)) {
             return true;
         }
         return false;
@@ -63,6 +73,14 @@ public class Section {
 
     public boolean isHeadSection() {
         return getUpStationId() == Line.HEADID;
+    }
+
+    public Distance sumDistance(Section another) {
+        return this.distance.sumDistance(another.getDistance());
+    }
+
+    public Distance subtractDistance(SectionRequest another) {
+        return this.distance.subtractDistance(another.getDistance());
     }
 
     public Long getId() {
@@ -81,10 +99,9 @@ public class Section {
         return downStationId;
     }
 
-    public int getDistance() {
+    public Distance getDistance() {
         return distance;
     }
-
 
     @Override
     public boolean equals(Object o) {

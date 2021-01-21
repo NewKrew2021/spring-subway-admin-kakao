@@ -35,12 +35,16 @@ public class SectionDao {
             preparedStatement.setLong(1, section.getLineId());
             preparedStatement.setLong(2, section.getUpStationId());
             preparedStatement.setLong(3, section.getDownStationId());
-            preparedStatement.setLong(4, section.getDistance());
+            preparedStatement.setLong(4, section.getDistance().getDistance());
             return preparedStatement;
         }, keyHolder);
 
         Long id = (long) keyHolder.getKey();
-        return new Section(id, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance());
+        return new Section(id,
+                section.getLineId(),
+                section.getUpStationId(),
+                section.getDownStationId(),
+                section.getDistance());
     }
 
     public void delete(Long sectionId) {

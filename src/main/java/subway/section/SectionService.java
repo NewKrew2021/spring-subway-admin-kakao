@@ -1,9 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import subway.line.LineRequest;
-import subway.station.Station;
 import subway.station.StationResponse;
 import subway.station.StationService;
 

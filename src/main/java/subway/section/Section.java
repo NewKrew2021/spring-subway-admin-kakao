@@ -23,10 +23,6 @@ public class Section {
         return relativeDistance;
     }
 
-    public Long getLineId() {
-        return lineId;
-    }
-
     public Long getStationId() {
         return stationId;
     }

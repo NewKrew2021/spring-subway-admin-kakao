@@ -12,10 +12,6 @@ public class Station {
         this.name = name;
     }
 
-    public Station(String name) {
-        this.name = name;
-    }
-
     public Long getId() {
         return id;
     }

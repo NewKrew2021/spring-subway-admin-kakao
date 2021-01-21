@@ -41,10 +41,6 @@ public class SectionDao {
         return new Section(lineId, stationId, relativeDistance);
     }
 
-    public List<Section> findAll() {
-        return jdbcTemplate.query("select * from section ", sectionMapper);
-    }
-
     public List<Section> findByLineId(Long lineId) {
         return jdbcTemplate.query("select * from section where line_id = ?", sectionMapper, lineId);
     }

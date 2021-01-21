@@ -2,8 +2,8 @@ package subway.line;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.ElementDeleteExeption;
-import subway.exception.ElementInsertException;
+import subway.exception.InvalidDeleteRequestException;
+import subway.exception.SectionDuplicateException;
 import subway.section.SectionRequest;
 import subway.section.SectionService;
 import subway.station.StationResponse;
@@ -58,7 +58,7 @@ public class LineController {
     @PostMapping("/lines/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
         if (sectionService.hasSectionOverlapped(id, sectionRequest)) {
-            throw new ElementInsertException("노선에 겹치는 구간이 존재합니다.");
+            throw new SectionDuplicateException("노선에 겹치는 구간이 존재합니다.");
         }
         sectionService.addSection(id, sectionRequest);
         return ResponseEntity.ok().build();
@@ -67,7 +67,7 @@ public class LineController {
     @DeleteMapping("/lines/{id}/sections")
     public ResponseEntity deleteSectionByStationId(@PathVariable Long id, @RequestParam Long stationId) {
         if (lineService.isNotDeletable(id)) {
-            throw new ElementDeleteExeption("최소 구간은 삭제할 수 없습니다.");
+            throw new InvalidDeleteRequestException("최소 구간은 삭제할 수 없습니다.");
         }
         lineService.deleteStation(id, stationId);
         return ResponseEntity.ok().build();

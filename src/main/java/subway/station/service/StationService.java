@@ -22,7 +22,7 @@ public class StationService {
     }
 
     public StationResponse create(StationRequest request) {
-        stationDao.validateName(request.getName());
+        validateName(request.getName());
 
         Station newStation = stationDao.insert(request.getName());
         return newStation.toDto();
@@ -43,6 +43,12 @@ public class StationService {
         boolean isDeleted = stationDao.deleteById(id);
         if (!isDeleted) {
             throw new EntityNotFoundException("삭제하려는 역이 존재하지 않습니다.");
+        }
+    }
+
+    private void validateName(String name) {
+        if (stationDao.countByName(name) > 0) {
+            throw new IllegalArgumentException("이미 등록된 역입니다.");
         }
     }
 }

@@ -46,11 +46,9 @@ public class StationDao {
         return jdbcTemplate.update(sql, id) > 0;
     }
 
-    public void validateName(String name) {
+    public int countByName(String name) {
         String sql = "select count(*) from station where name = ?";
-        if (jdbcTemplate.queryForObject(sql, int.class, name) != 0) {
-            throw new IllegalArgumentException("이미 등록된 지하철역 입니다.");
-        }
+        return jdbcTemplate.queryForObject(sql, int.class, name);
     }
 
     private final RowMapper<Station> stationRowMapper =

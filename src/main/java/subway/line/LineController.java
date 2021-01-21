@@ -79,7 +79,7 @@ public class LineController {
         SectionDto sectionDto = new SectionDto(sectionRequest, lineId);
 
         try {
-            sectionService.insertSection( sectionDto );
+            sectionService.insertSection(sectionDto);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();

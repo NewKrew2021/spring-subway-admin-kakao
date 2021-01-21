@@ -25,11 +25,6 @@ public class Line {
         this.distance = lineRequest.getDistance();
     }
 
-
-    public Line(String name, String color) {
-        this(-1, name, color);
-    }
-
     public long getId() {
         return id;
     }

@@ -60,7 +60,7 @@ public class Sections {
         return sections.stream()
                 .filter(section -> section.getStationId() == stationId)
                 .findFirst()
-                .orElse(null);
+                .orElse(new Section());
     }
 
     public boolean anyMatchSection(Long stationId){

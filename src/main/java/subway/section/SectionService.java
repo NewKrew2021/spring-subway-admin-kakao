@@ -45,74 +45,60 @@ public class SectionService {
                 .orElse(null);
     }
 
-    public void insertSection(SectionDto sectionDto, Long lineId) {
-        SectionUpdateType sectionUpdateType = updateSectionOfLine(sectionDto, lineId);
-        sectionUpdateType.updateDistanceAsInsert();
-        sectionDao.save(sectionUpdateType.getTargetSection());
-        sectionDao.update(sectionUpdateType.getPrevSection());
+    public void insertSection(SectionDto sectionDto) {
+        SectionUpdateType sectionUpdateType = decideSectionTypeAndThrowException(sectionDto);
+        sectionUpdateType.updateDistanceAsInsert(sectionDto);
+        sectionDao.save(sectionDto.getTargetSection());
+        sectionDao.update(sectionDto.getPrevSection());
     }
 
-    private SectionUpdateType updateSectionOfLine(SectionDto sectionDto, Long lineId) {
-        Section upSection = sectionDao.getSection(sectionDto.getUpStationId(), lineId);
-        Section downSection = sectionDao.getSection(sectionDto.getDownStationId(), lineId);
+    private SectionUpdateType decideSectionTypeAndThrowException(SectionDto sectionDto ) {
+        Section upSection = sectionDao.getSection(sectionDto.getUpStationId(), sectionDto.getLineId());
+        Section downSection = sectionDao.getSection(sectionDto.getDownStationId(), sectionDto.getLineId());
 
-        SectionUpdateType sectionUpdateType = decideSectionTypeAndThrowException(upSection, downSection, sectionDto);
+        areExistSectionOnlyOne(upSection, downSection);
+        SectionUpdateType sectionUpdateType = confirmSectionUpOrDown(upSection, downSection, sectionDto);
+        sectionDto.getPrevSection().updateNextSectionToOtherStation(sectionDto.getTargetSection());
+
         return sectionUpdateType;
     }
 
-    private SectionUpdateType decideSectionTypeAndThrowException(Section upSection, Section downSection, SectionDto sectionDto ) {
-        if( upSection == Section.DO_NOT_EXIST_SECTION && downSection == Section.DO_NOT_EXIST_SECTION ) {
+    private void areExistSectionOnlyOne(Section upSection, Section downSection) {
+        if( !upSection.isExist() && !downSection.isExist() ) {
             throw new NotExistSectionInsertException();
         }
-        if( upSection != Section.DO_NOT_EXIST_SECTION && downSection != Section.DO_NOT_EXIST_SECTION ) {
+        if( upSection.isExist() && downSection.isExist() ) {
             throw new BothExistSectionException();
         }
-
-        SectionUpdateType sectionUpdateType = confirmSectionUpOrDown(upSection, downSection, sectionDto);
-        sectionUpdateType.updatePrevSectionAsInsert();
-
-        if( sectionUpdateType.invalidateDistanceAsInsert() ) {
-            throw new TooLongDistanceSectionException();
-        }
-        return sectionUpdateType;
     }
 
     private SectionUpdateType confirmSectionUpOrDown(Section upSection, Section downSection, SectionDto sectionDto) {
-        if( upSection != null ) {
+        if( upSection.isExist() ) {
             SectionUpdateType sectionUpdateType = SectionUpdateType.INSERT_DOWN_SECTION;
-            sectionUpdateType.setTargetSection(new Section(upSection.getLineId(), sectionDto.getDownStationId(), sectionDto.getDistance(), upSection.getNextStationId()));
-            sectionUpdateType.setPrevSections(upSection);
+            sectionDto.setTargetSection(new Section(upSection.getLineId(), sectionDto.getDownStationId(), sectionDto.getDistance(), upSection.getNextStationId()));
+            sectionDto.setPrevSections(upSection);
             return sectionUpdateType;
         }
         SectionUpdateType sectionUpdateType = SectionUpdateType.INSERT_UP_SECTION;
-        sectionUpdateType.setTargetSection(new Section(downSection.getLineId(), sectionDto.getUpStationId(), sectionDto.getDistance(), downSection.getStationId()));
-        sectionUpdateType.setPrevSections(sectionDao.getSectionByNextId(downSection.getStationId()));
+        sectionDto.setTargetSection(new Section(downSection.getLineId(), sectionDto.getUpStationId(), sectionDto.getDistance(), downSection.getStationId()));
+        sectionDto.setPrevSections(sectionDao.getSectionByNextId(downSection.getStationId()));
         return sectionUpdateType;
     }
 
-    public void deleteSection(long lineId, long stationId) {
-        SectionUpdateType sectionUpdateType = deleteValidation(lineId, stationId);
-        sectionUpdateType.updatePrevSectionAsDelete();
-        sectionDao.delete(sectionUpdateType.getTargetSection());
-        sectionDao.update(sectionUpdateType.getPrevSection());
+    public void deleteSection(SectionDto sectionDto) {
+        deleteValidation(sectionDto);
+        sectionDto.getPrevSection().updateNextStationToOtherNextStation(sectionDto.getTargetSection());
+        sectionDao.delete(sectionDto.getTargetSection());
+        sectionDao.update(sectionDto.getPrevSection());
     }
 
-    private SectionUpdateType deleteValidation(long lineId, long stationId) {
-        Section section = sectionDao.getSection(stationId,lineId);
-        throwExceptionAsDelete(section, lineId);
-        Section prevSection = sectionDao.getSectionByNextId(stationId);
-        SectionUpdateType sectionUpdateType = SectionUpdateType.DELETE_SECTION;
-        sectionUpdateType.setTargetSection(section);
-        sectionUpdateType.setPrevSections(prevSection);
-        return sectionUpdateType;
-    }
+    private void deleteValidation(SectionDto sectionDto) {
+        Section section = sectionDao.getSection(sectionDto);
 
-    private void throwExceptionAsDelete(Section section, Long lineId) {
-        if ( section == null ) {
-            throw new NotExistSectionDeleteException();
-        }
-        if ( sectionDao.countOfSections(lineId) <= 2) {
-            throw new TooFewSectionAsDeleteException();
+        if(section.isPossibleDelete(sectionDao.countOfSections(sectionDto.getLineId()))) {
+            Section prevSection = sectionDao.getSectionByNextId(sectionDto.getStationId());
+            sectionDto.setTargetSection(section);
+            sectionDto.setPrevSections(prevSection);
         }
     }
 }

@@ -76,10 +76,10 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
-        SectionDto sectionDto = new SectionDto(sectionRequest);
+        SectionDto sectionDto = new SectionDto(sectionRequest, lineId);
 
         try {
-            sectionService.insertSection( sectionDto, lineId);
+            sectionService.insertSection( sectionDto );
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,9 +90,9 @@ public class LineController {
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-
+        SectionDto sectionDto = new SectionDto(lineId, stationId);
         try {
-            sectionService.deleteSection(lineId, stationId);
+            sectionService.deleteSection(sectionDto);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();

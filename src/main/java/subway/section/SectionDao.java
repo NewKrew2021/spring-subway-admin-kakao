@@ -35,6 +35,10 @@ public class SectionDao {
         return sections.isEmpty() ? Section.DO_NOT_EXIST_SECTION : sections.get(0);
     }
 
+    public Section getSection(SectionDto sectionDto) {
+        return getSection(sectionDto.getStationId(), sectionDto.getLineId());
+    }
+
     public Section getSectionByNextId(Long nextId) {
         if( nextId == null ) {
             return null;

@@ -1,4 +1,6 @@
-package subway.line;
+package subway.line.domain;
+
+import java.beans.ConstructorProperties;
 
 public class LineRequest {
     private String name;
@@ -6,10 +8,9 @@ public class LineRequest {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private int extraFare;
 
-    public LineRequest() {
-    }
-
+    @ConstructorProperties({"name", "color", "upStationId", "downStationId", "distance"})
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
         this.name = name;
         this.color = color;
@@ -36,5 +37,9 @@ public class LineRequest {
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
     }
 }

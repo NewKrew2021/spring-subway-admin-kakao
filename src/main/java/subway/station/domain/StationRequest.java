@@ -1,11 +1,11 @@
-package subway.station;
+package subway.station.domain;
+
+import java.beans.ConstructorProperties;
 
 public class StationRequest {
     private String name;
 
-    public StationRequest() {
-    }
-
+    @ConstructorProperties("name")
     public StationRequest(String name) {
         this.name = name;
     }

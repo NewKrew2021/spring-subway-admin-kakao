@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.line.domain.LineRequest;
+import subway.line.domain.LineResponse;
+import subway.station.domain.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +36,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         downStation = 지하철역_등록되어_있음("광교역");
 
         lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 10);
-        lineRequest2 = new LineRequest("구신분당선", "bg-red-600", 강남역.getId(), downStation.getId(), 15);
+        lineRequest2 = new LineRequest("구신분당선", "red-darken-1", 강남역.getId(), downStation.getId(), 15);
     }
 
     @DisplayName("지하철 노선을 생성한다.")
@@ -101,6 +103,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_수정됨(response);
     }
 
+    @DisplayName("존재하지 않는 지하철 노선을 수정한다.")
+    @Test
+    void updateNonExistingLine() {
+        // given
+        LineResponse lineResponse = new LineResponse(3L, "신분당선", "bg-red-600", null);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_수정_요청(lineResponse, lineRequest2);
+
+        // then
+        지하철_노선_없음(response);
+    }
+
     @DisplayName("지하철 노선을 제거한다.")
     @Test
     void deleteLine() {
@@ -112,6 +127,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_노선_삭제됨(response);
+    }
+
+    @DisplayName("존재하지 않는 노선 삭제는 불가능하다.")
+    @Test
+    void deleteNonExistingLine() {
+        // given
+        LineResponse lineResponse = new LineResponse(9999L, "신촌역", "bg-red-600", null);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_제거_요청(lineResponse);
+
+        // then
+        지하철_노선_없음(response);
     }
 
     public static LineResponse 지하철_노선_등록되어_있음(String name, String color, StationResponse upStation, StationResponse downStation, int distance) {
@@ -205,7 +233,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
+    private static void 지하철_노선_수정_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
     public static void 지하철_노선_삭제됨(ExtractableResponse<Response> response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    private static void 지하철_노선_삭제_실패함(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    private static void 지하철_노선_없음(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 }

@@ -1,12 +1,12 @@
-package subway.station;
+package subway.station.domain;
+
+import java.beans.ConstructorProperties;
 
 public class StationResponse {
     private Long id;
     private String name;
 
-    public StationResponse() {
-    }
-
+    @ConstructorProperties({"id", "name"})
     public StationResponse(Long id, String name) {
         this.id = id;
         this.name = name;

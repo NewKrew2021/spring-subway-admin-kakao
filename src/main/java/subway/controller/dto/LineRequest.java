@@ -1,4 +1,4 @@
-package subway.controller.to;
+package subway.controller.dto;
 
 import subway.domain.Line;
 

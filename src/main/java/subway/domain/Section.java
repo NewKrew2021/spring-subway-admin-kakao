@@ -63,17 +63,35 @@ public class Section {
         this.lastSection = lastSection;
     }
 
+    public boolean isNewLastSection(Section section) {
+        return upStationId.equals(section.downStationId);
+    }
+
+    public boolean isNewFirstSection(Section section) {
+        return downStationId.equals(section.upStationId);
+    }
+
     public Section merge(Section section, Long stationId) {
-        if (this.upStationId.equals(stationId)) {
-            this.upStationId = section.getUpStationId();
+        if (upStationId.equals(stationId)) {
+            upStationId = section.upStationId;
         }
 
-        if (this.downStationId.equals(stationId)) {
-            this.downStationId = section.getDownStationId();
+        if (downStationId.equals(stationId)) {
+            downStationId = section.downStationId;
         }
 
-        this.distance += section.getDistance();
+        distance += section.distance;
+        firstSection = firstSection || section.firstSection;
+        lastSection = lastSection || section.lastSection;
 
         return this;
+    }
+
+    public boolean equalsWithUpStation(Long stationId) {
+        return upStationId.equals(stationId);
+    }
+
+    public boolean equalsWithDownStation(Long stationId) {
+        return downStationId.equals(stationId);
     }
 }

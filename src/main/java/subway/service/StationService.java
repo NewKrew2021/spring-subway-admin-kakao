@@ -37,12 +37,12 @@ public class StationService {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         List<Station> stations = new ArrayList<>();
 
-        Map<Long, Section> orderedSections = sections.getOrderedSections();
-        Long upStationId = sectionDao.findFirstByLineId(lineId).getUpStationId();
+        Map<Long, Section> upStationKeyMap = sections.getUpStationKeyMap();
+        Long upStationId = sections.getFirstSection().getUpStationId();
         stations.add(stationDao.findById(upStationId));
 
-        while (orderedSections.containsKey(upStationId)) {
-            Section section = orderedSections.get(upStationId);
+        while (upStationKeyMap.containsKey(upStationId)) {
+            Section section = upStationKeyMap.get(upStationId);
             stations.add(stationDao.findById(section.getDownStationId()));
             upStationId = section.getDownStationId();
         }
@@ -53,7 +53,7 @@ public class StationService {
     public void delete(Long stationId) {
         lineService.getLines().stream()
                 .filter(line -> getStations(line.getId()).stream()
-                        .anyMatch(station -> station.getId().equals(stationId)))
+                        .anyMatch(station -> station.hasSameId(stationId)))
                 .forEach(line -> sectionService.delete(line.getId(), stationId));
 
         stationDao.deleteById(stationId);

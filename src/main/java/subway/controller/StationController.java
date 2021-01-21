@@ -4,11 +4,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.controller.to.StationRequest;
-import subway.controller.to.StationResponse;
+import subway.controller.dto.StationRequest;
+import subway.controller.dto.StationResponse;
 import subway.domain.Station;
-import subway.service.LineService;
-import subway.service.SectionService;
 import subway.service.StationService;
 
 import java.net.URI;
@@ -18,13 +16,9 @@ import java.util.List;
 @RequestMapping("/stations")
 public class StationController {
     private final StationService stationService;
-    private final LineService lineService;
-    private final SectionService sectionService;
 
-    public StationController(StationService stationService, LineService lineService, SectionService sectionService) {
+    public StationController(StationService stationService) {
         this.stationService = stationService;
-        this.lineService = lineService;
-        this.sectionService = sectionService;
     }
 
     @PostMapping

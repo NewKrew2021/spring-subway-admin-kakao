@@ -4,9 +4,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.controller.to.LineRequest;
-import subway.controller.to.LineResponse;
-import subway.controller.to.SectionRequest;
+import subway.controller.dto.LineRequest;
+import subway.controller.dto.LineResponse;
+import subway.controller.dto.SectionRequest;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.service.LineService;
@@ -83,6 +83,7 @@ public class LineController {
     @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Section section = sectionRequest.getSection(lineId);
+        sectionService.validateCreate(section, stationService.getStations(lineId));
         sectionService.create(lineId, section);
 
         return ResponseEntity.ok().build();

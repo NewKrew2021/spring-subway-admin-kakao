@@ -36,7 +36,7 @@ public class StationService {
     }
 
     public void deleteById(Long id){
-        if (sectionDao.findByStationId(id).size() >= 2 ){
+        if (sectionDao.findByStationId(id).size() > 0 ){
             throw new BadRequestException(USING_STATION);
         }
         stationDao.deleteById(id);

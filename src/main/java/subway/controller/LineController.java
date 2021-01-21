@@ -89,7 +89,7 @@ public class LineController {
 
         lineService.checkDuplicateName(lineId, upStationId, downStationId);
 
-        lineService.addSection(line, section);
+        lineService.addSectionOnLine(line, section);
         SectionResponse response = new SectionResponse(section);
         return ResponseEntity.ok().body(response);
     }

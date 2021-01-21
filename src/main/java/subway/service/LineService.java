@@ -78,7 +78,7 @@ public class LineService {
         stationDao.deleteById(stationId);
     }
 
-    public Section addSection(Line line, Section section) {
+    public Section addSectionOnLine(Line line, Section section) {
         Sections sections = line.getSections();
         int targetIndex = -1;
 

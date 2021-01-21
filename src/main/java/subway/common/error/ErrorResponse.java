@@ -14,8 +14,12 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public static ErrorResponse of(ErrorStatus status, String message) {
-        return new ErrorResponse(status.getHttpStatus(), message);
+    public static ErrorResponse of(Exception e) {
+        return new ErrorResponse(
+                ErrorStatus.of(e)
+                        .getHttpStatus(),
+                e.getMessage()
+        );
     }
 
     public HttpStatus getStatus() {

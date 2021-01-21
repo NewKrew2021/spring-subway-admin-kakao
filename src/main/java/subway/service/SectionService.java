@@ -3,9 +3,9 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
+import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
-import subway.dto.SectionRequest;
 import subway.dao.StationDao;
 
 @Service
@@ -25,9 +25,9 @@ public class SectionService {
     public void add(Long id, Section section) {
         Sections sections = new Sections(sectionDao.findSectionsByLineId(id));
         Section newSection = new Section(lineDao.findById(id),
-                stationDao.findById(section.getUpStation().getId()).get(),
-                stationDao.findById(section.getDownStation().getId()).get(),
-                section.getDistance());
+                stationDao.findById(section.getUpStation().getId()),
+                stationDao.findById(section.getDownStation().getId()),
+                section.getDistance(), Line.USE);
 
         if(sections.hasSameSection(newSection)){
             throw new IllegalArgumentException("이미 존재하는 구간입니다.");
@@ -63,7 +63,7 @@ public class SectionService {
                 lineDao.findById(id),
                 front.getUpStation(),
                 rear.getDownStation(),
-                distance));
+                distance, Line.USE));
     }
 
 }

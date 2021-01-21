@@ -16,12 +16,12 @@ public class Station {
         this.name = name;
     }
 
-    public Station(Long id) {
-        this.id = id;
+    public static Station of(StationRequest stationRequest) {
+        return new Station(null, stationRequest.getName());
     }
 
-    public Station(StationRequest stationRequest) {
-        this.name = stationRequest.getName();
+    public static Station of(Long stationId) {
+        return new Station(stationId, null);
     }
 
     public Long getId() {

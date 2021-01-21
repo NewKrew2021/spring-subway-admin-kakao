@@ -1,21 +1,18 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateNameException;
 import subway.dao.LineDao;
-import subway.domain.Line;
-import subway.dto.LineRequest;
-import subway.dto.LineResponse;
 import subway.dao.SectionDao;
+import subway.dao.StationDao;
+import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
-import subway.dao.StationDao;
 import subway.domain.Station;
 import subway.dto.StationResponse;
+import subway.exceptions.DuplicateNameException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LineService {
@@ -38,20 +35,18 @@ public class LineService {
 
         Line newLine = lineDao.save(line);
 
-        Station upStation = stationDao.findById(section.getUpStation().getId()).get();
-        Station downStation = stationDao.findById(section.getDownStation().getId()).get();
+        Station upStation = stationDao.findById(section.getUpStation().getId());
+        Station downStation = stationDao.findById(section.getDownStation().getId());
 
-        sectionDao.save(new Section(newLine, new Station(Line.HEAD, Line.TERMINAL_NAME), upStation, Line.INF));
-        sectionDao.save(new Section(newLine, upStation, downStation, section.getDistance()));
-        sectionDao.save(new Section(newLine, downStation, new Station(Line.TAIL, Line.TERMINAL_NAME), Line.INF));
+        sectionDao.save(new Section(newLine, upStation, upStation, Line.INF, Line.HEAD));
+        sectionDao.save(new Section(newLine, upStation, downStation, section.getDistance(), Line.USE));
+        sectionDao.save(new Section(newLine, downStation, downStation, Line.INF, Line.TAIL));
 
         return newLine;
     }
 
     public List<Line> showLines() {
-        return lineDao.findAll()
-                .stream()
-                .collect(Collectors.toList());
+        return lineDao.findAll();
     }
 
     public Line showLine(Long id) {
@@ -60,7 +55,7 @@ public class LineService {
 
     public void modify(Long id, Line line) {
         if (lineDao.countByName(line.getName()) != 0){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("존재하지 않는 노선입니다.");
         }
         lineDao.modify(id, line);
     }
@@ -75,17 +70,16 @@ public class LineService {
 
         Sections sections = new Sections(sectionDao.findSectionsByLineId(line.getId()));
 
-        Section currentSection = sectionDao.findSectionByLineIdAndUpStationId(id, Line.HEAD);
+        Section currentSection = sections.findHeadSection();
 
         List<Station> stations = new ArrayList<>();
-        while (currentSection.getDownStation().getId() != Line.TAIL) {
-            stations.add(stationDao.findById(currentSection.getDownStation().getId()).get());
+        while (!currentSection.isEndType()) {
+            stations.add(stationDao.findById(currentSection.getDownStation().getId()));
             currentSection = sections.findNextSection(currentSection);
         }
 
-        return stations.stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+
+        return StationResponse.listOf(stations);
     }
 
 }

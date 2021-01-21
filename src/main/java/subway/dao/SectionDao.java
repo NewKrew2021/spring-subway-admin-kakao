@@ -5,8 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.domain.Line;
-import subway.domain.Station;
 import subway.domain.Section;
 import subway.query.SectionQuery;
 
@@ -29,18 +27,17 @@ public class SectionDao {
         Section section = new Section(
                 resultSet.getLong("id"),
                 lineDao.findById(resultSet.getLong("line_id")),
-                stationDao.findById(resultSet.getLong("up_station_id"))
-                        .orElse(new Station(Line.HEAD, Line.TERMINAL_NAME)),
-                stationDao.findById(resultSet.getLong("down_station_id"))
-                        .orElse(new Station(Line.TAIL, Line.TERMINAL_NAME)),
-                resultSet.getInt("distance")
+                stationDao.findById(resultSet.getLong("up_station_id")),
+                stationDao.findById(resultSet.getLong("down_station_id")),
+                resultSet.getInt("distance"),
+                resultSet.getString("point_type")
         );
         return section;
     };
 
     public Section save(Section section){
 
-        KeyHolder keyHoler = new GeneratedKeyHolder();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(e -> {
             PreparedStatement preparedStatement = e.prepareStatement(
@@ -49,11 +46,12 @@ public class SectionDao {
             preparedStatement.setLong(2, section.getUpStation().getId());
             preparedStatement.setLong(3, section.getDownStation().getId());
             preparedStatement.setLong(4, section.getDistance());
+            preparedStatement.setString(5, section.getPointType());
             return preparedStatement;
-        }, keyHoler);
+        }, keyHolder);
 
-        Long id = (long) keyHoler.getKey();
-        return new Section(id, section.getLine(), section.getUpStation(), section.getDownStation(), section.getDistance());
+        Long id = (long) keyHolder.getKey();
+        return new Section(id, section.getLine(), section.getUpStation(), section.getDownStation(), section.getDistance(), section.getPointType());
     }
 
     public void deleteById(Long id) {
@@ -75,5 +73,9 @@ public class SectionDao {
 
     public int countByLineId(Long id) {
         return jdbcTemplate.queryForObject(SectionQuery.COUNT_BY_LINE, Integer.class, id);
+    }
+
+    public Section findSectionByLineIdAndPointType(Long lineId, String pointType) {
+        return jdbcTemplate.queryForObject(SectionQuery.SELECT_BY_LINE_AND_POINT_TYPE, sectionRowMapper, lineId, pointType);
     }
 }

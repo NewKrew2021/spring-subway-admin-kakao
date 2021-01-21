@@ -1,16 +1,15 @@
 package subway.dao;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import subway.domain.Line;
-import subway.dto.LineRequest;
 import subway.query.LineQuery;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.List;
 
 @Repository
 public class LineDao {

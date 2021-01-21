@@ -1,14 +1,11 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateNameException;
 import subway.dao.StationDao;
 import subway.domain.Station;
-import subway.dto.StationRequest;
-import subway.dto.StationResponse;
+import subway.exceptions.DuplicateNameException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StationService {
@@ -27,9 +24,7 @@ public class StationService {
     }
 
     public List<Station> showStations() {
-        return stationDao.findAll()
-                .stream()
-                .collect(Collectors.toList());
+        return stationDao.findAll();
     }
 
     public void deleteStation(Long id) {

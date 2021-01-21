@@ -10,7 +10,6 @@ import subway.service.StationService;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")
@@ -24,18 +23,15 @@ public class StationController {
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station newStation = stationService.createLine(new Station(stationRequest));
-        StationResponse stationResponse = new StationResponse(newStation);
+        Station newStation = stationService.createLine(Station.of(stationRequest));
+        StationResponse stationResponse = StationResponse.of(newStation);
         return ResponseEntity.created(URI.create("/stations/" + stationResponse.getId())).body(stationResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         List<Station> stations = stationService.showStations();
-        return ResponseEntity.ok().body(
-                stations.stream()
-                        .map(StationResponse::new)
-                        .collect(Collectors.toList()));
+        return ResponseEntity.ok().body(StationResponse.listOf(stations));
     }
 
     @DeleteMapping("/{id}")

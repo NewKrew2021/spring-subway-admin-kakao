@@ -1,11 +1,10 @@
 package subway.domain;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Sections {
 
-    private List<Section> sections;
+    private final List<Section> sections;
 
     public Sections (List<Section> sections) {
         this.sections = sections;
@@ -13,28 +12,33 @@ public class Sections {
 
     public Section sameUpStationOrDownStation(Section other) {
         return sections.stream()
-                .filter(s -> s.getUpStation().equals(other.getUpStation()) || s.getDownStation().equals(other.getDownStation()))
+                .filter(s -> s.getPointType().equals(Line.USE) &&
+                        s.getUpStation().equals(other.getUpStation()) || s.getDownStation().equals(other.getDownStation()))
                 .findAny()
                 .get();
     }
 
     public boolean isNotExistStations(Section section) {
         return sections.stream()
-                .filter(s -> s.existStation(section))
-                .collect(Collectors.toList())
-                .size() == 0;
+                .noneMatch(s -> s.existStation(section));
     }
 
     public boolean hasSameSection(Section section) {
         return sections.stream()
-                .filter(s -> s.equals(section))
-                .collect(Collectors.toList())
-                .size() != 0;
+                .anyMatch(s -> s.equals(section));
     }
 
     public Section findNextSection(Section currentSection) {
         return sections.stream()
-                .filter(section -> section.getUpStation().equals(currentSection.getDownStation()))
+                .filter(section -> !section.isHeadType()
+                        && section.getUpStation().equals(currentSection.getDownStation()))
+                .findAny()
+                .get();
+    }
+
+    public Section findHeadSection() {
+        return sections.stream()
+                .filter(section -> section.isHeadType())
                 .findAny()
                 .get();
     }

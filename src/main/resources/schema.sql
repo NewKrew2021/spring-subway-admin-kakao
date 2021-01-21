@@ -20,5 +20,6 @@ create table if not exists SECTION
     up_station_id bigint not null,
     down_station_id bigint not null,
     distance int,
+    point_type varchar(20),
     primary key(id)
     );

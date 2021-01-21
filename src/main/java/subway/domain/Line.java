@@ -5,18 +5,13 @@ import subway.dto.LineRequest;
 import java.util.Objects;
 
 public class Line {
-    public static final long HEAD = 0;
-    public static final long TAIL = -1;
+    public static final String HEAD = "head";
+    public static final String TAIL = "tail";
+    public static final String USE = "use";
     public static final int INF = Integer.MAX_VALUE;
-    public static final String TERMINAL_NAME = "virtual";
     private Long id;
     private String name;
     private String color;
-
-    public Line(String name, String color) {
-        this.name = name;
-        this.color = color;
-    }
 
     public Line(Long id, String name, String color) {
         this.id = id;
@@ -24,9 +19,12 @@ public class Line {
         this.color = color;
     }
 
-    public Line(LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
+    public static Line of(LineRequest lineRequest) {
+        return new Line(null, lineRequest.getName(), lineRequest.getColor());
+    }
+
+    public static Line of(Long id) {
+        return new Line(id, null, null);
     }
 
     public Long getId() {

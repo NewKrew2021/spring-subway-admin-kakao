@@ -1,13 +1,12 @@
 package subway.dao;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import subway.domain.Station;
 import subway.query.StationQuery;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class StationDao {
@@ -46,9 +45,8 @@ public class StationDao {
         });
     }
 
-    public Optional<Station> findById (Long id){
-        try {
-            return Optional.of(jdbcTemplate.queryForObject(
+    public Station findById (Long id){
+            return jdbcTemplate.queryForObject(
                     StationQuery.SELECT_BY_ID,
                     (resultSet, rowNum) -> {
                         Station station = new Station(
@@ -56,11 +54,7 @@ public class StationDao {
                                 resultSet.getString("name")
                         );
                         return station;
-                    }, id));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-
+                    }, id);
     }
 
     public void deleteById(Long id) {

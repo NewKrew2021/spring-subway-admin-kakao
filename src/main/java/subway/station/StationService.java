@@ -3,10 +3,12 @@ package subway.station;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateNameException;
-import subway.exceptions.InvalidDeleteException;
+import subway.station.exceptions.DuplicateStationNameException;
+import subway.station.exceptions.InvalidStationDeleteException;
+import subway.station.exceptions.NoSuchStationException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StationService {
@@ -18,11 +20,20 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public Station save(Station station) throws DuplicateNameException {
+    public Station save(Station station) {
+        String stationName = station.getName();
+        checkDuplicateName(stationName);
+
         try {
             return stationDao.save(station);
         } catch (DuplicateKeyException e) {
-            throw new DuplicateNameException("중복된 이름의 Station은 추가할 수 없습니다.");
+            throw new DuplicateStationNameException(stationName);
+        }
+    }
+
+    private void checkDuplicateName(String name) {
+        if (stationDao.findByName(name) != null) {
+            throw new DuplicateStationNameException(name);
         }
     }
 
@@ -31,14 +42,23 @@ public class StationService {
     }
 
     public Station find(Long id) {
-        return stationDao.findById(id);
+        return Optional.ofNullable(stationDao.findById(id))
+                .orElseThrow(() -> new NoSuchStationException(id));
     }
 
-    public void delete(Long id) throws InvalidDeleteException {
-        if (stationDao.deleteById(id) == 0) {
-            throw new InvalidDeleteException("삭제하려는 station이 존재하지 않습니다.");
+    public void delete(Long id) {
+        try {
+            checkExistStation(id);
+            stationDao.deleteById(id);
+        } catch (Exception e) {
+            System.out.println(e.getClass());
+            throw new InvalidStationDeleteException(id);
         }
     }
 
-
+    private void checkExistStation(Long id) {
+        if (stationDao.findById(id) == null) {
+            throw new InvalidStationDeleteException(id);
+        }
+    }
 }

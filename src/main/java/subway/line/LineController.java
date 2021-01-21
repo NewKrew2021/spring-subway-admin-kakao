@@ -28,7 +28,7 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newLine = lineService.save(Line.of(lineRequest));
+        Line newLine = lineService.save(Line.of(lineRequest.getName(), lineRequest.getColor()));
         sectionService.save(Section.of(newLine.getId(), lineRequest));
 
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId()))

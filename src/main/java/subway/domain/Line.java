@@ -18,22 +18,23 @@ public class Line {
         this.downStationId = downStationId;
     }
 
-    public Line(LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-        this.upStationId = lineRequest.getUpStationId();
-        this.downStationId = lineRequest.getDownStationId();
-        this.distance = lineRequest.getDistance();
+    public Line(String name, String color, Long upStationId, Long downStationId, int distance) {
+        this.name = name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
     }
 
-    public Line(Long id, LineRequest lineRequest) {
+    public Line(Long id, String name, String color, Long upStationId, Long downStationId, int distance) {
         this.id = id;
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-        this.upStationId = lineRequest.getUpStationId();
-        this.downStationId = lineRequest.getDownStationId();
-        this.distance = lineRequest.getDistance();
+        this.name = name;
+        this.color = color;
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
     }
+
 
 
     public long getId() {
@@ -68,13 +69,11 @@ public class Line {
         this.downStationId = downStationId;
     }
 
-    public boolean isSectionContainUpEndStation(Section section){
-        if(section == null) return false;
-        return section.getUpStationId().equals(this.upStationId);
+    public boolean isEqualToUpStationId(Long stationId){
+        return stationId.equals(this.upStationId);
     }
-    public boolean isSectionContainEndDownStation(Section section){
-        if(section == null) return false;
-        return section.getUpStationId().equals(this.downStationId);
+    public boolean isEqualToDownStationId(Long stationId){
+        return stationId.equals(this.downStationId);
     }
 
     public boolean isMatchedOnlyUpEndStation(Section section) {

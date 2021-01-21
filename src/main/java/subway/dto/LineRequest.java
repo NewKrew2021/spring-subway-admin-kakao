@@ -22,10 +22,10 @@ public class LineRequest {
     }
 
     public Line toLine(){
-        return new Line(this);
+        return new Line(name, color, upStationId, downStationId, distance);
     }
     public Line toLine(Long id){
-        return new Line(id, this);
+        return new Line(id, name, color, upStationId, downStationId, distance);
     }
 
     public String getName() {

@@ -18,14 +18,14 @@ public class LineService {
         this.lineDao = lineDao;
     }
 
-    public void insertLine(Line line) throws DuplicateLineNameException {
+    public void insertLine(Line line) {
         if (lineDao.isContainSameName(line.getName())) {
             throw new DuplicateLineNameException();
         }
         lineDao.save(line);
     }
 
-    public Line findLineByName(String name) throws LineNotFoundException{
+    public Line findLineByName(String name) {
         Line result = lineDao.findLineByName(name);
         if(result == null){
             throw new LineNotFoundException();

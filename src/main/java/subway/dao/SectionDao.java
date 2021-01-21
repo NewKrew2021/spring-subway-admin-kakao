@@ -37,7 +37,7 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
     }
 
-    public void modifySection(Section section) {
+    public void update(Section section) {
         String sql = "update section set up_station_id = ?, down_station_id = ?,distance =? where id=?";
         jdbcTemplate.update(
                 sql, section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());

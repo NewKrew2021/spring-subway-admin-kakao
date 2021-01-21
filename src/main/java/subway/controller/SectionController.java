@@ -26,7 +26,7 @@ public class SectionController {
     }
 
     @PostMapping("/lines/{lineId}/sections")
-    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+    public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Line nowLine = lineService.findById(lineId);
         Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
         try{
@@ -36,16 +36,22 @@ public class SectionController {
         catch (InvalidSectionInsertException e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
+    public ResponseEntity<Void> deleteStation(@PathVariable("lineId") Long lineId, @RequestParam("stationId") Long stationId) {
         Line nowLine = lineService.findById(lineId);
         try{
             sectionService.deleteStation(nowLine, stationId);
             return ResponseEntity.ok().build();
         }
         catch (NotEnoughLengthToDeleteSectionException | StationNotFoundException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

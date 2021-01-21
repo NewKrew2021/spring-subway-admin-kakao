@@ -31,7 +31,6 @@ public class LineDao {
     public void save(Line line) {
         String sql = "insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
         jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
-
     }
 
     public Line findLineByName(String name) {

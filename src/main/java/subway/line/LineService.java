@@ -49,7 +49,7 @@ public class LineService {
         NamedSection currentSection = sections.findHeadSection();
         while (currentSection.getDownStationId() != Line.TAILID) {
             stations.add(new Station(currentSection.getDownStationId(), currentSection.getDownStationName()));
-            currentSection = sections.findRearOfGivenStation(currentSection.getDownStationId());
+            currentSection = sections.findRearByStation(currentSection.getDownStationId());
         }
 
         return stations;
@@ -61,8 +61,8 @@ public class LineService {
 
     public void deleteStation(Long lineId, Long stationId) {
         Sections sections = sectionService.findSectionsForDelete(lineId, stationId);
-        Section front = sections.findFrontOfGivenStation(stationId);
-        Section rear = sections.findRearOfGivenStation(stationId);
+        Section front = sections.findFrontByStation(stationId);
+        Section rear = sections.findRearByStation(stationId);
 
         sectionService.deleteSections(sections);
         sectionService.save(new Section(

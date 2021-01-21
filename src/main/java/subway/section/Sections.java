@@ -18,14 +18,14 @@ public class Sections {
                 .get();
     }
 
-    public <T extends Section> T findRearOfGivenStation(Long stationId) {
+    public <T extends Section> T findRearByStation(Long stationId) {
         return (T) sections.stream()
                 .filter(section -> section.isUpStation(stationId))
                 .findAny()
                 .get();
     }
 
-    public Section findFrontOfGivenStation(Long stationId) {
+    public Section findFrontByStation(Long stationId) {
         return sections.stream()
                 .filter(section -> section.isDownStation(stationId))
                 .findAny()

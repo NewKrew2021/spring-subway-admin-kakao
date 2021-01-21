@@ -81,17 +81,17 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId, stationId, stationId));
     }
 
-    public Section findSectionWithGivenUpStationId(Long lineId, Long upStationId) {
+    public Section findSectionByUpStationId(Long lineId, Long upStationId) {
         String sql = "select * from section where line_id = ? AND up_station_id = ?";
         return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, upStationId);
     }
 
-    public Section findSectionWithGivenDownStationId(Long lineId, Long downStationId) {
+    public Section findSectionByDownStationId(Long lineId, Long downStationId) {
         String sql = "select * from section where line_id = ? AND down_station_id = ?";
         return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, downStationId);
     }
 
-    public int countByGivenUpStaionId(Long lineId, Long stationId) {
+    public int countByUpStationId(Long lineId, Long stationId) {
         String sql = "select count(*) from section where line_id = ? AND up_station_id = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, lineId, stationId);
     }

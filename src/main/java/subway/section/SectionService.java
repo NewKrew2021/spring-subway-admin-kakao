@@ -40,12 +40,12 @@ public class SectionService {
     }
 
     private boolean isStationExist(Long lineId, Long stationId) {
-        int count = sectionDao.countByGivenUpStaionId(lineId, stationId);
+        int count = sectionDao.countByUpStationId(lineId, stationId);
         return count > 0;
     }
 
     private void addSectionBasedUpStation(Long lineId, SectionRequest sectionRequest) {
-        Section front = sectionDao.findSectionWithGivenUpStationId(lineId, sectionRequest.getUpStationId());
+        Section front = sectionDao.findSectionByUpStationId(lineId, sectionRequest.getUpStationId());
         sectionDao.save(new Section(lineId, sectionRequest));
         sectionDao.save(new Section(lineId,
                 sectionRequest.getDownStationId(),
@@ -55,7 +55,7 @@ public class SectionService {
     }
 
     private void addSectionBasedDownStation(Long lineId, SectionRequest sectionRequest) {
-        Section front = sectionDao.findSectionWithGivenDownStationId(lineId, sectionRequest.getDownStationId());
+        Section front = sectionDao.findSectionByDownStationId(lineId, sectionRequest.getDownStationId());
         sectionDao.save(new Section(lineId, sectionRequest));
         sectionDao.save(new Section(lineId,
                 front.getUpStationId(),

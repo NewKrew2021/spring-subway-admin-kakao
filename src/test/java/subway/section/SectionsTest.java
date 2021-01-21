@@ -40,7 +40,7 @@ public class SectionsTest {
     @DisplayName("주어진 스테이션의 바로 뒤 섹션 찾기 테스트")
     public void findLast(List<Section> sectionList) {
         Sections sections = new Sections(sectionList);
-        Section nextSection = sections.findRearOfGivenStation(2L);
+        Section nextSection = sections.findRearByStation(2L);
         assertThat(nextSection).isEqualTo(new Section(0L, 0L, 2L, 3L, 3));
     }
 
@@ -49,7 +49,7 @@ public class SectionsTest {
     @DisplayName("주어진 스테이션의 바로 앞 섹션 찾기 테스트")
     public void findFront(List<Section> sectionList) {
         Sections sections = new Sections(sectionList);
-        Section nextSection = sections.findFrontOfGivenStation(2L);
+        Section nextSection = sections.findFrontByStation(2L);
         assertThat(nextSection).isEqualTo(new Section(0L, 0L, 1L, 2L, 3));
     }
 

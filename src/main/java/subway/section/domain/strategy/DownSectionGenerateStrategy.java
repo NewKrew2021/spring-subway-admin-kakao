@@ -21,16 +21,6 @@ public class DownSectionGenerateStrategy implements SectionGenerateStrategy {
     }
 
     @Override
-    public Section getDownSection() {
-        return downSection;
-    }
-
-    @Override
-    public Section getUpSection() {
-        return upSection;
-    }
-
-    @Override
     public SectionGenerateStrategy make(Section standardSection, Long newStationId, int distance, int nextRelativePosition) {
         distanceValidate(standardSection.getRelativePosition() + distance , nextRelativePosition);
         return new DownSectionGenerateStrategy(

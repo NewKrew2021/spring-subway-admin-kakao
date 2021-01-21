@@ -10,7 +10,6 @@ public class Section implements Comparable<Section> {
 
     private static final Long TEMP_ID = 0L;
     private static final Long MINIMUM_ID = 0L;
-    private static final Long MINIMUM_DISTANCE = 1L;
 
     public Section(long lineId, long stationId, int distance) {
         this(TEMP_ID, lineId, stationId, distance);
@@ -20,7 +19,6 @@ public class Section implements Comparable<Section> {
         validateId(id);
         validateId(lineId);
         validateId(stationId);
-        validateDistance(distance);
 
         this.id = id;
         this.lineId = lineId;
@@ -31,12 +29,6 @@ public class Section implements Comparable<Section> {
     private void validateId(Long id) {
         if (id < MINIMUM_ID) {
             throw new IllegalArgumentException("ID cannot be negative");
-        }
-    }
-
-    private void validateDistance(int distance) {
-        if (distance < MINIMUM_DISTANCE) {
-            throw new IllegalArgumentException("Distance should be positive");
         }
     }
 

@@ -1,6 +1,7 @@
 package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.line.domain.Line;
 import subway.line.dao.LineDao;
 import subway.line.dto.LineRequest;
@@ -27,6 +28,7 @@ public class LineService {
         this.sectionDao = sectionDao;
     }
 
+    @Transactional
     public LineResponse createLine(LineRequest lineRequest){
         Line line = new Line(lineRequest.getName(),
                 lineRequest.getColor(),

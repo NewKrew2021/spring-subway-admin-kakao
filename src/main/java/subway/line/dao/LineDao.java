@@ -79,7 +79,6 @@ public class LineDao {
             throw new BadRequestException(MORE_TWO_SECTION_EXCEPTION);
         }
         jdbcTemplate.update(DELETE_LINE_SQL, lineId);
-        jdbcTemplate.update(DELETE_SECTION_SQL, lineId);
     }
 
     private final RowMapper<Line> lineRowMapper = (rs, rowNum) -> {

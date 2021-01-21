@@ -5,9 +5,14 @@ public class LineRequest {
     private String color;
     private Long upStationId;
     private Long downStationId;
-    private int distance;
+    private Integer distance;
 
     public LineRequest() {
+    }
+
+    public LineRequest(String name, String color) {
+        this.name = name;
+        this.color = color;
     }
 
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {

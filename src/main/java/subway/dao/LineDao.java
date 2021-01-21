@@ -3,6 +3,9 @@ package subway.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.line.Line;
 
@@ -10,30 +13,33 @@ import java.util.List;
 
 @Repository
 public class LineDao {
-    private final String LINE_INSERT_SQL = "insert into line (name, color) values (?, ?)";
-    private final String LINE_SELECT_BY_NAME_SQL = "select id, name, color from line where name = ?";
-    private final String LINE_SELECT_ALL_SQL = "select id, name, color from line";
-    private final String LINE_SELECT_BY_ID_SQL = "select id, name, color from line where id = ?";
+    private final String LINE_SELECT_SQL = "select id, name, color from line ";
+    private final String LINE_SELECT_BY_ID_SQL = LINE_SELECT_SQL + "where id = ?";
     private final String LINE_UPDATE_SQL = "update line set name = ?, color = ? where id = ?";
     private final String LINE_DELETE_SQL = "delete from line where id = ?";
     private final String LINE_SELECT_ID_COUNT_SQL = "select count(id) from line where id = ?";
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert insertActor;
     private final RowMapper<Line> lineMapper = (rs, rowNum) ->
             new Line(rs.getLong(1), rs.getString(2), rs.getString(3));
 
     @Autowired
-    public LineDao(JdbcTemplate jdbcTemplate){
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        insertActor = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("line")
+                .usingGeneratedKeyColumns("id");
     }
 
     public Line save(Line line) {
-        this.jdbcTemplate.update(LINE_INSERT_SQL, line.getName(), line.getColor());
-        return this.jdbcTemplate.queryForObject(LINE_SELECT_BY_NAME_SQL, lineMapper, line.getName());
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
+        Long id = insertActor.executeAndReturnKey(parameters).longValue();
+        return new Line(id, line.getName(), line.getColor());
     }
 
     public List<Line> findAll() {
-        return this.jdbcTemplate.query(LINE_SELECT_ALL_SQL, lineMapper);
+        return this.jdbcTemplate.query(LINE_SELECT_SQL, lineMapper);
     }
 
     public Line getById(Long id) {

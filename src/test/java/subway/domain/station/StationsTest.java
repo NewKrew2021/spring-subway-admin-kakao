@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -38,12 +37,5 @@ public class StationsTest {
         assertThat(stations.equalContainStatus(역삼역.getId(), 망포역.getId())).isTrue();
         assertThat(stations.equalContainStatus(강남역.getId(), 망포역.getId())).isFalse();
         assertThat(stations.equalContainStatus(역삼역.getId(), 광교역.getId())).isFalse();
-    }
-
-    @Test
-    @DisplayName("StationResponse 변환 테스트")
-    public void toStationResponseTest() {
-        List<StationResponse> stationResponses = Arrays.asList(new StationResponse(강남역), new StationResponse(광교역));
-        assertThat(stations.toResponse()).isEqualTo(stationResponses);
     }
 }

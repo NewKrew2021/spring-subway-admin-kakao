@@ -7,8 +7,8 @@ import subway.common.exception.NotDeletableEntityException;
 import subway.common.exception.NotExistEntityException;
 import subway.common.exception.NotUpdatableEntityException;
 import subway.line.dao.LineDao;
-import subway.line.vo.Line;
-import subway.line.vo.Lines;
+import subway.line.entity.Line;
+import subway.line.entity.Lines;
 
 @Service
 @Transactional

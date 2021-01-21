@@ -8,8 +8,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import subway.line.vo.Line;
-import subway.line.vo.Lines;
+import subway.line.entity.Line;
+import subway.line.entity.Lines;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;

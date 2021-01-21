@@ -1,7 +1,7 @@
 package subway.line.service;
 
-import subway.line.vo.Line;
-import subway.line.vo.Lines;
+import subway.line.entity.Line;
+import subway.line.entity.Lines;
 
 public interface LineService {
     Line create(Line line);

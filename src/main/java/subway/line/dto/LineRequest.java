@@ -1,7 +1,7 @@
 package subway.line.dto;
 
-import subway.line.vo.Line;
-import subway.section.vo.Section;
+import subway.line.entity.Line;
+import subway.section.entity.Section;
 
 public class LineRequest {
     private String name;

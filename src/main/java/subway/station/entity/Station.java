@@ -1,4 +1,4 @@
-package subway.station.vo;
+package subway.station.entity;
 
 public class Station {
     private Long id;

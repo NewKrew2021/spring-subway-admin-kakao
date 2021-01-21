@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.station.dto.StationRequest;
 import subway.station.dto.StationResponse;
 import subway.station.service.StationService;
-import subway.station.vo.Station;
+import subway.station.entity.Station;
 
 import java.net.URI;
 import java.util.List;

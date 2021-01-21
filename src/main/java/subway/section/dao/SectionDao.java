@@ -1,7 +1,7 @@
 package subway.section.dao;
 
-import subway.section.vo.Section;
-import subway.section.vo.Sections;
+import subway.section.entity.Section;
+import subway.section.entity.Sections;
 
 import java.util.Optional;
 

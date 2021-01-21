@@ -1,6 +1,6 @@
 package subway.section.dto;
 
-import subway.section.vo.Section;
+import subway.section.entity.Section;
 
 public class SectionRequest {
     private Long upStationId;

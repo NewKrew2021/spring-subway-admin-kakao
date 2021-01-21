@@ -1,4 +1,4 @@
-package subway.section.vo;
+package subway.section.entity;
 
 import java.util.Arrays;
 import java.util.List;

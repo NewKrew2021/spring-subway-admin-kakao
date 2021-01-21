@@ -1,9 +1,8 @@
 package subway.line.dto;
 
-import subway.line.vo.Line;
-import subway.section.vo.Section;
+import subway.line.entity.Line;
 import subway.station.dto.StationResponse;
-import subway.station.vo.Stations;
+import subway.station.entity.Stations;
 
 import java.util.List;
 import java.util.stream.Collectors;

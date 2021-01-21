@@ -1,4 +1,4 @@
-package subway.section.vo;
+package subway.section.entity;
 
 import java.util.*;
 import java.util.function.Function;

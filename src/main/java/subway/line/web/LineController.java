@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
 import subway.line.service.LineService;
-import subway.line.vo.Line;
+import subway.line.entity.Line;
 import subway.section.dto.SectionRequest;
 import subway.section.service.SectionService;
-import subway.section.vo.Section;
+import subway.section.entity.Section;
 import subway.station.service.StationService;
-import subway.station.vo.Stations;
+import subway.station.entity.Stations;
 
 import java.net.URI;
 import java.util.List;

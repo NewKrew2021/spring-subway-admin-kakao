@@ -7,8 +7,8 @@ import subway.common.exception.NotDeletableEntityException;
 import subway.common.exception.NotExistEntityException;
 import subway.common.exception.NotUpdatableEntityException;
 import subway.station.dao.StationDao;
-import subway.station.vo.Station;
-import subway.station.vo.Stations;
+import subway.station.entity.Station;
+import subway.station.entity.Stations;
 
 import java.util.ArrayList;
 import java.util.List;

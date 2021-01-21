@@ -1,4 +1,4 @@
-package subway.line.vo;
+package subway.line.entity;
 
 public class Line {
     private Long id;

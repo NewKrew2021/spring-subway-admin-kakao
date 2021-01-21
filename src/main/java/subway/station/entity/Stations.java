@@ -1,4 +1,4 @@
-package subway.station.vo;
+package subway.station.entity;
 
 import java.util.Collections;
 import java.util.List;

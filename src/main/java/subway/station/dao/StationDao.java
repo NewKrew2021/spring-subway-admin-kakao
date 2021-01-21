@@ -1,7 +1,7 @@
 package subway.station.dao;
 
-import subway.station.vo.Station;
-import subway.station.vo.Stations;
+import subway.station.entity.Station;
+import subway.station.entity.Stations;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package subway.station.dto;
 
-import subway.station.vo.Station;
+import subway.station.entity.Station;
 
 public class StationResponse {
     private Long id;

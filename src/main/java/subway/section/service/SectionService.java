@@ -1,7 +1,7 @@
 package subway.section.service;
 
-import subway.section.vo.Section;
-import subway.section.vo.Sections;
+import subway.section.entity.Section;
+import subway.section.entity.Sections;
 
 public interface SectionService {
     Section create(Section section);

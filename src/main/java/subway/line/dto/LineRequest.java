@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.dto;
 
 import java.beans.ConstructorProperties;
 
@@ -10,6 +10,8 @@ public class LineRequest {
     private int distance;
     private int extraFare;
 
+    // TODO: ConstructorProperties를 parameterNamesModule 로 바꿔보기?
+    //       or 기본 생성자 생성 후 private?
     @ConstructorProperties({"name", "color", "upStationID", "downStationID", "distance"})
     public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
         this.name = name;

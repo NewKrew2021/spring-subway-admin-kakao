@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.dto;
 
 import subway.station.dto.StationResponse;
 
@@ -11,6 +11,8 @@ public class LineResponse {
     private String color;
     private List<StationResponse> stations;
 
+    // TODO: ConstructorProperties를 parameterNamesModule 로 바꿔보기?
+    //       or 기본 생성자 생성 후 private?
     @ConstructorProperties({"id", "name", "color", "stations"})
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;

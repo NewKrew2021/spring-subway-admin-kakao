@@ -1,4 +1,6 @@
-package subway.section;
+package subway.section.domain;
+
+import subway.section.vo.SectionResultValues;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,7 +23,14 @@ public class Sections {
                 .collect(Collectors.toList());
     }
 
-    public Section insert(Section upSectionParameters, Section downSectionParameters) {
+    public SectionResultValues toResultValues() {
+        return new SectionResultValues(sections.stream()
+                .map(Section::toResultValue)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO: 날씬해지자
+    public Section createSection(Section upSectionParameters, Section downSectionParameters) {
         checkValidSections(upSectionParameters, downSectionParameters);
 
         final int NOT_DEFINED = Integer.MAX_VALUE;
@@ -44,6 +53,7 @@ public class Sections {
                 newSectionParameters.getStationID(),
                 newSectionDistance);
 
+        // TODO: null 체크는 haveValidDistance 안에서 해보자
         if (!haveValidDistance(existingSection, newSection)) {
             return null;
         }

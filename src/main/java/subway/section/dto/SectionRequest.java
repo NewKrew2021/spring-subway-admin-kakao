@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.dto;
 
 import java.beans.ConstructorProperties;
 
@@ -7,6 +7,8 @@ public class SectionRequest {
     private Long downStationID;
     private int distance;
 
+    // TODO: ConstructorProperties를 parameterNamesModule 로 바꿔보기?
+    //       or 기본 생성자 생성 후 private?
     @ConstructorProperties({"upStationID", "downStationID", "distance"})
     public SectionRequest(Long upStationID, Long downStationID, int distance) {
         this.upStationID = upStationID;

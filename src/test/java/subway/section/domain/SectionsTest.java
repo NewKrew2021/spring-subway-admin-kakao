@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,9 +24,9 @@ public class SectionsTest {
 
     @BeforeEach
     void setUp() {
-        uppermostSection = new Section(1, LINE_ID, 3, -2);
-        middleSection = new Section(2, LINE_ID, 5, 2);
-        lowermostSection = new Section(3, LINE_ID, 7, 6);
+        uppermostSection = new Section(LINE_ID, 3, -2);
+        middleSection = new Section(LINE_ID, 5, 2);
+        lowermostSection = new Section(LINE_ID, 7, 6);
         sections = new Sections(Arrays.asList(
                 uppermostSection,
                 middleSection,
@@ -60,7 +60,7 @@ public class SectionsTest {
         Section lowermost = new Section(LINE_ID, lowermostSection.getStationID(), 0);
         Section lowerThanLowermost = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 3);
 
-        Section newSection = sections.insert(lowermost, lowerThanLowermost);
+        Section newSection = sections.createSection(lowermost, lowerThanLowermost);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 9));
         assertThat(newSection.getDistance()).isEqualTo(9);
@@ -72,7 +72,7 @@ public class SectionsTest {
         Section upperThanUppermost = new Section(LINE_ID, UPPER_THAN_UPPERMOST_ID, 0);
         Section uppermost = new Section(LINE_ID, uppermostSection.getStationID(), 3);
 
-        Section newSection = sections.insert(upperThanUppermost, uppermost);
+        Section newSection = sections.createSection(upperThanUppermost, uppermost);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, UPPER_THAN_UPPERMOST_ID, -5));
         assertThat(newSection.getDistance()).isEqualTo(-5);
@@ -84,7 +84,7 @@ public class SectionsTest {
         Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
         Section middleLeft = new Section(LINE_ID, MIDDLE_LEFT_ID, 3);
 
-        Section newSection = sections.insert(middleLeft, middle);
+        Section newSection = sections.createSection(middleLeft, middle);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, MIDDLE_LEFT_ID, -1));
         assertThat(newSection.getDistance()).isEqualTo(-1);
@@ -96,7 +96,7 @@ public class SectionsTest {
         Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
         Section middleRight = new Section(LINE_ID, MIDDLE_RIGHT_ID, 3);
 
-        Section newSection = sections.insert(middle, middleRight);
+        Section newSection = sections.createSection(middle, middleRight);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, MIDDLE_RIGHT_ID, 5));
         assertThat(newSection.getDistance()).isEqualTo(5);
@@ -105,7 +105,7 @@ public class SectionsTest {
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다")
     @Test
     void bothSectionAlreadyExists() {
-        assertThatThrownBy(() -> sections.insert(middleSection, lowermostSection))
+        assertThatThrownBy(() -> sections.createSection(middleSection, lowermostSection))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already");
     }
@@ -116,7 +116,7 @@ public class SectionsTest {
         Section nonExistingSection1 = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
         Section nonExistingSection2 = new Section(LINE_ID, MIDDLE_RIGHT_ID, 2);
 
-        assertThatThrownBy(() -> sections.insert(nonExistingSection1, nonExistingSection2))
+        assertThatThrownBy(() -> sections.createSection(nonExistingSection1, nonExistingSection2))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("neither");
     }
@@ -127,7 +127,7 @@ public class SectionsTest {
         Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
         Section middleRight = new Section(LINE_ID, MIDDLE_RIGHT_ID, 4);
 
-        assertThat(sections.insert(middle, middleRight)).isNull();
+        assertThat(sections.createSection(middle, middleRight)).isNull();
     }
 
     @DisplayName("상행/하행역으로 이루어진 최소 단위의 구간이다")

@@ -6,10 +6,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.line.domain.Line;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Repository
 public class LineDao {
@@ -31,7 +31,7 @@ public class LineDao {
                 return st;
             }, keyHolder);
         } catch (DataAccessException ignored) {
-            throw new IllegalArgumentException(String.format("Line with name %s already exists", line.getName()));
+            return null;
         }
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
@@ -42,43 +42,47 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line findOne(Long id) {
-        String sql = "select * from line where id = ?";
-        Line line = jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+    public Line findOne(Line line) {
+        return jdbcTemplate.queryForObject("select * from line where id = ?", lineRowMapper, line.getID());
+    }
 
-        if (!lineExists(line)) {
-            throw new NoSuchElementException(String.format("Could not find line with id: %d", id));
+    public Line update(Line line) {
+        String sql = "update line set name = ?, color = ? where id = ?";
+        int affectedRows;
+
+        try {
+            affectedRows = jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getID());
+        } catch (DataAccessException ignored) {
+            return null;
+        }
+
+        if (isNotUpdated(affectedRows)) {
+            return null;
         }
 
         return line;
     }
 
-    public Line update(Long id, LineRequest lineRequest) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        int affectedRows = jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id);
+    public Line delete(Line line) {
+        int affectedRows = jdbcTemplate.update("delete from line where id = ?", line.getID());
 
-        if (!affectedToUniqueRowOnly(affectedRows)) {
-            throw new NoSuchElementException(String.format("Could not update line with id: %d", id));
+        if (isNotDeleted(affectedRows)) {
+            return line;
         }
 
-        return findOne(id);
+        return null;
     }
 
-    public void delete(Long id) {
-        String sql = "delete from line where id = ?";
-        int affectedRows = jdbcTemplate.update(sql, id);
-
-        if (!affectedToUniqueRowOnly(affectedRows)) {
-            throw new NoSuchElementException(String.format("Could not delete line with id: %d", id));
-        }
+    private boolean isNotUpdated(int affectedRows) {
+        return noRowsWereAffected(affectedRows);
     }
 
-    private boolean lineExists(Line line) {
-        return line != null;
+    private boolean isNotDeleted(int affectedRows) {
+        return noRowsWereAffected(affectedRows);
     }
 
-    private boolean affectedToUniqueRowOnly(int affectedRows) {
-        return affectedRows == 1;
+    private boolean noRowsWereAffected(int affectedRows) {
+        return affectedRows != 1;
     }
 
     private final RowMapper<Line> lineRowMapper =

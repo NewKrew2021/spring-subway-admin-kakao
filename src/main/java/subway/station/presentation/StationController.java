@@ -1,11 +1,13 @@
-package subway.station;
+package subway.station.presentation;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.service.StationService;
 
 import java.net.URI;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("stations")

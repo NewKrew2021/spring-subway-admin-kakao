@@ -1,11 +1,15 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.station.Station;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.line.domain.LineDao;
+import subway.line.presentation.LineRequest;
+import subway.line.presentation.LineResponse;
+import subway.section.domain.Section;
+import subway.section.domain.SectionDao;
+import subway.station.domain.Station;
+import subway.station.domain.StationDao;
+import subway.station.presentation.StationResponse;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

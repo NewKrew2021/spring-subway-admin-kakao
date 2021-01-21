@@ -1,6 +1,6 @@
-package subway.line;
+package subway.line.presentation;
 
-import subway.station.StationResponse;
+import subway.station.presentation.StationResponse;
 
 import java.util.List;
 

@@ -1,11 +1,11 @@
-package subway.station;
+package subway.station.domain;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import subway.section.SectionDao;
+import subway.section.domain.SectionDao;
 import subway.exceptions.BadRequestException;
 
 import java.util.List;

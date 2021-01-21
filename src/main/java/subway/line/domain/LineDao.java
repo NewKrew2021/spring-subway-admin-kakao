@@ -1,14 +1,14 @@
-package subway.line;
+package subway.line.domain;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import subway.section.SectionDao;
+import subway.line.presentation.LineRequest;
+import subway.section.domain.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import subway.exceptions.BadRequestException;
 import org.springframework.jdbc.core.RowMapper;
-import subway.section.Section;
 
 @Repository
 public class LineDao {

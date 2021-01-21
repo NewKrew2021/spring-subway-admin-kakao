@@ -12,6 +12,9 @@ import subway.AcceptanceTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import subway.station.presentation.StationResponse;
+import subway.station.presentation.StationRequest;
+import subway.station.domain.Station;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("지하철역 관련 기능")

@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

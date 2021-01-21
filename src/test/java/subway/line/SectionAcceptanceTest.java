@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.section.SectionRequest;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -38,6 +39,17 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         광교역 = 지하철역_등록되어_있음("광교역");
 
         신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 강남역, 광교역, 10);
+    }
+
+    @DisplayName("지하철 구간을 양끝단에 등록한다.")
+    @Test
+    void addLineLastSection() {
+        // when
+        지하철_구간_생성_요청(신분당선, 양재역, 강남역, 3);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 광교역, 정자역, 3);
+
+        // then
+        지하철_구간_생성됨(response, 신분당선, Arrays.asList(양재역, 강남역, 광교역, 정자역));
     }
 
     @DisplayName("지하철 구간을 등록한다.")
@@ -79,6 +91,20 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철_구간_등록_실패됨(response);
+    }
+
+    @DisplayName("지하철 노선에 등록된 지하철역 맨 앞을 제외한다.")
+    @Test
+    void removeLineSection3() {
+        // given
+        지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
+        지하철_구간_생성_요청(신분당선, 양재역, 정자역, 2);
+
+        // when
+        ExtractableResponse<Response> removeResponse = 지하철_노선에_지하철역_제외_요청(신분당선, 강남역);
+
+        // then
+        지하철_노선에_지하철역_제외됨(removeResponse, 신분당선, Arrays.asList(양재역, 정자역, 광교역));
     }
 
     @DisplayName("지하철 노선에 등록된 지하철역을 제외한다.")
@@ -124,11 +150,11 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     public static void 지하철_노선에_지하철역_순서_정렬됨(ExtractableResponse<Response> response, List<StationResponse> expectedStations) {
         LineResponse line = response.as(LineResponse.class);
         List<Long> stationIds = line.getStations().stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         List<Long> expectedStationIds = expectedStations.stream()
-                .map(it -> it.getId())
+                .map(StationResponse::getId)
                 .collect(Collectors.toList());
 
         assertThat(stationIds).containsExactlyElementsOf(expectedStationIds);

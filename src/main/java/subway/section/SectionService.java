@@ -5,7 +5,6 @@ import subway.exception.*;
 import subway.line.Line;
 
 import java.util.LinkedList;
-import java.util.List;
 
 @Service
 public class SectionService {
@@ -41,7 +40,7 @@ public class SectionService {
 
         areExistSectionOnlyOne(upSection, downSection);
         SectionUpdateType sectionUpdateType = confirmSectionUpOrDown(upSection, downSection, sectionDto);
-        sectionDto.getPrevSection().updateNextSectionToOtherStation(sectionDto.getTargetSection());
+        sectionDto.getPrevSection().updateNextStationToOtherStation(sectionDto.getTargetSection());
 
         return sectionUpdateType;
     }

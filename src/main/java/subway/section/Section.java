@@ -35,7 +35,7 @@ public class Section {
         }
     }
 
-    public void updateNextSectionToOtherStation(Section section) {
+    public void updateNextStationToOtherStation(Section section) {
         if( this != Section.DO_NOT_EXIST_SECTION ) {
             this.setNextStation(section.getStationId());
         }

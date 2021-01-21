@@ -2,15 +2,7 @@ package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.station.Station;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import java.util.List;
 
@@ -42,13 +34,18 @@ public class SectionDao {
         );
     }
 
+    public void update(Section section){
+        String query = "update section set line_id = ?, up_station_id = ?, down_station_id = ?, distance = ? where id = ?";
+        jdbcTemplate.update(query, section.getLineId(), section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId());
+    }
+
     public void deleteById(Long id) {
         String query = "delete from section where id = ?";
         jdbcTemplate.update(query, id);
     }
 
     public List<Section> findAllByLineId(Long id){
-        String query = "select * from section where line_id = ?";
+        String query = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ?";
         return jdbcTemplate.query(query, sectionRowMapper, id);
     }
 
@@ -57,7 +54,7 @@ public class SectionDao {
      */
     public Section getSectionByUpStationId(Long lineId, Long upStationId) {
         try {
-            String sqlQuery = "select * from section where line_id = ? and up_station_id = ? limit 1";
+            String sqlQuery = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ? and up_station_id = ? limit 1";
             return jdbcTemplate.queryForObject(sqlQuery, sectionRowMapper, lineId, upStationId);
         } catch (Exception e) {
             return null;
@@ -69,7 +66,7 @@ public class SectionDao {
      */
     public Section getSectionByDownStationId(Long lineId, Long downStationId) {
         try {
-            String sqlQuery = "select * from section where line_id = ? and down_station_id = ? limit 1";
+            String sqlQuery = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ? and down_station_id = ? limit 1";
             return jdbcTemplate.queryForObject(sqlQuery, sectionRowMapper, lineId, downStationId);
         } catch (Exception e) {
             return null;

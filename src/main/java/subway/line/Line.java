@@ -37,4 +37,5 @@ public class Line {
     public String getColor() {
         return color;
     }
+
 }

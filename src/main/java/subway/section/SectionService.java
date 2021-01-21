@@ -1,6 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exceptions.CannotConstructRightSectionsForLine;
 import subway.exceptions.NotFoundException;
 import subway.station.Station;
@@ -21,80 +22,18 @@ public class SectionService {
         this.stationService = stationService;
     }
 
+    @Transactional
     public void createSection(Long lineId, SectionDto sectionDto) {
-        Section section = new Section(lineId, sectionDto);
+        Section newSection = new Section(lineId, sectionDto);
+        SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sectionDao.findAllByLineId(lineId));
 
-        if(!canInsert(section)){
-            throw new CannotConstructRightSectionsForLine("잘못된 section 저장입니다.");
-        }
-
-        /* 중간에 끼워 넣는경우 1 : upstation을 기준으로 기존 section을 삭제하고, 새롭게 연결해주어야 할 section을 추가 */
-        if(existSameUpstationId(section.getLineId(), section.getUpStationId())) {
-            Section oldSection = sectionDao.getSectionByUpStationId(section.getLineId(), section.getUpStationId());
-            addNewBackwardSection(section, oldSection);
-            sectionDao.deleteById(oldSection.getId());
-        }
-
-        /* 중간에 끼워 넣는 경우 2 : downstation을 기준으로 기존 section을 삭제하고, 새롭게 연결해주어야 할 section을 추가 */
-        if(existSameDownStationId(section.getLineId(), section.getDownStationId())) {
-            Section oldSection = sectionDao.getSectionByDownStationId(section.getLineId(), section.getDownStationId());
-            addNewForwardSection(section, oldSection);
-            sectionDao.deleteById(oldSection.getId());
-        }
-
-        /* 전달된 새로운 section을 추가 */
-        sectionDao.save(section);
-    }
-
-    private void addNewBackwardSection(Section section, Section oldSection) {
-        Section newSection = new Section(
-                section.getDownStationId(),
-                oldSection.getDownStationId(),
-                section.getLineId(),
-                oldSection.getDistance() - section.getDistance()
-        );
-
+        sectionsInOneLine.validateSave(newSection);
         sectionDao.save(newSection);
-    }
 
-    private void addNewForwardSection(Section section, Section oldSection) {
-        Section newSection = new Section(
-                oldSection.getUpStationId(),
-                section.getUpStationId(),
-                section.getLineId(),
-                oldSection.getDistance() - section.getDistance()
-        );
-
-        sectionDao.save(newSection);
-    }
-
-    public boolean existSameUpstationId(Long lineId, Long upStationId) {
-        if(sectionDao.getSectionByUpStationId(lineId, upStationId) != null) return true;
-        return false;
-    }
-
-    public boolean existSameDownStationId(Long lineId, Long downStationId) {
-        if(sectionDao.getSectionByDownStationId(lineId, downStationId) != null) return true;
-        return false;
-    }
-
-    public boolean canInsert(Section section) {
-
-        /* line을 처음 생성하는 경우는 통과 */
-        if(sectionDao.findAllByLineId(section.getLineId()).size() == 0) {
-            return true;
+        Section updatedSection = sectionsInOneLine.getSectionToBeUpdated(newSection);
+        if(null != updatedSection){
+            sectionDao.update(updatedSection);
         }
-
-        // todo : alreadExistInLine 메서드 손봐야 할듯
-        boolean upStationExist = sectionDao.alreadyExistInLine(section.getLineId(), section.getUpStationId());
-        boolean downStationExist = sectionDao.alreadyExistInLine(section.getLineId(), section.getDownStationId());
-
-        /* 둘다 등록되었거나, 둘다 등록되어 있지 않는 경우 */
-        if(upStationExist == downStationExist) {
-            return false;
-        }
-
-        return  true;
     }
 
     public List<Station> findSortedStationsByLineId(Long lineId) { //TODO : 뭔가 이 메서드 리팩토링이 필요하다.

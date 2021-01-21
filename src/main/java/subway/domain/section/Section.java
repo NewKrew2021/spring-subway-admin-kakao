@@ -29,6 +29,10 @@ public class Section {
         this(id, lineId, new Station(upStationId), new Station(downStationId), distance);
     }
 
+    public Section(Long lineId, SectionRequest sectionRequest) {
+        this(null, lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+    }
+
     public Section(Long id, Long lineId, Station upStation, Station downStation, int distance) {
         checkStations(upStation, downStation);
         checkDistance(distance);

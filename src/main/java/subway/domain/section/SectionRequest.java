@@ -16,10 +16,6 @@ public class SectionRequest {
         this.distance = distance;
     }
 
-    public Section toSection(Long lineId) {
-        return new Section(null, lineId, new Station(upStationId), new Station(downStationId), distance);
-    }
-
     public Long getUpStationId() {
         return upStationId;
     }

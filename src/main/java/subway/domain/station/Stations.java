@@ -2,7 +2,6 @@ package subway.domain.station;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Stations {
@@ -15,12 +14,6 @@ public class Stations {
     public boolean contain(Long stationId) {
         return stations.stream()
                 .anyMatch(station -> station.getId().equals(stationId));
-    }
-
-    public List<StationResponse> toResponse() {
-        return stations.stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
     }
 
     public Stream<Station> stream() {

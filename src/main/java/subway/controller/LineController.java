@@ -24,14 +24,16 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = lineRequest.toLine();
-        Line newLine = lineService.createLine(line, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        Line newLine = lineService.createLine(lineRequest.getName(), lineRequest.getColor(),
+                lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine));
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> response = lineService.showLines().stream()
+        List<LineResponse> response = lineService.showLines()
+                .stream()
                 .map(LineResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(response);

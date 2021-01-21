@@ -23,15 +23,17 @@ public class LineService {
     }
 
     @Transactional
-    public Line createLine(Line line, Long upStationId, Long downStationId, int distance) {
-        Line newLine = lineDao.save(line);
+    public Line createLine(String name, String color, Long upStationId, Long downStationId, int distance) {
+        // TODO name, color로 전해주기?
+        Line newLine = lineDao.save(new Line(name, color));
         Section newSection = sectionService.save(new Section(newLine.getId(), upStationId, downStationId, distance));
         return new Line(newLine.getId(), newLine.getName(), newLine.getColor(), new Sections(newSection));
     }
 
     @Transactional(readOnly = true)
     public List<Line> showLines() {
-        return lineDao.findAll().stream()
+        return lineDao.findAll()
+                .stream()
                 .map(line -> new Line(line, sectionService.getSectionsByLineId(line.getId())))
                 .collect(Collectors.toList());
     }

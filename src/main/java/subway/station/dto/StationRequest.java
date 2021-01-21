@@ -1,9 +1,10 @@
-package subway.station;
+package subway.station.dto;
 
 public class StationRequest {
     private String name;
 
     public StationRequest() {
+
     }
 
     public StationRequest(String name) {
@@ -13,4 +14,5 @@ public class StationRequest {
     public String getName() {
         return name;
     }
+
 }

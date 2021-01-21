@@ -1,6 +1,7 @@
-package subway.line;
+package subway.line.dto;
 
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 
@@ -18,6 +19,10 @@ public class LineResponse {
         this.stations = stations;
     }
 
+    public static LineResponse of(Line line, List<StationResponse> stations) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor(), stations);
+    }
+
     public Long getId() {
         return id;
     }
@@ -33,4 +38,5 @@ public class LineResponse {
     public List<StationResponse> getStations() {
         return stations;
     }
+
 }

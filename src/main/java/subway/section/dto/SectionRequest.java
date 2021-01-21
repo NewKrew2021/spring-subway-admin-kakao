@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section.dto;
 
 public class SectionRequest {
     private Long upStationId;
@@ -25,4 +25,5 @@ public class SectionRequest {
     public int getDistance() {
         return distance;
     }
+
 }

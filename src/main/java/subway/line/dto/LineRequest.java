@@ -1,11 +1,16 @@
-package subway.line;
+package subway.line.dto;
+
+import subway.section.domain.Section;
 
 public class LineRequest {
+    private static final int INITIAL_DISTANCE = 0;
+
     private String name;
     private String color;
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private int extraFare;
 
     public LineRequest() {
     }
@@ -16,6 +21,14 @@ public class LineRequest {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Section toFirstSection(Long lineId) {
+        return new Section(lineId, upStationId, INITIAL_DISTANCE);
+    }
+
+    public Section toSection(Long lineId) {
+        return new Section(lineId, downStationId, distance);
     }
 
     public String getName() {
@@ -36,5 +49,9 @@ public class LineRequest {
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
     }
 }

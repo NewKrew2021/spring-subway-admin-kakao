@@ -15,8 +15,7 @@ public class Line {
     }
 
     public Line(String name, String color) {
-        this.name = name;
-        this.color = color;
+        this(-1, name, color);
     }
 
     public long getId() {

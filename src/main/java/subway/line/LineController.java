@@ -73,18 +73,28 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         SectionDto sectionDto = new SectionDto(sectionRequest);
-        if (!sectionService.insertSection( sectionDto, lineId)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        try {
+            sectionService.insertSection( sectionDto, lineId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
     }
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-        if (!sectionService.deleteSection(lineId, stationId)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        try {
+            sectionService.deleteSection(lineId, stationId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
     }
 
 }

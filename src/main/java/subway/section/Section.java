@@ -20,10 +20,7 @@ public class Section {
     }
 
     public Section(Long lineId, Long stationId, int distance, Long nextStationId) {
-        this.lineId = lineId;
-        this.stationId = stationId;
-        this.distance = distance;
-        this.nextStationId = nextStationId;
+        this(null, lineId, stationId, distance, nextStationId);
     }
 
     public long getId() {

@@ -25,9 +25,7 @@ public class SectionService {
     }
 
     public LinkedList<Long> getStationsIdOfLine(long lineId) {
-        List<Section> sections = sectionDao.getSectionsOfLine(lineId)
-                .stream()
-                .collect(Collectors.toList());
+        List<Section> sections = sectionDao.getSectionsOfLine(lineId);
         return sortSections(sections);
     }
 
@@ -48,29 +46,19 @@ public class SectionService {
                 .orElse(null);
     }
 
-    public boolean insertSection(SectionDto sectionDto, Long lineId) {
+    public void insertSection(SectionDto sectionDto, Long lineId) {
         SectionUpdateType sectionUpdateType = updateSectionOfLine(sectionDto, lineId);
-        if( sectionUpdateType == SectionUpdateType.EXCEPTION ) {
-            return false;
-        }
         sectionUpdateType.updateDistanceAsInsert();
         sectionDao.save(sectionUpdateType.getTargetSection());
         sectionDao.update(sectionUpdateType.getPrevSection());
-        return true;
     }
 
     private SectionUpdateType updateSectionOfLine(SectionDto sectionDto, Long lineId) {
         Section upSection = sectionDao.getSection(sectionDto.getUpStationId(), lineId);
         Section downSection = sectionDao.getSection(sectionDto.getDownStationId(), lineId);
 
-        try {
-            SectionUpdateType sectionUpdateType = decideSectionTypeAndThrowException(upSection, downSection, sectionDto);
-            return sectionUpdateType;
-        } catch (Exception e) {
-             e.printStackTrace();
-        }
-
-        return SectionUpdateType.EXCEPTION;
+        SectionUpdateType sectionUpdateType = decideSectionTypeAndThrowException(upSection, downSection, sectionDto);
+        return sectionUpdateType;
     }
 
     private SectionUpdateType decideSectionTypeAndThrowException(Section upSection, Section downSection, SectionDto sectionDto ) {
@@ -103,30 +91,16 @@ public class SectionService {
         return sectionUpdateType;
     }
 
-    public boolean deleteSection(long lineId, long stationId) {
-
+    public void deleteSection(long lineId, long stationId) {
         SectionUpdateType sectionUpdateType = deleteValidation(lineId, stationId);
-
-        if( sectionUpdateType == SectionUpdateType.EXCEPTION ) {
-            return false;
-        }
         sectionUpdateType.updatePrevSectionAsDelete();
         sectionDao.delete(sectionUpdateType.getTargetSection());
         sectionDao.update(sectionUpdateType.getPrevSection());
-        return true;
-
     }
 
     private SectionUpdateType deleteValidation(long lineId, long stationId) {
         Section section = sectionDao.getSection(stationId,lineId);
-
-        try {
-            throwExceptionAsDelete(section, lineId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return SectionUpdateType.EXCEPTION;
-        }
-
+        throwExceptionAsDelete(section, lineId);
         Section prevSection = sectionDao.getSectionByNextId(stationId);
         SectionUpdateType sectionUpdateType = SectionUpdateType.DELETE_SECTION;
         sectionUpdateType.setTargetSection(section);

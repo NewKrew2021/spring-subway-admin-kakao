@@ -8,7 +8,6 @@ import subway.dao.SectionDao;
 import subway.domain.SectionGroup;
 
 @Service
-@Transactional
 public class SectionService {
 
     private final SectionDao sectionDao;
@@ -18,6 +17,7 @@ public class SectionService {
         this.sectionDao = sectionDao;
     }
 
+    @Transactional
     public Section createSectionOnLine(Long id, Long upStationId, Long downStationId, int distance) {
         SectionGroup sections = new SectionGroup(sectionDao.findAllByLineId(id));
         Section insertedSection = sections.insertSection(id, upStationId, downStationId, distance);
@@ -29,6 +29,7 @@ public class SectionService {
         return insertedSection;
     }
 
+    @Transactional
     public void deleteStationOnLine(Long lineId, Long stationId) {
         SectionGroup sections = new SectionGroup(sectionDao.findAllByLineId(lineId));
         Section deletedSection = sections.deleteStation(stationId);

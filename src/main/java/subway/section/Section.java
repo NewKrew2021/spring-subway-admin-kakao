@@ -62,7 +62,7 @@ public class Section {
     }
 
     public boolean isHeadSection() {
-        return getUpStationId() == Line.HEAD;
+        return getUpStationId() == Line.HEADID;
     }
 
     public Long getId() {

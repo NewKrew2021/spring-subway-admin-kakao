@@ -47,7 +47,7 @@ public class LineService {
         List<Station> stations = new ArrayList<>();
 
         NamedSection currentSection = sections.findHeadSection();
-        while (currentSection.getDownStationId() != Line.TAIL) {
+        while (currentSection.getDownStationId() != Line.TAILID) {
             stations.add(new Station(currentSection.getDownStationId(), currentSection.getDownStationName()));
             currentSection = sections.findRearOfGivenStation(currentSection.getDownStationId());
         }

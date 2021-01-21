@@ -17,11 +17,11 @@ public class SectionsTest {
     static Stream<Arguments> sectionsGenerator() {
         return Stream.of(
                 Arguments.of(Arrays.asList(
-                        new Section(0L, 0L, Line.HEAD, 1L, 3),
+                        new Section(0L, 0L, Line.HEADID, 1L, 3),
                         new Section(0L, 0L, 1L, 2L, 3),
                         new Section(0L, 0L, 2L, 3L, 3),
                         new Section(0L, 0L, 3L, 4L, 3),
-                        new Section(0L, 0L, 4L, Line.TAIL, 3)
+                        new Section(0L, 0L, 4L, Line.TAILID, 3)
                 ))
         );
     }
@@ -32,7 +32,7 @@ public class SectionsTest {
     public void findFirst(List<Section> sectionList) {
         Sections sections = new Sections(sectionList);
         Section headSection = sections.findHeadSection();
-        assertThat(headSection).isEqualTo(new Section(0L, 0L, Line.HEAD, 1L, 3));
+        assertThat(headSection).isEqualTo(new Section(0L, 0L, Line.HEADID, 1L, 3));
     }
 
     @ParameterizedTest

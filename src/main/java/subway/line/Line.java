@@ -1,8 +1,8 @@
 package subway.line;
 
 public class Line {
-    public static final long HEAD = 0;
-    public static final long TAIL = -1;
+    public static final long HEADID = 0;
+    public static final long TAILID = -1;
 
     private final Long id;
     private final String name;

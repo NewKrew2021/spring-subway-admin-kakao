@@ -15,8 +15,8 @@ public class SectionTest {
 
     public static Stream<Arguments> SectionParamGenerator() {
         return Stream.of(
-                Arguments.of(0L, 0L, Line.HEAD, 1L, 5, false),
-                Arguments.of(0L, 0L, 3L, Line.TAIL, 5, false),
+                Arguments.of(0L, 0L, Line.HEADID, 1L, 5, false),
+                Arguments.of(0L, 0L, 3L, Line.TAILID, 5, false),
                 Arguments.of(0L, 0L, 2L, 4L, 2, true),
                 Arguments.of(0L, 0L, 1L, 3L, 5, false)
         );

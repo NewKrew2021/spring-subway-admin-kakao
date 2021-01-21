@@ -16,9 +16,9 @@ public class SectionService {
     }
 
     public void initialSave(Line line, LineRequest lineRequest) {
-        sectionDao.save(new Section(line.getId(), Line.HEAD, lineRequest.getUpStationId(), Section.VIRTUAL_DISTANCE));
+        sectionDao.save(new Section(line.getId(), Line.HEADID, lineRequest.getUpStationId(), Section.VIRTUAL_DISTANCE));
         sectionDao.save(new Section(line.getId(), lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance()));
-        sectionDao.save(new Section(line.getId(), lineRequest.getDownStationId(), Line.TAIL, Section.VIRTUAL_DISTANCE));
+        sectionDao.save(new Section(line.getId(), lineRequest.getDownStationId(), Line.TAILID, Section.VIRTUAL_DISTANCE));
     }
 
     public void save(Section section) {

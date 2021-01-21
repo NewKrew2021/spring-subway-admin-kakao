@@ -30,40 +30,39 @@ public class LineService {
         this.stationDao = stationDao;
     }
 
-    public LineResponse create(LineRequest lineRequest) {
-        if (lineDao.countByName(lineRequest.getName()) != 0){
+    public Line create(Section section) {
+        Line line = section.getLine();
+        if (lineDao.countByName(line.getName()) != 0){
             throw new DuplicateNameException("노선의 이름은 중복될 수 없습니다.");
         }
 
-        Line newLine = lineDao.save(new Line(lineRequest.getName(), lineRequest.getColor()));
+        Line newLine = lineDao.save(line);
 
-        Station upStation = stationDao.findById(lineRequest.getUpStationId()).get();
-        Station downStation = stationDao.findById(lineRequest.getDownStationId()).get();
+        Station upStation = stationDao.findById(section.getUpStation().getId()).get();
+        Station downStation = stationDao.findById(section.getDownStation().getId()).get();
 
         sectionDao.save(new Section(newLine, new Station(Line.HEAD, Line.TERMINAL_NAME), upStation, Line.INF));
-        sectionDao.save(new Section(newLine, upStation, downStation, lineRequest.getDistance()));
+        sectionDao.save(new Section(newLine, upStation, downStation, section.getDistance()));
         sectionDao.save(new Section(newLine, downStation, new Station(Line.TAIL, Line.TERMINAL_NAME), Line.INF));
 
-        return new LineResponse(newLine, getSortedStations(newLine.getId()));
+        return newLine;
     }
 
-    public List<LineResponse> showLines() {
+    public List<Line> showLines() {
         return lineDao.findAll()
                 .stream()
-                .map(line -> new LineResponse(line, getSortedStations(line.getId())))
                 .collect(Collectors.toList());
     }
 
-    public LineResponse showLine(Long id) {
-        Line line = lineDao.findById(id);
-        return new LineResponse(line, getSortedStations(id));
+    public Line showLine(Long id) {
+        return lineDao.findById(id);
     }
 
-    public void modify(Long id, LineRequest lineRequest) {
-        if (lineDao.countByName(lineRequest.getName()) != 0){
+    public void modify(Long id, Line line) {
+        if (lineDao.countByName(line.getName()) != 0){
             throw new IllegalArgumentException();
         }
-        lineDao.modify(id, lineRequest);
+        lineDao.modify(id, line);
     }
 
     public void delete(Long id) {
@@ -71,7 +70,7 @@ public class LineService {
     }
 
 
-    private List<StationResponse> getSortedStations(Long id) {
+    public List<StationResponse> getSortedStations(Long id) {
         Line line = lineDao.findById(id);
 
         Sections sections = new Sections(sectionDao.findSectionsByLineId(line.getId()));

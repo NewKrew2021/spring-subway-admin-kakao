@@ -2,8 +2,12 @@ package subway.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.domain.Line;
+import subway.domain.Section;
+import subway.domain.Station;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
+import subway.dto.StationResponse;
 import subway.service.LineService;
 import subway.dto.SectionRequest;
 import subway.service.SectionService;
@@ -11,6 +15,7 @@ import subway.service.SectionService;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -27,23 +32,35 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        LineResponse lineResponse = lineService.create(lineRequest);
-        return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
+        Section newSection = new Section(
+                new Line(lineRequest),
+                new Station(lineRequest.getUpStationId()),
+                new Station(lineRequest.getDownStationId()),
+                lineRequest.getDistance());
+
+        Line line = lineService.create(newSection);
+        return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(
+                new LineResponse(line, lineService.getSortedStations(line.getId())));
     }
 
     @GetMapping
     public ResponseEntity<List<LineResponse>> showLines(){
-        return ResponseEntity.ok().body(lineService.showLines());
+        List<LineResponse> lineResponses = lineService.showLines()
+                .stream()
+                .map(line -> new LineResponse(line, lineService.getSortedStations(line.getId())))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(lineResponses);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return ResponseEntity.ok().body(lineService.showLine(id));
+        LineResponse lineResponse = new LineResponse(lineService.showLine(id), lineService.getSortedStations(id));
+        return ResponseEntity.ok().body(lineResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest){
-        lineService.modify(id, lineRequest);
+        lineService.modify(id, new Line(lineRequest));
         return ResponseEntity.ok().build();
     }
 
@@ -55,7 +72,11 @@ public class LineController {
 
     @PostMapping("/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        sectionService.add(id, sectionRequest);
+        Section section = new Section(
+                new Station(sectionRequest.getUpStationId()),
+                new Station(sectionRequest.getDownStationId()),
+                sectionRequest.getDistance());
+        sectionService.add(id, section);
         return ResponseEntity.ok().build();
     }
 

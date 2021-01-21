@@ -68,9 +68,9 @@ public class LineDao {
     }
 
 
-    public void modify(Long id, LineRequest lineRequest) {
+    public void modify(Long id, Line line) {
         jdbcTemplate.update(LineQuery.UPDATE_BY_ID,
-                lineRequest.getName(), lineRequest.getColor(), id);
+                line.getName(), line.getColor(), id);
     }
 
     public int countByName(String name) {

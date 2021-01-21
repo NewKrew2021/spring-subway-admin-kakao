@@ -1,5 +1,7 @@
 package subway.domain;
 
+import subway.dto.LineRequest;
+
 import java.util.Objects;
 
 public class Section {
@@ -25,6 +27,11 @@ public class Section {
         this.id = id;
     }
 
+    public Section(Station upStation, Station downStation, int distance) {
+        this.upStation = upStation;
+        this.downStation = downStation;
+        this.distance = distance;
+    }
 
     private void validateDistance(int distance) {
         if(distance <= 0) {

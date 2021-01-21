@@ -22,12 +22,12 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    public void add(Long id, SectionRequest sectionRequest) {
+    public void add(Long id, Section section) {
         Sections sections = new Sections(sectionDao.findSectionsByLineId(id));
         Section newSection = new Section(lineDao.findById(id),
-                stationDao.findById(sectionRequest.getUpStationId()).get(),
-                stationDao.findById(sectionRequest.getDownStationId()).get(),
-                sectionRequest.getDistance());
+                stationDao.findById(section.getUpStation().getId()).get(),
+                stationDao.findById(section.getDownStation().getId()).get(),
+                section.getDistance());
 
         if(sections.hasSameSection(newSection)){
             throw new IllegalArgumentException("이미 존재하는 구간입니다.");

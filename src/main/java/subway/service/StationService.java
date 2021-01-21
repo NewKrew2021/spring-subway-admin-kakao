@@ -19,18 +19,16 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResponse createLine(StationRequest stationRequest) {
-        if(stationDao.countByName(stationRequest.getName()) != 0) {
+    public Station createLine(Station station) {
+        if(stationDao.countByName(station.getName()) != 0) {
             throw new DuplicateNameException("이미 존재하는 역입니다.");
         }
-        Station newStation = stationDao.save(stationRequest.getName());
-        return new StationResponse(newStation);
+        return stationDao.save(station.getName());
     }
 
-    public List<StationResponse> showStations() {
+    public List<Station> showStations() {
         return stationDao.findAll()
                 .stream()
-                .map(StationResponse::new)
                 .collect(Collectors.toList());
     }
 

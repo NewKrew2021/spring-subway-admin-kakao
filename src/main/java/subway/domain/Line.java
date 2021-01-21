@@ -1,5 +1,7 @@
 package subway.domain;
 
+import subway.dto.LineRequest;
+
 import java.util.Objects;
 
 public class Line {
@@ -20,6 +22,11 @@ public class Line {
         this.id = id;
         this.name = name;
         this.color = color;
+    }
+
+    public Line(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
     }
 
     public Long getId() {

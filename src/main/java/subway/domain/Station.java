@@ -1,5 +1,7 @@
 package subway.domain;
 
+import subway.dto.StationRequest;
+
 import java.util.Objects;
 
 public class Station {
@@ -12,6 +14,14 @@ public class Station {
     public Station(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Station(Long id) {
+        this.id = id;
+    }
+
+    public Station(StationRequest stationRequest) {
+        this.name = stationRequest.getName();
     }
 
     public Long getId() {

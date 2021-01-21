@@ -1,7 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
-import subway.line.LineRequest;
+import subway.section.strategy.SectionGenerateStrategy;
 import subway.station.StationResponse;
 import subway.station.StationService;
 
@@ -25,12 +25,8 @@ public class SectionService {
         Long upStationId = sectionRequest.getUpStationId();
         Long downStationId = sectionRequest.getDownStationId();
         int distance = sectionRequest.getDistance();
-
-        sections.validateSection(upStationId, downStationId, distance);
-        Section section = new Section(lineId,
-                sections.getExtendedStationId(upStationId, downStationId),
-                sections.calculateRelativeDistance(upStationId, downStationId, distance));
-        sectionDao.save(section);
+        SectionGenerateStrategy sectionGenerateStrategy = sections.validateAndGenerateStrategy(upStationId, downStationId, distance);
+        sectionDao.save(sectionGenerateStrategy.getNewSection());
     }
 
     public void deleteSection(Long lineId, Long stationId) {
@@ -46,7 +42,7 @@ public class SectionService {
 
     public List<StationResponse> findSortedStationsByLineId(Long lineId) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        return sections.getSortedStationIdsByDistance()
+        return sections.getSortedStationIds()
                 .stream()
                 .map(stationService::getStationResponseById)
                 .collect(Collectors.toList());

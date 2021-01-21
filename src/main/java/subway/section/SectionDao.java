@@ -33,12 +33,12 @@ public class SectionDao {
             );
             psmt.setLong(1, section.getLineId());
             psmt.setLong(2, section.getStationId());
-            psmt.setInt(3, section.getDistance());
+            psmt.setInt(3, section.getRelativePosition());
             return psmt;
         }, keyHolder);
 
         Long id = (Long) keyHolder.getKey();
-        return new Section(section.getLineId(), section.getStationId(), section.getDistance());
+        return new Section(section.getLineId(), section.getStationId(), section.getRelativePosition());
     }
 
     public List<Section> findByLineId(Long lineId) {

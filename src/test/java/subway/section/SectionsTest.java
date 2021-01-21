@@ -56,7 +56,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionSameSectionException.class,
-                ()->sections.validateSection(upStationId,downStationId,distance));
+                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어졌을때, 해당 라인 상행점과 하행점이 모두 존재하는에 않는 경우 오류를 반환한다.")
@@ -69,7 +69,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionNoStationException.class,
-                ()->sections.validateSection(upStationId,downStationId,distance));
+                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어지고, 하행점이 생성되는 상황에서 기존 상행점의 하행구간 길이가 새로운 길이보다 같거나 짧을 경우 오류를 반환한다.")
@@ -82,7 +82,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateSection(upStationId,downStationId,distance));
+                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어지고, 상행점이 생성되는 상황에서 기존 하행점의 상행구간 길이가 새로운 길이보다 같거나 짧을 경우 오류를 반환한다.")
@@ -95,7 +95,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateSection(upStationId,downStationId,distance));
+                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("구간 길이가 0이하일 경우 오류를 반환한")
@@ -108,7 +108,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateSection(upStationId,downStationId,distance));
+                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
 
@@ -121,38 +121,9 @@ public class SectionsTest {
         //given @params
 
         //when,then
-        assertDoesNotThrow(()->sections.validateSection(upStationId,downStationId,distance));
+        assertDoesNotThrow(()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
     }
 
-    @DisplayName("하행점이 생성되는 경우, 상행점의 거리로 부터 주어진 거리만큼 더해진 상대적 위치를 하행점 위치로 반환한다.")
-    @ParameterizedTest
-    @CsvSource({
-            "1,4,4,4", "2,5,3,8", "3,5,10,20",
-    })
-    void calculateRelativeDistanceTest1(Long upStationId, Long downStationId, int distance, int expected) {
-        //given @params
-
-        //when
-        int result = sections.calculateRelativeDistance(upStationId, downStationId, distance);
-
-        //then
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @DisplayName("상행점이 생성되는 경우, 하행점의 거리로 부터 주어진 거리만큼 빼진 상대적 위치를 상행점 위치로 반환한다.")
-    @ParameterizedTest
-    @CsvSource({
-            "4,1,4,-4", "5,2,3,2", "5,3,1,9",
-    })
-    void calculateRelativeDistanceTest2(Long upStationId, Long downStationId, int distance, int expected) {
-        //given @params
-
-        //when
-        int result = sections.calculateRelativeDistance(upStationId, downStationId, distance);
-
-        //then
-        assertThat(result).isEqualTo(expected);
-    }
 
     @DisplayName("Sections가 주어졌을때, 각각의 섹션의 상대적 위치를 기준으로 정렬된 스테이션 아이디 리스트를 반환한다.")
     @Test
@@ -166,7 +137,7 @@ public class SectionsTest {
         expected.add(3L);
 
         //then
-        assertThat(sections.getSortedStationIdsByDistance()).containsExactlyElementsOf(expected);
+        assertThat(sections.getSortedStationIds()).containsExactlyElementsOf(expected);
     }
 
     @DisplayName("삭제할 스테이션 아이디가 주어졌을때, 섹션에 그 아이디가 존재하지 않을 경우 에러를 반환한다..")

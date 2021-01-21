@@ -14,13 +14,14 @@ public class SectionTest {
     @CsvSource({
             "1,4,-3", "1,5,-4", "10,9,1", "2,6,-4", "0,0,0"
     })
-    void compareDistanceTest(int relativeDistanceStandard, int relativeDistanceCompare, int expected) {
+    void compareDistanceTest(int RelativePositionStandard, int RelativePositionCompare, int expected) {
         //given
-        Section sectionStandard = new Section(1L,1L,relativeDistanceStandard);
-        Section sectionCompare = new Section(1L,2L,relativeDistanceCompare);
+        Section sectionStandard = new Section(1L,1L,RelativePositionStandard);
+        Section sectionCompare = new Section(1L,2L,RelativePositionCompare);
 
         //when,then
-        assertThat(sectionStandard.compareDistance(sectionCompare)).isEqualTo(expected);
+        assertThat(sectionStandard.comparePosition(sectionCompare)).isEqualTo(expected);
 
     }
+
 }

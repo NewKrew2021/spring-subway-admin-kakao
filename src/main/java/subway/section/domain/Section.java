@@ -21,15 +21,15 @@ public class Section {
         return this.stationId == stationId;
     }
 
-    public int getDifferenceOfPosition(Section section) {
+    public int calculateDistanceWith(Section section) {
         return Math.abs(position - section.position);
     }
 
-    public int calculateNextDownPosition(int distance) {
+    public int getNextDownPosition(int distance) {
         return position + distance;
     }
 
-    public int calculateNextUpPosition(int distance) {
+    public int getNextUpPosition(int distance) {
         return position - distance;
     }
 

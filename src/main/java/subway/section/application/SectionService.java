@@ -3,10 +3,7 @@ package subway.section.application;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.StationNotFoundException;
-import subway.section.domain.Section;
-import subway.section.domain.SectionCreateValue;
-import subway.section.domain.SectionDao;
-import subway.section.domain.Sections;
+import subway.section.domain.*;
 import subway.station.domain.StationDao;
 import subway.station.presentation.StationResponse;
 
@@ -20,10 +17,12 @@ public class SectionService {
 
     private final SectionDao sectionDao;
     private final StationDao stationDao;
+    private final SectionCreator sectionCreator;
 
-    public SectionService(SectionDao sectionDao, StationDao stationDao) {
+    public SectionService(SectionDao sectionDao, StationDao stationDao, SectionCreator sectionCreator) {
         this.sectionDao = sectionDao;
         this.stationDao = stationDao;
+        this.sectionCreator = sectionCreator;
     }
 
     @Transactional(readOnly = true)
@@ -44,7 +43,7 @@ public class SectionService {
             return;
         }
 
-        sectionDao.save(getSectionsBy(createValue.getLineId()).createSection(createValue));
+        sectionDao.save(sectionCreator.getNextSection(getSectionsBy(createValue.getLineId()), createValue));
     }
 
     private void saveInitialSections(SectionCreateValue sectionValue) {

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import subway.section.domain.Section;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ class SectionTest {
         Section second = new Section(1L, 2L, position2);
 
         // when
-        int result = first.getDifferenceOfPosition(second);
+        int result = first.calculateDistanceWith(second);
 
         // then
         assertThat(result).isEqualTo(expected);
@@ -46,7 +45,7 @@ class SectionTest {
         Section section = new Section(1L, 1L, 5);
 
         // when
-        int result = section.calculateNextUpPosition(10);
+        int result = section.getNextUpPosition(10);
 
         // then
         assertThat(result).isEqualTo(-5);
@@ -59,7 +58,7 @@ class SectionTest {
         Section section = new Section(1L, 1L, 5);
 
         // when
-        int result = section.calculateNextDownPosition(10);
+        int result = section.getNextDownPosition(10);
 
         // then
         assertThat(result).isEqualTo(15);

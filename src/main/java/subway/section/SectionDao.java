@@ -67,13 +67,16 @@ public class SectionDao {
         String sql = "select * from section as sc " +
                 "left outer join station as st on sc.down_station_id = st.id " +
                 "where line_id = ?";
-        return new NamedSections(jdbcTemplate.query(sql, (resultSet, rowNum) -> new NamedSection(
-                resultSet.getLong("id"),
-                resultSet.getLong("line_id"),
-                resultSet.getLong("up_station_id"),
-                resultSet.getLong("down_station_id"),
-                resultSet.getInt("distance"),
-                resultSet.getString("name")), lineId));
+        return new NamedSections(jdbcTemplate.query(
+                sql,
+                (resultSet, rowNum) -> new NamedSection(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("line_id"),
+                        resultSet.getLong("up_station_id"),
+                        resultSet.getLong("down_station_id"),
+                        resultSet.getInt("distance"),
+                        resultSet.getString("name")),
+                lineId));
     }
 
     public Sections findJointSections(Long lineId, Long stationId) {
@@ -91,9 +94,12 @@ public class SectionDao {
         return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineId, downStationId);
     }
 
-    public int countByUpStationId(Long lineId, Long stationId) {
-        String sql = "select count(*) from section where line_id = ? AND up_station_id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, stationId);
+    public boolean countByUpStationId(Long lineId, Long stationId) {
+        String sql = "select exists (" +
+                "select 1 from section " +
+                "where line_id = ? AND up_station_id = ? " +
+                "limit 1)";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, lineId, stationId);
     }
 
 }

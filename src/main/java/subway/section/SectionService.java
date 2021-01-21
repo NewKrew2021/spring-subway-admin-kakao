@@ -40,8 +40,7 @@ public class SectionService {
     }
 
     private boolean isStationExist(Long lineId, Long stationId) {
-        int count = sectionDao.countByUpStationId(lineId, stationId);
-        return count > 0;
+        return sectionDao.countByUpStationId(lineId, stationId);
     }
 
     private void addSectionBasedUpStation(Long lineId, SectionRequest sectionRequest) {

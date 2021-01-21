@@ -53,10 +53,10 @@ public class SectionService {
         validateStations(upStationId, downStationId);
         validateDistance(distance);
 
-        Sections sections = findByLineId(lineId);
+        Sections sections = sectionDao.findByLineId(lineId);
         Section newSection = sections.insert(upStationId, downStationId, distance);
 
-        sectionDao.insert(newSection.getLineId(), newSection.getStationId(), distance);
+        sectionDao.insert(newSection.getLineId(), newSection.getStationId(), newSection.getDistance());
     }
 
     public void delete(Long lineId, Long stationId) {

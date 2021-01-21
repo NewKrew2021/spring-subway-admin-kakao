@@ -31,21 +31,6 @@ public class SectionsTest {
         sections = new Sections(tempSections);
     }
 
-    @DisplayName("스테이션 번호가 주어지면, 그 스테이션이 섹션 안에 있는지 확인한.")
-    @ParameterizedTest
-    @CsvSource({
-            "1,true", "4,false", "3,true", "10,false",
-    })
-    void isStationIdExistTest(Long stationId, boolean expected) {
-        //given : Csv Source
-
-        //when
-        boolean result = sections.isStationIdExist(stationId);
-
-        //then
-        assertThat(result).isEqualTo(expected);
-    }
-
     @DisplayName("정상적으로 구성 될 섹션의 스테이션 번호 2개가 주어지면, 그중 신설되어야 하는 스테이션 번호를 반환한다.")
     @ParameterizedTest
     @CsvSource({

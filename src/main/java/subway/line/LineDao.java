@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.exceptions.lineExceptions.LineNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -47,9 +48,11 @@ public class LineDao {
         }
     }
 
-    public void update(Long id, String name, String color) {
-        jdbcTemplate.update("update line set name = ?, color = ? where id = ?",
-                name, color, id);
+    public void update(Line line) {
+        jdbcTemplate.update("update line set name = ?, color = ? where id = ?"
+                , line.getName()
+                , line.getColor()
+                , line.getId());
     }
 
     public void deleteById(Long id) {
@@ -64,7 +67,7 @@ public class LineDao {
         try {
             return jdbcTemplate.queryForObject("select * from line where id = ?", lineMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            throw new LineNotFoundException();
         }
     }
 

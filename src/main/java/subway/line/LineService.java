@@ -2,7 +2,6 @@ package subway.line;
 
 import org.springframework.stereotype.Service;
 import subway.exceptions.lineExceptions.LineDuplicatedException;
-import subway.exceptions.lineExceptions.LineNotFoundException;
 import subway.section.SectionService;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class LineService {
             throw new LineDuplicatedException();
         }
         Long newLineId = lineDao.save(lineRequest).getId();
-        sectionService.lineInitialize(newLineId, lineRequest);
+        sectionService.lineInitialize(lineRequest.toFirstSection(newLineId), lineRequest.toSection(newLineId));
         return makeLineResponseByLine(lineDao.findById(newLineId));
     }
 
@@ -35,7 +34,6 @@ public class LineService {
     }
 
     public LineResponse showLineById(Long lineId) {
-        lineFindValidate(lineId);
         return makeLineResponseByLine(lineDao.findById(lineId));
     }
 
@@ -44,19 +42,12 @@ public class LineService {
     }
 
     public void deleteLineById(Long lineId) {
-        lineFindValidate(lineId);
         lineDao.deleteById(lineId);
     }
 
     public void updateLineByLineId(Long lineId, LineRequest lineRequest) {
-        lineFindValidate(lineId);
-        lineDao.update(lineId, lineRequest.getName(), lineRequest.getColor());
-    }
-
-    private void lineFindValidate(Long lineId) {
-        if (lineDao.findById(lineId) == null) {
-            throw new LineNotFoundException();
-        }
+        lineDao.findById(lineId);
+        lineDao.update(new Line(lineId,lineRequest));
     }
 
 }

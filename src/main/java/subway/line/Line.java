@@ -12,6 +12,12 @@ public class Line {
         this.color = color;
     }
 
+    public Line(Long id, LineRequest lineRequest) {
+        this.id = id;
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+    }
+
     public Long getId() {
         return id;
     }

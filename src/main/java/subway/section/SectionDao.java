@@ -24,29 +24,31 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Section save(Long lineId, Long stationId, int relativeDistance) {
+    public Section save(Section section) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement psmt = con.prepareStatement(
                     "insert into section (line_id,station_id,relative_distance) values (?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             );
-            psmt.setLong(1, lineId);
-            psmt.setLong(2, stationId);
-            psmt.setInt(3, relativeDistance);
+            psmt.setLong(1, section.getLineId());
+            psmt.setLong(2, section.getStationId());
+            psmt.setInt(3, section.getDistance());
             return psmt;
         }, keyHolder);
 
         Long id = (Long) keyHolder.getKey();
-        return new Section(lineId, stationId, relativeDistance);
+        return new Section(section.getLineId(), section.getStationId(), section.getDistance());
     }
 
     public List<Section> findByLineId(Long lineId) {
         return jdbcTemplate.query("select * from section where line_id = ?", sectionMapper, lineId);
     }
 
-    public void deleteByLineIdAndStationId(Long lineId, Long stationId) {
-        jdbcTemplate.update("delete from section where line_id = ? and station_id = ?", lineId, stationId);
+    public void deleteByLineIdAndStationId(Section section) {
+        jdbcTemplate.update("delete from section where line_id = ? and station_id = ?"
+                , section.getLineId()
+                , section.getStationId());
     }
 
 }

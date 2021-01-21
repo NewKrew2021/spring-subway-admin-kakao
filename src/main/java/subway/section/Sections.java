@@ -29,7 +29,7 @@ public class Sections {
         return upStationId;
     }
 
-    public boolean isStationIdExist(Long stationId) {
+    private boolean isStationIdExist(Long stationId) {
         return sections.stream()
                 .map(Section::getStationId)
                 .anyMatch(lineId -> lineId.equals(stationId));
@@ -73,8 +73,8 @@ public class Sections {
         return isStationIdExist(upStationId) && !isStationIdExist(downStationId);
     }
 
-    private void validateMakeStation(Long StationId, int distance) {
-        RelativeDistance StationRelativeDistance = getRelativeDistanceByStationId(StationId);
+    private void validateMakeStation(Long stationId, int distance) {
+        RelativeDistance StationRelativeDistance = getRelativeDistanceByStationId(stationId);
         int upStationRelativeDistance = Integer.min(StationRelativeDistance.calculateRelativeDistance(distance)
                 , StationRelativeDistance.getRelativeDistance());
         int downStationRelativeDistance = Integer.max(StationRelativeDistance.calculateRelativeDistance(distance)

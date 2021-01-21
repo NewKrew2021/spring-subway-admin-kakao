@@ -19,7 +19,10 @@ public class Section {
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
         this(lineId, upStationId, downStationId, distance);
         this.id = id;
+    }
 
+    public Section(Long id, SectionRequest sectionRequest) {
+        this(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
     }
 
     public Long getLineId() {

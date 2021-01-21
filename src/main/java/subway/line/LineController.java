@@ -75,7 +75,7 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section newSection = new Section(lineId, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
+        Section newSection = new Section(lineId, sectionRequest);
         try {
             sectionService.insert(newSection);
         } catch (SectionInsertException e) {

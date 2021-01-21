@@ -22,28 +22,14 @@ public class SectionsTest {
 
     private Sections sections;
 
+    @DisplayName("쿼리문을 order by로 하였기 때문에, 입력되는 section들의 relativeDistance의 order은 보장됨")
     @BeforeEach
     void create() {
         List<Section> tempSections = new ArrayList<>();
         tempSections.add(new Section(1L,1L,0));
-        tempSections.add(new Section(1L,3L,10));
         tempSections.add(new Section(1L,2L,5));
+        tempSections.add(new Section(1L,3L,10));
         sections = new Sections(tempSections);
-    }
-
-    @DisplayName("정상적으로 구성 될 섹션의 스테이션 번호 2개가 주어지면, 그중 신설되어야 하는 스테이션 번호를 반환한다.")
-    @ParameterizedTest
-    @CsvSource({
-            "1,4,4", "4,2,4", "7,3,7", "3,10,10", "1,10,10",
-    })
-    void getExtendedStationIdTest(Long upStationId, Long downStationId, Long expected) {
-        //given : Csv Source
-
-        //when
-        Long result = sections.getExtendedStationId(upStationId, downStationId);
-
-        //then
-        assertThat(result).isEqualTo(expected);
     }
 
     @DisplayName("새로운 구간이 주어졌을때, 해당 라인 상행점과 하행점이 모두 존재하는에 경우 오류를 반환한다.")
@@ -122,22 +108,6 @@ public class SectionsTest {
 
         //when,then
         assertDoesNotThrow(()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
-    }
-
-
-    @DisplayName("Sections가 주어졌을때, 각각의 섹션의 상대적 위치를 기준으로 정렬된 스테이션 아이디 리스트를 반환한다.")
-    @Test
-    void getSortedStationIdsByDistanceTest() {
-        //given @BeforeEach로 주어진 sections
-
-        //when
-        List<Long> expected = new ArrayList<>();
-        expected.add(1L);
-        expected.add(2L);
-        expected.add(3L);
-
-        //then
-        assertThat(sections.getSortedStationIds()).containsExactlyElementsOf(expected);
     }
 
     @DisplayName("삭제할 스테이션 아이디가 주어졌을때, 섹션에 그 아이디가 존재하지 않을 경우 에러를 반환한다..")

@@ -26,7 +26,8 @@ public class DownSectionGenerateStrategyTest {
         //given @params
 
         //when
-        SectionGenerateStrategy sectionGenerateStrategy = new DownSectionGenerateStrategy().make(section,downStationId,distance);
+        SectionGenerateStrategy sectionGenerateStrategy =
+                new DownSectionGenerateStrategy().make(section,downStationId,distance,Integer.MAX_VALUE);
 
         //then
         assertThat(sectionGenerateStrategy.getNewSection().getRelativePosition()).isEqualTo(expected);

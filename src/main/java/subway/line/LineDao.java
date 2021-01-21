@@ -13,11 +13,11 @@ import java.util.List;
 @Repository
 public class LineDao {
 
-    public static final String SELECT_FROM_LINE_WHERE_NAME = "select * from line where name = ?";
-    public static final String UPDATE_LINE_SET_NAME_COLOR_WHERE_ID = "update line set name = ?, color = ? where id = ?";
-    public static final String DELETE_FROM_LINE_WHERE_ID = "delete from line where id = ?";
-    public static final String SELECT_FROM_LINE = "select * from line";
-    public static final String SELECT_FROM_LINE_WHERE_ID = "select * from line where id = ?";
+    private static final String SELECT_FROM_LINE_WHERE_NAME = "select * from line where name = ?";
+    private static final String UPDATE_LINE_SET_NAME_COLOR_WHERE_ID = "update line set name = ?, color = ? where id = ?";
+    private static final String DELETE_FROM_LINE_WHERE_ID = "delete from line where id = ?";
+    private static final String SELECT_FROM_LINE = "select * from line";
+    private static final String SELECT_FROM_LINE_WHERE_ID = "select * from line where id = ?";
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert simpleJdbcInsert;

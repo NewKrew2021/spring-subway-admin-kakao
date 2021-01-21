@@ -9,12 +9,13 @@ import subway.section.strategy.SectionGenerateStrategy;
 import subway.section.strategy.UpSectionGenerateStrategy;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Sections {
     private static final int NUM_OF_INITIAL_STATIONS = 2;
-    private static final int BASIC_NUM_OF_NEW_SECTION = 1;
     public static final int MINIMUM_DISTANCE = 1;
+    public static final int FIRST_INDEX = 0;
+    public static final int NEXT_DOWNSECTION_INDEX_ADD_NUM = 1;
+    public static final int NEXT_UPSECTION_INDEX_ADD_NUM = -1;
 
     private final List<Section> sections;
 
@@ -22,11 +23,11 @@ public class Sections {
         this.sections = sections;
     }
 
-    public Long getExtendedStationId(Long upStationId, Long downStationId) {
-        if (isStationIdExist(upStationId)) {
-            return downStationId;
-        }
-        return upStationId;
+    public SectionGenerateStrategy validateAndGenerateStrategy(Long upStationId, Long downStationId, int distance) {
+        boolean isUpStationExist = isStationIdExist(upStationId);
+        boolean isDownStationExist = isStationIdExist(downStationId);
+        validateInput(isUpStationExist,isDownStationExist,distance);
+        return determineStrategy(upStationId, downStationId, distance);
     }
 
     private boolean isStationIdExist(Long stationId) {
@@ -37,16 +38,20 @@ public class Sections {
 
     public SectionGenerateStrategy determineStrategy(Long upStationId, Long downStationId, int distance) {
         if (isStationIdExist(upStationId)) {
+            int sectionIndex = sections.indexOf(getSectionByStationId(upStationId));
             return new DownSectionGenerateStrategy().make(
                     getSectionByStationId(upStationId),
                     downStationId,
-                    distance
+                    distance,
+                    getRelativePositionByIndex(sectionIndex + NEXT_DOWNSECTION_INDEX_ADD_NUM)
             );
         }
+        int sectionIndex = sections.indexOf(getSectionByStationId(downStationId));
         return new UpSectionGenerateStrategy().make(
                 getSectionByStationId(downStationId),
                 upStationId,
-                distance
+                distance,
+                getRelativePositionByIndex(sectionIndex + NEXT_UPSECTION_INDEX_ADD_NUM)
         );
     }
 
@@ -57,56 +62,26 @@ public class Sections {
                 .get();
     }
 
-    public SectionGenerateStrategy validateAndGenerateStrategy(Long upStationId, Long downStationId, int distance) {
-        boolean isUpStationExist = isStationIdExist(upStationId);
-        boolean isDownStationExist = isStationIdExist(downStationId);
-
-        validateSameSection(isUpStationExist, isDownStationExist);
-        validateNoStations(isUpStationExist, isDownStationExist);
-        validateDistance(distance);
-
-        SectionGenerateStrategy sectionGenerateStrategy = determineStrategy(upStationId, downStationId, distance);
-        distanceValidate(sectionGenerateStrategy.getUpSection().getRelativePosition()
-                , sectionGenerateStrategy.getDownSection().getRelativePosition());
-        return sectionGenerateStrategy;
+    private int getRelativePositionByIndex(int sectionIndex) {
+        if(sectionIndex >= sections.size()) {
+            return Integer.MAX_VALUE;
+        }
+        if(sectionIndex < FIRST_INDEX) {
+            return Integer.MIN_VALUE;
+        }
+        return sections.get(sectionIndex).getRelativePosition();
     }
 
-    private void validateNoStations(boolean isUpStationExist, boolean isDownStationExist) {
+    private void validateInput(boolean isUpStationExist, boolean isDownStationExist, int distance) {
         if (!isUpStationExist && !isDownStationExist) {
             throw new SectionNoStationException();
         }
-    }
-
-    private void validateSameSection(boolean isUpStationExist, boolean isDownStationExist) {
         if (isUpStationExist && isDownStationExist) {
             throw new SectionSameSectionException();
         }
-    }
-
-    private void validateDistance(int distance) {
         if (distance < MINIMUM_DISTANCE) {
             throw new SectionIllegalDistanceException();
         }
-    }
-
-    private void distanceValidate(int upStationRelativePosition, int downStationRelativePosition) {
-        if (areThereAnyStationsBetween(upStationRelativePosition, downStationRelativePosition)) {
-            throw new SectionIllegalDistanceException();
-        }
-    }
-
-    private boolean areThereAnyStationsBetween(int upStationRelativePosition, int downStationRelativePosition) {
-        return sections.stream().map(Section::getRelativePosition)
-                .filter(targetRelativePosition ->
-                        targetRelativePosition >= upStationRelativePosition
-                                && targetRelativePosition <= downStationRelativePosition)
-                .count() != BASIC_NUM_OF_NEW_SECTION;
-    }
-
-    public List<Long> getSortedStationIds() {
-        return sections.stream().sorted(Section::comparePosition)
-                .map(Section::getStationId)
-                .collect(Collectors.toList());
     }
 
     public void validateDeleteStation(Long stationId) {
@@ -118,4 +93,7 @@ public class Sections {
         }
     }
 
+    public List<Section> getSections() {
+        return sections;
+    }
 }

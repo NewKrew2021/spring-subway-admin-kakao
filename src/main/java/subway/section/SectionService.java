@@ -42,9 +42,8 @@ public class SectionService {
 
     public List<StationResponse> findSortedStationsByLineId(Long lineId) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        return sections.getSortedStationIds()
-                .stream()
-                .map(stationService::getStationResponseById)
+        return sections.getSections().stream()
+                .map(section -> stationService.getStationResponseById(section.getStationId()))
                 .collect(Collectors.toList());
     }
 

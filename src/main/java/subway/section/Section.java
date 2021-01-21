@@ -35,4 +35,10 @@ public class Section {
         return lineId;
     }
 
+    @Override
+    public String toString() {
+        return "Section{" +
+                "stationId=" + stationId +
+                '}';
+    }
 }

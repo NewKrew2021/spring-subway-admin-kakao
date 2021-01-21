@@ -30,7 +30,8 @@ public class UpSectionGenerateStrategyTest {
         //given @params
 
         //when
-        SectionGenerateStrategy sectionGenerateStrategy = new UpSectionGenerateStrategy().make(section,upStationId,distance);
+        SectionGenerateStrategy sectionGenerateStrategy =
+                new UpSectionGenerateStrategy().make(section,upStationId,distance,Integer.MIN_VALUE);
 
         //then
         assertThat(sectionGenerateStrategy.getNewSection().getRelativePosition()).isEqualTo(expected);

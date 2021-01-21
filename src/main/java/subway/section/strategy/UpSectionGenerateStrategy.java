@@ -1,12 +1,13 @@
 package subway.section.strategy;
 
+import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
 import subway.section.Section;
 
 public class UpSectionGenerateStrategy implements SectionGenerateStrategy {
     private Section downSection;
     private Section upSection;
 
-    public UpSectionGenerateStrategy(){
+    public UpSectionGenerateStrategy() {
     }
 
     public UpSectionGenerateStrategy(Section standardSection, Section newSection) {
@@ -30,7 +31,8 @@ public class UpSectionGenerateStrategy implements SectionGenerateStrategy {
     }
 
     @Override
-    public SectionGenerateStrategy make(Section standardSection, Long newStationId, int distance) {
+    public SectionGenerateStrategy make(Section standardSection, Long newStationId, int distance, int nextRelativePosition) {
+        distanceValidate(standardSection.getRelativePosition() - distance , nextRelativePosition);
         return new UpSectionGenerateStrategy(
                 standardSection,
                 new Section(
@@ -38,6 +40,13 @@ public class UpSectionGenerateStrategy implements SectionGenerateStrategy {
                         newStationId,
                         standardSection.getRelativePosition() - distance)
         );
+    }
+
+    @Override
+    public void distanceValidate(int buildRelativePosition , int nextRelativePosition) {
+        if(buildRelativePosition <= nextRelativePosition ) {
+            throw new SectionIllegalDistanceException();
+        }
     }
 
 }

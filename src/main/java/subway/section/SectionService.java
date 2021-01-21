@@ -3,8 +3,9 @@ package subway.section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.exceptions.InvalidAddException;
-import subway.exceptions.InvalidDeleteException;
+import subway.section.exceptions.InvalidAddSectionException;
+import subway.section.exceptions.InvalidDeleteSectionException;
+import subway.section.exceptions.NoSuchSectionException;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class SectionService {
 
     @Transactional
     public void addSectionToLine(Section newSection) {
-        Sections sections = new Sections(sectionDao.getSectionsByLineId(newSection.getLineId()));
+        Sections sections = new Sections(sectionDao.findSectionsByLineId(newSection.getLineId()));
         sections.validateAddSection(newSection);
 
         if (sections.isFirstSection(newSection) || sections.isLastSection(newSection)) {
@@ -51,6 +52,10 @@ public class SectionService {
 
         Section matchedDownSection = sections.getMatchedDownStation(newSection);
 
+        if (matchedDownSection == null) {
+            throw new InvalidAddSectionException("section을 해당 line에 추가할 수 없습니다.");
+        }
+
         checkDistance(newSection, matchedDownSection);
         sectionDao.save(newSection);
         sectionDao.update(matchedDownSection.getId(), Section.of(
@@ -63,13 +68,13 @@ public class SectionService {
 
     private void checkDistance(Section newSection, Section matchedUpSection) {
         if (matchedUpSection.isShorterThan(newSection)) {
-            throw new InvalidAddException("추가하려는 구간이 기존의 구간보다 같거나 더 깁니다.");
+            throw new InvalidAddSectionException("추가하려는 구간이 기존의 구간보다 같거나 더 깁니다.");
         }
     }
 
     @Transactional
     public void deleteSection(Long lineId, Long stationId) {
-        Sections sections = new Sections(sectionDao.getSectionsByLineId(lineId));
+        Sections sections = new Sections(sectionDao.findSectionsByLineId(lineId));
         checkSectionsSize(sections);
 
         List<Section> sectionsContainStationId = sections.getSectionsContainStationId(stationId);
@@ -84,7 +89,7 @@ public class SectionService {
 
     private void checkSectionsSize(Sections sections) {
         if (sections.size() == MIN_SECTION_SIZE) {
-            throw new InvalidDeleteException("구간이 하나 남았을 때는 더 이상 제거할 수 없습니다.");
+            throw new InvalidDeleteSectionException("구간이 하나 남았을 때는 더 이상 제거할 수 없습니다.");
         }
     }
 
@@ -109,7 +114,7 @@ public class SectionService {
     }
 
     public List<Long> getStationIds(Long lineId) {
-        Sections sections = new Sections(sectionDao.getSectionsByLineId(lineId));
+        Sections sections = new Sections(sectionDao.findSectionsByLineId(lineId));
 
         return sections.getStationIds();
     }
@@ -118,9 +123,19 @@ public class SectionService {
         sectionDao.save(section);
     }
 
-    public void delete(Long id) throws InvalidDeleteException {
-        if (sectionDao.deleteById(id) == 0) {
-            throw new InvalidDeleteException("삭제하려는 section이 존재하지 않습니다.");
+    public void delete(Long id) {
+        try {
+            checkExistSection(id);
+            sectionDao.deleteById(id);
+        } catch (Exception e) {
+            System.out.println(e.getClass());
+            throw new InvalidDeleteSectionException("삭제하려는 section이 존재하지 않습니다.");
+        }
+    }
+
+    private void checkExistSection(Long id) {
+        if (sectionDao.findById(id) == null) {
+            throw new NoSuchSectionException(id);
         }
     }
 }

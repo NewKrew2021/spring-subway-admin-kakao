@@ -1,7 +1,8 @@
 package subway.section;
 
-import subway.exceptions.DuplicateSectionException;
-import subway.exceptions.InvalidAddException;
+import subway.section.exceptions.DuplicateSectionException;
+import subway.section.exceptions.EmptySectionsException;
+import subway.section.exceptions.InvalidAddSectionException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +16,14 @@ public class Sections {
     private final List<Section> sections;
 
     public Sections(List<Section> sections) {
+        validateSections(sections);
         this.sections = sections;
+    }
+
+    private void validateSections(List<Section> sections) {
+        if (sections.size() == 0) {
+            throw new EmptySectionsException();
+        }
     }
 
     public void validateAddSection(Section newSection) {
@@ -33,7 +41,7 @@ public class Sections {
         }
 
         if (!isExistUpStation.get() && !isExistDownStation.get()) {
-            throw new InvalidAddException("추가하려는 구간에 연결된 역이 존재하지 않습니다.");
+            throw new InvalidAddSectionException("추가하려는 구간에 연결된 역이 존재하지 않습니다.");
         }
     }
 

@@ -1,6 +1,7 @@
 package subway.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -49,7 +50,17 @@ public class SectionDao {
         jdbcTemplate.update(sql, newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance(), originSectionId);
     }
 
-    public List<Section> getSectionsByLineId(Long lineId) {
+    public Section findById(Long id) {
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public List<Section> findSectionsByLineId(Long lineId) {
         String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?";
 
         return jdbcTemplate.query(sql, actorRowMapper, lineId);

@@ -1,4 +1,4 @@
-package subway.line;
+package subway.response;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -6,18 +6,22 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.dao.LineDao;
+import subway.dao.SectionDao;
+import subway.dao.StationDao;
+import subway.request.SectionRequest;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static subway.line.LineAcceptanceTest.지하철_노선_등록되어_있음;
-import static subway.line.LineAcceptanceTest.지하철_노선_조회_요청;
+import static subway.response.LineAcceptanceTest.지하철_노선_등록되어_있음;
+import static subway.response.LineAcceptanceTest.지하철_노선_조회_요청;
 import static subway.station.StationAcceptanceTest.지하철역_등록되어_있음;
 
 @DisplayName("지하철 구간 관련 기능")
@@ -28,9 +32,22 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     private StationResponse 정자역;
     private StationResponse 광교역;
 
+    @Autowired
+    StationDao stationDao;
+
+    @Autowired
+    LineDao lineDao;
+
+    @Autowired
+    SectionDao sectionDao;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
+        lineDao.deleteAll();
+        sectionDao.deleteAll();
+        stationDao.deleteAll();
+
 
         강남역 = 지하철역_등록되어_있음("강남역");
         양재역 = 지하철역_등록되어_있음("양재역");
@@ -153,7 +170,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선에_지하철역_제외됨(ExtractableResponse<Response> result, LineResponse lineResponse, List<StationResponse> stationResponses) {
-        assertThat(result.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(result.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
         ExtractableResponse<Response> response = 지하철_노선_조회_요청(lineResponse);
         지하철_노선에_지하철역_순서_정렬됨(response, stationResponses);
     }

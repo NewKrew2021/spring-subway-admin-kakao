@@ -1,6 +1,6 @@
-package subway.line.domain;
+package subway.line.dto;
 
-import subway.station.domain.StationResponse;
+import subway.station.dto.StationResponse;
 
 import java.beans.ConstructorProperties;
 import java.util.List;

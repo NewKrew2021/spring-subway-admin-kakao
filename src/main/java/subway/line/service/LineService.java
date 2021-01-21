@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import subway.exception.EntityNotFoundException;
 import subway.line.dao.LineDao;
 import subway.line.domain.Line;
-import subway.line.domain.LineRequest;
-import subway.line.domain.LineResponse;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
 import subway.section.service.SectionService;
 import subway.section.domain.Sections;
 import subway.station.domain.Stations;
@@ -27,8 +27,8 @@ public class LineService {
     }
 
     public LineResponse insert(LineRequest request) {
+        validateName(request.getName());
 
-        lineDao.validateName(request.getName());
         Line newLine = lineDao.insert(request.getName(), request.getColor());
 
         Sections sections = sectionService.insertOnCreateLine(newLine.getId(), request);
@@ -66,5 +66,11 @@ public class LineService {
                     return line.toDto(stations);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private void validateName(String name) {
+        if (lineDao.countByName(name) > 0) {
+            throw new IllegalArgumentException("이미 등록된 노선 입니다.");
+        }
     }
 }

@@ -1,6 +1,7 @@
 package subway.station.domain;
 
 import org.apache.commons.lang3.StringUtils;
+import subway.station.dto.StationResponse;
 
 import java.util.Objects;
 

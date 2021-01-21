@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import subway.exception.EntityNotFoundException;
 import subway.station.dao.StationDao;
 import subway.station.domain.Station;
-import subway.station.domain.StationRequest;
-import subway.station.domain.StationResponse;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 

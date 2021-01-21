@@ -6,7 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
-import subway.line.domain.LineRequest;
+import subway.line.dto.LineRequest;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -20,8 +20,6 @@ public class LineDao {
     }
 
     public Line insert(String name, String color) {
-        validateName(name);
-
         String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -55,11 +53,9 @@ public class LineDao {
         return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
     }
 
-    public void validateName(String name) {
+    public int countByName(String name) {
         String sql = "select count(*) from line where name = ?";
-        if (jdbcTemplate.queryForObject(sql, int.class, name) != 0) {
-            throw new IllegalArgumentException("이미 등록된 노선 입니다.");
-        }
+        return jdbcTemplate.queryForObject(sql, int.class, name);
     }
 
     private final RowMapper<Line> lineRowMapper =

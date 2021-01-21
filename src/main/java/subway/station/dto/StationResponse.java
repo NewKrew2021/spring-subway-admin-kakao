@@ -1,4 +1,4 @@
-package subway.station.domain;
+package subway.station.dto;
 
 import java.beans.ConstructorProperties;
 

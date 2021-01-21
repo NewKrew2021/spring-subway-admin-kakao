@@ -23,11 +23,10 @@ public class LineService {
     }
 
     @Transactional
-    public Line createLine(Line line, Section section) {
+    public Line createLine(Line line, Long upStationId, Long downStationId, int distance) {
         Line newLine = lineDao.save(line);
-        Section newSection = new Section(null, newLine.getId(), section.getUpStation(), section.getDownStation(), section.getDistance());
-        sectionService.save(newSection);
-        return showLine(newLine.getId());
+        Section newSection = sectionService.save(new Section(newLine.getId(), upStationId, downStationId, distance));
+        return new Line(newLine.getId(), newLine.getName(), newLine.getColor(), new Sections(newSection));
     }
 
     @Transactional(readOnly = true)
@@ -45,8 +44,7 @@ public class LineService {
         } catch(EmptyResultDataAccessException e) {
             throw new InvalidLineIdException(id);
         }
-        Sections sections = sectionService.getSectionsByLineId(id);
-        return new Line(line, sections);
+        return new Line(line, sectionService.getSectionsByLineId(id));
     }
 
     @Transactional

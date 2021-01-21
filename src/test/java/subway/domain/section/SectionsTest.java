@@ -11,6 +11,7 @@ import subway.exception.section.SectionSplitException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -77,23 +78,15 @@ public class SectionsTest {
     }
 
     @Test
-    @DisplayName("새로운 섹션 생성 시 기존 섹션 분할 여부 테스트")
-    public void checkSplitTest() {
-        //TODO 거리 에러날때 테스트 추
-        assertThat(sections.checkSplit(광교_망포)).isFalse();
-
-        List<Section> sectionList = Arrays.asList(역삼_광교, 광교_망포);
-        assertThat(new Sections(sectionList).checkSplit(광교_강남)).isTrue();
-    }
-
-    @Test
     @DisplayName("새로운 섹션 생성될 때 분할되는 섹션 테스트")
     public void findSectionToSplitTest() {
         List<Section> sectionList = Arrays.asList(역삼_광교, 광교_망포);
-        assertThat(new Sections(sectionList).findSectionToSplit(광교_강남)).isEqualTo(광교_망포);
+        assertThat(new Sections(sectionList).findSectionToSplit(광교_강남).orElse(null)).isEqualTo(광교_망포);
 
         sectionList = Arrays.asList(강남_역삼, 역삼_광교);
-        assertThat(new Sections(sectionList).findSectionToSplit(망포_광교)).isEqualTo(역삼_광교);
+        assertThat(new Sections(sectionList).findSectionToSplit(망포_광교).orElse(null)).isEqualTo(역삼_광교);
+
+        assertThat(sections.findSectionToSplit(광교_망포)).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -109,17 +102,17 @@ public class SectionsTest {
     @Test
     @DisplayName("해당 station ID를 upStation으로 가진 섹션 테스트")
     public void getSectionsFromUpStationIdTest() {
-        assertThat(sections.getSectionFromUpStationId(강남역.getId())).isEqualTo(강남_역삼);
-        assertThat(sections.getSectionFromUpStationId(역삼역.getId())).isEqualTo(역삼_광교);
-        assertThat(sections.getSectionFromUpStationId(광교역.getId())).isEqualTo(null);
+        assertThat(sections.getSectionFromUpStationId(강남역.getId()).orElse(null)).isEqualTo(강남_역삼);
+        assertThat(sections.getSectionFromUpStationId(역삼역.getId()).orElse(null)).isEqualTo(역삼_광교);
+        assertThat(sections.getSectionFromUpStationId(광교역.getId()).orElse(null)).isEqualTo(null);
     }
 
     @Test
     @DisplayName("해당 station ID를 downStation으로 가진 섹션 테스트")
     public void getSectionsFromDownStationIdTest() {
-        assertThat(sections.getSectionFromDownStationId(강남역.getId())).isEqualTo(null);
-        assertThat(sections.getSectionFromDownStationId(역삼역.getId())).isEqualTo(강남_역삼);
-        assertThat(sections.getSectionFromDownStationId(광교역.getId())).isEqualTo(역삼_광교);
+        assertThat(sections.getSectionFromDownStationId(강남역.getId()).orElse(null)).isEqualTo(null);
+        assertThat(sections.getSectionFromDownStationId(역삼역.getId()).orElse(null)).isEqualTo(강남_역삼);
+        assertThat(sections.getSectionFromDownStationId(광교역.getId()).orElse(null)).isEqualTo(역삼_광교);
     }
 
     @Test

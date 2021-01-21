@@ -3,6 +3,7 @@ package subway.domain.station;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Stations {
     private List<Station> stations;
@@ -22,6 +23,10 @@ public class Stations {
                 .collect(Collectors.toList());
     }
 
+    public Stream<Station> stream() {
+        return stations.stream();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -33,5 +38,9 @@ public class Stations {
     @Override
     public int hashCode() {
         return Objects.hash(stations);
+    }
+
+    public boolean equalContainStatus(Long firstId, Long secondId) {
+        return contain(firstId) == contain(secondId);
     }
 }

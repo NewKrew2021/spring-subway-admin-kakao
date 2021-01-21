@@ -23,12 +23,11 @@ public class SectionController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Section newSection = sectionService.createSection(sectionRequest.toSection(lineId));
-        SectionResponse sectionResponse = new SectionResponse(newSection);
-        return ResponseEntity.created(URI.create("/lines/" + lineId + "/sections/" + sectionResponse.getId())).body(sectionResponse);
+        return ResponseEntity.created(URI.create("/lines/" + lineId + "/sections/" + newSection.getId())).body(new SectionResponse(newSection));
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
-    public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
+    public ResponseEntity<Void> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
         sectionService.deleteSection(lineId, stationId);
         return ResponseEntity.ok().build();
     }

@@ -9,7 +9,9 @@ import subway.domain.section.Sections;
 import subway.domain.station.Station;
 import subway.exception.section.SectionDeletionException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,32 +28,44 @@ public class SectionService {
 
     @Transactional
     public Section save(Section section) {
-        Station upStation = stationService.find(section.getUpStationId());
-        Station downStation = stationService.find(section.getDownStationId());
-        Section newSection = sectionDao.save(section);
-        return new Section(newSection.getId(), section.getLineId(), upStation, downStation, section.getDistance());
+        return makeSectionIncludeStation(sectionDao.save(section));
+    }
+
+    private Section makeSectionIncludeStation(Section section) {
+        return new Section(section.getId(), section.getLineId(),
+                stationService.find(section.getUpStationId()), stationService.find(section.getDownStationId()), section.getDistance());
     }
 
     @Transactional(readOnly = true)
-    public Sections getSectionsByLineId(Long lindId) {
-        List<Section> sectionList = sectionDao.getByLineId(lindId).stream()
+    public Sections getSectionsByLineId(Long lineId) {
+        List<Section> sections = sectionDao.getByLineId(lineId);
+        Map<Long, Station> stationMap = generateStationMapFromSections(new Sections(sections));
+
+        return new Sections(sections.stream()
                 .map(section ->
-                        new Section(section.getId(), section.getLineId(), stationService.find(section.getUpStationId()),
-                                stationService.find(section.getDownStationId()), section.getDistance()))
-                .collect(Collectors.toList());
-        return new Sections(sectionList);
+                        new Section(section.getId(), section.getLineId(), stationMap.get(section.getUpStationId()),
+                                stationMap.get(section.getDownStationId()), section.getDistance()))
+                .collect(Collectors.toList()));
+    }
+
+    private Map<Long, Station> generateStationMapFromSections(Sections sections) {
+        Map<Long, Station> stationMap = new HashMap<>();
+        sections.getAllStations().stream()
+                .map(Station::getId)
+                .distinct()
+                .forEach(stationId -> stationMap.put(stationId, stationService.find(stationId)));
+        return stationMap;
     }
 
     @Transactional
     public Section createSection(Section section) {
         Sections sections = getSectionsByLineId(section.getLineId());
         sections.validateSectionSplit(section);
-        if(sections.checkSplit(section)) {
-            Section sectionToSplit = sections.findSectionToSplit(section);
-            Section splitedSection = sectionToSplit.split(section);
-            sectionDao.deleteById(sectionToSplit.getId());
-            save(splitedSection);
-        }
+        sections.findSectionToSplit(section)
+                .ifPresent(sectionToSplit -> {
+                    sectionDao.deleteById(sectionToSplit.getId());
+                    save(sectionToSplit.split(section));
+                });
         return save(section);
     }
 
@@ -62,14 +76,14 @@ public class SectionService {
 
         Optional<Section> upsideSectionToDelete = sections.getSectionFromDownStationId(stationId);
         Optional<Section> downsideSectionToDelete = sections.getSectionFromUpStationId(stationId);
-        if(checkDeleteSections(upsideSectionToDelete, downsideSectionToDelete)) {
+        if(shouldDeleteBothSection(upsideSectionToDelete, downsideSectionToDelete)) {
             deleteBothSection(upsideSectionToDelete, downsideSectionToDelete);
             return;
         }
         deleteOneSection(upsideSectionToDelete, downsideSectionToDelete);
     }
 
-    private boolean checkDeleteSections(Optional<Section> upsideSectionToDelete, Optional<Section> downsideSectionToDelete) {
+    private boolean shouldDeleteBothSection(Optional<Section> upsideSectionToDelete, Optional<Section> downsideSectionToDelete) {
         return upsideSectionToDelete.isPresent() && downsideSectionToDelete.isPresent();
     }
 

@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import subway.domain.line.Line;
 import subway.domain.line.LineRequest;
 import subway.domain.line.LineResponse;
-import subway.domain.section.Section;
 import subway.service.LineService;
-import subway.domain.station.Station;
 
 import java.net.URI;
 import java.util.*;
@@ -27,10 +25,8 @@ public class LineController {
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = lineRequest.toLine();
-        Section section = new Section(new Station(lineRequest.getUpStationId()), new Station(lineRequest.getDownStationId()), lineRequest.getDistance());
-        Line newLine = lineService.createLine(line, section);
-        LineResponse lineResponse = new LineResponse(newLine);
-        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
+        Line newLine = lineService.createLine(line, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine));
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,18 +39,17 @@ public class LineController {
 
     @GetMapping("/lines/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        Line line = lineService.showLine(id);
-        return ResponseEntity.ok().body(new LineResponse(line));
+        return ResponseEntity.ok().body(new LineResponse(lineService.showLine(id)));
     }
 
     @PutMapping("/lines/{id}")
-    public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
+    public ResponseEntity<Void> modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         lineService.modifyLine(id, lineRequest.toLine());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{id}")
-    public ResponseEntity deleteLine(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteLine(@PathVariable Long id) {
         lineService.deleteLine(id);
         return ResponseEntity.noContent().build();
     }

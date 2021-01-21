@@ -1,11 +1,13 @@
 package subway.domain.section;
 
 import subway.domain.station.Station;
+import subway.domain.station.Stations;
 import subway.exception.section.SectionAttachException;
 import subway.exception.section.SectionDistanceException;
 import subway.exception.section.SectionSplitException;
 import subway.exception.section.StationDuplicationException;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Section {
@@ -15,12 +17,12 @@ public class Section {
     private final int distance;
     private final Long id;
 
-    public Section(Station upStation, Station downStation, int distance) {
-        this(null, null, upStation, downStation, distance);
-    }
-
     public Section(Long lineId, Station upStation, Station downStation, int distance) {
        this(null, lineId, upStation, downStation, distance);
+    }
+
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+        this(null, lineId, new Station(upStationId), new Station(downStationId), distance);
     }
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
@@ -42,16 +44,16 @@ public class Section {
             throw new SectionSplitException();
         }
         if(getUpStationId().equals(section.getUpStationId())) {
-            return new Section(null, lineId, section.downStation, downStation, distance - section.distance);
+            return new Section(lineId, section.downStation, downStation, distance - section.distance);
         }
-        return new Section(null, lineId, upStation, section.upStation, distance - section.distance);
+        return new Section(lineId, upStation, section.upStation, distance - section.distance);
     }
 
     public Section attach(Section other) {
         if(!downStation.getId().equals(other.getUpStationId())) {
             throw new SectionAttachException();
         }
-        return new Section(null, lineId, upStation, other.downStation, distance + other.distance);
+        return new Section(lineId, upStation, other.downStation, distance + other.distance);
     }
 
     private void checkStations(Station upStation, Station downStation) {
@@ -84,6 +86,10 @@ public class Section {
 
     public Station getDownStation() {
         return downStation;
+    }
+
+    public Stations getStations() {
+        return new Stations(Arrays.asList(upStation, downStation));
     }
 
     public Long getUpStationId() {

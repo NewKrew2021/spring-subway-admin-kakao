@@ -32,6 +32,15 @@ public class StationsTest {
     }
 
     @Test
+    @DisplayName("Station이 둘 다 포함되거나 둘 다 미포함되었는지 테스트")
+    public void equalContainStatusTest() {
+        assertThat(stations.equalContainStatus(강남역.getId(), 광교역.getId())).isTrue();
+        assertThat(stations.equalContainStatus(역삼역.getId(), 망포역.getId())).isTrue();
+        assertThat(stations.equalContainStatus(강남역.getId(), 망포역.getId())).isFalse();
+        assertThat(stations.equalContainStatus(역삼역.getId(), 광교역.getId())).isFalse();
+    }
+
+    @Test
     @DisplayName("StationResponse 변환 테스트")
     public void toStationResponseTest() {
         List<StationResponse> stationResponses = Arrays.asList(new StationResponse(강남역), new StationResponse(광교역));

@@ -24,25 +24,8 @@ public class SectionService {
     }
 
     public LinkedList<Long> getStationsIdOfLine(long lineId) {
-        List<Section> sections = sectionDao.getSectionsOfLine(lineId);
-        return sortSections(sections);
-    }
-
-    private LinkedList<Long> sortSections(List<Section> sections) {
-        LinkedList<Long> linkedList = new LinkedList<>();
-        Section currentSection = findSectionByNextId(sections, Section.WRONG_ID);
-        while(linkedList.size() != sections.size()) {
-            linkedList.addFirst(currentSection.getStationId());
-            currentSection = findSectionByNextId(sections, currentSection.getStationId());
-        }
-        return linkedList;
-    }
-
-    private Section findSectionByNextId(List<Section> sections, Long nextId) {
-        return sections.stream()
-                .filter(section -> section.getNextStationId() == nextId)
-                .findAny()
-                .orElse(null);
+        Sections sections = new Sections(sectionDao.getSectionsOfLine(lineId));
+        return sections.getSortingStationId();
     }
 
     public void insertSection(SectionDto sectionDto) {

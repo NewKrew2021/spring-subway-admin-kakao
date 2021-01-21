@@ -1,4 +1,4 @@
-package subway.line;
+package subway.domain;
 
 public class LineRequest {
     private String name;
@@ -8,6 +8,7 @@ public class LineRequest {
     private int distance;
 
     public LineRequest() {
+
     }
 
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {

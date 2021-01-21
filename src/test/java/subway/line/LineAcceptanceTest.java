@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.domain.LineRequest;
+import subway.domain.LineResponse;
+import subway.domain.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;

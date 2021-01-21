@@ -1,4 +1,4 @@
-package subway.station;
+package subway.domain;
 
 public class Station {
     private Long id;
@@ -23,5 +23,6 @@ public class Station {
     public String getName() {
         return name;
     }
+
 }
 

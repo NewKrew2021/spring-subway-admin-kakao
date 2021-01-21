@@ -1,6 +1,8 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exception.InvalidSectionException;
 import subway.exception.NotExistException;
 import subway.line.Line;
@@ -50,6 +52,7 @@ public class SectionService {
         sectionDao.updateById(id, section);
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     public void addSection(long id, Section section) {
         Line line = lineDao.findById(id);
         if (line == null) {
@@ -101,15 +104,18 @@ public class SectionService {
         return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
     }
 
-    // TODO 결과를 체크해줘야 함.
     private void extendDownwardEdge(Section section, Line line) {
         createSection(section);
-        lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getDownStationId()));
+        if (lineDao.updateById(line.getId(), line.getLineEndStationChanged(section.getDownStationId())) == 0) {
+            throw new InvalidSectionException("구간 생성 중 에러가 발생했습니다.");
+        }
     }
 
     private void extendUpwardEdge(Section section, Line line) {
         createSection(section);
-        lineDao.updateById(line.getId(), line.getLineStartStationChanged(section.getUpStationId()));
+        if (lineDao.updateById(line.getId(), line.getLineStartStationChanged(section.getUpStationId())) == 0) {
+            throw new InvalidSectionException("구간 생성 중 에러가 발생했습니다.");
+        }
     }
 
     private void addSectionUpward(Section section, Section existingSection) {

@@ -1,40 +1,55 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DuplicateNameException;
 import subway.exception.NotExistException;
-import subway.section.SectionDao;
-import subway.station.StationDao;
+import subway.section.Section;
+import subway.section.SectionService;
 
 import java.util.List;
 
 @Service
 public class LineService {
     private final LineDao lineDao;
-    private final SectionDao sectionDao;
-    private final StationDao stationDao;
+    private final SectionService sectionService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineService(LineDao lineDao, SectionService sectionService) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
+        this.sectionService = sectionService;
     }
 
-    public Line createLine(Line line, int distance) {
+    @Transactional(propagation = Propagation.NESTED)
+    public Line createLineAndSection(Line line, int distance) {
+        Line newLine = createLine(line);
+
+        sectionService.createSection(new Section(newLine.getStartStationId(),
+                newLine.getEndStationId(),
+                distance,
+                newLine.getId()));
+
+        return newLine;
+    }
+
+    private Line createLine(Line line) {
         validateUniqueName(line);
         return lineDao.save(line);
     }
 
     private void validateUniqueName(Line line) {
-        if (lineDao.countByName(line.getName()) != 0) {
+        if (existName(line.getName())) {
             throw new DuplicateNameException("중복된 노선 이름입니다.");
         }
+    }
+
+    public boolean existName(String name) {
+        return lineDao.countByName(name) != 0;
     }
 
     public List<Line> getAllLines() {
         return lineDao.findAll();
     }
-
 
     public void deleteLine(long id) {
         if (lineDao.deleteById(id) == 0) {

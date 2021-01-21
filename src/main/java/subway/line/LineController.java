@@ -29,13 +29,7 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        // TODO transaction 처리
-        Line newLine = lineService.createLine(new Line(lineRequest), lineRequest.getDistance());
-        Section newSection = new Section(newLine.getStartStationId(),
-                newLine.getEndStationId(),
-                lineRequest.getDistance(),
-                newLine.getId());
-        sectionService.createSection(newSection);
+        Line newLine = lineService.createLineAndSection(new Line(lineRequest), lineRequest.getDistance());
         List<Station> stations = stationService.convertIdsToStations(
                 sectionService.getStationIdsOfLine(newLine));
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine, stations));

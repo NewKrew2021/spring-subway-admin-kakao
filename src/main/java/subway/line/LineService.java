@@ -1,12 +1,15 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import subway.exceptions.DuplicateNameException;
-import subway.exceptions.InvalidDeleteException;
+import subway.line.exceptions.DuplicateLineNameException;
+import subway.line.exceptions.InvalidLineDeleteException;
+import subway.line.exceptions.NoSuchLineException;
+import subway.station.exceptions.NoSuchStationException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LineService {
@@ -18,11 +21,20 @@ public class LineService {
         this.lineDao = lineDao;
     }
 
-    public Line save(Line line) throws DuplicateNameException {
+    public Line save(Line line) {
+        String lineName = line.getName();
+        checkDuplicateName(lineName);
+
         try {
             return lineDao.save(line);
-        } catch (DuplicateNameException e) {
-            throw new DuplicateNameException("중복된 이름의 Line은 추가할 수 없습니다.");
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateLineNameException(lineName);
+        }
+    }
+
+    private void checkDuplicateName(String lineName) {
+        if (lineDao.findByName(lineName) == null) {
+            throw new DuplicateLineNameException(lineName);
         }
     }
 
@@ -30,21 +42,29 @@ public class LineService {
         return lineDao.findAll();
     }
 
-    public Line find(Long id) throws EmptyResultDataAccessException {
-        try {
-            return lineDao.findById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EmptyResultDataAccessException("해당하는 Line을 찾을 수 없습니다.", 1);
-        }
+    public Line find(Long id) {
+        return Optional.ofNullable(lineDao.findById(id))
+                .orElseThrow(() -> new NoSuchStationException(id));
     }
 
     public void update(Line line) {
+        checkExistLine(line.getId());
         lineDao.update(line);
     }
 
-    public void delete(Long id) throws InvalidDeleteException {
-        if (lineDao.deleteById(id) == 0) {
-            throw new InvalidDeleteException("삭제하려는 Line이 존재하지 않습니다.");
+    public void delete(Long id) {
+        try {
+            checkExistLine(id);
+            lineDao.deleteById(id);
+        } catch (Exception e) {
+            System.out.println(e.getClass());
+            throw new InvalidLineDeleteException(id);
+        }
+    }
+
+    private void checkExistLine(Long id) {
+        if (lineDao.findById(id) == null) {
+            throw new NoSuchLineException(id);
         }
     }
 }

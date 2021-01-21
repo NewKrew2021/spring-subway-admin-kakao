@@ -1,6 +1,7 @@
 package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -48,7 +49,20 @@ public class LineDao {
 
     public Line findById(Long id) {
         String sql = "select id, name, color from LINE where id = ?";
-        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        try {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public Line findByName(String name) {
+        String sql = "select id, name, color from LINE where name = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public void update(Line newLine) {

@@ -13,51 +13,48 @@ import subway.section.SectionDao;
 
 
 @RestController
+@RequestMapping("/lines")
 public class LineController {
-    @Autowired
-    LineDao lineDao;
-    @Autowired
-    SectionDao sectionDao;
-    @Autowired
-    StationDao stationDao;
 
+    private final LineService lineService;
+    private final SectionDao sectionDao;
+    private final StationDao stationDao;
 
-    @PostMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line line = new Line(lineRequest.getName(),
-                lineRequest.getColor(),
-                lineRequest.getExtraFare());
-
-        Line newline = lineDao.save(line, lineRequest);
-        sectionDao.save(new Section(newline.getId(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance()));
-        LineResponse lineResponse = new LineResponse(newline, stationDao, sectionDao);
-        return ResponseEntity.created(URI.create(("/lines/" + newline.getId()))).body(lineResponse);
+    public LineController(LineService lineService, SectionDao sectionDao, StationDao stationDao) {
+        this.lineService = lineService;
+        this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
     }
 
-    @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        Line newline = lineService.saveLine(lineRequest);
+        return ResponseEntity
+                .created(URI.create(("/lines/" + newline.getId())))
+                .body(new LineResponse(newline, stationDao, sectionDao));
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return ResponseEntity.ok().body(lineDao.findAll().stream()
+        return ResponseEntity.ok().body(lineService.findAll().stream()
                 .map((Line line) -> new LineResponse(line, stationDao, sectionDao))
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping(value = "/lines/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id){
-        return ResponseEntity.ok().body(new LineResponse(lineDao.findById(id), stationDao, sectionDao));
+        return ResponseEntity.ok().body(new LineResponse(lineService.findById(id), stationDao, sectionDao));
     }
 
-    @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLine(@PathVariable Long id,@RequestBody LineRequest lineRequest){
-        lineDao.update(id, lineRequest);
+        lineService.update(id, lineRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/lines/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteStation(@PathVariable Long id) {
-        lineDao.deleteById(id);
+        lineService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

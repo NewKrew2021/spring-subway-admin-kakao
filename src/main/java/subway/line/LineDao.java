@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.section.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -14,8 +15,17 @@ public class LineDao {
     @Autowired
     SectionDao sectionDao;
 
-    private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcInsert simpleJdbcInsert;
+    private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
+    private final RowMapper<Line> rowMapper = (rs, rowNum) -> {
+        Line newLine = new Line(
+               rs.getLong("id"),
+               rs.getString("name"),
+               rs.getString("color"),
+               rs.getInt("extra_fare")
+        );
+        return newLine;
+    };
 
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -24,20 +34,11 @@ public class LineDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    public Line save(Line line, LineRequest lineRequest) {
-        List<Line> lines = findAll();
-        if(lines.stream().anyMatch((Line lineSaved) ->
-                lineSaved.getName().equals(lineRequest.getName()) &&
-                lineSaved.getUpStationId(sectionDao) == lineRequest.getUpStationId() &&
-                        lineSaved.getDownStationId(sectionDao) == lineRequest.getDownStationId()
-        )){
-            throw new BadRequestException();
-        }
-
+    public Line save(LineRequest lineRequest) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("name", line.getName())
-                .addValue("color", line.getColor())
-                .addValue("extra_fare", line.getExtraFare());
+                .addValue("name", lineRequest.getName())
+                .addValue("color", lineRequest.getColor())
+                .addValue("extra_fare", lineRequest.getExtraFare());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         return findById(id.longValue());
     }
@@ -52,28 +53,14 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        return jdbcTemplate.query("select * from LINE",
-                (rs, rowNum) -> {
-                    Line newLine = new Line(
-                            rs.getLong("id"),
-                            rs.getString("name"),
-                            rs.getString("color"),
-                            rs.getInt("extra_fare")
-                    );
-                    return newLine;
-                });
+        return jdbcTemplate.query("select * from LINE",rowMapper);
     }
 
     public Line findById(Long id) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM LINE where id = ?",
-                (rs, rowNum) -> { Line newLine = new Line(
-                            rs.getLong("id"),
-                            rs.getString("name"),
-                            rs.getString("color"),
-                            rs.getInt("extra_fare")
-                    );
-                return newLine;
-                }, id);
+        return this.jdbcTemplate.queryForObject(
+                "SELECT * FROM LINE where id = ?",
+                rowMapper,
+                id);
     }
 
     public void deleteById(Long lineId) {

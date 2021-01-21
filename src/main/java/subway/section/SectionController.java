@@ -20,7 +20,7 @@ public class SectionController {
 
     @PostMapping("/sections")
     public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
-        sectionService.addSectionToLine(Section.of(lineId, sectionRequest));
+        sectionService.addSectionToLine(sectionRequest.toDomainObject(lineId));
         return ResponseEntity.ok().body(LineResponse.of(lineService.find(lineId)));
     }
 

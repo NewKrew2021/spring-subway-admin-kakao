@@ -18,6 +18,10 @@ public class LineRequest {
         this.distance = distance;
     }
 
+    public Line toDomainObject() {
+        return Line.of(name, color);
+    }
+
     public String getName() {
         return name;
     }

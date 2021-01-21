@@ -7,14 +7,11 @@ import subway.line.presentation.LineRequest;
 import subway.line.presentation.LineResponse;
 import subway.section.domain.Section;
 import subway.section.domain.SectionDao;
-import subway.station.domain.Station;
 import subway.station.domain.StationDao;
+import subway.station.domain.Stations;
 import subway.station.presentation.StationResponse;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -66,18 +63,9 @@ public class LineService {
                 .map(Section::getStationId)
                 .collect(Collectors.toList());
 
-        List<Station> stations = stationDao.findByUpDownId(stationIdGroup);
+        Stations stations = new Stations(stationDao.findByUpDownId(stationIdGroup));
 
-        return stations.stream()
-                .distinct()
-                .filter(distinctByKey(station -> station.getName()))
-                .map(station -> new StationResponse(station.getId(), station.getName()))
-                .collect(Collectors.toList());
-    }
-
-    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+        return stations.getStationResponse();
     }
 
     public void updateLine(Long id, LineRequest lineRequest){

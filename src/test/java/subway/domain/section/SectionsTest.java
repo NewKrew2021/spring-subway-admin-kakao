@@ -1,4 +1,4 @@
-package subway.section;
+package subway.domain.section;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,7 +63,7 @@ public class SectionsTest {
     void getMatchedUpStation() {
         assertThat(sections.getMatchedUpStation(
                 Section.of(1L, 3L, 4L, 3)).isSameSection(
-                        Section.of(1L, 3L, 5L, 10)
+                Section.of(1L, 3L, 5L, 10)
         )).isTrue();
     }
 

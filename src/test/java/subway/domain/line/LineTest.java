@@ -1,4 +1,4 @@
-package subway.line;
+package subway.domain.line;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

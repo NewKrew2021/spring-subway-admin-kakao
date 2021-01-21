@@ -18,6 +18,11 @@ public class Section {
         this.downStationId = downStationId;
     }
 
+    public Section(Long id, Long upStationId, Long downStationId) {
+        this(upStationId, downStationId);
+        this.id = id;
+    }
+
     public Section(Long upStationId, Long downStationId, int distance) {
         this(upStationId, downStationId);
         checkDistance(distance);

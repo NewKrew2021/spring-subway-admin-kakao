@@ -66,27 +66,14 @@ public class Line {
         return endStationId;
     }
 
-    public void updateLineInfo(LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
+    public void updateLine(Line line) {
+        this.name = line.getName();
+        this.color = line.getColor();
     }
 
-    public void addSection(Section section) {
-        if(section.getDownStationId() == startStationId) {
-            this.startStationId = section.getUpStationId();
-        }
-        if(section.getUpStationId() == endStationId) {
-            this.endStationId = section.getDownStationId();
-        }
-    }
-
-    public void deleteSection(Section section) {
-        if(section.getUpStationId() == startStationId) {
-            startStationId = section.getDownStationId();
-        }
-        if(section.getDownStationId() == endStationId) {
-            endStationId = section.getUpStationId();
-        }
+    public void updateLine(Section section) {
+        this.startStationId = section.getUpStationId();
+        this.endStationId = section.getDownStationId();
     }
 
     @Override

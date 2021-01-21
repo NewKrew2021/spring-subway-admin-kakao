@@ -1,13 +1,13 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.InvalidSectionException;
+import org.springframework.transaction.annotation.Transactional;
 import subway.section.Section;
-import subway.section.SectionDao;
 import subway.section.SectionRequest;
+import subway.section.SectionService;
 import subway.section.Sections;
-import subway.station.StationDao;
 import subway.station.StationResponse;
+import subway.station.StationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,23 +15,21 @@ import java.util.List;
 @Service
 public class LineService {
 
-    public static final String CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE = "두 역이 모두 포함되어 있거나, 두 역 모두 포함되어 있지 않습니다.";
-    public static final String SECTIONS_SIZE_ERROR_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
     private LineDao lineDao;
-    private SectionDao sectionDao;
-    private StationDao stationDao;
+    private SectionService sectionService;
+    private StationService stationService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineService(LineDao lineDao, SectionService sectionService, StationService stationService) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
+        this.sectionService = sectionService;
+        this.stationService = stationService;
     }
 
     public Line save(LineRequest lineRequest) {
         lineRequest.checkLineRequest();
         Line newLine = lineDao.save(lineRequest.toLine());
         Section section = lineRequest.toSection(newLine.getId());
-        sectionDao.save(section);
+        sectionService.save(section);
         return findById(newLine.getId());
     }
 
@@ -44,86 +42,59 @@ public class LineService {
     }
 
     public void deleteById(Long id) {
-         lineDao.deleteById(id);
-         sectionDao.deleteAllByLineId(id);
+        lineDao.deleteById(id);
+        sectionService.deleteAllByLineId(id);
     }
 
     public Line updateLine(Long id, LineRequest lineRequest) {
         Line line = lineDao.findById(id);
-        line.updateLineInfo(lineRequest);
+        Line newLine = lineRequest.toLine();
+        line.updateLine(newLine);
         return lineDao.updateById(line);
     }
 
     public List<StationResponse> getStationResponsesById(Long lineId) {
-        List<StationResponse> responses = new ArrayList<>();
         Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(line.getId()), line.getStartStationId());
+        List<StationResponse> responses = new ArrayList<>();
+        Sections sections = new Sections(sectionService.getSectionsByLineId(line.getId()), line.getStartStationId());
         for (Long stationId : sections.getStationsSortedSequence()) {
-            responses.add(new StationResponse(stationDao.findById(stationId)));
+            responses.add(StationResponse.of(stationService.findById(stationId)));
         }
         return responses;
     }
 
     public Line saveSection(Long lineId, SectionRequest sectionRequest) {
         Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if (sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
-            throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
+        if (line.isStartStation(sectionRequest.getDownStationId()) || line.isEndStation(sectionRequest.getUpStationId())) {
+            return saveSectionsHeadOrTail(sectionRequest.toSection(lineId), line);
         }
-        Section newSection = sectionRequest.toSection(line.getId());
 
-        if(line.isStartStation(newSection.getDownStationId()) || line.isEndStation(newSection.getUpStationId())) {
-            return saveSectionsHeadOrTail(newSection, line);
-        }
-        return saveBetweenSections(sections, newSection);
+        sectionService.save(line, sectionRequest);
+        return lineDao.findById(lineId);
     }
 
     private Line saveSectionsHeadOrTail(Section newSection, Line line) {
-        line.addSection(newSection);
+        Section newStartEndSection = findUpdateSection(newSection, line);
+        line.updateLine(newStartEndSection);
         lineDao.updateById(line);
-        sectionDao.save(newSection);
+        sectionService.save(newSection);
         return lineDao.findById(newSection.getLineId());
     }
 
-    private Line saveBetweenSections(Sections sections, Section newSection) {
-        Section updatedSection = sections.findUpdatedSection(newSection);
-        sectionDao.updateById(updatedSection);
-        sectionDao.save(newSection);
-        return lineDao.findById(newSection.getLineId());
+    private Section findUpdateSection(Section newSection, Line line) {
+        if (line.isStartStation(newSection.getDownStationId())) {
+            return new Section(newSection.getUpStationId(), line.getEndStationId());
+        }
+        return new Section(line.getStartStationId(), newSection.getDownStationId());
     }
 
+    @Transactional
     public void deleteStationById(Long lineId, Long stationId) {
         Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if (!sections.isRemovable()) {
-            throw new InvalidSectionException(SECTIONS_SIZE_ERROR_MESSAGE);
+        Section newStartEndSection = sectionService.deleteSectionByStationId(line, stationId);
+        if (newStartEndSection != null) {
+            line.updateLine(newStartEndSection);
+            lineDao.updateById(line);
         }
-        if(line.isStartStation(stationId) || line.isEndStation(stationId)) {
-            deleteStartOrEndStation(sections, stationId, line);
-            return;
-        }
-        mergeAndDeleteStation(sections, stationId);
-    }
-
-    private void mergeAndDeleteStation(Sections sections, Long stationId) {
-        Section deletedSection = sections.findByUpStationId(stationId);
-        Section updatedSection = sections.findByDownStationId(stationId);
-        updatedSection.updateSectionInfoWhenDeleted(deletedSection);
-        sectionDao.updateById(updatedSection);
-        sectionDao.deleteById(deletedSection.getId());
-    }
-
-    private void deleteStartOrEndStation(Sections sections, Long stationId, Line line) {
-        Section section = getStartOrEndSection(sections, stationId, line);
-        line.deleteSection(section);
-        lineDao.updateById(line);
-        sectionDao.deleteById(section.getId());
-    }
-
-    private Section getStartOrEndSection(Sections sections, Long stationId, Line line) {
-        if(line.isStartStation(stationId)) {
-            return sections.getFirstSection();
-        }
-        return sections.getLastSection();
     }
 }

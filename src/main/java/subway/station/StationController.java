@@ -21,7 +21,7 @@ public class StationController {
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station newStation = stationService.save(new Station(stationRequest.getName()));
-        StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
+        StationResponse stationResponse = new StationResponse(newStation);
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
@@ -29,7 +29,7 @@ public class StationController {
     public ResponseEntity<List<StationResponse>> showStations() {
         List<StationResponse> responses = new ArrayList<>();
         for (Station station : stationService.findAll()) {
-            responses.add(new StationResponse(station.getId(), station.getName()));
+            responses.add(new StationResponse(station));
         }
         return ResponseEntity.ok().body(responses);
     }

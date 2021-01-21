@@ -12,7 +12,6 @@ import subway.AcceptanceTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("지하철역 관련 기능")
@@ -45,6 +44,14 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
     }
 
+    @DisplayName("지하철역 중복을 확인한다.")
+    @Test
+    void duplicateStation(){
+        지하철역_생성_요청(강남역);
+
+        지하철역_중복_확인(강남역);
+    }
+
     @DisplayName("지하철역을 제거한다.")
     @Test
     void deleteStation() {
@@ -56,6 +63,28 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // then
         지하철역_삭제됨(response);
+
+        // "강남역" 으로 보내고, 해당하는 데이터를 가져온다
+        // body가 비어있는걸 확인한다
+        assertThat(지하철역_삭제_확인(강남역)).isEqualTo(false);
+
+    }
+
+    public static void 지하철역_중복_확인(String name){
+        RestAssured
+                .given().log().all()
+                .body(new StationRequest(강남역))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/stations")
+                .then().log().all()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    public static boolean 지하철역_삭제_확인(String name){
+        return 지하철역_목록_조회_요청().jsonPath().getList(".", Station.class).stream()
+                .filter(val -> val.getName().equals(name))
+                .findAny()
+                .isPresent();
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {

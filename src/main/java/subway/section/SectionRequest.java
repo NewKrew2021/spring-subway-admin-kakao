@@ -1,12 +1,11 @@
-package subway.line;
+package subway.section;
 
 public class SectionRequest {
     private Long upStationId;
     private Long downStationId;
     private int distance;
 
-    public SectionRequest() {
-    }
+    public SectionRequest(){}
 
     public SectionRequest(Long upStationId, Long downStationId, int distance) {
         this.upStationId = upStationId;

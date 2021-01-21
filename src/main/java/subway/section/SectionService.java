@@ -7,8 +7,8 @@ import java.util.List;
 
 @Service
 public class SectionService {
-    private static final int FIRST_INDEX = 0;
-    private static final int SECOND_INDEX = 1;
+    private static final int FIRST = 0;
+    private static final int SECOND = 1;
 
     private final SectionDao sectionDao;
 
@@ -79,12 +79,12 @@ public class SectionService {
 
         List<Section> neighboringSections = sections.getNeighboringSections(stationId);
         if (neighboringSections.size() == 1) {
-            sectionDao.deleteById(neighboringSections.get(FIRST_INDEX).getId());
+            sectionDao.deleteById(neighboringSections.get(FIRST).getId());
             return;
         }
 
-        Section section1 = neighboringSections.get(FIRST_INDEX);
-        Section section2 = neighboringSections.get(SECOND_INDEX);
+        Section section1 = neighboringSections.get(FIRST);
+        Section section2 = neighboringSections.get(SECOND);
         mergeSection(section1, section2);
     }
 

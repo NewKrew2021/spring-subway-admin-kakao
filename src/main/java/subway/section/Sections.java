@@ -76,18 +76,18 @@ public class Sections {
                 .collect(Collectors.toList());
     }
 
-    private List<Long> getSectionIds() {
+    private List<Long> getDownStationIds() {
         return sections.stream()
                 .map(Section::getDownStationId)
                 .collect(Collectors.toList());
     }
 
     private Section getFirstSection() {
-        List<Long> sectionIds = getSectionIds();
+        List<Long> downStationIds = getDownStationIds();
         return sections.stream()
-                .filter(section -> !sectionIds.contains(section.getUpStationId()))
+                .filter(section -> !downStationIds.contains(section.getUpStationId()))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("첫번째 역이 존재하지 않습니다."));
     }
 
     public List<Long> getSortedStationIds() {

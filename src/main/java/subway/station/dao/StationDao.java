@@ -19,11 +19,9 @@ public class StationDao {
     }
 
     public Station insert(String name) {
-        String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement st = con.prepareStatement(StationDaoQuery.INSERT, new String[]{"id"});
             st.setString(1, name);
             return st;
         }, keyHolder);
@@ -32,23 +30,19 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select * from station";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        return jdbcTemplate.query(StationDaoQuery.FIND_ALL, stationRowMapper);
     }
 
     public Station findById(Long id) {
-        String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+        return jdbcTemplate.queryForObject(StationDaoQuery.FIND_BY_ID, stationRowMapper, id);
     }
 
-    public boolean deleteById(Long id) {
-        String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+    public boolean delete(Long id) {
+        return jdbcTemplate.update(StationDaoQuery.DELETE, id) > 0;
     }
 
     public int countByName(String name) {
-        String sql = "select count(*) from station where name = ?";
-        return jdbcTemplate.queryForObject(sql, int.class, name);
+        return jdbcTemplate.queryForObject(StationDaoQuery.COUNT_BY_NAME, int.class, name);
     }
 
     private final RowMapper<Station> stationRowMapper =

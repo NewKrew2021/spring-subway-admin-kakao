@@ -40,7 +40,7 @@ public class StationService {
     }
 
     public void deleteById(Long id) {
-        boolean isDeleted = stationDao.deleteById(id);
+        boolean isDeleted = stationDao.delete(id);
         if (!isDeleted) {
             throw new EntityNotFoundException("삭제하려는 역이 존재하지 않습니다.");
         }

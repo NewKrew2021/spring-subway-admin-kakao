@@ -3,7 +3,6 @@ package subway.station;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StationService {
@@ -22,10 +21,7 @@ public class StationService {
         stationDao.deleteById(id);
     }
 
-    public List<StationResponse> getStationResponses() {
-        return stationDao.findAll()
-                .stream()
-                .map(StationResponse::new)
-                .collect(Collectors.toList());
+    public List<Station> getStationResponses() {
+        return stationDao.findAll();
     }
 }

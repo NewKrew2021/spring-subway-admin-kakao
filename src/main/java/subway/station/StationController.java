@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class StationController {
@@ -26,7 +27,9 @@ public class StationController {
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        List<StationResponse> stationResponses = stationService.getStationResponses();
+        List<StationResponse> stationResponses = stationService.getStationResponses().stream()
+                .map(StationResponse::new)
+                .collect(Collectors.toList());
         return ResponseEntity.ok().body(stationResponses);
     }
 

@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ public class Sections {
         Section upSection = findByStationId(upStationId);
         Section downSection = findByStationId(downStationId);
 
-        if (isExisting(upSection)) {
+        if (contains(upSection)) {
             return new Section(upSection.getLineId(), downStationId, upSection.getDistance() + distance);
         }
 
@@ -56,7 +56,13 @@ public class Sections {
         Section upSection = findByStationId(upStationId);
         Section downSection = findByStationId(downStationId);
 
-        return isExisting(upSection) ? upSection : downSection;
+        return contains(upSection) ? upSection : downSection;
+    }
+
+    private void validateStations(Long upStationId, Long downStationId) {
+        if (contains(findByStationId(upStationId)) == contains(findByStationId(downStationId))) {
+            throw new IllegalArgumentException("구간의 두 역이 유효하지 않습니다.");
+        }
     }
 
     private void validateDistance(int existingSectionDistance, int newSectionDistance) {
@@ -68,20 +74,9 @@ public class Sections {
                 throw new IllegalArgumentException("구간의 거리가 유효하지 않습니다.");
             }
         }
-
     }
 
-    private boolean isExisting(Section section) {
+    private boolean contains(Section section) {
         return section != null;
-    }
-
-    private void validateStations(Long upStationId, Long downStationId) {
-        if (isExisting(findByStationId(upStationId)) == isExisting(findByStationId(downStationId))) {
-            throw new IllegalArgumentException("구간의 두 역이 유효하지 않습니다.");
-        }
-    }
-
-    public boolean hasOnlyTwoSections() {
-        return sections.size() <= 2;
     }
 }

@@ -1,12 +1,12 @@
-package subway.section;
+package subway.section.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.line.LineRequest;
-import subway.station.Station;
+import subway.section.domain.Section;
+import subway.section.domain.Sections;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -29,16 +29,10 @@ public class SectionDao {
         return new Sections(sections);
     }
 
-    public boolean insert(Long lineId, Long upStationId, Long downStationId, int distance) {
+    public void insert(Long lineId, Long upStationId, Long downStationId, int distance) {
         Sections sections = findByLineId(lineId);
-
         Section newSection = sections.insert(upStationId, downStationId, distance);
-        if (newSection == null) {
-            return false;
-        }
-
         insertSection(newSection.getLineId(), newSection.getStationId(), newSection.getDistance());
-        return true;
     }
 
     public Section insertSection(Long lineId, Long stationId, int distance) {

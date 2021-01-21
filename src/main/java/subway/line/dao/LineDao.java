@@ -1,12 +1,12 @@
-package subway.line;
+package subway.line.dao;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.EntityNotFoundException;
+import subway.line.domain.Line;
+import subway.line.domain.LineRequest;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -25,11 +25,11 @@ public class LineDao {
         String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, name);
-                st.setString(2, color);
-                return st;
-            }, keyHolder);
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setString(1, name);
+            st.setString(2, color);
+            return st;
+        }, keyHolder);
 
         return new Line(keyHolder.getKey().longValue(), name, color);
     }

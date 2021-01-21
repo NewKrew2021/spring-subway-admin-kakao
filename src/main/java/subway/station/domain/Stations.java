@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.domain;
 
 import java.util.List;
 import java.util.stream.Collectors;

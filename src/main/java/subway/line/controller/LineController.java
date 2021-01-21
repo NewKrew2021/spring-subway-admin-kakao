@@ -1,30 +1,31 @@
-package subway.line;
+package subway.line.controller;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.section.SectionRequest;
-import subway.section.SectionService;
-import subway.section.Sections;
-import subway.station.StationService;
-import subway.station.Stations;
+import subway.line.domain.Line;
+import subway.line.domain.LineRequest;
+import subway.line.domain.LineResponse;
+import subway.line.service.LineService;
+import subway.section.domain.SectionRequest;
+import subway.section.domain.Sections;
+import subway.section.service.SectionService;
+import subway.station.domain.Stations;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lines")
 public class LineController {
     private final LineService lineService;
     private final SectionService sectionService;
-    private final StationService stationService;
 
-    public LineController(LineService lineService, SectionService sectionService, StationService stationService) {
+    @Autowired
+    public LineController(LineService lineService, SectionService sectionService) {
         this.lineService = lineService;
         this.sectionService = sectionService;
-        this.stationService = stationService;
     }
 
     @PostMapping

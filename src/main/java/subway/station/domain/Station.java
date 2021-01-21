@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.domain;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -8,25 +8,26 @@ public class Station {
     private final Long id;
     private final String name;
 
-    public Station(String name) {
-        this(0L, name);
-    }
+    private static final Long MINIMUM_ID = 0L;
 
     public Station(Long id, String name) {
-        validate(id, name);
+        validateId(id);
+        validateName(name);
 
         this.id = id;
         this.name = name;
     }
 
-    private void validate(Long id, String name) {
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Station name cannot be null or blank characters.");
+    private void validateId(Long id) {
+        if (id < MINIMUM_ID) {
+            throw new IllegalArgumentException("Station ID cannot be negative");
         }
     }
 
-    public boolean exists() {
-        return this != null;
+    private void validateName(String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Station name cannot be null or blank characters.");
+        }
     }
 
     public StationResponse toDto() {
@@ -58,10 +59,6 @@ public class Station {
     @Override
     public int hashCode() {
         return id.intValue();
-    }
-
-    private boolean isNegative(Long id) {
-        return id < 0;
     }
 }
 

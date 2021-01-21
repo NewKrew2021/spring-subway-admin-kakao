@@ -1,13 +1,14 @@
-package subway.section;
+package subway.section.service;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
-import subway.line.LineDao;
-import subway.line.LineRequest;
-import subway.station.StationDao;
-import subway.station.Stations;
+import subway.exception.EntityNotFoundException;
+import subway.line.domain.LineRequest;
+import subway.section.dao.SectionDao;
+import subway.section.domain.SectionRequest;
+import subway.section.domain.Sections;
+import subway.station.dao.StationDao;
+import subway.station.domain.Stations;
 
 import java.util.stream.Collectors;
 
@@ -17,12 +18,11 @@ public class SectionService {
     private final SectionDao sectionDao;
     private final StationDao stationDao;
 
+    @Autowired
     public SectionService(SectionDao sectionDao, StationDao stationDao) {
         this.sectionDao = sectionDao;
         this.stationDao = stationDao;
     }
-
-
 
     public Sections insertOnCreateLine(Long lineId, LineRequest request) {
         validateStations(request.getUpStationId(), request.getDownStationId());
@@ -36,11 +36,11 @@ public class SectionService {
         );
     }
 
-    public boolean insert(Long lineId, SectionRequest request) {
+    public void insert(Long lineId, SectionRequest request) {
         validateStations(request.getUpStationId(), request.getDownStationId());
         validateDistance(request.getDistance());
 
-        return sectionDao.insert(
+        sectionDao.insert(
                 lineId,
                 request.getUpStationId(),
                 request.getDownStationId(),
@@ -48,9 +48,13 @@ public class SectionService {
         );
     }
 
-    public boolean delete(Long lineId, Long stationId) {
+    public void delete(Long lineId, Long stationId) {
         validateMinimumSections(lineId);
-        return sectionDao.delete(lineId, stationId);
+        boolean isDeleted = sectionDao.delete(lineId, stationId);
+
+        if (!isDeleted) {
+            throw new EntityNotFoundException("삭제하려는 구간이 존재하지 않습니다.");
+        }
     }
 
     public Sections findByLineId(Long id) {

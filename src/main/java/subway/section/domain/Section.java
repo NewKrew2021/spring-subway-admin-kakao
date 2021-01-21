@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 import java.util.Objects;
 
@@ -8,15 +8,36 @@ public class Section implements Comparable<Section> {
     private final long stationId;
     private final int distance;
 
+    private static final Long TEMP_ID = 0L;
+    private static final Long MINIMUM_ID = 0L;
+    private static final Long MINIMUM_DISTANCE = 1L;
+
     public Section(long lineId, long stationId, int distance) {
-        this(0L, lineId, stationId, distance);
+        this(TEMP_ID, lineId, stationId, distance);
     }
 
     public Section(long id, long lineId, long stationId, int distance) {
+        validateId(id);
+        validateId(lineId);
+        validateId(stationId);
+        validateDistance(distance);
+
         this.id = id;
         this.lineId = lineId;
         this.stationId = stationId;
         this.distance = distance;
+    }
+
+    private void validateId(Long id) {
+        if (id < MINIMUM_ID) {
+            throw new IllegalArgumentException("ID cannot be negative");
+        }
+    }
+
+    private void validateDistance(int distance) {
+        if (distance < MINIMUM_DISTANCE) {
+            throw new IllegalArgumentException("Distance should be positive");
+        }
     }
 
     public long getId() {

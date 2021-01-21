@@ -1,8 +1,12 @@
-package subway.station;
+package subway.station.service;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import subway.exception.EntityNotFoundException;
+import subway.station.dao.StationDao;
+import subway.station.domain.Station;
+import subway.station.domain.StationRequest;
+import subway.station.domain.StationResponse;
 
 import java.util.List;
 
@@ -12,6 +16,7 @@ import static java.util.stream.Collectors.toList;
 public class StationService {
     private final StationDao stationDao;
 
+    @Autowired
     public StationService(StationDao stationDao) {
         this.stationDao = stationDao;
     }
@@ -35,8 +40,8 @@ public class StationService {
     }
 
     public void deleteById(Long id) {
-        boolean deleted = stationDao.deleteById(id);
-        if (!deleted) {
+        boolean isDeleted = stationDao.deleteById(id);
+        if (!isDeleted) {
             throw new EntityNotFoundException("삭제하려는 역이 존재하지 않습니다.");
         }
     }

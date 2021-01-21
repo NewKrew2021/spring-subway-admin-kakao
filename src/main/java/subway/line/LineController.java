@@ -30,12 +30,16 @@ public class LineController {
 
     @PostMapping(value = "/lines", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        LineDto lineDto = new LineDto(lineRequest);
-        Long id = lineService.requestToLine(lineDto);
-        sectionService.createTerminalSections(lineDto, id);
-
-        LineResponse lineResponse = new LineResponse(id, lineDto.getName(), lineDto.getColor(), null);
-
+        Line line = new Line(lineRequest);
+        Long id;
+        try {
+            id = lineService.requestToLine(line);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        sectionService.createTerminalSections(line, id);
+        LineResponse lineResponse = new LineResponse(id, line.getName(), line.getColor(), null);
         return ResponseEntity.created(URI.create("/lines/" + id)).body(lineResponse);
     }
 

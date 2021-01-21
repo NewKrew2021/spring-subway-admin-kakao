@@ -2,11 +2,10 @@ package subway.section;
 
 import org.springframework.stereotype.Service;
 import subway.exception.*;
-import subway.line.LineDto;
+import subway.line.Line;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
@@ -17,9 +16,9 @@ public class SectionService {
         this.sectionDao = sectionDao;
     }
 
-    public void createTerminalSections(LineDto lineDto, Long lineId) {
-        Section upTerminalSection = new Section(lineId, lineDto.getUpStationId(), lineDto.getDistance(), lineDto.getDownStationId());
-        Section downTerminalSection = new Section(lineId, lineDto.getDownStationId(), 0, Section.WRONG_ID);
+    public void createTerminalSections(Line line, Long lineId) {
+        Section upTerminalSection = new Section(lineId, line.getUpStationId(), line.getDistance(), line.getDownStationId());
+        Section downTerminalSection = new Section(lineId, line.getDownStationId(), 0, Section.WRONG_ID);
         sectionDao.save( upTerminalSection );
         sectionDao.save( downTerminalSection );
     }

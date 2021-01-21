@@ -4,8 +4,7 @@ public enum SectionUpdateType {
 
     INSERT_DOWN_SECTION,
     INSERT_UP_SECTION,
-    DELETE_SECTION,
-    EXCEPTION;
+    DELETE_SECTION;
 
     private Section targetSection;
     private Section prevSection;

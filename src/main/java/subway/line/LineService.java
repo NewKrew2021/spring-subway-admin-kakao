@@ -20,11 +20,10 @@ public class LineService {
         this.sectionDao = sectionDao;
     }
 
-    public Long requestToLine(LineDto lineDto) {
-        if( lineDao.hasLineName(lineDto.getName()) ) {
+    public Long requestToLine(Line line) {
+        if( lineDao.hasLineName(line.getName()) ) {
             new ExistLineSaveException().printStackTrace();
         }
-        Line line = new Line(lineDto.getName(), lineDto.getColor());
         return lineDao.save(line);
     }
 }

@@ -1,33 +1,66 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+    private JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        List<Station> findStation = findStationByName(station.getName());
+        if (findStation.size() > 0) {
+            return null;
+        }
+        String sql = "insert into station (name) values (?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, station.getName());
+            return ps;
+        }, keyHolder);
+
+        return new Station(keyHolder.getKey().longValue(), station.getName());
+
     }
 
     public List<Station> findAll() {
-        return stations;
+        String sql = "select id, name from station";
+        return jdbcTemplate.query(sql, stationRowMapper);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+    public Station findStationById(Long id) {
+        String sql = "select id, name from station where id = ?";
+        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public List<Station> findStationByName(String name) {
+        String sql = "select id, name from station where name = ?";
+        return jdbcTemplate.query(sql, stationRowMapper, name);
+    }
+
+    public void deleteStationById(Long id) {
+        String sql = "delete from station where id = ?";
+        jdbcTemplate.update(sql, Long.valueOf(id));
     }
 }
+

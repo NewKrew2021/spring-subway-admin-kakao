@@ -19,6 +19,16 @@ public class Section {
         this.distance = distance;
     }
 
+    private void validate(long upStationId, long downStationId, int distance) {
+        if (isInvalidStationId(upStationId, downStationId)) {
+            throw new IllegalArgumentException("출발역과 도착역은 같을 수 없습니다.");
+        }
+
+        if (isInvalidDistance(distance)) {
+            throw new IllegalArgumentException("구간의 거리는 0보다 커야 합니다.");
+        }
+    }
+
     public Section(Long id, long lineId, long upStationId, long downStationId, int distance) {
         validate(upStationId, downStationId, distance);
         this.id = id;
@@ -35,16 +45,6 @@ public class Section {
                 section.getDownStationId(),
                 section.getDistance()
         );
-    }
-
-    private void validate(long upStationId, long downStationId, int distance) {
-        if (isInvalidStationId(upStationId, downStationId)) {
-            throw new IllegalArgumentException("출발역과 도착역은 같을 수 없습니다.");
-        }
-
-        if (isInvalidDistance(distance)) {
-            throw new IllegalArgumentException("구간의 거리는 0보다 커야 합니다.");
-        }
     }
 
     private boolean isInvalidStationId(long upStationId, long downStationId) {
@@ -67,11 +67,6 @@ public class Section {
         return stationId != null && (stationId.equals(upStationId) || stationId.equals(downStationId));
     }
 
-    public boolean isCollapsible(Section section) {
-        return (hasSameUpStation(section) != hasSameDownStation(section))
-                && distance > section.distance;
-    }
-
     public Section collapse(Section section) {
         assert isCollapsible(section);
         if (hasSameUpStation(section)) {
@@ -92,6 +87,11 @@ public class Section {
                 section.upStationId,
                 distance - section.distance
         );
+    }
+
+    public boolean isCollapsible(Section section) {
+        return (hasSameUpStation(section) != hasSameDownStation(section))
+                && distance > section.distance;
     }
 
     public Long getId() {

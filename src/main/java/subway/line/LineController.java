@@ -32,7 +32,7 @@ public class LineController {
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         LineDto lineDto = new LineDto(lineRequest);
         Long id = lineService.requestToLine(lineDto);
-        lineService.createTerminalSections(lineDto, id);
+        sectionService.createTerminalSections(lineDto, id);
 
         LineResponse lineResponse = new LineResponse(id, lineDto.getName(), lineDto.getColor(), null);
 
@@ -49,7 +49,7 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLineById(@PathVariable long lineId) {
-        List<StationResponse> stationResponses = lineService.getStationsIdOfLine(lineId)
+        List<StationResponse> stationResponses = sectionService.getStationsIdOfLine(lineId)
                 .stream()
                 .map(stationDao::findById)
                 .map(StationResponse::new)

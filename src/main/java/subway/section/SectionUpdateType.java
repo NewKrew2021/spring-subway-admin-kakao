@@ -10,6 +10,7 @@ public enum SectionUpdateType {
     private Section targetSection;
     private Section prevSection;
 
+
     public boolean invalidateDistanceAsInsert() {
         if( targetSection.getNextStationId().equals(Section.WRONG_ID) || prevSection == Section.DO_NOT_EXIST_SECTION ){
             return false;

@@ -55,9 +55,11 @@ public class StationDao {
         jdbcTemplate.update(DELETE_STATION_SQL, id);
     }
 
-    public List<Station> findByUpDownId(Long stationId) {
+    public List<Station> findByUpDownId(List<Long> stationIdGroup) {
         List<Station> stations = new ArrayList<>();
-        stations.add(findById(stationId));
+        for (Long stationId : stationIdGroup) {
+            stations.add(findById(stationId));
+        }
 
         return stations;
     }

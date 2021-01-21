@@ -62,11 +62,11 @@ public class LineService {
     }
 
     private List<StationResponse> getStationInfo(Long id) {
-        List<Station> stations = new ArrayList<>();
+        List<Long> stationIdGroup = sectionDao.findByLineId(id).stream()
+                .map(Section::getStationId)
+                .collect(Collectors.toList());
 
-        for (Section section : sectionDao.findByLineId(id)) {
-            stations.addAll(stationDao.findByUpDownId(section.getStationId()));
-        }
+        List<Station> stations = stationDao.findByUpDownId(stationIdGroup);
 
         return stations.stream()
                 .distinct()

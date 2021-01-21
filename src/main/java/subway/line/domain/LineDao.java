@@ -12,9 +12,9 @@ import org.springframework.jdbc.core.RowMapper;
 
 @Repository
 public class LineDao {
-    private static final String JOIN_LINE_SECTION_SQL = "SELECT line.id, line.name, section.station_id, section.distance  " +
+    private static final String JOIN_LINE_SECTION_SQL = "SELECT COUNT(*)  " +
             "FROM line INNER JOIN section ON line.id = section.line_id " +
-            "WHERE name = ? and (station_id = ? or station_id = ?)";
+            "WHERE name = ? and station_id in (?, ?)";
     private static final String FIND_BY_ID_SQL = "SELECT id, name, extra_fare, color FROM LINE where id = ?";
     private static final String DELETE_LINE_SQL = "DELETE FROM LINE WHERE id = ?";
     private static final String DELETE_SECTION_SQL = "DELETE FROM section WHERE line_id = ?";
@@ -38,7 +38,7 @@ public class LineDao {
     public Line save(Line line, LineRequest lineRequest) {
         List<Line> lines = findAll();
 
-        if(lines.size() > 0 && checkDuplicationLine(lineRequest).size() > 0 ) {
+        if(lines.size() > 0 && checkDuplicationLine(lineRequest) > 0 ) {
             throw new BadRequestException(DUPLICATE_LINE_EXCEPTION);
         }
 
@@ -51,11 +51,9 @@ public class LineDao {
         return new Line(id.longValue(), line.getName(), line.getColor(), line.getExtraFare());
     }
 
-    private List<Line> checkDuplicationLine(LineRequest lineRequest){
-        return jdbcTemplate.query(JOIN_LINE_SECTION_SQL,
-                (rs, rowNum) -> { Line line = new Line(
-                        rs.getLong("id"));
-                        return line;},
+    private int checkDuplicationLine(LineRequest lineRequest){
+        return jdbcTemplate.queryForObject(JOIN_LINE_SECTION_SQL,
+                Integer.class,
                 lineRequest.getName(), lineRequest.getUpStationId(), lineRequest.getDownStationId());
     }
 

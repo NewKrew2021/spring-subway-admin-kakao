@@ -1,7 +1,7 @@
-package subway.section.strategy;
+package subway.section.domain.strategy;
 
 
-import subway.section.Section;
+import subway.section.domain.Section;
 
 public interface SectionGenerateStrategy {
     SectionGenerateStrategy make(Section standardSection, Long newStationId, int distance, int nextRelativePosition);

@@ -1,4 +1,4 @@
-package subway.station;
+package subway.station.domain;
 
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import org.springframework.stereotype.Repository;
+import subway.station.domain.Station;
 
 import java.util.List;
 

@@ -1,10 +1,9 @@
-package subway.line;
+package subway.line.presentation;
 
-import subway.station.Station;
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.station.presentation.StationResponse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LineResponse {
     private Long id;

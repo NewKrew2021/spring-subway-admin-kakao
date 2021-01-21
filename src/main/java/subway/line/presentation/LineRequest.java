@@ -1,6 +1,6 @@
-package subway.line;
+package subway.line.presentation;
 
-import subway.section.Section;
+import subway.section.domain.Section;
 
 public class LineRequest {
     private static final int INITIAL_DISTANCE = 0;

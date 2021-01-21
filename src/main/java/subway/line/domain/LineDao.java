@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.domain;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.exceptions.lineExceptions.LineNotFoundException;
+import subway.line.domain.Line;
 
 import java.util.List;
 

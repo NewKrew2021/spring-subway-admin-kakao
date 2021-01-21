@@ -9,11 +9,12 @@ import subway.exceptions.sectionExceptions.SectionDeleteException;
 import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
 import subway.exceptions.sectionExceptions.SectionNoStationException;
 import subway.exceptions.sectionExceptions.SectionSameSectionException;
+import subway.section.domain.Section;
+import subway.section.domain.Sections;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

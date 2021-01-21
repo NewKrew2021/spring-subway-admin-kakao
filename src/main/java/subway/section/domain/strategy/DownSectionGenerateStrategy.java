@@ -1,7 +1,7 @@
-package subway.section.strategy;
+package subway.section.domain.strategy;
 
 import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
-import subway.section.Section;
+import subway.section.domain.Section;
 
 public class DownSectionGenerateStrategy implements SectionGenerateStrategy {
     private Section upSection;

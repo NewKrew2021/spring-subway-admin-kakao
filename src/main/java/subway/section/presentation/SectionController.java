@@ -1,8 +1,9 @@
-package subway.section;
+package subway.section.presentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.LineResponse;
+import subway.line.presentation.LineResponse;
+import subway.section.service.SectionService;
 
 @RestController
 @RequestMapping("/lines/{lineId}/sections")

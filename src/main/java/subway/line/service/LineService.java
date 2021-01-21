@@ -1,8 +1,12 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
 import subway.exceptions.lineExceptions.LineDuplicatedException;
-import subway.section.SectionService;
+import subway.line.domain.Line;
+import subway.line.domain.LineDao;
+import subway.line.presentation.LineRequest;
+import subway.line.presentation.LineResponse;
+import subway.section.service.SectionService;
 
 import java.util.List;
 import java.util.stream.Collectors;

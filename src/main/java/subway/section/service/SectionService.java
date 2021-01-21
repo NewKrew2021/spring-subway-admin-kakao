@@ -1,9 +1,13 @@
-package subway.section;
+package subway.section.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.strategy.SectionGenerateStrategy;
-import subway.station.StationResponse;
-import subway.station.StationService;
+import subway.section.domain.Section;
+import subway.section.domain.SectionDao;
+import subway.section.domain.Sections;
+import subway.section.domain.strategy.SectionGenerateStrategy;
+import subway.section.presentation.SectionRequest;
+import subway.station.presentation.StationResponse;
+import subway.station.service.StationService;
 
 import java.util.List;
 import java.util.stream.Collectors;

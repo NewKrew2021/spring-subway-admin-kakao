@@ -1,12 +1,13 @@
-package subway.section;
+package subway.section.domain;
 
 import subway.exceptions.sectionExceptions.SectionDeleteException;
 import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
 import subway.exceptions.sectionExceptions.SectionNoStationException;
 import subway.exceptions.sectionExceptions.SectionSameSectionException;
-import subway.section.strategy.DownSectionGenerateStrategy;
-import subway.section.strategy.SectionGenerateStrategy;
-import subway.section.strategy.UpSectionGenerateStrategy;
+import subway.section.domain.Section;
+import subway.section.domain.strategy.DownSectionGenerateStrategy;
+import subway.section.domain.strategy.SectionGenerateStrategy;
+import subway.section.domain.strategy.UpSectionGenerateStrategy;
 
 import java.util.List;
 

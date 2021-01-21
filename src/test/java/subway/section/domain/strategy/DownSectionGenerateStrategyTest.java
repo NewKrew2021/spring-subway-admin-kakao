@@ -1,10 +1,10 @@
-package subway.section.strategy;
+package subway.section.domain.strategy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import subway.section.Section;
+import subway.section.domain.Section;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

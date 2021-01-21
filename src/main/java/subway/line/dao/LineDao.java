@@ -20,10 +20,9 @@ public class LineDao {
     }
 
     public Line insert(String name, String color) {
-        String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement st = con.prepareStatement(LineDaoQuery.INSERT, new String[]{"id"});
             st.setString(1, name);
             st.setString(2, color);
             return st;
@@ -34,28 +33,23 @@ public class LineDao {
 
 
     public boolean update(Long id, LineRequest lineRequest) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
+        return jdbcTemplate.update(LineDaoQuery.UPDATE, lineRequest.getName(), lineRequest.getColor(), id) > 0;
     }
 
     public boolean delete(Long id) {
-        String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        return jdbcTemplate.update(LineDaoQuery.DELETE, id) > 0;
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
-        return jdbcTemplate.query(sql, lineRowMapper);
+        return jdbcTemplate.query(LineDaoQuery.FIND_ALL, lineRowMapper);
     }
 
     public Line findById(Long id) {
-        String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        return jdbcTemplate.queryForObject(LineDaoQuery.FIND_BY_ID, lineRowMapper, id);
     }
 
     public int countByName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        return jdbcTemplate.queryForObject(sql, int.class, name);
+        return jdbcTemplate.queryForObject(LineDaoQuery.COUNT_BY_NAME, int.class, name);
     }
 
     private final RowMapper<Line> lineRowMapper =

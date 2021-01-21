@@ -80,7 +80,8 @@ public class Sections {
     }
 
     private RelativeDistance getRelativeDistanceByStationId(Long stationId) {
-        return sections.stream().filter(section -> section.getStationId().equals(stationId))
+        return sections.stream()
+                .filter(section -> section.getStationId().equals(stationId))
                 .findFirst()
                 .map(Section::getRelativeDistance).get();
     }

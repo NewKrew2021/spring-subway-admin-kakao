@@ -1,4 +1,6 @@
-package subway.line;
+package subway.controller.dto;
+
+import subway.domain.Line;
 
 public class LineRequest {
     private String name;
@@ -36,5 +38,13 @@ public class LineRequest {
 
     public int getDistance() {
         return distance;
+    }
+
+    public Line getLine() {
+        return new Line(name, color);
+    }
+
+    public Line getLine(Long id) {
+        return new Line(id, name, color);
     }
 }

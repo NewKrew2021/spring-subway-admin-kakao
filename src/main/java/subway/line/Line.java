@@ -40,18 +40,6 @@ public class Line {
 
     public int getExtraFare() { return extraFare;}
 
-    public List<Long> getStationInfo(StationDao stationDao, SectionDao sectionDao) {
-        List<Long> stations = new ArrayList<>();
-
-        sectionDao
-                .findByLineId(id).stream()
-                .forEach(section -> {
-                    stations.add(stationDao.findById(section.getUpStationId()).getId());
-                    stations.add(stationDao.findById(section.getDownStationId()).getId());
-                });
-        return stations.stream().distinct().collect(Collectors.toList());
-    }
-
     public Long getUpStationId(SectionDao sectionDao) {
         return sectionDao.getUpStationId(id);
     }

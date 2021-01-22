@@ -1,9 +1,6 @@
 package subway.station.entity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,5 +53,18 @@ public class Stations {
     private Map<Long, Station> getIdentityMap() {
         return stations.stream()
                 .collect(Collectors.toMap(Station::getId, Function.identity()));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Stations stations1 = (Stations) o;
+        return stations.equals(stations1.stations);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stations);
     }
 }

@@ -1,18 +1,60 @@
-//package subway.section.entity;
+package subway.section.entity;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@DisplayName("지하철 구간 묶음 관련 기능")
+class SectionsTest {
+    @DisplayName("모든 구간이 하나의 노선에 연결되어 있다면 순서를 정렬하여 반환한다.")
+    @Test
+    void getLineSections() {
+        // given
+        Section first = new Section(1L, 1L, 1L, 2L, 10);
+        Section second = new Section(2L, 1L, 2L, 3L, 4);
+        Section third = new Section(2L, 1L, 3L, 4L, 5);
+        List<Section> firstToThird = Arrays.asList(first, second, third);
+        Sections sections = new Sections(firstToThird);
+
+        // then
+        assertThat(sections.getLineSections()).isEqualTo(new LineSections(firstToThird));
+    }
+
+    @DisplayName("구간이 끊어져 있다면 예외를 던진다.")
+    @Test
+    void getLineSections2() {
+        // given
+        Section first = new Section(1L, 1L, 1L, 2L, 10);
+        Section third = new Section(2L, 1L, 3L, 4L, 4);
+        Section fourth = new Section(2L, 1L, 4L, 5L, 5);
+        Sections sections = new Sections(Arrays.asList(first, third, fourth));
+
+        // then
+        assertThatThrownBy(sections::getLineSections).isInstanceOf(IllegalStateException.class)
+                .hasMessage("끊어진 구간 리스트는 노선 구간이 될 수 없습니다.");
+    }
+
+    @DisplayName("구간은 이어져있지만 하나의 노선에 연결되어있지 않다면 예외를 던진다.")
+    @Test
+    void getLineSections3() {
+        // given
+        Section first = new Section(1L, 1L, 1L, 2L, 10);
+        Section second = new Section(2L, 1L, 2L, 3L, 4);
+        Section third = new Section(2L, 2L, 3L, 4L, 5);
+        List<Section> firstToThird = Arrays.asList(first, second, third);
+        Sections sections = new Sections(firstToThird);
+
+        // then
+        assertThatThrownBy(sections::getLineSections).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("한 줄기로 이어지지 않은 구간 리스트를 입력받을 수 없습니다.");
+    }
 //
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
 //
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//import java.util.stream.Stream;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//
-//@DisplayName("지하철 구간 묶음 관련 기능")
-//class SectionsTest {
 //
 //    @DisplayName("구간의 입력 순서에 상관없이, 정렬된 지하철 역 id 목록을 반환한다.")
 //    @Test
@@ -220,4 +262,4 @@
 //        // then
 //        assertThat(collapsibleSection).isNotPresent();
 //    }
-//}
+}

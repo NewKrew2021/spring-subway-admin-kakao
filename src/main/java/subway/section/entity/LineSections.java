@@ -2,6 +2,7 @@ package subway.section.entity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -81,8 +82,8 @@ public class LineSections {
     }
 
     private boolean isConnected(Section insertSection) {
-        return (getUpEndStationId() == insertSection.getDownStationId())
-                || (getDownEndStationId() == insertSection.getUpStationId());
+        return (getLineId() == insertSection.getLineId())
+                && ((getUpEndStationId() == insertSection.getDownStationId()) || (getDownEndStationId() == insertSection.getUpStationId()));
     }
 
     public Optional<Section> findCollapsibleSection(Section insertSection) {
@@ -113,5 +114,18 @@ public class LineSections {
                 .flatMap(section -> section.getStationIds().stream())
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LineSections that = (LineSections) o;
+        return Objects.equals(sections, that.sections);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sections);
     }
 }

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StationDao {
-    Station insert(Station station);
+    Station insert(String name);
 
     Optional<Station> findStationById(Long id);
 
-    Stations findStationsByIds(List<Long> ids);
+    Optional<Stations> findStationsByIds(List<Long> ids);
 
-    Stations findAllStations();
+    Optional<Stations> findAllStations();
 
     int update(Station station);
 

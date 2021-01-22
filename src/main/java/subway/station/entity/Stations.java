@@ -1,7 +1,11 @@
 package subway.station.entity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Stations {
@@ -34,5 +38,23 @@ public class Stations {
 
     public Stream<Station> stream() {
         return stations.stream();
+    }
+
+    public boolean hasSameSize(int size) {
+        return stations.size() == size;
+    }
+
+    public Stations sortByIds(List<Long> ids) {
+        Map<Long, Station> identityMap = getIdentityMap();
+        List<Station> sortedStations = new ArrayList<>();
+        for (Long id : ids) {
+            sortedStations.add(identityMap.get(id));
+        }
+        return new Stations(sortedStations);
+    }
+
+    private Map<Long, Station> getIdentityMap() {
+        return stations.stream()
+                .collect(Collectors.toMap(Station::getId, Function.identity()));
     }
 }

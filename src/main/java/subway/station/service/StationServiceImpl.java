@@ -10,7 +10,6 @@ import subway.station.dao.StationDao;
 import subway.station.entity.Station;
 import subway.station.entity.Stations;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,31 +22,33 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
-    public Station create(Station station) {
-        return stationDao.insert(station);
+    public Station create(String name) {
+        return stationDao.insert(name);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Station findStationById(Long id) {
+    public Station getStationById(Long id) {
         return stationDao.findStationById(id)
                 .orElseThrow(() -> new NotExistEntityException("존재하지 않는 지하철 역입니다."));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Stations findStationsByIds(List<Long> ids) {
-        List<Station> stations = new ArrayList<>();
-        for (Long id : ids) {
-            stations.add(findStationById(id));
+    public Stations getStationsByIds(List<Long> ids) {
+        Stations stations = stationDao.findStationsByIds(ids)
+                .orElseThrow(() -> new NotExistEntityException("일치하는 지하철 역이 한개도 없습니다."));
+        if (!stations.hasSameSize(ids.size())) {
+            throw new NotExistEntityException("존재하지 않는 지하철 역이 있습니다.");
         }
-        return new Stations(stations);
+        return stations.sortByIds(ids);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Stations findAllStations() {
-        return stationDao.findAllStations();
+    public Stations getAllStations() {
+        return stationDao.findAllStations()
+                .orElseThrow(() -> new NotExistEntityException("지하철 역이 한개도 존재하지 않습니다."));
     }
 
     @Override
@@ -62,6 +63,14 @@ public class StationServiceImpl implements StationService {
         }
     }
 
+    private boolean isNotExist(Long id) {
+        return !stationDao.findStationById(id).isPresent();
+    }
+
+    private boolean isNotUpdated(int update) {
+        return update == 0;
+    }
+
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void delete(Long id) {
@@ -72,13 +81,5 @@ public class StationServiceImpl implements StationService {
         if (isNotUpdated(stationDao.delete(id))) {
             throw new NotDeletableEntityException("지하철 역을 삭제할 수 없습니다.");
         }
-    }
-
-    private boolean isNotExist(Long id) {
-        return !stationDao.findStationById(id).isPresent();
-    }
-
-    private boolean isNotUpdated(int update) {
-        return update == 0;
     }
 }

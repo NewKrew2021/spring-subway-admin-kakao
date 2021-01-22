@@ -5,17 +5,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
-import subway.line.service.LineService;
 import subway.line.entity.Line;
+import subway.line.service.LineService;
 import subway.section.dto.SectionRequest;
-import subway.section.service.SectionService;
 import subway.section.entity.Section;
-import subway.station.service.StationService;
+import subway.section.service.SectionService;
 import subway.station.entity.Stations;
+import subway.station.service.StationService;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
@@ -32,14 +31,14 @@ public class LineController {
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = lineService.create(
-                lineRequest.toLine()
+                lineRequest.getName(),
+                lineRequest.getColor()
         );
-        Section section = sectionService.create(
-                lineRequest.toSection(
-                        line.getId()
-                )
-        );
-        Stations stations = stationService.findStationsByIds(section.getStationIds());
+        Section section = sectionService.create(line.getId(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance());
+        Stations stations = stationService.getStationsByIds(section.getStationIds());
         return ResponseEntity.created(
                 URI.create("/lines/" + line.getId())
         ).body(new LineResponse(line, stations));
@@ -47,37 +46,20 @@ public class LineController {
 
     @GetMapping(value = "/lines/{lineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        Line line = lineService.findLineById(lineId);
-        Stations stations = stationService.findStationsByIds(
-                sectionService.findSectionsByLineId(lineId)
-                        .getStationIdsInDownwardOrder()
-        );
-        return ResponseEntity.ok(
-                new LineResponse(line, stations)
-        );
+        return ResponseEntity.ok(lineService.getLineWithStationsByLineId(lineId));
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        return lineService.findAllLines()
-                .stream()
-                .map(line -> {
-                    Stations stations = stationService.findStationsByIds(
-                            sectionService.findSectionsByLineId(line.getId())
-                                    .getStationIdsInDownwardOrder()
-                    );
-                    return new LineResponse(line, stations);
-                }).collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        ResponseEntity::ok
-                ));
+        return ResponseEntity.ok(lineService.getAllLinesWithStations());
     }
 
     @PutMapping(value = "/lines/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateLine(@RequestBody LineRequest lineRequest, @PathVariable Long id) {
-        lineService.update(
-                lineRequest.toLine(id)
-        );
+        Line line = new Line(id,
+                lineRequest.getName(),
+                lineRequest.getColor());
+        lineService.update(line);
         return ResponseEntity.ok().build();
     }
 
@@ -90,7 +72,10 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<Void> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section section = sectionRequest.toSection(lineId);
+        Section section = new Section(lineId,
+                sectionRequest.getUpStationId(),
+                sectionRequest.getDownStationId(),
+                sectionRequest.getDistance());
         sectionService.connect(section);
         return ResponseEntity.ok().build();
     }

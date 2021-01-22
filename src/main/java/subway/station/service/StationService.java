@@ -6,13 +6,13 @@ import subway.station.entity.Stations;
 import java.util.List;
 
 public interface StationService {
-    Station create(Station station);
+    Station create(String name);
 
-    Station findStationById(Long id);
+    Station getStationById(Long id);
 
-    Stations findStationsByIds(List<Long> ids);
+    Stations getStationsByIds(List<Long> ids);
 
-    Stations findAllStations();
+    Stations getAllStations();
 
     void update(Station station);
 

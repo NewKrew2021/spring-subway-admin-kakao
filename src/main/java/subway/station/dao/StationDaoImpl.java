@@ -2,6 +2,7 @@ package subway.station.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -38,48 +39,60 @@ public class StationDaoImpl implements StationDao {
     }
 
     @Override
-    public Station insert(Station station) {
+    public Station insert(String name) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(
-                    INSERT_QUERY,
-                    Statement.RETURN_GENERATED_KEYS
-            );
-            ps.setString(1, station.getName());
-            return ps;
-        }, keyHolder);
+        PreparedStatementCreator psc = generatePreparedStatementCreator(name);
+        jdbcTemplate.update(psc, keyHolder);
         Long id = (Long) keyHolder.getKey();
-        return new Station(id, station);
+        return new Station(id, name);
+    }
+
+    private PreparedStatementCreator generatePreparedStatementCreator(String name) {
+        return con -> {
+            PreparedStatement ps = con.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, name);
+            return ps;
+        };
     }
 
     @Override
     public Optional<Station> findStationById(Long id) {
         try {
-            return Optional.ofNullable(
-                    jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, stationRowMapper, id)
-            );
+            Station station = jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, stationRowMapper, id);
+            return Optional.ofNullable(station);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     @Override
-    public Stations findStationsByIds(List<Long> ids) {
-        return new Stations(
-                jdbcTemplate.query(String.format(SELECT_BY_IDS_QUERY,
-                        ids.stream()
-                                .map(String::valueOf)
-                                .collect(Collectors.joining(", "))
-                        ), stationRowMapper
-                )
-        );
+    public Optional<Stations> findStationsByIds(List<Long> ids) {
+        try {
+            String joinedIds = getJoinedString(ids);
+            String sql = String.format(SELECT_BY_IDS_QUERY, joinedIds);
+            List<Station> stationList = jdbcTemplate.query(sql, stationRowMapper);
+            Stations stations = new Stations(stationList);
+            return Optional.of(stations);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private String getJoinedString(List<Long> ids) {
+        return ids.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", "));
     }
 
     @Override
-    public Stations findAllStations() {
-        return new Stations(
-                jdbcTemplate.query(SELECT_ALL_QUERY, stationRowMapper)
-        );
+    public Optional<Stations> findAllStations() {
+        try {
+            List<Station> stationList = jdbcTemplate.query(SELECT_ALL_QUERY, stationRowMapper);
+            Stations stations = new Stations(stationList);
+            return Optional.of(stations);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -1,8 +1,5 @@
 package subway.line.dto;
 
-import subway.line.entity.Line;
-import subway.section.entity.Section;
-
 public class LineRequest {
     private String name;
     private String color;
@@ -39,17 +36,5 @@ public class LineRequest {
 
     public int getDistance() {
         return distance;
-    }
-
-    public Line toLine() {
-        return new Line(name, color);
-    }
-
-    public Line toLine(Long lineId) {
-        return new Line(lineId, name, color);
-    }
-
-    public Section toSection(Long lineId) {
-        return new Section(lineId, upStationId, downStationId, distance);
     }
 }

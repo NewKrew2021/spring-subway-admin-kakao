@@ -6,11 +6,11 @@ import subway.line.entity.Lines;
 import java.util.Optional;
 
 public interface LineDao {
-    Line insert(Line line);
+    Line insert(String name, String color);
 
     Optional<Line> findLineById(Long id);
 
-    Lines findAllLines();
+    Optional<Lines> findAllLines();
 
     int update(Line line);
 

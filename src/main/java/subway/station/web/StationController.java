@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.dto.StationRequest;
 import subway.station.dto.StationResponse;
-import subway.station.service.StationService;
 import subway.station.entity.Station;
+import subway.station.service.StationService;
 
 import java.net.URI;
 import java.util.List;
@@ -22,9 +22,7 @@ public class StationController {
 
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station station = stationService.create(
-                stationRequest.toStation()
-        );
+        Station station = stationService.create(stationRequest.getName());
         return ResponseEntity.created(
                 URI.create(
                         "/stations/" + station.getId()
@@ -35,7 +33,7 @@ public class StationController {
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
         return ResponseEntity.ok(
-                stationService.findAllStations()
+                stationService.getAllStations()
                         .stream()
                         .map(StationResponse::new)
                         .collect(Collectors.toList())

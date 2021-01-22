@@ -1,16 +1,16 @@
 package subway.section.service;
 
+import subway.section.entity.LineSections;
 import subway.section.entity.Section;
-import subway.section.entity.Sections;
 
 public interface SectionService {
-    Section create(Section section);
+    Section create(Long lineId, Long upStationId, Long downStationId, int distance);
 
     void connect(Section section);
 
-    Section findSectionById(Long id);
+    Section getSectionById(Long id);
 
-    Sections findSectionsByLineId(Long lineId);
+    LineSections getSectionsByLineId(Long lineId);
 
     void update(Section section);
 

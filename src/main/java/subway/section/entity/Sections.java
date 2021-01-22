@@ -1,6 +1,9 @@
 package subway.section.entity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,19 +13,12 @@ public class Sections {
 
     public Sections(List<Section> sections) {
         validate(sections);
-        this.sections = Collections.unmodifiableList(
-                sortInDownwardOrder(sections)
-        );
+        this.sections = Collections.unmodifiableList(sections);
     }
 
     private void validate(List<Section> sections) {
         if (isEmpty(sections)) {
             throw new IllegalArgumentException("비어있는 구간 리스트를 입력받을 수 없습니다.");
-        }
-
-        // 순환하지 않는다고 가정
-        if (isNotUnited(sections)) {
-            throw new IllegalArgumentException("한 줄기로 이어지지 않은 구간 리스트를 입력받을 수 없습니다.");
         }
     }
 
@@ -30,96 +26,61 @@ public class Sections {
         return sections == null || sections.isEmpty();
     }
 
-    private boolean isNotUnited(List<Section> sections) {
-        assert !isEmpty(sections);
-        Map<Long, Section> cache = sections.stream()
-                .collect(Collectors.toMap(
-                        Section::getUpStationId, Function.identity()
-                ));
-
-        int count = 0;
-        Section curr = cache.get(findUpEndStationId(sections));
-        while (curr != null) {
-            ++count;
-            curr = cache.get(curr.getDownStationId());
-        }
-        return count != sections.size();
-    }
-
-    private List<Section> sortInDownwardOrder(List<Section> sections) {
-        Map<Long, Section> cache = sections.stream()
-                .collect(Collectors.toMap(
-                        Section::getUpStationId, Function.identity()
-                ));
+    public LineSections getLineSections() {
+        Section curr = getUpEndSection();
+        Map<Long, Section> identityMap = getIdentityMap();
 
         List<Section> sortedSections = new ArrayList<>();
-        Section curr = cache.get(findUpEndStationId(sections));
         while (curr != null) {
             sortedSections.add(curr);
-            curr = cache.get(curr.getDownStationId());
-        }
-        return sortedSections;
-    }
-
-    private long findUpEndStationId(List<Section> sections) {
-        assert !sections.isEmpty();
-        if (sections.size() == 1) {
-            return sections.get(0).getUpStationId();
+            curr = identityMap.get(curr.getDownStationId());
         }
 
-        List<Long> stationIds = sections.stream()
-                .flatMap(section -> section.getStationIds().stream())
-                .collect(Collectors.toList());
-
-        List<Long> endStationIds = stationIds.stream()
-                .distinct()
-                .filter(stationId -> Collections.frequency(stationIds, stationId) == 1)
-                .collect(Collectors.toList());
-        assert endStationIds.size() == 2; // upEnd, downEnd
-
-        Map<Long, Section> cache = sections.stream()
-                .collect(Collectors.toMap(
-                        Section::getDownStationId, Function.identity()
-                ));
-
-        return cache.get(endStationIds.get(0)) == null ? endStationIds.get(0) : endStationIds.get(1);
-    }
-
-    public List<Long> getStationIdsInDownwardOrder() {
-        List<Long> stationIds = new ArrayList<>();
-        stationIds.add(sections.get(0).getUpStationId());
-        for (Section section : sections) {
-            stationIds.add(section.getDownStationId());
+        if (isNotEqual(sortedSections)) {
+            throw new IllegalStateException("끊어진 구간 리스트는 노선 구간이 될 수 없습니다.");
         }
-        return stationIds;
+        return new LineSections(sortedSections);
     }
 
-    public Section merge() {
-        return new Section(
-                getLineId(),
-                getUpEndStationId(),
-                getDownEndStationId(),
-                getSumOfDistance()
-        );
-    }
-
-    private Long getLineId() {
-        return sections.get(0).getLineId();
-    }
-
-    private long getUpEndStationId() {
-        return sections.get(0).getUpStationId();
-    }
-
-    private long getDownEndStationId() {
-        return sections.get(sections.size() - 1).getDownStationId();
-    }
-
-    private int getSumOfDistance() {
+    private Section getUpEndSection() {
+        List<Long> endStationIds = getEndStationIds();
+        assert endStationIds.size() == 2;
+//        return sections.stream()
+//                .filter(section -> endStationIds.contains(section.getUpStationId()))
+//                .collect(Collectors.collectingAndThen(
+//                        Collectors.toList(),
+//                        list -> {
+//                            assert (list != null && list.size() == 1);
+//                            return list.get(0);
+//                        }
+//                ));
         return sections.stream()
-                .map(Section::getDistance)
-                .reduce(Integer::sum)
-                .orElseThrow(AssertionError::new);
+                .filter(section -> endStationIds.contains(section.getUpStationId()))
+                .findAny()
+                .orElse(null);
+    }
+
+    private List<Long> getEndStationIds() {
+        return sections.stream()
+                .flatMap(section -> section.getStationIds().stream())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() == 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, Section> getIdentityMap() {
+        return sections.stream()
+                .collect(Collectors.toMap(
+                        Section::getUpStationId, Function.identity()
+                ));
+    }
+
+    private boolean isNotEqual(List<Section> sortedSections) {
+        return (sections.size() != sortedSections.size())
+                || (!sortedSections.containsAll(sections));
     }
 
     public Stream<Section> stream() {
@@ -134,33 +95,7 @@ public class Sections {
         );
     }
 
-    public int size() {
-        return sections.size();
-    }
-
-    public boolean isNotDeletable() {
-        return sections.size() == 1;
-    }
-
-    public boolean isMultiple() {
-        return sections.size() > 1;
-    }
-
-    private boolean isCircle(Section section) {
-        return (getUpEndStationId() == section.getDownStationId())
-                && (getDownEndStationId() == section.getUpStationId());
-    }
-
-    public boolean isExtendable(Section section) {
-        return !isCircle(section) && (
-                (getUpEndStationId() == section.getDownStationId())
-                        || (getDownEndStationId() == section.getUpStationId())
-        );
-    }
-
-    public Optional<Section> findCollapsibleSection(Section section) {
-        return sections.stream()
-                .filter(element -> element.isCollapsible(section))
-                .findAny();
+    public boolean hasSameSize(int size) {
+        return sections.size() == size;
     }
 }

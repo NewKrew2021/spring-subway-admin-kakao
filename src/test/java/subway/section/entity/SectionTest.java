@@ -90,7 +90,7 @@ class SectionTest {
         Section collapsibleSection = new Section(2L, 1L, 1L, 3L, 5);
 
         // then
-        Section collapsedSection = collapsibleSection.collapse(baseSection);
+        Section collapsedSection = collapsibleSection.getCollapsedSection(baseSection);
         assertThat(collapsedSection).isEqualTo(new Section(2L, 1L, 2L, 3L, 1));
     }
 
@@ -103,7 +103,7 @@ class SectionTest {
 
         // then
         try {
-            nonCollapsibleSection.collapse(baseSection);
+            nonCollapsibleSection.getCollapsedSection(baseSection);
         } catch (Error error) {
             assertThat(error).isInstanceOf(AssertionError.class);
         }

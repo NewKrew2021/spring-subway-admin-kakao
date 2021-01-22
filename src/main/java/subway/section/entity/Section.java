@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class Section {
+    private Long id;
     private final long lineId;
     private final long upStationId;
     private final long downStationId;
     private final int distance;
-    private Long id;
 
     public Section(long lineId, long upStationId, long downStationId, int distance) {
         validate(upStationId, downStationId, distance);
@@ -17,16 +17,6 @@ public class Section {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
-    }
-
-    private void validate(long upStationId, long downStationId, int distance) {
-        if (isInvalidStationId(upStationId, downStationId)) {
-            throw new IllegalArgumentException("출발역과 도착역은 같을 수 없습니다.");
-        }
-
-        if (isInvalidDistance(distance)) {
-            throw new IllegalArgumentException("구간의 거리는 0보다 커야 합니다.");
-        }
     }
 
     public Section(Long id, long lineId, long upStationId, long downStationId, int distance) {
@@ -47,12 +37,48 @@ public class Section {
         );
     }
 
+    private void validate(long upStationId, long downStationId, int distance) {
+        if (isInvalidStationId(upStationId, downStationId)) {
+            throw new IllegalArgumentException("출발역과 도착역은 같을 수 없습니다.");
+        }
+        if (isInvalidDistance(distance)) {
+            throw new IllegalArgumentException("구간의 거리는 0보다 커야 합니다.");
+        }
+    }
+
     private boolean isInvalidStationId(long upStationId, long downStationId) {
         return upStationId == downStationId;
     }
 
     private boolean isInvalidDistance(int distance) {
         return distance <= 0;
+    }
+
+    public Section getCollapsedSection(Section insertSection) {
+        assert isCollapsible(insertSection);
+        if (hasSameUpStation(insertSection)) {
+            return new Section(
+                    id,
+                    lineId,
+                    insertSection.downStationId,
+                    downStationId,
+                    distance - insertSection.distance
+            );
+        }
+
+        assert hasSameDownStation(insertSection);
+        return new Section(
+                id,
+                lineId,
+                upStationId,
+                insertSection.upStationId,
+                distance - insertSection.distance
+        );
+    }
+
+    public boolean isCollapsible(Section insertSection) {
+        return (hasSameUpStation(insertSection) != hasSameDownStation(insertSection))
+                && distance > insertSection.distance;
     }
 
     private boolean hasSameUpStation(Section section) {
@@ -64,34 +90,11 @@ public class Section {
     }
 
     public boolean containsStation(Long stationId) {
-        return stationId != null && (stationId.equals(upStationId) || stationId.equals(downStationId));
+        return stationId != null && getStationIds().contains(stationId);
     }
 
-    public Section collapse(Section section) {
-        assert isCollapsible(section);
-        if (hasSameUpStation(section)) {
-            return new Section(
-                    id,
-                    lineId,
-                    section.downStationId,
-                    downStationId,
-                    distance - section.distance
-            );
-        }
-
-        assert hasSameDownStation(section);
-        return new Section(
-                id,
-                lineId,
-                upStationId,
-                section.upStationId,
-                distance - section.distance
-        );
-    }
-
-    public boolean isCollapsible(Section section) {
-        return (hasSameUpStation(section) != hasSameDownStation(section))
-                && distance > section.distance;
+    public List<Long> getStationIds() {
+        return Arrays.asList(upStationId, downStationId);
     }
 
     public Long getId() {
@@ -112,10 +115,6 @@ public class Section {
 
     public int getDistance() {
         return distance;
-    }
-
-    public List<Long> getStationIds() {
-        return Arrays.asList(upStationId, downStationId);
     }
 
     @Override

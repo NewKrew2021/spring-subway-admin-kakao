@@ -11,6 +11,18 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
+    public LineResponse() {
+
+    }
+
+
+    public LineResponse(Line line, List<StationResponse> stationResponses) {
+        this.id = line.getId();
+        this.name = line.getName();
+        this.color = line.getColor();
+        this.stations = stationResponses;
+    }
+
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;

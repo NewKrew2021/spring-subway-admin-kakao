@@ -30,6 +30,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_생성됨(response);
     }
 
+
     @DisplayName("지하철역을 조회한다.")
     @Test
     void getStations() {

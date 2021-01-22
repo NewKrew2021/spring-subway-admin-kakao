@@ -38,12 +38,12 @@ public class SectionService {
         int targetIndex = -1;
 
         int upIndex = IntStream.range(1, sections.size())
-                .filter(i -> sections.get(i).getUpStation().getId().equals(section.getUpStation().getId()))
+                .filter(i -> isSameUpStation(sections, section, i))
                 .findAny()
                 .orElse(-1);
 
         int downIndex = IntStream.range(0, sections.size() - 1)
-                .filter(i -> sections.get(i).getDownStation().getId().equals(section.getDownStation().getId()))
+                .filter(i -> isSameDownStation(sections, section, i))
                 .findAny()
                 .orElse(-1);
 
@@ -56,7 +56,15 @@ public class SectionService {
         return sections.get(targetIndex);
     }
 
-    public Sections findAllSection(Line line){
+    private boolean isSameUpStation(Sections sections, Section section, int index) {
+        return sections.get(index).getUpStation().getId().equals(section.getUpStation().getId());
+    }
+
+    private boolean isSameDownStation(Sections sections, Section section, int index) {
+        return sections.get(index).getDownStation().getId().equals(section.getDownStation().getId());
+    }
+
+    public Sections findAllSection(Line line) {
         return sectionDao.findAll(line.getId());
     }
 

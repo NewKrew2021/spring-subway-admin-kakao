@@ -16,6 +16,11 @@ public class Sections {
         this.sections = new ArrayList<>();
     }
 
+    public Sections(Section section){
+        this();
+        this.sections.add(section);
+    }
+
     public Sections(List<Section> sections) {
         this();
         Map<Station, List<Section>> countMap = new HashMap<>();

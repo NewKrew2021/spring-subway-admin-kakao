@@ -41,8 +41,8 @@ public class LineService {
         ));
     }
 
-    public void creatSection(Long upStationId, Long downStationId, int distance, Line line) {
-        sectionDao.save(new Section(
+    public Section creatSection(Long upStationId, Long downStationId, int distance, Line line) {
+        return sectionDao.save(new Section(
                 line.getId(),
                 stationDao.findOne(upStationId),
                 stationDao.findOne(downStationId),

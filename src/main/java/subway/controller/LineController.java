@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.Line;
 import subway.domain.Section;
+import subway.domain.Sections;
 import subway.response.*;
 import subway.request.LineRequest;
 import subway.request.SectionRequest;
@@ -31,19 +32,20 @@ public class LineController {
         Line line = lineService.getLine(
                 lineRequest.getName(),
                 lineRequest.getColor());
-        lineService.creatSection(
+        Section section = lineService.creatSection(
                 lineRequest.getUpStationId(),
                 lineRequest.getDownStationId(),
                 lineRequest.getDistance(),
                 line);
-        LineResponse lineResponse = new LineResponse(line);
+        LineResponse lineResponse = new LineResponse(line, new Sections(section));
         return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(lineResponse);
     }
 
     @GetMapping("/lines")
     public ResponseEntity<List<LineResponse>> showAllLines() {
         List<LineResponse> responses = lineService.findAllLines().stream()
-                .map(LineResponse::new)
+                .map(line -> new LineResponse(line,
+                        sectionService.findAllSection(line)))
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(responses);
     }
@@ -51,14 +53,20 @@ public class LineController {
     @GetMapping("/lines/{id}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
         Line line = lineService.findOneLine(id);
-        LineResponse response = new LineResponse(line);
+        Sections sections = sectionService.findAllSection(line);
+        LineResponse response = new LineResponse(line, sections);
         return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         Line line = lineService.findOneLine(id);
-        LineResponse response = new LineResponse(lineService.updateLine(id, line));
+        Line newLine = lineService.updateLine(line.getId(),
+                new Line(line.getId(),
+                lineRequest.getName(),
+                lineRequest.getColor()));
+        Sections sections = sectionService.findAllSection(line);
+        LineResponse response = new LineResponse(newLine, sections);
         return ResponseEntity.ok().body(response);
     }
 

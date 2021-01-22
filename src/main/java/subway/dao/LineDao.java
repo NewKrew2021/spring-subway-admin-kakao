@@ -12,12 +12,9 @@ import java.util.List;
 
 @Repository
 public class LineDao {
-    private final SectionDao sectionDao;
-
     private final JdbcTemplate jdbcTemplate;
 
-    public LineDao(SectionDao sectionDao, JdbcTemplate jdbcTemplate) {
-        this.sectionDao = sectionDao;
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -55,8 +52,7 @@ public class LineDao {
                 (resultSet, rowNum) -> new Line(
                         resultSet.getLong("id"),
                         resultSet.getString("name"),
-                        resultSet.getString("color"),
-                        sectionDao.findAll(id)
+                        resultSet.getString("color")
                 ), id);
     }
 

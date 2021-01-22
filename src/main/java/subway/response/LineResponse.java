@@ -1,6 +1,7 @@
 package subway.response;
 
 import subway.domain.Line;
+import subway.domain.Sections;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +24,13 @@ public class LineResponse {
         this.stations = stations;
     }
 
-    public LineResponse(Line line) {
+    public LineResponse(Line line, Sections sections) {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
 
-        this.stations = IntStream.range(1, line.getSections().size())
-                .mapToObj(line.getSections()::get)
+        this.stations = IntStream.range(1, sections.size())
+                .mapToObj(sections::get)
                 .map(section -> new StationResponse(section.getUpStation()))
                 .collect(Collectors.toList());
     }

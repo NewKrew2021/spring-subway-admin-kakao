@@ -1,15 +1,11 @@
 package subway.domain;
 
-import java.util.*;
-
 public class Line {
     private Long id;
     private String name;
     private String color;
-    private Sections sections;
 
     public Line() {
-        this.sections = new Sections();
     }
 
     public Line(String name, String color) {
@@ -21,11 +17,6 @@ public class Line {
     public Line(Long id, String name, String color) {
         this(name, color);
         this.id = id;
-    }
-
-    public Line(Long id, String name, String color, List<Section> sections) {
-        this(id, name, color);
-        this.sections = new Sections(sections);
     }
 
     public Long getId() {
@@ -40,9 +31,6 @@ public class Line {
         return color;
     }
 
-    public Sections getSections() {
-        return sections;
-    }
 
 
     @Override
@@ -50,8 +38,7 @@ public class Line {
         return "Line{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", color='" + color + '\'' +
-                ", sections=" + sections +
+                ", color='" + color +
                 '}';
     }
 

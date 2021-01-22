@@ -34,7 +34,7 @@ public class SectionService {
     }
 
     public Section addSection(Line line, Section section) {
-        Sections sections = line.getSections();
+        Sections sections = sectionDao.findAll(line.getId());
         int targetIndex = -1;
 
         int upIndex = IntStream.range(1, sections.size())
@@ -54,6 +54,10 @@ public class SectionService {
         targetIndex = getTargetIndexIfDownIndex(line, section, sections, targetIndex, downIndex);
 
         return sections.get(targetIndex);
+    }
+
+    public Sections findAllSection(Line line){
+        return sectionDao.findAll(line.getId());
     }
 
     private int getTargetIndexIfDownIndex(Line line, Section section, Sections sections, int targetIndex, int downIndex) {

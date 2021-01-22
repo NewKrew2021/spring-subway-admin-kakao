@@ -1,8 +1,8 @@
 package subway.line.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import subway.station.dto.StationResponse;
 
-import java.beans.ConstructorProperties;
 import java.util.List;
 
 public class LineResponse {
@@ -11,9 +11,7 @@ public class LineResponse {
     private String color;
     private List<StationResponse> stations;
 
-    // TODO: ConstructorProperties를 parameterNamesModule 로 바꿔보기?
-    //       or 기본 생성자 생성 후 private?
-    @ConstructorProperties({"id", "name", "color", "stations"})
+    @JsonCreator
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;

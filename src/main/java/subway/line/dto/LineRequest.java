@@ -1,6 +1,6 @@
 package subway.line.dto;
 
-import java.beans.ConstructorProperties;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class LineRequest {
     private String name;
@@ -10,9 +10,7 @@ public class LineRequest {
     private int distance;
     private int extraFare;
 
-    // TODO: ConstructorProperties를 parameterNamesModule 로 바꿔보기?
-    //       or 기본 생성자 생성 후 private?
-    @ConstructorProperties({"name", "color", "upStationID", "downStationID", "distance"})
+    @JsonCreator
     public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
         this.name = name;
         this.color = color;

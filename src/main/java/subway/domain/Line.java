@@ -6,7 +6,7 @@ public class Line {
     private Long id;
     private String name;
     private String color;
-    private final Sections sections;
+    private Sections sections;
 
     public Line() {
         this.sections = new Sections();
@@ -25,7 +25,7 @@ public class Line {
 
     public Line(Long id, String name, String color, List<Section> sections) {
         this(id, name, color);
-        this.sections.initSections(sections);
+        this.sections = new Sections(sections);
     }
 
     public Long getId() {

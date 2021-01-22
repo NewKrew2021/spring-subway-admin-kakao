@@ -16,7 +16,8 @@ public class Sections {
         this.sections = new ArrayList<>();
     }
 
-    public void initSections(List<Section> sections) {
+    public Sections(List<Section> sections) {
+        this();
         Map<Station, List<Section>> countMap = new HashMap<>();
         sections.forEach(section -> {
             countMap.computeIfAbsent(section.getUpStation(), (key)->new ArrayList<>());

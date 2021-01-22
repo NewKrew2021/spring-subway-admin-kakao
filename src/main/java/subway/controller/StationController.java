@@ -4,9 +4,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.dao.StationDao;
-import subway.domain.station.Station;
-import subway.domain.station.StationRequest;
-import subway.domain.station.StationResponse;
+import subway.domain.Station;
+import subway.dto.StationRequest;
+import subway.dto.StationResponse;
 
 import java.net.URI;
 import java.util.List;

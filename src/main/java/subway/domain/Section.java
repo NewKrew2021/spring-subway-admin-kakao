@@ -1,6 +1,7 @@
-package subway.domain.section;
+package subway.domain;
 
-import subway.domain.line.LineRequest;
+import subway.dto.LineRequest;
+import subway.dto.SectionRequest;
 
 import java.util.Arrays;
 import java.util.List;

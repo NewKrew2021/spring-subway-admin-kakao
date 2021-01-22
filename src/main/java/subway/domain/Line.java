@@ -1,4 +1,6 @@
-package subway.domain.line;
+package subway.domain;
+
+import subway.dto.LineRequest;
 
 import java.util.Objects;
 

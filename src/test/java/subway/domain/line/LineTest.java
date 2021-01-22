@@ -3,6 +3,7 @@ package subway.domain.line;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.Line;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

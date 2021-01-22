@@ -3,10 +3,13 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.SectionDao;
-import subway.domain.section.Section;
-import subway.domain.section.Sections;
+import subway.dao.StationDao;
+import subway.domain.Section;
+import subway.domain.Sections;
+import subway.dto.StationResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
@@ -14,9 +17,11 @@ public class SectionService {
     private static final int SECOND = 1;
 
     private final SectionDao sectionDao;
+    private final StationDao stationDao;
 
-    SectionService(SectionDao sectionDao) {
+    public SectionService(SectionDao sectionDao, StationDao stationDao) {
         this.sectionDao = sectionDao;
+        this.stationDao = stationDao;
     }
 
     @Transactional
@@ -118,5 +123,11 @@ public class SectionService {
 
     public void deleteLineId(Long lineId) {
         sectionDao.deleteByLineId(lineId);
+    }
+
+    public List<StationResponse> getStationsById(Long id) {
+        return getStationIds(id).stream()
+                .map(stationId -> StationResponse.of(stationDao.findById(stationId)))
+                .collect(Collectors.toList());
     }
 }

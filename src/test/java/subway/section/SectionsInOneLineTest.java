@@ -1,10 +1,8 @@
 package subway.section;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.exceptions.CannotConstructRightSectionsForLine;
-import subway.station.Station;
+import subway.exceptions.IllegalSectionSave;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +52,7 @@ public class SectionsInOneLineTest {
 
         assertThatThrownBy(() -> {
             sectionsInOneLine.validateSave(판교_정자) ;
-        }).isInstanceOf(CannotConstructRightSectionsForLine.class);
+        }).isInstanceOf(IllegalSectionSave.class);
     }
 
     @DisplayName("line에 연결되지 않은 section을 save")
@@ -67,7 +65,7 @@ public class SectionsInOneLineTest {
 
         assertThatThrownBy(() -> {
             sectionsInOneLine.validateSave(미금_동천);
-        }).isInstanceOf(CannotConstructRightSectionsForLine.class);
+        }).isInstanceOf(IllegalSectionSave.class);
     }
 
     @DisplayName("update되어야할 section을 가져온다.")
@@ -85,5 +83,56 @@ public class SectionsInOneLineTest {
 
         //then
         assertThat(updatedSection).isEqualTo(expectedUpdatedSection);
+    }
+
+    @DisplayName("정렬된 station들을 가져온다.")
+    @Test
+    public void getSortedStationsTest() {
+        //given
+        List<Section> sectionList = new ArrayList<>();
+        sectionList.add(강남_정자);
+        sectionList.add(정자_미금);
+        SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sectionList);
+        List<Long> expectedResult = Arrays.asList(강남역, 정자역, 미금역);
+
+        //when
+        List<Long> stationIds = sectionsInOneLine.getSortedStations();
+
+        //then
+        assertThat(stationIds).isEqualTo(expectedResult);
+    }
+
+    @DisplayName("특정 stationId를 가지는 section들을 가져온다.")
+    @Test
+    public void getSectionsThatContainTest() {
+        //given
+        List<Section> sectionList = new ArrayList<>();
+        sectionList.add(강남_정자);
+        sectionList.add(정자_미금);
+        SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sectionList);
+
+        //when
+        List<Section> testResult = sectionsInOneLine.getSectionsThatContain(정자역);
+
+        //then
+        assertThat(testResult).isEqualTo(sectionList);
+    }
+
+    @DisplayName("line에 존재하는 모든 stationsId들을 가져온다.")
+    @Test
+    public void getStationIdsTest() {
+        //given
+        List<Section> sectionList = new ArrayList<>();
+        sectionList.add(강남_정자);
+        sectionList.add(정자_미금);
+        SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sectionList);
+
+        //when
+        List<Long> stationIds = sectionsInOneLine.getStationList();
+
+        //then
+        assertThat(stationIds).contains(강남역);
+        assertThat(stationIds).contains(정자역);
+        assertThat(stationIds).contains(미금역);
     }
 }

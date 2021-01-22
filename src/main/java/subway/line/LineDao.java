@@ -25,11 +25,14 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        if(isExist(line)) {
-            throw new DuplicateException("동일한 이름을 가지는 line이 이미 존재합니다.");
-        }
+        validateSave(line);
         jdbcTemplate.update(LineQuery.insert, line.getName(), line.getColor());
         return jdbcTemplate.queryForObject(LineQuery.selectIdNameColorByName, lineRowMapper, line.getName());
+    }
+
+    private void validateSave(Line line) {
+        if(!isExist(line)) return;
+        throw new DuplicateException("동일한 이름을 가지는 line이 이미 존재합니다.");
     }
 
     private boolean isExist(Line line){

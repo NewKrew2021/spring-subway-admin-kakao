@@ -1,11 +1,13 @@
 package subway.section;
 
 import subway.exceptions.IllegalSectionCreateException;
+import subway.exceptions.IllegalSectionSubtraction;
 
 import java.util.Objects;
 
 public class Section {
-    private Long id, lineId;
+    private Long id;
+    private Long lineId;
     private Long upStationId, downStationId;
     private int distance;
 
@@ -14,8 +16,7 @@ public class Section {
     }
 
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
-        validationCreation(upStationId, downStationId, distance);
-
+        validateCreation(upStationId, downStationId, distance);
         this.id = id;
         this.lineId = lineId;
         this.upStationId = upStationId;
@@ -23,46 +24,25 @@ public class Section {
         this.distance = distance;
     }
 
-    public Section(Long upStationId, Long downStationId, Long lineId, int distance) {
-        validationCreation(upStationId, downStationId, distance);
-
+    public Section(Long lineId, Long upStationId, Long downStationId, int distance) {
+        validateCreation(upStationId, downStationId, distance);
+        this.lineId = lineId;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
-        this.lineId = lineId;
         this.distance = distance;
     }
 
-    public Section(Long lineId, SectionDto sectionDto) {
-        validationCreation(sectionDto.getUpStationId(), sectionDto.getDownStationId(), sectionDto.getDistance());
+    public Section(Long lineId, SectionDto dto) {
+        validateCreation(dto.getUpStationId(), dto.getDownStationId(), dto.getDistance());
         this.lineId = lineId;
-        this.upStationId = sectionDto.getUpStationId();
-        this.downStationId = sectionDto.getDownStationId();
-        this.distance = sectionDto.getDistance();
+        this.upStationId = dto.getUpStationId();
+        this.downStationId = dto.getDownStationId();
+        this.distance = dto.getDistance();
     }
 
-    private static void validationCreation(Long upStationId, Long downStationId, int distance) {
+    private static void validateCreation(Long upStationId, Long downStationId, int distance) {
         if(distance <= 0) throw new IllegalSectionCreateException("distance는 0보다 커야 합니다.");
-        if(upStationId.equals(downStationId)) throw new IllegalSectionCreateException("upStationId 와 downStationId는 서로 달라야 합니다.");
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
-    }
-
-    public Long getLineId() {
-        return lineId;
-    }
-
-    public int getDistance() {
-        return distance;
+        if(upStationId.equals(downStationId)) throw new IllegalSectionCreateException("upStation 와 downStation는 서로 달라야 합니다.");
     }
 
     public Section subtractBasedOnUpStation(Section newSection) {
@@ -97,6 +77,26 @@ public class Section {
         if(!upStationId.equals(newSection.upStationId)) {
             throw new IllegalSectionSubtraction("upStationId가 같지 않습니다.");
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUpStationId() {
+        return upStationId;
+    }
+
+    public Long getDownStationId() {
+        return downStationId;
+    }
+
+    public Long getLineId() {
+        return lineId;
+    }
+
+    public int getDistance() {
+        return distance;
     }
 
     @Override

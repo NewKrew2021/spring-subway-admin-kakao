@@ -3,6 +3,7 @@ package subway.section;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.exceptions.IllegalSectionCreateException;
+import subway.exceptions.IllegalSectionSubtraction;
 
 import static org.assertj.core.api.Assertions.*;
 

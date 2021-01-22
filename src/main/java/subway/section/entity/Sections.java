@@ -44,7 +44,6 @@ public class Sections {
 
     private Section getUpEndSection() {
         List<Long> endStationIds = getEndStationIds();
-        assert endStationIds.size() == 2;
 //        return sections.stream()
 //                .filter(section -> endStationIds.contains(section.getUpStationId()))
 //                .collect(Collectors.collectingAndThen(
@@ -85,17 +84,5 @@ public class Sections {
 
     public Stream<Section> stream() {
         return sections.stream();
-    }
-
-    public Sections filterByStationId(Long stationId) {
-        return new Sections(
-                sections.stream()
-                        .filter(section -> section.containsStation(stationId))
-                        .collect(Collectors.toList())
-        );
-    }
-
-    public boolean hasSameSize(int size) {
-        return sections.size() == size;
     }
 }

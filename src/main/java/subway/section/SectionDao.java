@@ -1,6 +1,7 @@
 package subway.section;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,12 @@ public class SectionDao {
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert simpleJdbcInsert;
+    private RowMapper<Section> rowMapper = (rs, rowNum) -> new Section(
+            rs.getLong("id"),
+            rs.getLong("line_id"),
+            rs.getLong("up_station_id"),
+            rs.getLong("down_station_id"),
+            rs.getInt("distance"));
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -22,30 +29,22 @@ public class SectionDao {
     }
 
     public Section save(Section newSection) {
-        AlignSections sections = new AlignSections(findByLineId(newSection.getLineId()));
-        sections.addSection(newSection);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("LINE_ID", newSection.getLineId())
+                .addValue("UP_STATION_ID", newSection.getUpStationId())
+                .addValue("DOWN_STATION_ID", newSection.getDownStationId())
+                .addValue("DISTANCE", newSection.getDistance());
+        Long id = simpleJdbcInsert.executeAndReturnKey(params).longValue();
+        return findById(id);
+    }
 
-        jdbcTemplate.update("delete FROM SECTION WHERE LINE_ID = ?", newSection.getLineId());
-        sections.applyToAllSection((Section section) -> {
-            MapSqlParameterSource params = new MapSqlParameterSource()
-                    .addValue("LINE_ID", section.getLineId())
-                    .addValue("UP_STATION_ID", section.getUpStationId())
-                    .addValue("DOWN_STATION_ID", section.getDownStationId())
-                    .addValue("DISTANCE", section.getDistance());
-            simpleJdbcInsert.executeAndReturnKey(params);
-        });
-
-        return sections.findByStationId(newSection.getUpStationId(), newSection.getDownStationId());
+    public Section findById(Long id){
+        return jdbcTemplate.queryForObject("select * from section where id = ?", rowMapper, id);
     }
 
     public List<Section> findByStationId(Long stationId) {
         return jdbcTemplate.query("select * from SECTION where up_station_id = ? or down_station_id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")
-                ),
+                rowMapper,
                 stationId, stationId);
     }
 
@@ -105,12 +104,7 @@ public class SectionDao {
 
     public List<Section> findByLineId(Long lineId){
         return jdbcTemplate.query("SELECT * FROM SECTION WHERE line_id = ?",
-                (rs, rowNum) -> new Section(
-                        rs.getLong("id"),
-                        rs.getLong("line_id"),
-                        rs.getLong("up_station_id"),
-                        rs.getLong("down_station_id"),
-                        rs.getInt("distance")),
+                rowMapper,
                 lineId);
     }
 

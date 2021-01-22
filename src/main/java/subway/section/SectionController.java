@@ -6,26 +6,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.line.Line;
 import subway.line.LineDao;
+import subway.line.LineService;
 
 @RestController
 public class SectionController {
+    private final LineService lineService;
+    private final SectionService sectionService;
 
-    @Autowired
-    SectionDao sectionDao;
-
-    @Autowired
-    LineDao lineDao;
+    public SectionController(LineService lineService, SectionService sectionService) {
+        this.lineService = lineService;
+        this.sectionService = sectionService;
+    }
 
     @PostMapping(value = "/lines/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId,
                                                          @RequestBody SectionRequest sectionRequest){
-        Line line = lineDao.findById(lineId);
+        Line line = lineService.findById(lineId);
         Section section = new Section(line.getId(),
                 sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(),
                 sectionRequest.getDistance());
 
-        Section newSection = sectionDao.save(section);
+        Section newSection = sectionService.save(section);
         SectionResponse sectionResponse = new SectionResponse(
                 newSection.getUpStationId(),
                 newSection.getDownStationId(),
@@ -36,7 +38,7 @@ public class SectionController {
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity deleteStation(@PathVariable Long lineId, @RequestParam("stationId") Long stationId) {
-        sectionDao.deleteById(lineId, stationId);
+        sectionService.deleteById(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 }

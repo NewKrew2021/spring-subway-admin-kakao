@@ -12,10 +12,19 @@ import subway.AcceptanceTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import subway.line.dto.LineRequest;
+import subway.station.dto.StationResponse;
+import subway.station.dto.StationRequest;
+import subway.station.domain.Station;
 import static org.assertj.core.api.Assertions.assertThat;
+import static subway.line.LineAcceptanceTest.지하철_노선_등록되어_있음;
 
 @DisplayName("지하철역 관련 기능")
 public class StationAcceptanceTest extends AcceptanceTest {
+    private StationResponse 강북역;
+    private StationResponse 판교역;
+
     private static final String 강남역 = "강남역";
     private static final String 역삼역 = "역삼역";
 
@@ -68,6 +77,20 @@ public class StationAcceptanceTest extends AcceptanceTest {
         // body가 비어있는걸 확인한다
         assertThat(지하철역_삭제_확인(강남역)).isEqualTo(false);
 
+    }
+
+    @DisplayName("지하철역이 구간에 사용되고 있는 경우 삭제하지 못한다.")
+    @Test
+    void deleteStationException(){
+        강북역 = 지하철역_등록되어_있음("강북역");
+        판교역 = 지하철역_등록되어_있음("판교역");
+
+        LineRequest lineRequest = new LineRequest("강북판교노선", "bg-red-600", 강북역.getId(), 판교역.getId(), 10);
+
+        지하철_노선_등록되어_있음(lineRequest);
+
+        ExtractableResponse<Response> response = 지하철역_제거_요청(강북역);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철역_중복_확인(String name){

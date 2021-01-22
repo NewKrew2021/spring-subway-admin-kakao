@@ -1,12 +1,12 @@
-package subway.station;
+package subway.station.dao;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import subway.section.SectionDao;
 import subway.exceptions.BadRequestException;
+import subway.station.domain.Station;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -55,9 +55,11 @@ public class StationDao {
         jdbcTemplate.update(DELETE_STATION_SQL, id);
     }
 
-    public List<Station> findByUpDownId(Long stationId) {
+    public List<Station> findByUpDownId(List<Long> stationIdGroup) {
         List<Station> stations = new ArrayList<>();
-        stations.add(findById(stationId));
+        for (Long stationId : stationIdGroup) {
+            stations.add(findById(stationId));
+        }
 
         return stations;
     }

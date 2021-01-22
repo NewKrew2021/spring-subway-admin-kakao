@@ -1,16 +1,18 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.station.Station;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import org.springframework.transaction.annotation.Transactional;
+import subway.line.domain.Line;
+import subway.line.dao.LineDao;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.section.domain.Section;
+import subway.section.dao.SectionDao;
+import subway.station.dao.StationDao;
+import subway.station.domain.Stations;
+import subway.station.dto.StationResponse;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -26,6 +28,7 @@ public class LineService {
         this.sectionDao = sectionDao;
     }
 
+    @Transactional
     public LineResponse createLine(LineRequest lineRequest){
         Line line = new Line(lineRequest.getName(),
                 lineRequest.getColor(),
@@ -58,22 +61,13 @@ public class LineService {
     }
 
     private List<StationResponse> getStationInfo(Long id) {
-        List<Station> stations = new ArrayList<>();
-
-        for (Section section : sectionDao.findByLineId(id)) {
-            stations.addAll(stationDao.findByUpDownId(section.getStationId()));
-        }
-
-        return stations.stream()
-                .distinct()
-                .filter(distinctByKey(station -> station.getName()))
-                .map(station -> new StationResponse(station.getId(), station.getName()))
+        List<Long> stationIdGroup = sectionDao.findByLineId(id).stream()
+                .map(Section::getStationId)
                 .collect(Collectors.toList());
-    }
 
-    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+        Stations stations = new Stations(stationDao.findByUpDownId(stationIdGroup));
+
+        return stations.getStationResponse();
     }
 
     public void updateLine(Long id, LineRequest lineRequest){

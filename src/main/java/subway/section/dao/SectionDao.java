@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -7,11 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import org.springframework.jdbc.core.RowMapper;
+import subway.section.domain.Section;
 
 @Repository
 public class SectionDao {
-    private static final String FIND_BY_STATION_ID_SQL = "SELECT * FROM section WHERE station_id = ?";
-    private static final String FIND_BY_LINE_ID_SQL = "SELECT * FROM section WHERE line_id = ? ORDER BY distance";
+    private static final String FIND_BY_STATION_ID_SQL = "SELECT id, line_id, station_id, distance FROM section WHERE station_id = ?";
+    private static final String FIND_BY_LINE_ID_SQL = "SELECT id, line_id, station_id, distance FROM section WHERE line_id = ? ORDER BY distance";
     private static final String DELETE_BY_STATION_ID_SQL = "DELETE FROM section WHERE station_id = ?";
 
     private JdbcTemplate jdbcTemplate;

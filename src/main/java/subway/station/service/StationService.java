@@ -1,8 +1,12 @@
-package subway.station;
+package subway.station.service;
 
 import org.springframework.stereotype.Service;
 import subway.exceptions.BadRequestException;
-import subway.section.SectionDao;
+import subway.section.dao.SectionDao;
+import subway.station.domain.Station;
+import subway.station.dao.StationDao;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +36,7 @@ public class StationService {
     }
 
     public void deleteById(Long id){
-        if (sectionDao.findByStationId(id).size() >= 2 ){
+        if (sectionDao.findByStationId(id).size() > 0 ){
             throw new BadRequestException(USING_STATION);
         }
         stationDao.deleteById(id);

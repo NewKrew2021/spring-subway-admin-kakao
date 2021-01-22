@@ -1,7 +1,11 @@
-package subway.section;
+package subway.section.service;
 
 import org.springframework.stereotype.Service;
-import subway.line.LineDao;
+import subway.line.dao.LineDao;
+import subway.section.domain.Section;
+import subway.section.dao.SectionDao;
+import subway.section.domain.Sections;
+import subway.section.dto.SectionRequest;
 
 @Service
 public class SectionService {

@@ -1,8 +1,11 @@
-package subway.line;
+package subway.line.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.line.service.LineService;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -10,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("lines")
+@RequestMapping("/lines")
 public class LineController {
     private LineService lineService;
 

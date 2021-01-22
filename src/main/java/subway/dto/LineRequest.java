@@ -1,14 +1,11 @@
-package subway.line;
+package subway.dto;
 
 public class LineRequest {
-    private String name;
-    private String color;
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
-
-    public LineRequest() {
-    }
+    private final String name;
+    private final String color;
+    private final Long upStationId;
+    private final Long downStationId;
+    private final Integer distance;
 
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
         this.name = name;

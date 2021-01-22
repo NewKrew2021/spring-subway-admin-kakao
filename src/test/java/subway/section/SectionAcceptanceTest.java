@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.dto.LineResponse;
+import subway.dto.LineResponseWithStation;
+import subway.dto.SectionRequest;
+import subway.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -122,7 +125,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선에_지하철역_순서_정렬됨(ExtractableResponse<Response> response, List<StationResponse> expectedStations) {
-        LineResponse line = response.as(LineResponse.class);
+        LineResponseWithStation line = response.as(LineResponseWithStation.class);
         List<Long> stationIds = line.getStations().stream()
                 .map(it -> it.getId())
                 .collect(Collectors.toList());
@@ -159,10 +162,10 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_구간_등록_실패됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     public static void 지하철_노선에_지하철역_제외_실패됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

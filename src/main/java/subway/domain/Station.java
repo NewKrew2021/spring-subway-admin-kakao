@@ -1,10 +1,16 @@
-package subway.station;
+package subway.domain;
+
+import subway.dto.StationRequest;
 
 public class Station {
     private Long id;
     private String name;
 
     public Station() {
+    }
+
+    public Station(StationRequest stationRequest) {
+        this.name = stationRequest.getName();
     }
 
     public Station(Long id, String name) {

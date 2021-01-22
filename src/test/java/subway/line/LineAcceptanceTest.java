@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.dto.LineRequest;
+import subway.dto.LineResponse;
+import subway.dto.LineResponseWithStation;
+import subway.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -185,7 +188,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     public static void 지하철_노선_응답됨(ExtractableResponse<Response> response, LineResponse lineResponse) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        LineResponse resultResponse = response.as(LineResponse.class);
+        LineResponse resultResponse = response.as(LineResponseWithStation.class);
         assertThat(resultResponse.getId()).isEqualTo(lineResponse.getId());
     }
 
@@ -206,6 +209,6 @@ public class LineAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철_노선_삭제됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 }

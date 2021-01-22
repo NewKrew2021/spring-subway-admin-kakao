@@ -1,14 +1,11 @@
-package subway.line;
+package subway.dto;
 
 public class SectionRequest {
-    private Long upStationId;
-    private Long downStationId;
-    private int distance;
+    private final Long upStationId;
+    private final Long downStationId;
+    private final Integer distance;
 
-    public SectionRequest() {
-    }
-
-    public SectionRequest(Long upStationId, Long downStationId, int distance) {
+    public SectionRequest(Long upStationId, Long downStationId, Integer distance) {
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;

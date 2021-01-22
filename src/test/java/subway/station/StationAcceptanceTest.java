@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.dto.StationRequest;
+import subway.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +45,19 @@ public class StationAcceptanceTest extends AcceptanceTest {
         // then
         지하철역_목록_응답됨(response);
         지하철역_목록_포함됨(response, Arrays.asList(stationResponse1, stationResponse2));
+    }
+
+    @DisplayName("지하철역 하나를 조회한다.")
+    @Test
+    void getStation() {
+        // given
+        StationResponse stationResponse1 = 지하철역_등록되어_있음(강남역);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_조회_요청(stationResponse1);
+
+        // then
+        지하철역_조회_성공(response, stationResponse1);
     }
 
     @DisplayName("지하철역을 제거한다.")
@@ -82,6 +97,14 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .extract();
     }
 
+    public static ExtractableResponse<Response> 지하철역_조회_요청(StationResponse stationResponse) {
+        return RestAssured
+                .given().log().all()
+                .when().get("/stations/"+stationResponse.getId())
+                .then().log().all()
+                .extract();
+    }
+
     public static ExtractableResponse<Response> 지하철역_제거_요청(StationResponse stationResponse) {
         return RestAssured
                 .given().log().all()
@@ -100,7 +123,7 @@ public class StationAcceptanceTest extends AcceptanceTest {
     }
 
     public static void 지하철역_삭제됨(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     public static void 지하철역_목록_포함됨(ExtractableResponse<Response> response, List<StationResponse> createdResponses) {
@@ -113,5 +136,12 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static void 지하철역_조회_성공(ExtractableResponse<Response> response, StationResponse createdResponses) {
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        StationResponse resultResponse = response.as(StationResponse.class);
+        assertThat(resultResponse.getId()).isEqualTo(createdResponses.getId());
     }
 }

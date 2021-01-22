@@ -8,7 +8,6 @@ public class LineResponse {
     private Long id;
     private String name;
     private String color;
-    private int extraFare;
     private List<StationResponse> stations;
 
     public LineResponse() {

@@ -6,7 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
-import subway.line.domain.LineRequest;
+import subway.line.dto.LineRequest;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -20,12 +20,9 @@ public class LineDao {
     }
 
     public Line insert(String name, String color) {
-        validateName(name);
-
-        String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement st = con.prepareStatement(LineDaoQuery.INSERT, new String[]{"id"});
             st.setString(1, name);
             st.setString(2, color);
             return st;
@@ -36,30 +33,23 @@ public class LineDao {
 
 
     public boolean update(Long id, LineRequest lineRequest) {
-        String sql = "update line set name = ?, color = ? where id = ?";
-        return jdbcTemplate.update(sql, lineRequest.getName(), lineRequest.getColor(), id) > 0;
+        return jdbcTemplate.update(LineDaoQuery.UPDATE, lineRequest.getName(), lineRequest.getColor(), id) > 0;
     }
 
     public boolean delete(Long id) {
-        String sql = "delete from line where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        return jdbcTemplate.update(LineDaoQuery.DELETE, id) > 0;
     }
 
     public List<Line> findAll() {
-        String sql = "select * from line";
-        return jdbcTemplate.query(sql, lineRowMapper);
+        return jdbcTemplate.query(LineDaoQuery.FIND_ALL, lineRowMapper);
     }
 
     public Line findById(Long id) {
-        String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, id);
+        return jdbcTemplate.queryForObject(LineDaoQuery.FIND_BY_ID, lineRowMapper, id);
     }
 
-    public void validateName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        if (jdbcTemplate.queryForObject(sql, int.class, name) != 0) {
-            throw new IllegalArgumentException("이미 등록된 노선 입니다.");
-        }
+    public int countByName(String name) {
+        return jdbcTemplate.queryForObject(LineDaoQuery.COUNT_BY_NAME, int.class, name);
     }
 
     private final RowMapper<Line> lineRowMapper =

@@ -1,4 +1,4 @@
-package subway.line.domain;
+package subway.line.dto;
 
 import java.beans.ConstructorProperties;
 

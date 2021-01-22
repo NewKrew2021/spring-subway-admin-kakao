@@ -20,27 +20,10 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Sections insertOnCreateLine(Long lineId, Long upStationId, Long downStationId, int distance) {
-        List<Section> sections = new ArrayList<>();
-
-        sections.add(insertSection(lineId, upStationId, 0));
-        sections.add(insertSection(lineId, downStationId, distance));
-
-        return new Sections(sections);
-    }
-
-    public void insert(Long lineId, Long upStationId, Long downStationId, int distance) {
-        Sections sections = findByLineId(lineId);
-        Section newSection = sections.insert(upStationId, downStationId, distance);
-        insertSection(newSection.getLineId(), newSection.getStationId(), newSection.getDistance());
-    }
-
-    public Section insertSection(Long lineId, Long stationId, int distance) {
-        String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
+    public Section insert(Long lineId, Long stationId, int distance) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         jdbcTemplate.update(con -> {
-            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            PreparedStatement st = con.prepareStatement(SectionDaoQuery.INSERT, new String[]{"id"});
             st.setLong(1, lineId);
             st.setLong(2, stationId);
             st.setInt(3, distance);
@@ -51,13 +34,15 @@ public class SectionDao {
     }
 
     public boolean delete(Long lineId, Long stationId) {
-        String sql = "delete from section where line_id = ? and station_id = ?";
-        return jdbcTemplate.update(sql, lineId, stationId) > 0;
+        return jdbcTemplate.update(SectionDaoQuery.DELETE, lineId, stationId) > 0;
     }
 
     public Sections findByLineId(Long lineId) {
-        String sql = "select * from section where line_id = ?";
-        return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineId));
+        return new Sections(jdbcTemplate.query(SectionDaoQuery.FIND_BY_LINE_ID, sectionRowMapper, lineId));
+    }
+
+    public int countByLineId(Long lineId) {
+        return jdbcTemplate.queryForObject(SectionDaoQuery.COUNT_BY_LINE_ID, int.class, lineId);
     }
 
     private final RowMapper<Section> sectionRowMapper =
@@ -66,9 +51,4 @@ public class SectionDao {
                     resultSet.getLong("line_id"),
                     resultSet.getLong("station_id"),
                     resultSet.getInt("distance"));
-
-    public int countByLineId(Long lineId) {
-        String sql = "select count(*) from section where line_id = ?";
-        return jdbcTemplate.queryForObject(sql, int.class, lineId);
-    }
 }

@@ -34,6 +34,7 @@ public class SectionService {
         }
     }
 
+    @Transactional
     public List<Station> findSortedStationsByLineId(Long lineId) {
         List<Section> sections = sectionDao.findAllByLineId(lineId);
         SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sections);
@@ -43,6 +44,7 @@ public class SectionService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteStation(Long lineId, Long stationId) {
         List<Section> sections = sectionDao.findAllByLineId(lineId);
         SectionsInOneLine sectionsInOneLine = new SectionsInOneLine(sections);
@@ -58,6 +60,7 @@ public class SectionService {
         }
     }
 
+    @Transactional
     private void deleteableCheck(Long lineId, Long stationId, List<Long> stationIds) {
         if(!stationIds.contains(stationId)) {
             throw new NotFoundException("삭제할 station이 존재하지 않습니다.");

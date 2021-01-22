@@ -31,15 +31,19 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line, StationDao stationDao, SectionDao sectionDao) {
-        this(line.getId(),
-                line.getName(),
-                line.getColor(),
-                line.getStationInfo(stationDao, sectionDao).stream()
-                        .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
-                        .collect(Collectors.toList()),
-                line.getExtraFare());
+    public LineResponse(Line line, List<StationResponse> stations){
+        this(line.getId(), line.getName(), line.getColor(), stations, line.getExtraFare());
     }
+
+//    public LineResponse(Line line, StationDao stationDao, SectionDao sectionDao) {
+//        this(line.getId(),
+//                line.getName(),
+//                line.getColor(),
+//                line.getStationInfo(stationDao, sectionDao).stream()
+//                        .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
+//                        .collect(Collectors.toList()),
+//                line.getExtraFare());
+//    }
 
     public Long getId() {
         return id;

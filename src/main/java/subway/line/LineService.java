@@ -20,7 +20,7 @@ public class LineService {
         this.stationDao = stationDao;
     }
 
-    public Line saveLine(LineRequest lineRequest){
+    public Line saveLine(LineRequest lineRequest) {
         Line savedLine = lineDao.save(lineRequest);
         sectionDao.save(new Section(savedLine.getId(),
                 lineRequest.getUpStationId(),
@@ -29,19 +29,23 @@ public class LineService {
         return savedLine;
     }
 
-    public List<Line> findAll(){
+    public List<Line> findAll() {
         return lineDao.findAll();
     }
 
-    public Line findById(Long id){
+    public Line findById(Long id) {
         return lineDao.findById(id);
     }
 
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
+        if (sectionDao.findByLineId(id).size() > 1) {
+            throw new BadRequestException();
+        }
         lineDao.deleteById(id);
+        sectionDao.deleteByLineId(id);
     }
 
-    public void update(Long id, LineRequest lineRequest){
-        lineDao.update(id, lineRequest);
+    public void update(Long id, Line line) {
+        lineDao.update(id, line);
     }
 }

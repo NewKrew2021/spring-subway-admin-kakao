@@ -6,9 +6,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.section.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+
 import java.util.List;
+
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import subway.exceptions.BadRequestException;
 
 @Repository
 public class LineDao {
@@ -19,10 +20,10 @@ public class LineDao {
     private final SimpleJdbcInsert simpleJdbcInsert;
     private final RowMapper<Line> rowMapper = (rs, rowNum) -> {
         Line newLine = new Line(
-               rs.getLong("id"),
-               rs.getString("name"),
-               rs.getString("color"),
-               rs.getInt("extra_fare")
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("color"),
+                rs.getInt("extra_fare")
         );
         return newLine;
     };
@@ -43,17 +44,17 @@ public class LineDao {
         return findById(id.longValue());
     }
 
-    public void update(Long lineId, LineRequest lineRequest){
+    public void update(Long lineId, Line line) {
         jdbcTemplate.update("update line set name = ?, color = ?, extra_fare = ? where id=?",
-                        lineRequest.getName(),
-                        lineRequest.getColor(),
-                        lineRequest.getExtraFare(),
-                        lineId
-                        );
+                line.getName(),
+                line.getColor(),
+                line.getExtraFare(),
+                lineId
+        );
     }
 
     public List<Line> findAll() {
-        return jdbcTemplate.query("select * from LINE",rowMapper);
+        return jdbcTemplate.query("select * from LINE", rowMapper);
     }
 
     public Line findById(Long id) {
@@ -64,10 +65,6 @@ public class LineDao {
     }
 
     public void deleteById(Long lineId) {
-        if(sectionDao.findByLineId(lineId).size() > 1){
-            throw new BadRequestException();
-        }
         jdbcTemplate.update("delete from LINE where id = ?", lineId);
-        sectionDao.deleteByLineId(lineId);
     }
 }

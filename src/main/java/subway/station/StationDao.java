@@ -27,15 +27,10 @@ public class StationDao {
     }
 
     public Station save(Station station) {
-        try{
-            MapSqlParameterSource params = new MapSqlParameterSource()
-                    .addValue("name", station.getName());
-            Number id = simpleJdbcInsert.executeAndReturnKey(params);
-
-            return findById(id.longValue());
-        } catch (DataIntegrityViolationException e){
-            throw new BadRequestException();
-        }
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("name", station.getName());
+        Number id = simpleJdbcInsert.executeAndReturnKey(params);
+        return findById(id.longValue());
     }
 
     public List<Station> findAll() {

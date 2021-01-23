@@ -17,9 +17,16 @@ public class Stations {
     private void validateStationNames(List<Station> stations) {
         long nameCount = stations.stream()
                 .map(Station::getName)
+                .filter(Objects::nonNull)
+                .count();
+
+        long distinctNameCount = stations.stream()
+                .map(Station::getName)
+                .filter(Objects::nonNull)
                 .distinct()
                 .count();
-        if(stations.size() != nameCount) {
+
+        if(nameCount != distinctNameCount) {
             throw new DuplicateStationNameException();
         }
     }

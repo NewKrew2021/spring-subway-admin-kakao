@@ -40,13 +40,11 @@ public class LineService {
 
     @Transactional(readOnly = true)
     public Line showLine(Long id) {
-        Line line;
         try {
-            line = lineDao.getById(id);
+            return new Line(lineDao.getById(id), sectionService.getSectionsByLineId(id));
         } catch(EmptyResultDataAccessException e) {
             throw new InvalidLineIdException(id);
         }
-        return new Line(line, sectionService.getSectionsByLineId(id));
     }
 
     @Transactional

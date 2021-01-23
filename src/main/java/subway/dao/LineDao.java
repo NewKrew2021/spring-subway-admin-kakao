@@ -9,6 +9,9 @@ import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
+import subway.exception.DataEmptyException;
+import subway.exception.DeleteImpossibleException;
+import subway.exception.UpdateImpossibleException;
 
 import java.util.List;
 
@@ -37,26 +40,36 @@ public class LineDao {
 
     }
 
-    public int deleteById(Long lineId) {
+    public void deleteById(Long lineId) {
         String sql = "delete from LINE where id = ?";
-        return jdbcTemplate.update(sql, lineId);
+        if (jdbcTemplate.update(sql, lineId) == 0) {
+            throw new DeleteImpossibleException();
+        }
     }
 
     public List<Line> findAll() {
         String sql = "select id from LINE";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
+        List<Line> lines = jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
+        if (lines.size() == 0) {
+            throw new DataEmptyException();
+        }
+        return lines;
     }
 
     public Line findOne(Long lineId) {
         String getLineSql = "select * from LINE where id = ?";
         Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
+        if (line == null) {
+            throw new DataEmptyException();
+        }
         Sections sections = sectionDao.getSectionsByLineId(lineId);
-
         return new Line(line.getId(), line.getName(), line.getColor(), sections);
     }
 
-    public int update(Line line) {
+    public void update(Line line) {
         String sql = "update LINE set color = ?, name = ? where id = ?";
-        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId());
+        if (jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId()) == 0) {
+            throw new UpdateImpossibleException();
+        }
     }
 }

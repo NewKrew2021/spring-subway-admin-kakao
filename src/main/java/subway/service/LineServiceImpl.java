@@ -5,9 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.domain.Line;
 import subway.domain.Section;
-import subway.exception.DataEmptyException;
-import subway.exception.DeleteImpossibleException;
-import subway.exception.UpdateImpossibleException;
 
 import java.util.List;
 
@@ -31,33 +28,21 @@ public class LineServiceImpl implements LineService {
     @Transactional
     public void deleteById(Long lineId) {
         sectionService.deleteSectionByLineId(lineId);
-        if (lineDao.deleteById(lineId) == 0) {
-            throw new DeleteImpossibleException();
-        }
+        lineDao.deleteById(lineId);
     }
 
     @Override
     public List<Line> findAll() {
-        List<Line> lines = lineDao.findAll();
-        if (lines.size() == 0) {
-            throw new DataEmptyException();
-        }
-        return lines;
+        return lineDao.findAll();
     }
 
     @Override
     public Line findOne(Long lineId) {
-        Line line = lineDao.findOne(lineId);
-        if (line == null) {
-            throw new DataEmptyException();
-        }
-        return line;
+        return lineDao.findOne(lineId);
     }
 
     @Override
     public void update(Line line) {
-        if (lineDao.update(line) == 0) {
-            throw new UpdateImpossibleException();
-        }
+        lineDao.update(line);
     }
 }

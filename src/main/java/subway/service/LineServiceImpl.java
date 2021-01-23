@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.domain.Line;
 import subway.domain.Section;
+import subway.exception.DataEmptyException;
 
 import java.util.List;
 
@@ -33,12 +34,20 @@ public class LineServiceImpl implements LineService {
 
     @Override
     public List<Line> findAll() {
-        return lineDao.findAll();
+        List<Line> lines = lineDao.findAll();
+        if (lines.size() == 0) {
+            throw new DataEmptyException();
+        }
+        return lines;
     }
 
     @Override
     public Line findOne(Long lineId) {
-        return lineDao.findOne(lineId);
+        Line line = lineDao.findOne(lineId);
+        if (line == null) {
+            throw new DataEmptyException();
+        }
+        return line;
     }
 
     @Override

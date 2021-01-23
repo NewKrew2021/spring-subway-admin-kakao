@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Section;
 import subway.domain.Sections;
 import subway.domain.Station;
+import subway.exception.DeleteImpossibleException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,9 +51,11 @@ public class SectionDao {
         return sections;
     }
 
-    public int deleteSectionById(Long sectionId) {
+    public void deleteSectionById(Long sectionId) {
         String sql = "delete from SECTION where id = ?";
-        return jdbcTemplate.update(sql, sectionId);
+        if (jdbcTemplate.update(sql, sectionId) == 0) {
+            throw new DeleteImpossibleException();
+        }
     }
 
     public void deleteSectionByLineId(Long lineId) {

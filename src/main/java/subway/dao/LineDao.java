@@ -9,7 +9,6 @@ import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
-import subway.exception.DataEmptyException;
 import subway.exception.DeleteImpossibleException;
 import subway.exception.UpdateImpossibleException;
 
@@ -49,19 +48,12 @@ public class LineDao {
 
     public List<Line> findAll() {
         String sql = "select id from LINE";
-        List<Line> lines = jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
-        if (lines.size() == 0) {
-            throw new DataEmptyException();
-        }
-        return lines;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
     }
 
     public Line findOne(Long lineId) {
         String getLineSql = "select * from LINE where id = ?";
         Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
-        if (line == null) {
-            throw new DataEmptyException();
-        }
         Sections sections = sectionDao.getSectionsByLineId(lineId);
         return new Line(line.getId(), line.getName(), line.getColor(), sections);
     }

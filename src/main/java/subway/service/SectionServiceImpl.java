@@ -37,6 +37,7 @@ public class SectionServiceImpl implements SectionService {
         checkAndAddSection(section);
     }
 
+    //TODO 도메인에게 역할 배정
     private void checkAndAddSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
         if (!sections.isCanSaveSection(section)) {
@@ -89,9 +90,7 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     public void deleteSectionById(Long sectionId) {
-        if (sectionDao.deleteSectionById(sectionId) == 0) {
-            throw new DeleteImpossibleException();
-        }
+        sectionDao.deleteSectionById(sectionId);
     }
 
     @Override

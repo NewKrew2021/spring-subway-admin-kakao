@@ -25,7 +25,7 @@ public class LineService {
         if (lineDao.findByName(lineRequest.getName()) != null) {
             throw new LineDuplicatedException();
         }
-        Long newLineId = lineDao.save(new Line(lineRequest)).getId();
+        Long newLineId = lineDao.save(new Line(lineRequest.getName(),lineRequest.getColor(), lineRequest.getExtraFare())).getId();
         sectionService.lineInitialize(lineRequest.toFirstSection(newLineId), lineRequest.toSection(newLineId));
         return makeLineResponseByLine(lineDao.findById(newLineId));
     }
@@ -51,7 +51,7 @@ public class LineService {
 
     public void updateLineByLineId(Long lineId, LineRequest lineRequest) {
         lineDao.findById(lineId);
-        lineDao.update(new Line(lineId,lineRequest));
+        lineDao.update(new Line(lineId,lineRequest.getName(), lineRequest.getColor(), lineRequest.getExtraFare()));
     }
 
 }

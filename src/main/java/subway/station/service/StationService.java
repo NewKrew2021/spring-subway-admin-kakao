@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DeleteSectionException;
-import subway.line.domain.Line;
 import subway.line.service.LineService;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Sections;
@@ -18,8 +17,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class StationService {
-
-    private final int EMPTY_STATION_SIZE = 0;
 
     private final StationDao stationDao;
     private final SectionDao sectionDao;
@@ -51,11 +48,11 @@ public class StationService {
     public void deleteStation(Long stationId) {
         Sections sections = new Sections(sectionDao.findByLineId(stationId));
 
-        if (sections.size() == Line.END_STATION_SECTION_SIZE) {
+        if (sections.isLastSection()) {
             throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
         }
 
-        if (sections.size() == EMPTY_STATION_SIZE) {
+        if (sections.isEmpty()) {
             return;
         }
 

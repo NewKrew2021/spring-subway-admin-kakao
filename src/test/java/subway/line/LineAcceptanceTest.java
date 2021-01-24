@@ -49,6 +49,17 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_생성됨(response);
     }
 
+    @DisplayName("노선은 생성되지만 구간이 잘못되어 롤백해야하는 경우")
+    @Test
+    void lineWithDuplicateStationIDs() {
+        LineRequest lineBadRequest = new LineRequest("신분당선", "bg-red-600", 강남역.getID(), 강남역.getID(), 10);
+        지하철_노선_생성_요청(lineBadRequest);
+
+        ExtractableResponse<Response> response = 지하철_노선_목록_조회_요청();
+
+        지하철_노선_생성되면_안됨(response);
+    }
+
     @DisplayName("기존에 존재하는 지하철 노선 이름으로 지하철 노선을 생성한다.")
     @Test
     void createLineWithDuplicateName() {
@@ -201,6 +212,12 @@ public class LineAcceptanceTest extends AcceptanceTest {
     public static void 지하철_노선_생성됨(ExtractableResponse response) {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(response.header("Location")).isNotBlank();
+    }
+
+    public static void 지하철_노선_생성되면_안됨(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        List<LineResponse> resultResponse = response.as(List.class);
+        assertThat(resultResponse.size()).isZero();
     }
 
     public static void 지하철_노선_생성_실패됨(ExtractableResponse<Response> response) {

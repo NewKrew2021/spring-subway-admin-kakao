@@ -2,6 +2,7 @@ package subway.line;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
@@ -27,6 +28,7 @@ public class LineController {
         this.sectionService = sectionService;
     }
 
+    @Transactional
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         long newLineID = lineService.create(new LineCreateValue(lineRequest));

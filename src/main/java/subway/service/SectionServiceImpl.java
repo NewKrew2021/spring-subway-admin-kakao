@@ -33,7 +33,6 @@ public class SectionServiceImpl implements SectionService {
     @Override
     @Transactional
     public void saveSection(Section section) {
-
         Line line = lineDao.findOne(section.getLineId());
         line.addSection(section);
         sectionDao.deleteSectionByLineId(line.getId());

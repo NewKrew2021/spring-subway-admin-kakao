@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Line;
 import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
+import subway.exception.DataEmptyException;
 import subway.exception.DeleteImpossibleException;
 import subway.exception.UpdateImpossibleException;
 
@@ -24,16 +25,15 @@ public class LineDao {
     }
 
     public Line save(Line line) {
-        Long lineId;
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         try {
-            lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+            Long lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+            return new Line(lineId, line.getName(), line.getColor());
         } catch (RuntimeException e) {
             throw new AlreadyExistDataException();
         }
-        return new Line(lineId, line.getName(), line.getColor());
 
     }
 
@@ -46,12 +46,15 @@ public class LineDao {
 
     public List<Line> findAll() {
         String sql = "select id from LINE";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")));
     }
 
     public Line findOne(Long lineId) {
         String getLineSql = "select * from LINE where id = ?";
         Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
+        if (line == null) {
+            throw new DataEmptyException();
+        }
         Sections sections = sectionDao.getSectionsByLineId(lineId);
         return new Line(line.getId(), line.getName(), line.getColor(), sections);
     }

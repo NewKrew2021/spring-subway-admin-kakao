@@ -37,20 +37,12 @@ public class LineServiceImpl implements LineService {
 
     @Override
     public List<Line> findAll() {
-        List<Line> lines = lineDao.findAll();
-        if (lines.size() == 0) {
-            throw new DataEmptyException();
-        }
-        return lines;
+        return lineDao.findAll();
     }
 
     @Override
     public Line findOne(Long lineId) {
-        Line line = lineDao.findOne(lineId);
-        if (line == null) {
-            throw new DataEmptyException();
-        }
-        return line;
+        return lineDao.findOne(lineId);
     }
 
     @Override

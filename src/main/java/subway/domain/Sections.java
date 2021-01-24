@@ -179,11 +179,4 @@ public class Sections {
                     prevSection.getDistance() + nextSection.getDistance(), getLineId()));
         }
     }
-
-    @Override
-    public String toString() {
-        return "Sections{" +
-                "sections=" + sections +
-                '}';
-    }
 }

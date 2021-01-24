@@ -14,6 +14,10 @@ import java.util.*;
 
 @Repository
 public class SectionDao {
+    public static final String SELECT_FROM_SECTION_WHERE_LINE_ID = "select * from SECTION where line_id = ?";
+    public static final String SELECT_FROM_STATION_WHERE_ID = "select * from STATION where id = ?";
+    public static final String DELETE_FROM_SECTION_WHERE_ID = "delete from SECTION where id = ?";
+    public static final String DELETE_FROM_SECTION_WHERE_LINE_ID = "delete from SECTION where line_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public SectionDao(JdbcTemplate jdbcTemplate) {
@@ -37,7 +41,7 @@ public class SectionDao {
     }
 
     public Sections getSectionsByLineId(Long lineId) {
-        String sql = "select * from SECTION where line_id = ?";
+        String sql = SELECT_FROM_SECTION_WHERE_LINE_ID;
         Sections sections = new Sections(jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
@@ -47,7 +51,7 @@ public class SectionDao {
     }
 
     private List<Station> getStations(Sections sections) {
-        String sql = "select * from STATION where id = ?";
+        String sql = SELECT_FROM_STATION_WHERE_ID;
         List<Station> stations = new ArrayList<>();
         Set<Long> stationIds = getStationIds(sections);
         for (Long stationId : stationIds) {
@@ -66,14 +70,14 @@ public class SectionDao {
     }
 
     public void deleteSectionById(Long sectionId) {
-        String sql = "delete from SECTION where id = ?";
+        String sql = DELETE_FROM_SECTION_WHERE_ID;
         if (jdbcTemplate.update(sql, sectionId) == 0) {
             throw new DeleteImpossibleException();
         }
     }
 
     public void deleteSectionByLineId(Long lineId) {
-        String sql = "delete from SECTION where line_id = ?";
+        String sql = DELETE_FROM_SECTION_WHERE_LINE_ID;
         jdbcTemplate.update(sql, lineId);
     }
 }

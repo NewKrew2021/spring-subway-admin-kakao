@@ -9,39 +9,46 @@ import subway.exception.*;
 @RestControllerAdvice
 public class AppGlobalExceptionHandler {
 
+    public static final String ALREADY_EXIST_DATA_STRING = "이미 존재하는 데이터 입니다.";
+    public static final String EMPTY_DATA_STRING = "존재하지 않는 데이터 입니다.";
+    public static final String WRONG_DISTANCE_STRING = "잘못된 거리 입니다.";
+    public static final String ILLEGAL_STATION_STRING = "잘못된 역 정보 입니다.";
+    public static final String DELETE_IMPOSSIBLE_STRING = "삭제가 불가능 합니다.";
+    public static final String UPDATE_IMPOSSIBLE_STRING = "수정이 불가능 합니다.";
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(AlreadyExistDataException.class)
     public String alreadyExistDataHandler() {
-        return "이미 존재하는 데이터 입니다.";
+        return ALREADY_EXIST_DATA_STRING;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DataEmptyException.class)
     public String dataEmptyHandler() {
-        return "존재하지 않는 데이터 입니다.";
+        return EMPTY_DATA_STRING;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DistanceException.class)
     public String distanceHandler() {
-        return "잘못된 거리 입니다.";
+        return WRONG_DISTANCE_STRING;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalStationException.class)
     public String illegalStationHandler() {
-        return "잘못된 역 정보 입니다.";
+        return ILLEGAL_STATION_STRING;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DeleteImpossibleException.class)
     public String deleteImpossibleHandler() {
-        return "삭제가 불가능 합니다.";
+        return DELETE_IMPOSSIBLE_STRING;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UpdateImpossibleException.class)
     public String updateImpossibleHandler() {
-        return "수정이 불가능 합니다.";
+        return UPDATE_IMPOSSIBLE_STRING;
     }
 }

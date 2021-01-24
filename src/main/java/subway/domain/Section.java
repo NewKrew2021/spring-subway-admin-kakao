@@ -6,6 +6,7 @@ import subway.exception.IllegalStationException;
 import java.util.Objects;
 
 public class Section {
+    public static final int ZERO = 0;
     private Long upStationId;
     private Long downStationId;
     private Integer distance;
@@ -19,7 +20,7 @@ public class Section {
         if (checkProblemStationId(upStationId, downStationId)) {
             throw new IllegalStationException();
         }
-        if (distance <= 0) {
+        if (distance <= ZERO) {
             throw new DistanceException();
         }
         this.upStationId = upStationId;
@@ -38,10 +39,10 @@ public class Section {
     }
 
     private boolean checkProblemStationId(Long upStationId, Long downStationId) {
-        if (upStationId < 0) {
+        if (upStationId < ZERO) {
             return true;
         }
-        if (downStationId < 0) {
+        if (downStationId < ZERO) {
             return true;
         }
         return upStationId.equals(downStationId);

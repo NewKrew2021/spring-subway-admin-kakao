@@ -8,6 +8,7 @@ import subway.exception.IllegalStationException;
 import java.util.*;
 
 public class Sections {
+    public static final int ZERO = 0;
     List<Section> sections;
     List<Station> stations;
 
@@ -60,7 +61,7 @@ public class Sections {
 
     public Long getStartStation() {
         return this.sections
-                .get(0)
+                .get(ZERO)
                 .getUpStationId();
     }
 
@@ -116,7 +117,7 @@ public class Sections {
     }
 
     public Long getLineId() {
-        return sections.get(0).getLineId();
+        return sections.get(ZERO).getLineId();
     }
 
     public List<Station> getStations() {

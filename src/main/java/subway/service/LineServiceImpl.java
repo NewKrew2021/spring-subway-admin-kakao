@@ -6,7 +6,6 @@ import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
-import subway.exception.DataEmptyException;
 
 import java.util.List;
 

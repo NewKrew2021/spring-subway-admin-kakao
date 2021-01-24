@@ -39,7 +39,7 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
     }
 
-    public Section findOneByLineAndSectionIDs(long lineID, long sectionID) {
+    public Section findOneBy(long lineID, long sectionID) {
         String sql = "select * from section where line_id = ? and station_id = ?";
         return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineID, sectionID);
     }

@@ -11,8 +11,6 @@ import subway.line.vo.LineResultValue;
 import subway.section.SectionService;
 import subway.section.dto.SectionRequest;
 import subway.section.vo.SectionCreateValue;
-import subway.station.dto.StationResponse;
-import subway.station.vo.StationResultValues;
 
 import java.net.URI;
 import java.util.List;
@@ -34,7 +32,7 @@ public class LineController {
         LineResultValue lineResultValue = lineService.create(new LineCreateValue(lineRequest));
         sectionService.create(new SectionCreateValue(lineResultValue.getID(), lineRequest));
 
-        LineResponse lineResponse = lineResultValue.toLineResponse(findStationReponses(lineResultValue));
+        LineResponse lineResponse = lineResultValue.toLineResponse();
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
     }
 
@@ -42,7 +40,7 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResultValues = lineService.findAll()
                 .stream()
-                .map(value -> value.toLineResponse(findStationReponses(value)))
+                .map(LineResultValue::toLineResponse)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(lineResultValues);
@@ -51,13 +49,13 @@ public class LineController {
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
         LineResultValue lineResultValue = lineService.findByID(lineID);
-        return ResponseEntity.ok(lineResultValue.toLineResponse(findStationReponses(lineResultValue)));
+        return ResponseEntity.ok(lineResultValue.toLineResponse());
     }
 
     @PutMapping("/{lineID}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
         LineResultValue resultValue = lineService.update(lineID, new LineAttributes(lineRequest));
-        return ResponseEntity.ok(resultValue.toLineResponse(findStationReponses(resultValue)));
+        return ResponseEntity.ok(resultValue.toLineResponse());
     }
 
     @DeleteMapping("/{lineID}")
@@ -72,17 +70,12 @@ public class LineController {
         sectionService.create(new SectionCreateValue(lineID, sectionRequest));
 
         LineResultValue lineResultValue = lineService.findByID(lineID);
-        return ResponseEntity.ok(lineResultValue.toLineResponse(findStationReponses(lineResultValue)));
+        return ResponseEntity.ok(lineResultValue.toLineResponse());
     }
 
     @DeleteMapping("/{lineID}/sections")
     public ResponseEntity<Void> deleteSection(@PathVariable Long lineID, @RequestParam Long stationID) {
         sectionService.delete(lineID, stationID);
         return ResponseEntity.ok().build();
-    }
-
-    private List<StationResponse> findStationReponses(LineResultValue lineResultValue) {
-        StationResultValues stationResultValues = sectionService.findStationsByLineID(lineResultValue.getID());
-        return stationResultValues.allToResponses();
     }
 }

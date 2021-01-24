@@ -1,14 +1,15 @@
 package subway.station.vo;
 
+import subway.station.domain.Station;
 import subway.station.dto.StationResponse;
 
 public class StationResultValue {
     private final long id;
     private final String name;
 
-    public StationResultValue(long id, String name) {
-        this.id = id;
-        this.name = name;
+    public StationResultValue(Station station) {
+        this.id = station.getID();
+        this.name = station.getName();
     }
 
     public StationResponse toResponse() {

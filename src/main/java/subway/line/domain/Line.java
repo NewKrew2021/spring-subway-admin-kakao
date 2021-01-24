@@ -24,6 +24,11 @@ public class Line {
         return new LineResultValue(id, name, color);
     }
 
+    public void changeAttributesToNameAndColor(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
     public Long getID() {
         return id;
     }
@@ -52,10 +57,5 @@ public class Line {
 
     private boolean isNegativeID() {
         return id < 0;
-    }
-
-    public void changeAttributesToNameAndColor(String name, String color) {
-        this.name = name;
-        this.color = color;
     }
 }

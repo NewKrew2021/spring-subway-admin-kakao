@@ -18,41 +18,43 @@ public class StationService {
     }
 
     public StationResultValue createWithName(String stationName) {
-        Station station;
-
-        try {
-            station = stationDao.insert(new Station(stationName));
-        } catch (DataAccessException e) {
-            throw new IllegalArgumentException(
-                    String.format("%s\nStation with name %s already exists",
-                            e.getMessage(), stationName));
-        }
-
+        Station station = insert(stationName);
         return station.toResultValue();
     }
 
     public StationResultValues findAll() {
         return new StationResultValues(stationDao.findAll()
                 .stream()
-                .map(station -> new StationResultValue(station.getID(), station.getName()))
+                .map(StationResultValue::new)
                 .collect(Collectors.toList()));
     }
 
     public StationResultValue findByID(long stationID) {
-        Station station;
-
-        try {
-            station = stationDao.findByID(new Station(stationID));
-        } catch (DataAccessException e) {
-            throw new NoSuchElementException(
-                    String.format("%s\nCould not find station with id: %d",
-                            e.getMessage(), stationID));
-        }
-
+        Station station = findOneBy(stationID);
         return station.toResultValue();
     }
 
     public void deleteByID(long stationID) {
         stationDao.deleteByID(stationID);
+    }
+
+    private Station insert(String stationName) {
+        try {
+            return stationDao.insert(new Station(stationName));
+        } catch (DataAccessException e) {
+            throw new IllegalArgumentException(
+                    String.format("%s\nStation with name %s already exists",
+                            e.getMessage(), stationName));
+        }
+    }
+
+    private Station findOneBy(long stationID) {
+        try {
+            return stationDao.findByID(new Station(stationID));
+        } catch (DataAccessException e) {
+            throw new NoSuchElementException(
+                    String.format("%s\nCould not find station with id: %d",
+                            e.getMessage(), stationID));
+        }
     }
 }

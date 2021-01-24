@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 public class StationResultValues {
     private final List<StationResultValue> values;
 
+    public StationResultValues() {
+        this.values = Collections.emptyList();
+    }
+
     public StationResultValues(List<StationResultValue> values) {
         this.values = Collections.unmodifiableList(values);
     }

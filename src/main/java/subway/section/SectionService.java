@@ -2,6 +2,7 @@ package subway.section;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import subway.line.domain.Line;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
 import subway.section.vo.SectionCreateValue;
@@ -54,28 +55,30 @@ public class SectionService {
 
     public void delete(long lineID, long stationID) {
         Sections sections = sectionDao.findAllSectionsOf(lineID);
-        Section section;
-
-        try {
-            section = sectionDao.findOneByLineAndSectionIDs(lineID, stationID);
-        } catch (DataAccessException e) {
-            throw new NoSuchElementException(
-                    String.format("%s\nCould not find section with line id: %d and section id: %d",
-                            e.getMessage(), lineID, stationID));
-        }
+        Section section = findSectionBy(lineID, stationID);
 
         sections.checkIsDeletable(section);
         sectionDao.delete(section);
     }
 
-    public StationResultValues findStationsByLineID(long lineID) {
-        Sections sections = sectionDao.findAllSectionsOf(lineID);
+    public StationResultValues findStationValuesByLine(Line line) {
+        Sections sections = sectionDao.findAllSectionsOf(line.getID());
         return new StationResultValues(sections.getStationIDs()
                 .stream()
                 .map(Station::new)
                 .map(stationDao::findByID)
                 .map(Station::toResultValue)
                 .collect(Collectors.toList()));
+    }
+
+    private Section findSectionBy(long lineID, long stationID) {
+        try {
+            return sectionDao.findOneBy(lineID, stationID);
+        } catch (DataAccessException e) {
+            throw new NoSuchElementException(
+                    String.format("%s\nCould not find section with line id: %d and section id: %d",
+                            e.getMessage(), lineID, stationID));
+        }
     }
 
     private boolean upAndDownStationsAreEqual(SectionCreateValue createValue) {

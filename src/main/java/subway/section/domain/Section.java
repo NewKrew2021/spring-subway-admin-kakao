@@ -1,6 +1,6 @@
 package subway.section.domain;
 
-public class Section {
+public class Section implements Comparable<Section> {
     private final Long id;
     private final long lineId;
     private final long stationId;
@@ -55,5 +55,10 @@ public class Section {
 
     public int getPosition() {
         return position;
+    }
+
+    @Override
+    public int compareTo(Section o) {
+        return position - o.position;
     }
 }

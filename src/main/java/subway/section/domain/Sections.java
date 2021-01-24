@@ -1,6 +1,7 @@
 package subway.section.domain;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 
 import static java.util.stream.Collectors.toList;
 
@@ -73,13 +74,13 @@ public class Sections {
     private Optional<Section> findNextDownSectionOf(Section section) {
         return sections.stream()
                 .filter(it -> it.isDownSideOf(section))
-                .min(Comparator.comparingInt(Section::getPosition));
+                .min(Section::compareTo);
     }
 
     private Optional<Section> findNextUpSectionOf(Section section) {
         return sections.stream()
                 .filter(it -> it.isUpSideOf(section))
-                .max(Comparator.comparingInt(Section::getPosition));
+                .max(Section::compareTo);
     }
 
     private void validateDistance(Section section, Section other, int distance) {

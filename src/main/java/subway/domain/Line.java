@@ -47,7 +47,20 @@ public class Line {
         return sections.getEndStation();
     }
 
+    public Sections getSections() {
+        return sections;
+    }
+
     public List<Station> getStations() {
         return sections.getStations();
     }
+
+    public void addSection(Section section) {
+        sections.addSection(section);
+    }
+
+    public void deleteStation(Long stationId) {
+        sections.deleteStation(stationId);
+    }
+
 }

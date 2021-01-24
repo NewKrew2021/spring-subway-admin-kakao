@@ -12,10 +12,6 @@ public interface SectionService {
 
     Sections getSectionsByLineId(Long lineId);
 
-    void deleteSectionById(Long sectionId);
-
-    void deleteSectionByLineId(Long lineId);
-
     void deleteSection(Long lineId, Long stationId);
 
     void saveSection(Section section);

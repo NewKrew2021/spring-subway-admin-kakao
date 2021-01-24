@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
-import subway.domain.Section;
 import subway.domain.Sections;
 import subway.exception.AlreadyExistDataException;
 import subway.exception.DeleteImpossibleException;
@@ -24,18 +23,17 @@ public class LineDao {
         this.sectionDao = sectionDao;
     }
 
-    public Line save(Line line, Section section) {
+    public Line save(Line line) {
         Long lineId;
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         try {
             lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-            sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), lineId));
         } catch (RuntimeException e) {
             throw new AlreadyExistDataException();
         }
-        return findOne(lineId);
+        return new Line(lineId, line.getName(), line.getColor());
 
     }
 

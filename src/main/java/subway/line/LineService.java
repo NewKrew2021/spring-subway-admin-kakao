@@ -1,7 +1,10 @@
 package subway.line;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subway.exceptions.DuplicateLineNameException;
+import subway.exceptions.InvalidLineArgumentException;
 import subway.section.Section;
 import subway.section.SectionRequest;
 import subway.section.SectionService;
@@ -15,6 +18,7 @@ import java.util.List;
 @Service
 public class LineService {
 
+    public static final int ZERO = 0;
     private LineDao lineDao;
     private SectionService sectionService;
     private StationService stationService;
@@ -25,12 +29,17 @@ public class LineService {
         this.stationService = stationService;
     }
 
+    @Transactional
     public Line save(LineRequest lineRequest) {
         lineRequest.checkLineRequest();
-        Line newLine = lineDao.save(lineRequest.toLine());
-        Section section = lineRequest.toSection(newLine.getId());
-        sectionService.save(section);
-        return findById(newLine.getId());
+        try {
+            Line newLine = lineDao.save(lineRequest.toLine()).orElseThrow(() -> new InvalidLineArgumentException("노선 저장에 오류가 발생했습니다."));
+            Section section = lineRequest.toSection(newLine.getId());
+            sectionService.save(section);
+            return findById(newLine.getId());
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateLineNameException("노선 이름이 중복되었습니다.");
+        }
     }
 
     public List<Line> findAll() {
@@ -38,39 +47,43 @@ public class LineService {
     }
 
     public Line findById(Long id) {
-        return lineDao.findById(id);
+        return lineDao.findById(id).orElseThrow(()-> new InvalidLineArgumentException("해당하는 노선이 존재하지 않습니다."));
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        lineDao.deleteById(id);
+        int deletedRow = lineDao.deleteById(id);
+        if(deletedRow == ZERO) {
+            throw new InvalidLineArgumentException("노선을 삭제하지 못했습니다.");
+        }
         sectionService.deleteAllByLineId(id);
     }
 
     public Line updateLine(Long id, LineRequest lineRequest) {
-        Line line = lineDao.findById(id);
+        Line line = findById(id);
         Line newLine = lineRequest.toLine();
         line.updateLine(newLine);
-        return lineDao.updateById(line);
+        return lineDao.updateById(line).orElseThrow(() -> new InvalidLineArgumentException("노선 정보를 업데이트 하지 못했습니다."));
     }
 
     public List<StationResponse> getStationResponsesById(Long lineId) {
-        Line line = lineDao.findById(lineId);
+        Line line = findById(lineId);
         List<StationResponse> responses = new ArrayList<>();
         Sections sections = new Sections(sectionService.getSectionsByLineId(line.getId()), line.getStartStationId());
         for (Long stationId : sections.getStationsSortedSequence()) {
-            responses.add(StationResponse.of(stationService.findById(stationId)));
+            responses.add(StationResponse.from(stationService.findById(stationId)));
         }
         return responses;
     }
 
+    @Transactional
     public Line saveSection(Long lineId, SectionRequest sectionRequest) {
-        Line line = lineDao.findById(lineId);
+        Line line = findById(lineId);
         if (line.isStartStation(sectionRequest.getDownStationId()) || line.isEndStation(sectionRequest.getUpStationId())) {
             return saveSectionsHeadOrTail(sectionRequest.toSection(lineId), line);
         }
-
         sectionService.save(line, sectionRequest);
-        return lineDao.findById(lineId);
+        return findById(lineId);
     }
 
     private Line saveSectionsHeadOrTail(Section newSection, Line line) {
@@ -78,7 +91,7 @@ public class LineService {
         line.updateLine(newStartEndSection);
         lineDao.updateById(line);
         sectionService.save(newSection);
-        return lineDao.findById(newSection.getLineId());
+        return findById(line.getId());
     }
 
     private Section findUpdateSection(Section newSection, Line line) {
@@ -90,7 +103,7 @@ public class LineService {
 
     @Transactional
     public void deleteStationById(Long lineId, Long stationId) {
-        Line line = lineDao.findById(lineId);
+        Line line = findById(lineId);
         Section newStartEndSection = sectionService.deleteSectionByStationId(line, stationId);
         if (newStartEndSection != null) {
             line.updateLine(newStartEndSection);

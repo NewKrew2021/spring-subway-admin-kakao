@@ -3,10 +3,7 @@ package subway.section;
 import org.springframework.stereotype.Service;
 import subway.exceptions.InvalidSectionException;
 import subway.line.Line;
-import subway.station.StationDao;
-import subway.station.StationResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,11 +13,9 @@ public class SectionService {
     public static final String SECTIONS_SIZE_ERROR_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
 
     private SectionDao sectionDao;
-    private StationDao stationDao;
 
-    public SectionService(SectionDao sectionDao, StationDao stationDao) {
+    public SectionService(SectionDao sectionDao) {
         this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
     }
 
     public void save(Section section) {
@@ -40,15 +35,6 @@ public class SectionService {
 
     public void deleteAllByLineId(Long lineId) {
         sectionDao.deleteAllByLineId(lineId);
-    }
-
-    public List<StationResponse> getStationResponsesById(Long lineId, Long startStationId) {
-        List<StationResponse> responses = new ArrayList<>();
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), startStationId);
-        for (Long stationId : sections.getStationsSortedSequence()) {
-            responses.add(new StationResponse(stationDao.findById(stationId)));
-        }
-        return responses;
     }
 
     public List<Section> getSectionsByLineId(Long lineId) {

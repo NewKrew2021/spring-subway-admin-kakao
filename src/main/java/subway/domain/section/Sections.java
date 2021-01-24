@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 public class Sections {
     private final int MIN_SECTIONS_SIZE = 1;
 
-    private final Map<Long, Section> upStationIdToSection;
-    private final Map<Long, Section> downStationIdToSection;
+    private final Map<Long, Section> upStationIdToSectionCache;
+    private final Map<Long, Section> downStationIdToSectionCache;
 
     private List<Section> sections;
 
@@ -24,8 +24,8 @@ public class Sections {
 
     public Sections(List<Section> sections) {
         this.sections = sections;
-        this.upStationIdToSection = generateConnection(Section::getUpStationId);
-        this.downStationIdToSection = generateConnection(Section::getDownStationId);
+        this.upStationIdToSectionCache = generateConnection(Section::getUpStationId);
+        this.downStationIdToSectionCache = generateConnection(Section::getDownStationId);
         sortByOrder();
     }
 
@@ -35,8 +35,8 @@ public class Sections {
     }
 
     private void sortByOrder() {
-        List<Section> upside = trackSectionsToMakeList(downStationIdToSection, Section::getUpStationId);
-        List<Section> downside = trackSectionsToMakeList(upStationIdToSection, Section::getDownStationId);
+        List<Section> upside = trackSectionsToMakeList(downStationIdToSectionCache, Section::getUpStationId);
+        List<Section> downside = trackSectionsToMakeList(upStationIdToSectionCache, Section::getDownStationId);
         Collections.reverse(upside);
         upside.addAll(downside);
         if (upside.size() > sections.size()) {
@@ -76,11 +76,11 @@ public class Sections {
     }
 
     private Optional<Section> getSectionFromUpStationId(Long stationId) {
-        return Optional.ofNullable(upStationIdToSection.get(stationId));
+        return Optional.ofNullable(upStationIdToSectionCache.get(stationId));
     }
 
     private Optional<Section> getSectionFromDownStationId(Long stationId) {
-        return Optional.ofNullable(downStationIdToSection.get(stationId));
+        return Optional.ofNullable(downStationIdToSectionCache.get(stationId));
     }
 
     public Sections findByStationId(Long stationId) {

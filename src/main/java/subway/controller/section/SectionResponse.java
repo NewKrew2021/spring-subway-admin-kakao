@@ -1,4 +1,6 @@
-package subway.domain.section;
+package subway.controller.section;
+
+import subway.domain.section.Section;
 
 public class SectionResponse {
     private Long id;

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.StationDao;
 import subway.domain.station.Station;
-import subway.domain.station.StationRequest;
+import subway.controller.station.StationRequest;
 import subway.domain.station.Stations;
 import subway.exception.id.InvalidStationIdException;
 

@@ -1,12 +1,10 @@
-package subway.controller;
+package subway.controller.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.section.Section;
-import subway.domain.section.SectionRequest;
-import subway.domain.section.SectionResponse;
 import subway.service.SectionService;
 
 import java.net.URI;

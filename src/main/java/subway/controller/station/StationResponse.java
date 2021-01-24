@@ -1,4 +1,6 @@
-package subway.domain.station;
+package subway.controller.station;
+
+import subway.domain.station.Station;
 
 import java.util.Objects;
 

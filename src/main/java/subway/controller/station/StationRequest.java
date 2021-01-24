@@ -1,4 +1,4 @@
-package subway.domain.station;
+package subway.controller.station;
 
 public class StationRequest {
     private String name;

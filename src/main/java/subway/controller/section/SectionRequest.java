@@ -1,4 +1,4 @@
-package subway.domain.section;
+package subway.controller.section;
 
 import subway.domain.station.Station;
 

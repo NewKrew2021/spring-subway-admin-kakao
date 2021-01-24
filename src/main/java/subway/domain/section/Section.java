@@ -1,5 +1,6 @@
 package subway.domain.section;
 
+import subway.controller.section.SectionRequest;
 import subway.domain.station.Station;
 import subway.domain.station.Stations;
 import subway.exception.section.SectionAttachException;

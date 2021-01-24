@@ -1,12 +1,10 @@
-package subway.controller;
+package subway.controller.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.station.Station;
-import subway.domain.station.StationRequest;
-import subway.domain.station.StationResponse;
 import subway.service.StationService;
 
 import java.net.URI;

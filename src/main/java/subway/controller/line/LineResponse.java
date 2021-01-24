@@ -1,8 +1,8 @@
-package subway.domain.line;
+package subway.controller.line;
 
-import subway.domain.station.StationResponse;
+import subway.controller.station.StationResponse;
+import subway.domain.line.Line;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -17,11 +17,9 @@ import java.util.List;
 @Repository
 public class LineDao {
     private final JdbcTemplate jdbcTemplate;
-    private final SectionDao sectionDao;
 
-    public LineDao(JdbcTemplate jdbcTemplate, SectionDao sectionDao) {
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.sectionDao = sectionDao;
     }
 
     public Line save(Line line) {
@@ -55,8 +53,7 @@ public class LineDao {
         if (line == null) {
             throw new DataEmptyException();
         }
-        Sections sections = sectionDao.getSectionsByLineId(lineId);
-        return new Line(line.getId(), line.getName(), line.getColor(), sections);
+        return new Line(line.getId(), line.getName(), line.getColor());
     }
 
     public void update(Line line) {

@@ -42,7 +42,8 @@ public class LineServiceImpl implements LineService {
 
     @Override
     public Line findOne(Long lineId) {
-        return lineDao.findOne(lineId);
+        Line line = lineDao.findOne(lineId);
+        return new Line(line.getId(), line.getName(), line.getColor(), sectionDao.getSectionsByLineId(lineId));
     }
 
     @Override

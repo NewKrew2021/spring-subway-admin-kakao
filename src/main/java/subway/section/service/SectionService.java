@@ -29,7 +29,7 @@ public class SectionService {
         Long upStationId = sectionRequest.getUpStationId();
         Long downStationId = sectionRequest.getDownStationId();
         int distance = sectionRequest.getDistance();
-        SectionGenerateStrategy sectionGenerateStrategy = sections.validateAndGenerateStrategy(upStationId, downStationId, distance);
+        SectionGenerateStrategy sectionGenerateStrategy = sections.generateStrategy(upStationId, downStationId, distance);
         sectionDao.save(sectionGenerateStrategy.getNewSection());
     }
 

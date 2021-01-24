@@ -22,7 +22,7 @@ public class LineService {
     }
 
     public LineResponse createLine(LineRequest lineRequest) {
-        if (lineDao.findByName(lineRequest.getName()) != null) {
+        if (lineDao.isNameExist(lineRequest.getName())) {
             throw new LineDuplicatedException();
         }
         Long newLineId = lineDao.save(new Line(lineRequest.getName(),lineRequest.getColor(), lineRequest.getExtraFare())).getId();

@@ -43,7 +43,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionSameSectionException.class,
-                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+                ()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어졌을때, 해당 라인 상행점과 하행점이 모두 존재하는에 않는 경우 오류를 반환한다.")
@@ -56,7 +56,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionNoStationException.class,
-                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+                ()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어지고, 하행점이 생성되는 상황에서 기존 상행점의 하행구간 길이가 새로운 길이보다 같거나 짧을 경우 오류를 반환한다.")
@@ -69,7 +69,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+                ()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("새로운 구간이 주어지고, 상행점이 생성되는 상황에서 기존 하행점의 상행구간 길이가 새로운 길이보다 같거나 짧을 경우 오류를 반환한다.")
@@ -82,7 +82,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+                ()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("구간 길이가 0이하일 경우 오류를 반환한")
@@ -95,7 +95,7 @@ public class SectionsTest {
 
         //when,then
         assertThrows(SectionIllegalDistanceException.class,
-                ()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+                ()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
 
@@ -108,7 +108,7 @@ public class SectionsTest {
         //given @params
 
         //when,then
-        assertDoesNotThrow(()->sections.validateAndGenerateStrategy(upStationId,downStationId,distance));
+        assertDoesNotThrow(()->sections.generateStrategy(upStationId,downStationId,distance));
     }
 
     @DisplayName("삭제할 스테이션 아이디가 주어졌을때, 섹션에 그 아이디가 존재하지 않을 경우 에러를 반환한다..")

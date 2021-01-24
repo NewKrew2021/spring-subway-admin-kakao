@@ -47,4 +47,18 @@ public class LineService{
         return lineDao.updateAll(line) != 0;
     }
 
+    public boolean update(LineInfoChangedResult result){
+        if(result.getStatus() == LineInfoChanged.NONE) return true;
+
+        Line line = lineDao.findOne(result.getLineId());
+
+        if(result.getStatus() == LineInfoChanged.UP_STATION_CHANGED)
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), result.getStationId(), line.getDownStationId())) != 0;
+
+        if(result.getStatus() == LineInfoChanged.DOWN_STATION_CHANGED)
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), result.getStationId())) != 0;
+
+        return false;
+    }
+
 }

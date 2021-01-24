@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import subway.line.Line;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
@@ -42,5 +43,20 @@ public class SectionDao {
     public int deleteSectionById(Long sectionId) {
         String sql = "delete from SECTION where id = ?";
         return jdbcTemplate.update(sql, sectionId);
+    }
+
+    public Sections saveSections(Sections sections){
+        return new Sections(sections.getSections()
+                .stream()
+                .map(section -> save(section))
+                .collect(Collectors.toList())
+        );
+    }
+
+    public List<Integer> deleteSections(Sections sections){
+        return sections.getSections()
+                .stream()
+                .map(section -> deleteSectionById(section.getSectionId()))
+                .collect(Collectors.toList());
     }
 }

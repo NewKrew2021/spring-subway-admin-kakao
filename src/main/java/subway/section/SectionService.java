@@ -2,6 +2,7 @@ package subway.section;
 
 import org.springframework.stereotype.Service;
 import subway.line.Line;
+import subway.line.LineInfoChangedResult;
 import subway.line.LineService;
 
 import java.util.HashSet;
@@ -26,57 +27,12 @@ public class SectionService{
 
     public boolean saveSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
-        Long existStationId = sections.findStationExistBySection(section);
-
-        if(!sections.checkSectionExist(section))
-            return false;
-
-        sectionDao.save(section);
-
-        if (section.getUpStationId() == existStationId) {
-            addSectionBack(sections, section);
-            return true;
-        }
-
-        addSectionFront(sections, section);
+        sections.initAddSections();
+        sections.initDelSections();
+        LineInfoChangedResult result = sections.addSection(lineService.findOne(section.getLineId()), section);
+        lineService.update(result);
+        sectionDao.saveSections(new Sections(sections.getAddSections()));
         return true;
-    }
-
-    private void addSectionBack(Sections sections, Section section) {
-        Line line = lineService.findOne(section.getLineId());
-        Section nextSection = sections.findNextSection(section);
-        if (line.isFinalDownStation(section) || nextSection == null) {
-            lineService.updateAll(new Line(line.getId(),
-                    line.getName(),
-                    line.getColor(),
-                    line.getUpStationId(),
-                    section.getDownStationId()));
-            return;
-        }
-        sectionDao.deleteSectionById(nextSection.getSectionId());
-        sectionDao.save(new Section(section.getDownStationId(),
-                nextSection.getDownStationId(),
-                nextSection.getDistance() - section.getDistance(),
-                line.getId()));
-    }
-
-    private void addSectionFront(Sections sections, Section section) {
-        Line line = lineService.findOne(section.getLineId());
-        Section prevSection = sections.findPrevSection(section);
-        if (line.isFinalUpStation(section) || prevSection == null) {
-            lineService.updateAll(new Line(line.getId(),
-                    line.getName(),
-                    line.getColor(),
-                    section.getUpStationId(),
-                    line.getDownStationId()));
-            return;
-        }
-
-        sectionDao.deleteSectionById(prevSection.getSectionId());
-        sectionDao.save(new Section(prevSection.getUpStationId(),
-                section.getUpStationId(),
-                prevSection.getDistance() - section.getDistance(),
-                line.getId()));
     }
 
     public boolean deleteSection(Long lineId, Long stationId) {

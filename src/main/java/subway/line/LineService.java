@@ -22,15 +22,15 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
-    public LineResultValue create(LineCreateValue createValue) {
+    public long create(LineCreateValue createValue) {
         Line line = insert(new Line(createValue.getName(), createValue.getColor()));
-        return LineResultValue.of(line, sectionService.findStationValuesByLine(line));
+        return line.getID();
     }
 
     public List<LineResultValue> findAll() {
         return lineDao.findAll()
                 .stream()
-                .map(Line::toResultValue)
+                .map(line -> LineResultValue.of(line, sectionService.findStationValuesByLine(line)))
                 .collect(Collectors.toList());
     }
 

@@ -1,6 +1,7 @@
 package subway.line.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import subway.line.vo.LineResultValue;
 import subway.station.dto.StationResponse;
 
 import java.util.List;
@@ -17,6 +18,11 @@ public class LineResponse {
         this.name = name;
         this.color = color;
         this.stations = stations;
+    }
+
+    public static LineResponse of(LineResultValue resultValue) {
+        return new LineResponse(resultValue.getID(), resultValue.getName(),
+                resultValue.getColor(), resultValue.getStations().allToResponses());
     }
 
     public Long getID() {

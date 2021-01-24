@@ -23,7 +23,7 @@ public class StationTest {
     @DisplayName("Station에서 StationDTO를 올바르게 생성한다")
     @Test
     void testToDto() {
-        StationResponse response = new Station(1L, "hi").toResultValue().toResponse();
+        StationResponse response = StationResponse.of(new Station(1L, "hi"));
 
         assertThat(response.getID()).isEqualTo(1L);
         assertThat(response.getName()).isEqualTo("hi");

@@ -1,17 +1,11 @@
 package subway.station.domain;
 
 import org.apache.commons.lang3.StringUtils;
-import subway.station.vo.StationResultValue;
 
 public class Station {
     private static final long UNUSED_ID = 0L;
-    private static final String UNUSED_NAME = "unused";
     private final Long id;
     private final String name;
-
-    public Station(Long id) {
-        this(id, UNUSED_NAME);
-    }
 
     public Station(String name) {
         this(UNUSED_ID, name);
@@ -22,10 +16,6 @@ public class Station {
         this.name = name;
 
         checkIsValidStation();
-    }
-
-    public StationResultValue toResultValue() {
-        return new StationResultValue(id, name);
     }
 
     public Long getID() {

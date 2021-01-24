@@ -36,7 +36,7 @@ public class SectionTest {
     void testIsCloserFromThan() {
         Section thanSection = new Section(1, 1, 3);
 
-        assertThat(base.isCloserFromThan(other, thanSection)).isFalse();
-        assertThat(base.isCloserFromThan(thanSection, other)).isTrue();
+        assertThat(base.isFartherOrEqualFromThan(other, thanSection)).isTrue();
+        assertThat(base.isFartherOrEqualFromThan(thanSection, other)).isFalse();
     }
 }

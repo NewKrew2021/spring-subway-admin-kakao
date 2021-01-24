@@ -6,10 +6,8 @@ import subway.line.domain.Line;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
 import subway.section.vo.SectionCreateValue;
-import subway.section.vo.SectionResultValues;
 import subway.station.StationDao;
-import subway.station.domain.Station;
-import subway.station.vo.StationResultValues;
+import subway.station.domain.Stations;
 
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -24,8 +22,7 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
-    // TODO: 날씬해질 수 있을..까?
-    public SectionResultValues create(SectionCreateValue createValue) {
+    public void create(SectionCreateValue createValue) {
         if (upAndDownStationsAreEqual(createValue)) {
             throw new IllegalArgumentException("UpSection and DownSection cannot be equal");
         }
@@ -39,18 +36,11 @@ public class SectionService {
             sectionDao.insert(upSection);
             sectionDao.insert(downSection);
 
-            Sections newSections = sectionDao.findAllSectionsOf(createValue.getLineID());
-            return newSections.toResultValues();
+            return;
         }
 
-        Section newSection = sections.createSection(upSection, downSection);
-        if (newSection == null) {
-            throw new IllegalArgumentException("Cannot create section. Distance exceeds existing section distance");
-        }
-
+        Section newSection = sections.insertAndGetNewSection(upSection, downSection);
         sectionDao.insert(newSection);
-        Sections newSections = sectionDao.findAllSectionsOf(createValue.getLineID());
-        return newSections.toResultValues();
     }
 
     public void delete(long lineID, long stationID) {
@@ -61,13 +51,11 @@ public class SectionService {
         sectionDao.delete(section);
     }
 
-    public StationResultValues findStationValuesByLine(Line line) {
+    public Stations findStationValuesByLine(Line line) {
         Sections sections = sectionDao.findAllSectionsOf(line.getID());
-        return new StationResultValues(sections.getStationIDs()
+        return new Stations(sections.getStationIDs()
                 .stream()
-                .map(Station::new)
                 .map(stationDao::findByID)
-                .map(Station::toResultValue)
                 .collect(Collectors.toList()));
     }
 

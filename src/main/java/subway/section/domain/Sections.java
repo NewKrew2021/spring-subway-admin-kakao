@@ -1,7 +1,5 @@
 package subway.section.domain;
 
-import subway.section.vo.SectionResultValues;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,25 +19,22 @@ public class Sections {
                 .collect(Collectors.toList());
     }
 
-    public SectionResultValues toResultValues() {
-        return new SectionResultValues(sections.stream()
-                .map(Section::toResultValue)
-                .collect(Collectors.toList()));
+    public boolean hasNoSections() {
+        return sections.isEmpty();
     }
 
-    // TODO: 날씬해지자
-    public Section createSection(Section upSectionParameters, Section downSectionParameters) {
-        checkValidSections(upSectionParameters, downSectionParameters);
+    public Section insertAndGetNewSection(Section upSection, Section downSection) {
+        checkAreValidSections(upSection, downSection);
 
         final int NOT_DEFINED = Integer.MAX_VALUE;
-        int distanceDiff = downSectionParameters.distanceDiff(upSectionParameters);
+        int distanceDiff = downSection.distanceDiff(upSection);
 
-        Section existingSection = findSection(upSectionParameters);
-        Section newSectionParameters = downSectionParameters;
+        Section existingSection = findSection(upSection);
+        Section newSectionParameters = downSection;
         int newSectionDistance = NOT_DEFINED;
-        if (!sectionExists(existingSection)) {
-            existingSection = findSection(downSectionParameters);
-            newSectionParameters = upSectionParameters;
+        if (!isExistingSection(existingSection)) {
+            existingSection = findSection(downSection);
+            newSectionParameters = upSection;
             newSectionDistance = existingSection.getDistance() - distanceDiff;
         }
 
@@ -51,11 +46,7 @@ public class Sections {
                 newSectionParameters.getStationID(),
                 newSectionDistance);
 
-        // TODO: null 체크는 haveValidDistance 안에서 해보자
-        if (!haveValidDistance(existingSection, newSection)) {
-            return null;
-        }
-
+        checkIsValidDistance(existingSection, newSection);
         return newSection;
     }
 
@@ -70,42 +61,53 @@ public class Sections {
                                 section.getLineID(), section.getStationID())));
     }
 
-    public boolean hasNoSections() {
-        return sections.isEmpty();
+    protected void checkAreValidSections(Section upSection, Section downSection) {
+        boolean upSectionIsExistingSection = isExistingSection(upSection);
+        boolean downSectionIsExistingSection = isExistingSection(downSection);
+
+        checkBothSectionsAlreadyExist(upSectionIsExistingSection, downSectionIsExistingSection);
+        checkBothSectionsDoesNotExist(upSectionIsExistingSection, downSectionIsExistingSection);
     }
 
-    protected void checkValidSections(Section upSection, Section downSection) {
-        checkBothSectionsAlreadyExist(upSection, downSection);
-        checkBothSectionsDoesNotExist(upSection, downSection);
-    }
-
-    private void checkBothSectionsAlreadyExist(Section upSection, Section downSection) {
-        if (sectionExists(upSection) && sectionExists(downSection)) {
+    private void checkBothSectionsAlreadyExist(boolean upSectionExists, boolean downSectionExists) {
+        if (upSectionExists && downSectionExists) {
             throw new IllegalArgumentException("Cannot insert if both sections already exist");
         }
     }
 
-    private void checkBothSectionsDoesNotExist(Section upSection, Section downSection) {
-        if (!sectionExists(upSection) && !sectionExists(downSection)) {
+    private void checkBothSectionsDoesNotExist(boolean upSectionExists, boolean downSectionExists) {
+        if (!(upSectionExists || downSectionExists)) {
             throw new IllegalArgumentException("Cannot insert if neither section exist");
         }
     }
 
-    protected boolean haveValidDistance(Section existingSection, Section newSection) {
-        Section nextSection = getNextSection(existingSection, newSection);
-        if (isHighestOrLowestSection(nextSection)) {
-            return true;
-        }
+    private boolean isExistingSection(Section section) {
+        return findSection(section) != null;
+    }
 
-        return existingSection.isCloserFromThan(newSection, nextSection);
+    protected Section findSection(Section section) {
+        return sections.stream()
+                .filter(sec -> sec.equals(section))
+                .findFirst()
+                .orElse(null);
+    }
+
+    protected void checkIsValidDistance(Section existingSection, Section newSection) {
+        Section nextSection = getNextSection(existingSection, newSection);
+        if (isNotHighestOrLowestSection(nextSection) && existingSection.isFartherOrEqualFromThan(newSection, nextSection)) {
+            throw new IllegalArgumentException("New section distance exceeds existing section distance");
+        }
     }
 
     protected Section getNextSection(Section existingSection, Section newSection) {
-        try {
-            return sections.get(getNextSectionIdx(existingSection, newSection));
-        } catch (IndexOutOfBoundsException ignored) {
-            return null;
+        int nextSectionIdx = getNextSectionIdx(existingSection, newSection);
+        boolean nextSectionIsInBounds = (0 <= nextSectionIdx) && (nextSectionIdx < sections.size());
+
+        if (nextSectionIsInBounds) {
+            return sections.get(nextSectionIdx);
         }
+
+        return null;
     }
 
     protected int getNextSectionIdx(Section existingSection, Section newSection) {
@@ -116,23 +118,12 @@ public class Sections {
         return sections.indexOf(existingSection) - 1;
     }
 
-    protected Section findSection(Section section) {
-        return sections.stream()
-                .filter(sec -> sec.equals(section))
-                .findFirst()
-                .orElse(null);
+    private boolean isNotHighestOrLowestSection(Section section) {
+        return section != null;
     }
 
     private boolean hasMinimumSectionCount() {
         return sections.size() <= TWO_SECTIONS_REPRESENT_ONE;
-    }
-
-    private boolean sectionExists(Section sectionParameters) {
-        return findSection(sectionParameters) != null;
-    }
-
-    private boolean isHighestOrLowestSection(Section section) {
-        return section == null;
     }
 
     private void checkAreValidSections() {

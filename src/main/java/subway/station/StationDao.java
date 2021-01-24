@@ -36,9 +36,9 @@ public class StationDao {
         return jdbcTemplate.query("select * from station", stationRowMapper);
     }
 
-    public Station findByID(Station station) {
+    public Station findByID(long stationID) {
         return jdbcTemplate.queryForObject("select id, name from station where id = ?",
-                stationRowMapper, station.getID());
+                stationRowMapper, stationID);
     }
 
     public void deleteByID(long stationID) {

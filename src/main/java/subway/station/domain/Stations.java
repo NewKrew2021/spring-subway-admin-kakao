@@ -1,6 +1,6 @@
 package subway.station.domain;
 
-import subway.station.vo.StationResultValue;
+import subway.station.dto.StationResponse;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,9 +15,9 @@ public class Stations {
         checkAreValidSections();
     }
 
-    public List<StationResultValue> allToResultValues() {
+    public List<StationResponse> allToResponses() {
         return stations.stream()
-                .map(Station::toResultValue)
+                .map(StationResponse::of)
                 .collect(Collectors.toList());
     }
 

@@ -29,10 +29,10 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        LineResultValue lineResultValue = lineService.create(new LineCreateValue(lineRequest));
-        sectionService.create(new SectionCreateValue(lineResultValue.getID(), lineRequest));
+        long newLineID = lineService.create(new LineCreateValue(lineRequest));
+        sectionService.create(new SectionCreateValue(newLineID, lineRequest));
 
-        LineResponse lineResponse = lineResultValue.toLineResponse();
+        LineResponse lineResponse = LineResponse.of(lineService.findByID(newLineID));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
     }
 
@@ -40,7 +40,7 @@ public class LineController {
     public ResponseEntity<List<LineResponse>> showLines() {
         List<LineResponse> lineResultValues = lineService.findAll()
                 .stream()
-                .map(LineResultValue::toLineResponse)
+                .map(LineResponse::of)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(lineResultValues);
@@ -49,13 +49,13 @@ public class LineController {
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
         LineResultValue lineResultValue = lineService.findByID(lineID);
-        return ResponseEntity.ok(lineResultValue.toLineResponse());
+        return ResponseEntity.ok(LineResponse.of(lineResultValue));
     }
 
     @PutMapping("/{lineID}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
         LineResultValue resultValue = lineService.update(lineID, new LineAttributes(lineRequest));
-        return ResponseEntity.ok(resultValue.toLineResponse());
+        return ResponseEntity.ok(LineResponse.of(resultValue));
     }
 
     @DeleteMapping("/{lineID}")
@@ -70,7 +70,7 @@ public class LineController {
         sectionService.create(new SectionCreateValue(lineID, sectionRequest));
 
         LineResultValue lineResultValue = lineService.findByID(lineID);
-        return ResponseEntity.ok(lineResultValue.toLineResponse());
+        return ResponseEntity.ok(LineResponse.of(lineResultValue));
     }
 
     @DeleteMapping("/{lineID}/sections")

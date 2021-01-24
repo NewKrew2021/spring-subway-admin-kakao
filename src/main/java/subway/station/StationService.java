@@ -3,11 +3,9 @@ package subway.station;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import subway.station.domain.Station;
-import subway.station.vo.StationResultValue;
-import subway.station.vo.StationResultValues;
 
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class StationService {
@@ -17,21 +15,16 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResultValue createWithName(String stationName) {
-        Station station = insert(stationName);
-        return station.toResultValue();
+    public Station createWithName(String stationName) {
+        return insert(stationName);
     }
 
-    public StationResultValues findAll() {
-        return new StationResultValues(stationDao.findAll()
-                .stream()
-                .map(StationResultValue::new)
-                .collect(Collectors.toList()));
+    public List<Station> findAll() {
+        return stationDao.findAll();
     }
 
-    public StationResultValue findByID(long stationID) {
-        Station station = findOneBy(stationID);
-        return station.toResultValue();
+    public Station findByID(long stationID) {
+        return findOneBy(stationID);
     }
 
     public void deleteByID(long stationID) {
@@ -50,7 +43,7 @@ public class StationService {
 
     private Station findOneBy(long stationID) {
         try {
-            return stationDao.findByID(new Station(stationID));
+            return stationDao.findByID(stationID);
         } catch (DataAccessException e) {
             throw new NoSuchElementException(
                     String.format("%s\nCould not find station with id: %d",

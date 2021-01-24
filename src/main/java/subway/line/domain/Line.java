@@ -1,7 +1,6 @@
 package subway.line.domain;
 
 import org.apache.commons.lang3.StringUtils;
-import subway.line.vo.LineResultValue;
 
 public class Line {
     private final Long id;
@@ -18,10 +17,6 @@ public class Line {
         this.color = color;
 
         checkAreValidArguments();
-    }
-
-    public LineResultValue toResultValue() {
-        return new LineResultValue(id, name, color);
     }
 
     public void changeAttributesToNameAndColor(String name, String color) {

@@ -1,35 +1,23 @@
 package subway.line.vo;
 
 import subway.line.domain.Line;
-import subway.line.dto.LineResponse;
-import subway.station.vo.StationResultValues;
+import subway.station.domain.Stations;
 
 public class LineResultValue {
     private final long id;
     private final String name;
     private final String color;
-    private final StationResultValues stations;
+    private final Stations stations;
 
-    public LineResultValue(long id, String name, String color) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.stations = new StationResultValues();
-    }
-
-    public LineResultValue(long id, String name, String color, StationResultValues stations) {
+    public LineResultValue(long id, String name, String color, Stations stations) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.stations = stations;
     }
 
-    public static LineResultValue of(Line line, StationResultValues stations) {
+    public static LineResultValue of(Line line, Stations stations) {
         return new LineResultValue(line.getID(), line.getName(), line.getColor(), stations);
-    }
-
-    public LineResponse toLineResponse() {
-        return new LineResponse(id, name, color, stations.allToResponses());
     }
 
     public long getID() {
@@ -44,7 +32,7 @@ public class LineResultValue {
         return color;
     }
 
-    public StationResultValues getStations() {
+    public Stations getStations() {
         return stations;
     }
 }

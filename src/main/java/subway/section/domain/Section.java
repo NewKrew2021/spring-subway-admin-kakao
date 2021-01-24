@@ -33,8 +33,8 @@ public class Section implements Comparable<Section> {
         return distance < newSection.distance;
     }
 
-    public boolean isCloserFromThan(Section fromSection, Section thanSection) {
-        return Math.abs(distance - fromSection.distance) < Math.abs(distance - thanSection.distance);
+    public boolean isFartherOrEqualFromThan(Section fromSection, Section thanSection) {
+        return Math.abs(distance - fromSection.distance) >= Math.abs(distance - thanSection.distance);
     }
 
     public long getLineID() {

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
-public class ExceptionAdvice {
+public class ExceptionHandlers {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> invalidArgumentHandler(Exception e) {
         return ResponseEntity.status(400).body(e.getMessage());

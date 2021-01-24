@@ -1,11 +1,12 @@
 package subway.section;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
+
+import java.util.NoSuchElementException;
 
 @Repository
 public class SectionDao {
@@ -17,30 +18,30 @@ public class SectionDao {
 
     public Section insert(Section section) {
         String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-
-        try {
-            jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance());
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance());
 
         return new Section(section.getLineID(), section.getStationID(), section.getDistance());
     }
 
-    public Section delete(Section section) {
+    public void delete(Section section) {
         String sql = "delete from section where line_id = ? and station_id = ?";
         int affectedRows = jdbcTemplate.update(sql, section.getLineID(), section.getStationID());
 
         if (isNotDeleted(affectedRows)) {
-            return section;
+            throw new NoSuchElementException(
+                    String.format("Could not delete section with line id: %d and station id: %d",
+                            section.getLineID(), section.getStationID()));
         }
-
-        return null;
     }
 
     public Sections findAllSectionsOf(Long lineID) {
         String sql = "select * from section where line_id = ? order by distance";
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
+    }
+
+    public Section findOneByLineAndSectionIDs(long lineID, long sectionID) {
+        String sql = "select * from section where line_id = ? and station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineID, sectionID);
     }
 
     private boolean isNotDeleted(int affectedRows) {

@@ -5,12 +5,8 @@ import subway.line.vo.LineResultValue;
 
 public class Line {
     private final Long id;
-    private final String name;
-    private final String color;
-
-    public Line(Long id) {
-        this(id, "unused", "unused");
-    }
+    private String name;
+    private String color;
 
     public Line(String name, String color) {
         this(0L, name, color);
@@ -56,5 +52,10 @@ public class Line {
 
     private boolean isNegativeID() {
         return id < 0;
+    }
+
+    public void changeAttributesToNameAndColor(String name, String color) {
+        this.name = name;
+        this.color = color;
     }
 }

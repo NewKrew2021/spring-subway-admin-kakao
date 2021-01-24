@@ -7,16 +7,16 @@ public class LineRequest {
     private String color;
     private Long upStationID;
     private Long downStationID;
-    private int distance;
+    private int distanceDiff;
     private int extraFare;
 
     @JsonCreator
-    public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
+    public LineRequest(String name, String color, Long upStationID, Long downStationID, int distanceDiff) {
         this.name = name;
         this.color = color;
         this.upStationID = upStationID;
         this.downStationID = downStationID;
-        this.distance = distance;
+        this.distanceDiff = distanceDiff;
     }
 
     public String getName() {
@@ -35,8 +35,8 @@ public class LineRequest {
         return downStationID;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getDistanceDiff() {
+        return distanceDiff;
     }
 
     public int getExtraFare() {

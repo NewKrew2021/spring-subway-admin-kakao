@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public class SectionRequest {
     private Long upStationID;
     private Long downStationID;
-    private int distance;
+    private int distanceDiff;
 
     @JsonCreator
-    public SectionRequest(Long upStationID, Long downStationID, int distance) {
+    public SectionRequest(Long upStationID, Long downStationID, int distanceDiff) {
         this.upStationID = upStationID;
         this.downStationID = downStationID;
-        this.distance = distance;
+        this.distanceDiff = distanceDiff;
     }
 
     public Long getUpStationID() {
@@ -22,7 +22,7 @@ public class SectionRequest {
         return downStationID;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getDistanceDiff() {
+        return distanceDiff;
     }
 }

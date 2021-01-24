@@ -2,9 +2,7 @@ package subway.section.domain;
 
 import subway.section.vo.SectionResultValues;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Sections {
@@ -61,8 +59,15 @@ public class Sections {
         return newSection;
     }
 
-    public boolean hasMinimumSectionCount() {
-        return sections.size() <= TWO_SECTIONS_REPRESENT_ONE;
+    public void checkIsDeletable(Section section) {
+        if (hasMinimumSectionCount()) {
+            throw new IllegalArgumentException("Cannot delete section when there are only two sections left");
+        }
+
+        Optional.ofNullable(findSection(section))
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("Could not retrieve section with line id: %d and section id: %d",
+                                section.getLineID(), section.getStationID())));
     }
 
     public boolean hasNoSections() {
@@ -116,6 +121,10 @@ public class Sections {
                 .filter(sec -> sec.equals(section))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private boolean hasMinimumSectionCount() {
+        return sections.size() <= TWO_SECTIONS_REPRESENT_ONE;
     }
 
     private boolean sectionExists(Section sectionParameters) {

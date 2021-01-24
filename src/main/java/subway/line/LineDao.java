@@ -1,6 +1,5 @@
 package subway.line;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,6 +9,7 @@ import subway.line.domain.Line;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class LineDao {
@@ -23,16 +23,12 @@ public class LineDao {
         String sql = "insert into line (name, color) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        try {
-            jdbcTemplate.update(con -> {
-                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, line.getName());
-                st.setString(2, line.getColor());
-                return st;
-            }, keyHolder);
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setString(1, line.getName());
+            st.setString(2, line.getColor());
+            return st;
+        }, keyHolder);
 
         return new Line(keyHolder.getKey().longValue(), line.getName(), line.getColor());
     }
@@ -42,35 +38,25 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper);
     }
 
-    public Line findOne(Line line) {
-        return jdbcTemplate.queryForObject("select * from line where id = ?", lineRowMapper, line.getID());
+    public Line findOne(long lineID) {
+        return jdbcTemplate.queryForObject("select * from line where id = ?", lineRowMapper, lineID);
     }
 
-    public Line update(Line line) {
+    public void update(Line line) {
         String sql = "update line set name = ?, color = ? where id = ?";
-        int affectedRows;
-
-        try {
-            affectedRows = jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getID());
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        int affectedRows = jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getID());
 
         if (isNotUpdated(affectedRows)) {
-            return null;
+            throw new IllegalArgumentException("Could not update line with id: " + line.getID());
         }
-
-        return line;
     }
 
-    public Line delete(Line line) {
-        int affectedRows = jdbcTemplate.update("delete from line where id = ?", line.getID());
+    public void delete(long lineID) {
+        int affectedRows = jdbcTemplate.update("delete from line where id = ?", lineID);
 
         if (isNotDeleted(affectedRows)) {
-            return line;
+            throw new NoSuchElementException("Could not delete Line with id: " + lineID);
         }
-
-        return null;
     }
 
     private boolean isNotUpdated(int affectedRows) {

@@ -5,12 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
-import subway.line.vo.*;
+import subway.line.vo.LineAttributes;
+import subway.line.vo.LineCreateValue;
+import subway.line.vo.LineResultValue;
 import subway.section.SectionService;
 import subway.section.dto.SectionRequest;
 import subway.section.vo.SectionCreateValue;
-import subway.section.vo.SectionDeleteValue;
-import subway.section.vo.SectionReadStationsValue;
 import subway.station.dto.StationResponse;
 import subway.station.vo.StationResultValues;
 
@@ -30,13 +30,9 @@ public class LineController {
     }
 
     @PostMapping
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
-        LineCreateValue lineCreateValue = new LineCreateValue(request.getName(), request.getColor());
-        LineResultValue lineResultValue = lineService.create(lineCreateValue);
-
-        SectionCreateValue sectionCreateValue = new SectionCreateValue(lineResultValue.getID(),
-                request.getUpStationID(), request.getDownStationID(), request.getDistance());
-        sectionService.create(sectionCreateValue);
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        LineResultValue lineResultValue = lineService.create(new LineCreateValue(lineRequest));
+        sectionService.create(new SectionCreateValue(lineResultValue.getID(), lineRequest));
 
         LineResponse lineResponse = lineResultValue.toLineResponse(findStationReponses(lineResultValue));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
@@ -54,43 +50,39 @@ public class LineController {
 
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
-        LineResultValue lineResultValue = lineService.findByID(new LineReadValue(lineID));
+        LineResultValue lineResultValue = lineService.findByID(lineID);
         return ResponseEntity.ok(lineResultValue.toLineResponse(findStationReponses(lineResultValue)));
     }
 
     @PutMapping("/{lineID}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
-        LineUpdateValue lineUpdateValue = new LineUpdateValue(lineID, lineRequest.getName(), lineRequest.getColor());
-        LineResultValue resultValue = lineService.update(lineUpdateValue);
+        LineResultValue resultValue = lineService.update(lineID, new LineAttributes(lineRequest));
         return ResponseEntity.ok(resultValue.toLineResponse(findStationReponses(resultValue)));
     }
 
     @DeleteMapping("/{lineID}")
     public ResponseEntity<Void> deleteLine(@PathVariable Long lineID) {
-        lineService.delete(new LineDeleteValue(lineID));
+        lineService.delete(lineID);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{lineID}/sections")
-    public ResponseEntity<LineResponse> addSection(@PathVariable Long lineID, @RequestBody SectionRequest request) {
-        SectionCreateValue sectionCreateValue = new SectionCreateValue(lineID, request.getUpStationID(),
-                request.getDownStationID(), request.getDistance());
-        sectionService.create(sectionCreateValue);
+    public ResponseEntity<LineResponse> addSection(@PathVariable Long lineID,
+                                                   @RequestBody SectionRequest sectionRequest) {
+        sectionService.create(new SectionCreateValue(lineID, sectionRequest));
 
-        LineResultValue lineResultValue = lineService.findByID(new LineReadValue(lineID));
+        LineResultValue lineResultValue = lineService.findByID(lineID);
         return ResponseEntity.ok(lineResultValue.toLineResponse(findStationReponses(lineResultValue)));
     }
 
     @DeleteMapping("/{lineID}/sections")
     public ResponseEntity<Void> deleteSection(@PathVariable Long lineID, @RequestParam Long stationID) {
-        sectionService.delete(new SectionDeleteValue(lineID, stationID));
+        sectionService.delete(lineID, stationID);
         return ResponseEntity.ok().build();
     }
 
     private List<StationResponse> findStationReponses(LineResultValue lineResultValue) {
-        SectionReadStationsValue sectionReadStationsValue = new SectionReadStationsValue(lineResultValue.getID());
-        StationResultValues stationResultValues = sectionService.findStationsByLineID(sectionReadStationsValue);
-
+        StationResultValues stationResultValues = sectionService.findStationsByLineID(lineResultValue.getID());
         return stationResultValues.allToResponses();
     }
 }

@@ -1,11 +1,12 @@
 package subway.station;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import subway.station.domain.Station;
-import subway.station.vo.*;
+import subway.station.vo.StationResultValue;
+import subway.station.vo.StationResultValues;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,14 +17,18 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public StationResultValue create(StationCreateValue createValue) {
-        Station insertSection = stationDao.insert(new Station(createValue.getName()));
+    public StationResultValue createWithName(String stationName) {
+        Station station;
 
-        Station newStation = Optional.ofNullable(insertSection)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Station with name %s already exists", createValue.getName())));
+        try {
+            station = stationDao.insert(new Station(stationName));
+        } catch (DataAccessException e) {
+            throw new IllegalArgumentException(
+                    String.format("%s\nStation with name %s already exists",
+                            e.getMessage(), stationName));
+        }
 
-        return newStation.toResultValue();
+        return station.toResultValue();
     }
 
     public StationResultValues findAll() {
@@ -33,25 +38,21 @@ public class StationService {
                 .collect(Collectors.toList()));
     }
 
-    public StationResultValue findByID(StationReadValue findValue) {
-        Station foundSection = stationDao.findByID(new Station(findValue.getID()));
+    public StationResultValue findByID(long stationID) {
+        Station station;
 
-        Station station = Optional.ofNullable(foundSection)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Could not find station with id: %d", findValue.getID())));
+        try {
+            station = stationDao.findByID(new Station(stationID));
+        } catch (DataAccessException e) {
+            throw new NoSuchElementException(
+                    String.format("%s\nCould not find station with id: %d",
+                            e.getMessage(), stationID));
+        }
 
         return station.toResultValue();
     }
 
-    public void deleteByID(StationDeleteValue deleteValue) {
-        Station station = stationDao.deleteByID(new Station(deleteValue.getID()));
-
-        if (wasNotDeleted(station)) {
-            throw new NoSuchElementException(String.format("Could not delete station %d", deleteValue.getID()));
-        }
-    }
-
-    private boolean wasNotDeleted(Station station) {
-        return station != null;
+    public void deleteByID(long stationID) {
+        stationDao.deleteByID(stationID);
     }
 }

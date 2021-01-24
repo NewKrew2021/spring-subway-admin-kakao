@@ -1,16 +1,16 @@
 package subway.section;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import subway.section.domain.Section;
 import subway.section.domain.Sections;
 import subway.section.vo.SectionCreateValue;
-import subway.section.vo.SectionDeleteValue;
-import subway.section.vo.SectionReadStationsValue;
 import subway.section.vo.SectionResultValues;
 import subway.station.StationDao;
 import subway.station.domain.Station;
 import subway.station.vo.StationResultValues;
 
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,22 +52,24 @@ public class SectionService {
         return newSections.toResultValues();
     }
 
-    public void delete(SectionDeleteValue deleteValue) {
-        Sections sections = sectionDao.findAllSectionsOf(deleteValue.getLineID());
-        if (sections.hasMinimumSectionCount()) {
-            throw new IllegalArgumentException("Cannot delete section when there are only two sections left");
+    public void delete(long lineID, long stationID) {
+        Sections sections = sectionDao.findAllSectionsOf(lineID);
+        Section section;
+
+        try {
+            section = sectionDao.findOneByLineAndSectionIDs(lineID, stationID);
+        } catch (DataAccessException e) {
+            throw new NoSuchElementException(
+                    String.format("%s\nCould not find section with line id: %d and section id: %d",
+                            e.getMessage(), lineID, stationID));
         }
 
-        Section section = sectionDao.delete(new Section(deleteValue.getLineID(), deleteValue.getStationID()));
-        if (isNotDeleted(section)) {
-            throw new IllegalArgumentException(
-                    String.format("Could not delete section with station id: %d and line id: %d",
-                            deleteValue.getStationID(), deleteValue.getLineID()));
-        }
+        sections.checkIsDeletable(section);
+        sectionDao.delete(section);
     }
 
-    public StationResultValues findStationsByLineID(SectionReadStationsValue readStationsValue) {
-        Sections sections = sectionDao.findAllSectionsOf(readStationsValue.getID());
+    public StationResultValues findStationsByLineID(long lineID) {
+        Sections sections = sectionDao.findAllSectionsOf(lineID);
         return new StationResultValues(sections.getStationIDs()
                 .stream()
                 .map(Station::new)
@@ -78,9 +80,5 @@ public class SectionService {
 
     private boolean upAndDownStationsAreEqual(SectionCreateValue createValue) {
         return createValue.getDownStationID() == createValue.getUpStationID();
-    }
-
-    private boolean isNotDeleted(Section section) {
-        return section != null;
     }
 }

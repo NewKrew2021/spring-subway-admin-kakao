@@ -5,7 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.station.dto.StationRequest;
 import subway.station.dto.StationResponse;
-import subway.station.vo.*;
+import subway.station.vo.StationResultValue;
+import subway.station.vo.StationResultValues;
 
 import java.net.URI;
 import java.util.List;
@@ -21,7 +22,7 @@ public class StationController {
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        StationResultValue resultValue = stationService.create(new StationCreateValue(stationRequest));
+        StationResultValue resultValue = stationService.createWithName(stationRequest.getName());
 
         StationResponse response = resultValue.toResponse();
         return ResponseEntity.created(URI.create("/stations/" + response.getID())).body(response);
@@ -35,13 +36,13 @@ public class StationController {
 
     @GetMapping(value = "/{stationID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> showStation(@PathVariable Long stationID) {
-        StationResultValue resultValue = stationService.findByID(new StationReadValue(stationID));
+        StationResultValue resultValue = stationService.findByID(stationID);
         return ResponseEntity.ok(resultValue.toResponse());
     }
 
     @DeleteMapping("/{stationID}")
     public ResponseEntity<Void> deleteStation(@PathVariable Long stationID) {
-        stationService.deleteByID(new StationDeleteValue(stationID));
+        stationService.deleteByID(stationID);
         return ResponseEntity.noContent().build();
     }
 }

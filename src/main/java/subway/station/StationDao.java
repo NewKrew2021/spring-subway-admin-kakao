@@ -1,6 +1,5 @@
 package subway.station;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,6 +9,7 @@ import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class StationDao {
@@ -23,15 +23,11 @@ public class StationDao {
         String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        try {
-            jdbcTemplate.update(con -> {
-                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, station.getName());
-                return st;
-            }, keyHolder);
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setString(1, station.getName());
+            return st;
+        }, keyHolder);
 
         return new Station(keyHolder.getKey().longValue(), station.getName());
     }
@@ -45,14 +41,12 @@ public class StationDao {
                 stationRowMapper, station.getID());
     }
 
-    public Station deleteByID(Station station) {
-        int affectedRows = jdbcTemplate.update("delete from station where id = ?", station.getID());
+    public void deleteByID(long stationID) {
+        int affectedRows = jdbcTemplate.update("delete from station where id = ?", stationID);
 
         if (isNotDeleted(affectedRows)) {
-            return station;
+            throw new NoSuchElementException("Could not delete station with id: " + stationID);
         }
-
-        return null;
     }
 
     private boolean isNotDeleted(int affectedRows) {

@@ -130,16 +130,6 @@ public class SectionsTest {
         assertThat(sections.createSection(middle, middleRight)).isNull();
     }
 
-    @DisplayName("상행/하행역으로 이루어진 최소 단위의 구간이다")
-    @Test
-    void testHasMinimumSectionCount() {
-        assertThat(sections.hasMinimumSectionCount()).isFalse();
-        assertThat(new Sections(Arrays.asList(
-                new Section(LINE_ID, 1, 0),
-                new Section(LINE_ID, 2, 1)
-        )).hasMinimumSectionCount()).isTrue();
-    }
-
     @DisplayName("구간의 초기상태다 (역이 존재하지 않음)")
     @Test
     void testHasNoSections() {

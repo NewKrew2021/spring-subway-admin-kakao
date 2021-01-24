@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 public class LineService {
 
     private final int SECTION_DISTANCE_SUM_DEFAULT = 0;
+    private final String DUPLICATED_STATION_BOTH_SECTION = "상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음";
+    private final String NOT_CONTAIN_STATION_BOTH_SECTION = "상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음";
+    private final String NOT_DELETE_SECTION = "구간이 하나인 노선에서 마지막 구간을 제거할 수 없음";
 
     private final LineDao lineDao;
     private final StationDao stationDao;
@@ -245,11 +248,11 @@ public class LineService {
 
     private void sectionValidator(Long id, SectionRequest sectionRequest) {
         if (hasDuplicatedStation(id, sectionRequest)) {
-            throw new IllegalArgumentException("상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음");
+            throw new IllegalArgumentException(DUPLICATED_STATION_BOTH_SECTION);
         }
 
         if (!containsEndStation(id, sectionRequest)) {
-            throw new IllegalArgumentException("상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음");
+            throw new IllegalArgumentException(NOT_CONTAIN_STATION_BOTH_SECTION);
         }
     }
 
@@ -270,7 +273,7 @@ public class LineService {
 
         Sections sections = new Sections(sectionDao.findByLineId(id));
         if (sections.size() == Line.END_STATION_SECTION_SIZE) {
-            throw new DeleteSectionException("구간이 하나인 노선에서 마지막 구간을 제거할 수 없음");
+            throw new DeleteSectionException(NOT_DELETE_SECTION);
         }
 
         // 1.

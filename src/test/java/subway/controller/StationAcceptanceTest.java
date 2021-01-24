@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.domain.station.Station;
 import subway.domain.station.StationRequest;
 import subway.domain.station.StationResponse;
 
@@ -69,19 +68,29 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철역을 제거한다.")
     @Test
-    void deleteStation() {
+    void deleteExistentStation() {
         // given
-        StationResponse stationResponse1 = 지하철역_등록되어_있음(강남역);
+        StationResponse stationResponse = 지하철역_등록되어_있음(강남역);
 
         // when
-        ExtractableResponse<Response> response1 = 지하철역_제거_요청(stationResponse1);
-
-        StationResponse stationResponse2 = new StationResponse(new Station(10L, "역삼역"));
-        ExtractableResponse<Response> response2 = 지하철역_제거_요청(stationResponse2);
+        ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
 
         // then
-        지하철역_삭제됨(response1);
-        지하철역_삭제됨_없음(response2);
+        지하철역_삭제됨(response);
+    }
+
+    @DisplayName("지하철역을 제거한다.")
+    @Test
+    void deleteNonExistentStation() {
+        // given
+        StationResponse stationResponse = 지하철역_등록되어_있음(강남역);
+
+        // when
+        지하철역_제거_요청(stationResponse);
+        ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
+
+        // then
+        지하철역_삭제됨_없음(response);
     }
 
     public static StationResponse 지하철역_등록되어_있음(String name) {

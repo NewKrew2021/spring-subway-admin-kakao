@@ -2,6 +2,9 @@ package subway.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
@@ -10,6 +13,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import subway.domain.line.Line;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -25,7 +30,6 @@ public class LineDaoTest {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-//    @AfterEach
     @BeforeEach
     public void dropTable() {
         jdbcTemplate.execute("DROP TABLE line IF EXISTS");
@@ -38,19 +42,40 @@ public class LineDaoTest {
                 ");");
     }
 
-    @Test
-    public void saveTest() {
-        assertThat(lineDao.save(분당선).getName()).isEqualTo(분당선.getName());
+    @ParameterizedTest
+    @MethodSource("provideLine")
+    public void saveTest(String name, String color) {
+        Line line = new Line(name, color);
+        Line savedLine = lineDao.save(line);
+
+        assertThat(savedLine).isEqualTo(line);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideLine")
+    public void saveDuplicatedNameTest(String name, String color) {
+        Line line = new Line(name, color);
+        lineDao.save(line);
+
         assertThatThrownBy(() ->
-                lineDao.save(new Line("분당선", "빨강"))).isInstanceOf(DataAccessException.class);
+                lineDao.save(new Line(name, color))).isInstanceOf(DataAccessException.class);
     }
 
     @Test
     public void updateTest() {
         lineDao.save(분당선);
         lineDao.save(신분당선);
+
         lineDao.update(2L, 수인선);
+
         assertThat(lineDao.getById(2L)).isEqualTo(수인선);
+    }
+
+    @Test
+    public void failToUpdateTest() {
+        lineDao.save(분당선);
+        lineDao.save(신분당선);
+
         assertThatThrownBy(() ->
                 lineDao.update(2L, 분당선)).isInstanceOf(DataAccessException.class);
     }
@@ -59,19 +84,43 @@ public class LineDaoTest {
     public void findAllTest() {
         lineDao.save(분당선);
         lineDao.save(신분당선);
-        assertThat(lineDao.findAll()).containsExactlyElementsOf(Arrays.asList(분당선, 신분당선));
+
+        List<Line> lines = lineDao.findAll();
+
+        assertThat(lines).containsExactlyElementsOf(Arrays.asList(분당선, 신분당선));
     }
 
-    @Test
-    public void getByIdTest() {
-        lineDao.save(분당선);
-        assertThat(lineDao.getById(1L)).isEqualTo(분당선);
+    @ParameterizedTest
+    @MethodSource("provideLine")
+    public void getByIdTest(String name, String color) {
+        Line line = lineDao.save(new Line(name, color));
+
+        assertThat(lineDao.getById(line.getId())).isEqualTo(line);
     }
 
-    @Test
-    public void deleteByIdTest() {
-        lineDao.save(분당선);
-        assertThat(lineDao.deleteById(1L)).isTrue();
-        assertThat(lineDao.deleteById(1L)).isFalse();
+    @ParameterizedTest
+    @MethodSource("provideLine")
+    public void deleteByIdTest(String name, String color) {
+        Line line = lineDao.save(new Line(name, color));
+
+        assertThat(lineDao.deleteById(line.getId())).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideLine")
+    public void failToDeleteByIdTest(String name, String color) {
+        Line line = lineDao.save(new Line(name, color));
+
+        lineDao.deleteById(line.getId());
+
+        assertThat(lineDao.deleteById(line.getId())).isFalse();
+    }
+
+    private static Stream<Arguments> provideLine() {
+        return Stream.of(
+                Arguments.of("분당선", "빨강"),
+                Arguments.of("신분당선", "초록"),
+                Arguments.of("수인선", "파랑")
+        );
     }
 }

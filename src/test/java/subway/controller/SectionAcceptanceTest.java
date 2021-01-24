@@ -44,7 +44,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     // TODO 길이체크
     @DisplayName("상행 기준 지하철 구간을 등록한다.")
     @Test
-    void addLineSection1() {
+    void addSectionToLineByUpStation() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 양재역, 3);
 
@@ -54,7 +54,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("하행 기준 지하철 구간을 등록한다.")
     @Test
-    void addLineSection2() {
+    void addSectionToLineByDownStation() {
         // when
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 양재역, 광교역, 3);
 
@@ -64,7 +64,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철 노선에 여러개의 역을 순서 상관 없이 등록한다.")
     @Test
-    void addLineSection3() {
+    void addSectionsToLine() {
         // when
         지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 강남역, 5);
@@ -75,7 +75,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철 노선에 여러개의 역을 순서 상관 없이 등록한다.")
     @Test
-    void addLineSection4() {
+    void addSectionsToLineByDownStation() {
         // when
         지하철_구간_생성_요청(신분당선, 양재역, 광교역, 2);
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 정자역, 양재역, 5);
@@ -106,7 +106,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철 노선에 등록된 지하철역을 제외한다.")
     @Test
-    void removeLineSection1() {
+    void removeLineSection() {
         // given
         지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
         지하철_구간_생성_요청(신분당선, 양재역, 정자역, 2);
@@ -120,16 +120,12 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("지하철 노선에 등록된 지하철역이 두개일 때 한 역을 제외한다.")
     @Test
-    void removeLineSection2() {
+    void failToRemoveLineSection() {
         // when
         ExtractableResponse<Response> removeResponse = 지하철_노선에_지하철역_제외_요청(신분당선, 강남역);
 
         // then
         지하철_노선에_지하철역_제외_실패됨(removeResponse);
-    }
-
-    public static void 지하철_구간_등록되어_있음(LineResponse lineResponse, StationResponse upStation, StationResponse downStation, int distance) {
-        지하철_구간_생성_요청(lineResponse, upStation, downStation, distance);
     }
 
     public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line, StationResponse upStation, StationResponse downStation, int distance) {

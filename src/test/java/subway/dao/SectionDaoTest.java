@@ -1,7 +1,11 @@
 package subway.dao;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,26 +15,26 @@ import subway.domain.station.Station;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DirtiesContext
 @SpringBootTest
 public class SectionDaoTest {
-    private final Station 강남역 = new Station(1L);
-    private final Station 역삼역 = new Station(2L);
-    private final Station 광교역 = new Station(3L);
+    private static final Station 강남역 = new Station(1L);
+    private static final Station 역삼역 = new Station(2L);
+    private static final Station 광교역 = new Station(3L);
 
-    private final Section 섹션1 = new Section(1L, 강남역, 역삼역, 3);
-    private final Section 섹션2 = new Section(1L, 역삼역, 광교역, 4);
-    private final Section 섹션3 = new Section(2L, 역삼역, 광교역, 5);
+    private static final Section 강남_역삼 = new Section(1L, 강남역, 역삼역, 3);
+    private static final Section 역삼_광교 = new Section(1L, 역삼역, 광교역, 4);
+    private static final Section 역삼_광교_2 = new Section(2L, 역삼역, 광교역, 5);
 
     @Autowired
     SectionDao sectionDao;
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-//    @AfterEach
     @BeforeEach
     public void dropTable() {
         jdbcTemplate.execute("DROP TABLE section IF EXISTS");
@@ -45,25 +49,44 @@ public class SectionDaoTest {
                 ");");
     }
 
-    @Test
-    public void save() {
-        assertThat(sectionDao.save(섹션1)).isEqualTo(섹션1);
+    @DisplayName("section을 저장한다.")
+    @ParameterizedTest
+    @MethodSource("provideLineForTest")
+    public void save(Section section) {
+        Section newSection = sectionDao.save(section);
+        assertThat(newSection).isEqualTo(section);
     }
 
-    @Test
-    public void getByLineId() {
-        sectionDao.save(섹션1);
-        sectionDao.save(섹션2);
-        sectionDao.save(섹션3);
-        assertThat(sectionDao.getByLineId(1L)).containsExactlyElementsOf(Arrays.asList(섹션1, 섹션2));
-        assertThat(sectionDao.getByLineId(2L)).containsExactlyElementsOf(Arrays.asList(섹션3));
-        assertThat(sectionDao.getByLineId(3L)).containsExactlyElementsOf(Collections.emptyList());
+    @DisplayName("LineId로 section들을 조회한다.")
+    @ParameterizedTest
+    @MethodSource("provideLineForTest")
+    public void getByLineId(Section section) {
+        sectionDao.save(section);
+        assertThat(sectionDao.getByLineId(section.getLineId())).contains(section);
     }
 
-    @Test
-    public void deleteById() {
-        sectionDao.save(섹션1);
-        assertThat(sectionDao.deleteById(1L)).isTrue();
-        assertThat(sectionDao.deleteById(1L)).isFalse();
+    @DisplayName("Seciton Id로 섹션을 삭제한다.")
+    @ParameterizedTest
+    @MethodSource("provideLineForTest")
+    public void deleteById(Section section) {
+        Section newSection = sectionDao.save(section);
+        assertThat(sectionDao.deleteById(newSection.getId())).isTrue();
+    }
+
+    @DisplayName("존재하지 않는 ID로 섹션을 삭제한다.")
+    @ParameterizedTest
+    @MethodSource("provideLineForTest")
+    public void failToDeleteById(Section section) {
+        Section newSection = sectionDao.save(section);
+        sectionDao.deleteById(newSection.getId());
+        assertThat(sectionDao.deleteById(newSection.getId())).isFalse();
+    }
+
+    private static Stream<Arguments> provideLineForTest() {
+        return Stream.of(
+                Arguments.of(강남_역삼),
+                Arguments.of(역삼_광교),
+                Arguments.of(역삼_광교_2)
+        );
     }
 }

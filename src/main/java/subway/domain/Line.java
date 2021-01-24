@@ -1,5 +1,7 @@
 package subway.domain;
 
+import subway.request.LineRequest;
+
 public class Line {
     private Long id;
     private String name;
@@ -31,7 +33,10 @@ public class Line {
         return color;
     }
 
-
+    public void setPropertyByRequest(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
+    }
 
     @Override
     public String toString() {

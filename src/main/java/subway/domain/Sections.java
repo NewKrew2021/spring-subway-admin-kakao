@@ -10,19 +10,13 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class Sections {
-    private final List<Section> sections;
-
-    public Sections() {
-        this.sections = new ArrayList<>();
-    }
+    private final List<Section> sections = new ArrayList<>();
 
     public Sections(Section section){
-        this();
         this.sections.add(section);
     }
 
     public Sections(List<Section> sections) {
-        this();
         Map<Station, List<Section>> countMap = new HashMap<>();
         sections.forEach(section -> {
             countMap.computeIfAbsent(section.getUpStation(), (key)->new ArrayList<>());
@@ -40,7 +34,7 @@ public class Sections {
         while (present.getDownStation() != lastSection.getUpStation()) {
             Section finalPresent = present;
             present = countMap.get(present.getDownStation()).stream()
-                    .filter(section -> finalPresent.getDownStation().getId().equals(section.getUpStation().getId()))
+                    .filter(section -> finalPresent.getDownStation().equals(section.getUpStation()))
                     .findAny()
                     .orElseThrow(() -> {
                         throw new NoContentException("섹션이 도중에 없습니다.");

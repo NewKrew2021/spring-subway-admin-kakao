@@ -40,19 +40,6 @@ public class SectionDao {
                 section.getDistance());
     }
 
-    public Section findOne(Long id) {
-        String sql = "select id, line_id, up_station_id, down_station_id, distance from section where id = ?";
-        return jdbcTemplate.queryForObject(
-                sql,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        stationDao.findOne(resultSet.getLong("up_station_id")),
-                        stationDao.findOne(resultSet.getLong("down_station_id")),
-                        resultSet.getInt("distance")
-                ), id);
-    }
-
     public Sections findAll(Long lineId) {
         String sql = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ?";
         return new Sections(jdbcTemplate.query(

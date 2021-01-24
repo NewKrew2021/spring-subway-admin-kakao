@@ -61,12 +61,11 @@ public class LineController {
     @PutMapping("/lines/{id}")
     public ResponseEntity<LineResponse> updateLine(@PathVariable Long id, @RequestBody LineRequest lineRequest) {
         Line line = lineService.findOneLine(id);
-        Line newLine = lineService.updateLine(line.getId(),
-                new Line(line.getId(),
-                lineRequest.getName(),
-                lineRequest.getColor()));
+        line.setPropertyByRequest(lineRequest);
+        line = lineService.updateLine(line.getId(), line);
+
         Sections sections = sectionService.findAllSection(line);
-        LineResponse response = new LineResponse(newLine, sections);
+        LineResponse response = new LineResponse(line, sections);
         return ResponseEntity.ok().body(response);
     }
 

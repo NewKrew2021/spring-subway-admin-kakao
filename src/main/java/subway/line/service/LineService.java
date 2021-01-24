@@ -1,6 +1,7 @@
 package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exceptions.lineExceptions.LineDuplicatedException;
 import subway.line.domain.Line;
 import subway.line.dao.LineDao;
@@ -21,6 +22,7 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
+    @Transactional
     public LineResponse createLine(LineRequest lineRequest) {
         if (lineDao.isNameExist(lineRequest.getName())) {
             throw new LineDuplicatedException();

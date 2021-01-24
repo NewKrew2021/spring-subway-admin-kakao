@@ -3,7 +3,6 @@ package subway.line.domain;
 import subway.station.domain.Stations;
 
 public class LineResponse {
-    private int status;
     private Long id;
     private String name;
     private String color;

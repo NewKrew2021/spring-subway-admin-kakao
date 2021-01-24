@@ -32,42 +32,18 @@ public class SectionService{
         LineInfoChangedResult result = sections.addSection(lineService.findOne(section.getLineId()), section);
         lineService.update(result);
         sectionDao.saveSections(new Sections(sections.getAddSections()));
+        sectionDao.deleteSections(new Sections(sections.getDelSections()));
         return true;
     }
 
     public boolean deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
-        Line line = lineService.findOne(lineId);
-
-        if (!sections.isPossibleToDelete(stationId)) {
-            return false;
-        }
-
-        Section nextSection = sections.findSectionByUpStationId(stationId);
-        Section prevSection = sections.findSectionByDownStationId(stationId);
-
-        if (nextSection != null && prevSection != null) {
-            sectionDao.deleteSectionById(nextSection.getSectionId());
-            sectionDao.deleteSectionById(prevSection.getSectionId());
-            sectionDao.save(new Section(prevSection.getUpStationId(),
-                    nextSection.getDownStationId(),
-                    prevSection.getDistance() + nextSection.getDistance(),
-                    lineId));
-        } else if (nextSection != null) {
-            sectionDao.deleteSectionById(nextSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(),
-                    line.getName(),
-                    line.getColor(),
-                    nextSection.getDownStationId(),
-                    line.getDownStationId()));
-        } else if (prevSection != null) {
-            sectionDao.deleteSectionById(prevSection.getSectionId());
-            lineService.updateAll(new Line(line.getId(),
-                    line.getName(),
-                    line.getColor(),
-                    line.getUpStationId(),
-                    prevSection.getUpStationId()));
-        }
+        sections.initAddSections();
+        sections.initDelSections();
+        LineInfoChangedResult result = sections.deleteStation(lineId, stationId);
+        lineService.update(result);
+        sectionDao.saveSections(new Sections(sections.getAddSections()));
+        sectionDao.deleteSections(new Sections(sections.getDelSections()));
         return true;
     }
 }

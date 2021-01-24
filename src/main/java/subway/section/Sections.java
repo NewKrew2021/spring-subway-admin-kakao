@@ -162,4 +162,30 @@ public class Sections {
     public void initDelSections(){
         delSections.clear();
     }
+
+    public LineInfoChangedResult deleteStation(Long lineId, Long stationId) {
+        if (!isPossibleToDelete(stationId)) {
+            throw new IllegalArgumentException("적절하지 않은 역 정보입니다.");
+        }
+
+        Section nextSection = findSectionByUpStationId(stationId);
+        Section prevSection = findSectionByDownStationId(stationId);
+
+        if (nextSection != null && prevSection != null) {
+            delSections.add(nextSection);
+            delSections.add(prevSection);
+            addSections.add(new Section(prevSection.getUpStationId(),
+                    nextSection.getDownStationId(),
+                    prevSection.getDistance() + nextSection.getDistance(),
+                    lineId));
+        } else if (nextSection != null) {
+            delSections.add(nextSection);
+            return new LineInfoChangedResult(LineInfoChanged.UP_STATION_CHANGED, lineId, nextSection.getDownStationId());
+        } else if (prevSection != null) {
+            delSections.add(prevSection);
+            return new LineInfoChangedResult(LineInfoChanged.DOWN_STATION_CHANGED, lineId, prevSection.getUpStationId());
+        }
+
+        return new LineInfoChangedResult(LineInfoChanged.NONE);
+    }
 }

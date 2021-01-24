@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.exception.ExistLineSaveException;
+import subway.exception.*;
 import subway.section.*;
 import subway.station.StationDao;
 import subway.station.StationResponse;
@@ -32,12 +32,7 @@ public class LineController {
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line line = new Line(lineRequest);
         Long id;
-        try {
-            id = lineService.requestToLine(line);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+        id = lineService.requestToLine(line);
         sectionService.createTerminalSections(line, id);
         LineResponse lineResponse = new LineResponse(id, line.getName(), line.getColor(), null);
         return ResponseEntity.created(URI.create("/lines/" + id)).body(lineResponse);
@@ -77,28 +72,45 @@ public class LineController {
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
         SectionDto sectionDto = new SectionDto(sectionRequest, lineId);
-
-        try {
-            sectionService.insertSection(sectionDto);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
+        sectionService.insertSection(sectionDto);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
         SectionDto sectionDto = new SectionDto(lineId, stationId);
-        try {
-            sectionService.deleteSection(sectionDto);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        sectionService.deleteSection(sectionDto);
+        return ResponseEntity.ok().build();
+    }
 
+    @ExceptionHandler(ExistLineSaveException.class)
+    private ResponseEntity<?> handleExistLineException() {
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(BothExistSectionException.class)
+    private ResponseEntity<?> handleBothExistSectionException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(NotExistSectionInsertException.class)
+    private ResponseEntity<?> handleNotExistSectionInsertException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(TooLongDistanceSectionException.class)
+    private ResponseEntity<?> handleTooLongDistanceSectionException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(NotExistSectionDeleteException.class)
+    private ResponseEntity<?> handleNotExistSectionDeleteException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(TooFewSectionAsDeleteException.class)
+    private ResponseEntity<?> handleTooFewSectionAsDeleteException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 }

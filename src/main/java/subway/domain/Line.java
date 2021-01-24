@@ -1,7 +1,5 @@
 package subway.domain;
 
-import subway.dto.LineRequest;
-
 import java.util.Objects;
 
 public class Line {

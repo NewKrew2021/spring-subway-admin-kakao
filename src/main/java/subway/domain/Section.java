@@ -1,8 +1,5 @@
 package subway.domain;
 
-import subway.dto.LineRequest;
-import subway.dto.SectionRequest;
-
 import java.util.Objects;
 
 public class Section {

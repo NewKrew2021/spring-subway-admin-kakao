@@ -1,7 +1,5 @@
 package subway.domain;
 
-import subway.dto.StationRequest;
-
 import java.util.Objects;
 
 public class Station {

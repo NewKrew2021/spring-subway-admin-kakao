@@ -75,7 +75,4 @@ public class SectionDao {
         return jdbcTemplate.queryForObject(SectionQuery.COUNT_BY_LINE, Integer.class, id);
     }
 
-    public Section findSectionByLineIdAndPointType(Long lineId, String pointType) {
-        return jdbcTemplate.queryForObject(SectionQuery.SELECT_BY_LINE_AND_POINT_TYPE, sectionRowMapper, lineId, pointType);
-    }
 }

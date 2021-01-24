@@ -25,13 +25,13 @@ public class SectionDao {
     public List<Section> getSectionsOfLine(Long id) {
         String SQL = "SELECT * FROM section WHERE line_id = ?";
         return jdbcTemplate.query(
-                SQL, new SelectSectionMapper(), id);
+                SQL, selectSectionMapper, id);
     }
 
     public Section getSection(Long stationId, Long lineId) {
         String SQL = "SELECT * FROM section WHERE station_id = ? AND line_id = ?";
         List<Section> sections = jdbcTemplate.query(
-                SQL, new SelectSectionMapper(), stationId, lineId);
+                SQL, selectSectionMapper, stationId, lineId);
         return sections.isEmpty() ? Section.DO_NOT_EXIST_SECTION : sections.get(0);
     }
 
@@ -44,7 +44,7 @@ public class SectionDao {
             return null;
         }
         String SQL = "SELECT * FROM section WHERE next_id = ?";
-        List<Section> sections = jdbcTemplate.query( SQL, new SelectSectionMapper(), nextId);
+        List<Section> sections = jdbcTemplate.query( SQL, selectSectionMapper, nextId);
         return sections.isEmpty() ? Section.DO_NOT_EXIST_SECTION : sections.get(0);
     }
 
@@ -66,17 +66,12 @@ public class SectionDao {
         jdbcTemplate.update(SQL, section.getId());
     }
 
-    private final static class SelectSectionMapper implements RowMapper<Section> {
-        @Override
-        public Section mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return new Section(
-                    resultSet.getLong("id"),
-                    resultSet.getLong("line_id"),
-                    resultSet.getLong("station_id"),
-                    resultSet.getInt("distance"),
-                    resultSet.getLong("next_id")
-            );
-        }
-    }
+    private final static RowMapper<Section> selectSectionMapper = ( resultSet, rowNum ) -> new Section(
+            resultSet.getLong("id"),
+            resultSet.getLong("line_id"),
+            resultSet.getLong("station_id"),
+            resultSet.getInt("distance"),
+            resultSet.getLong("next_id")
+    );
 
 }

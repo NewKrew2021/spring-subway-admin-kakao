@@ -39,7 +39,7 @@ public class SectionService {
             return;
         }
 
-        Section newSection = sections.insertAndGetNewSection(upSection, downSection);
+        Section newSection = sections.getNewSectionIfValid(createValue);
         sectionDao.insert(newSection);
     }
 

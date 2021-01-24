@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import subway.section.dto.SectionRequest;
+import subway.section.vo.SectionCreateValue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,17 +36,30 @@ public class SectionsTest {
         ));
     }
 
-    @DisplayName("중복된 Section을 갖고 있거나 정렬되어 있지 않은 경우")
+    @DisplayName("중복된 Section을 갖고 있을 경")
     @Test
-    void invalidSections() {
+    void hasDuplicates() {
         assertThatThrownBy(() -> new Sections(Arrays.asList(
                 new Section(LINE_ID, 1, 0),
                 new Section(LINE_ID, 1, 0)
         ))).isInstanceOf(IllegalArgumentException.class);
+    }
 
+    @DisplayName("위치 기준으로 정렬되어 있지 않은 경우")
+    @Test
+    void isNotOrdered() {
         assertThatThrownBy(() -> new Sections(Arrays.asList(
                 new Section(LINE_ID, 1, 3),
                 new Section(LINE_ID, 2, 0)
+        ))).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @DisplayName("두 개의 다른 lineID를 포함하는 경우")
+    @Test
+    void hasDifferentLineIDs() {
+        assertThatThrownBy(() -> new Sections(Arrays.asList(
+                new Section(LINE_ID, 1, 0),
+                new Section(1234L, 2, 3)
         ))).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -57,10 +72,10 @@ public class SectionsTest {
     @DisplayName("하행종점이 새로운 역")
     @Test
     void insertNewLowermostSection() {
-        Section lowermost = new Section(LINE_ID, lowermostSection.getStationID(), 0);
-        Section lowerThanLowermost = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 3);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(lowermostSection.getStationID(), LOWER_THAN_LOWERMOST_ID, 3));
 
-        Section newSection = sections.insertAndGetNewSection(lowermost, lowerThanLowermost);
+        Section newSection = sections.getNewSectionIfValid(createValue);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 9));
         assertThat(newSection.getDistance()).isEqualTo(9);
@@ -69,10 +84,10 @@ public class SectionsTest {
     @DisplayName("상행종점이 새로운 역")
     @Test
     void insertNewUppermostSection() {
-        Section upperThanUppermost = new Section(LINE_ID, UPPER_THAN_UPPERMOST_ID, 0);
-        Section uppermost = new Section(LINE_ID, uppermostSection.getStationID(), 3);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(UPPER_THAN_UPPERMOST_ID, uppermostSection.getStationID(), 3));
 
-        Section newSection = sections.insertAndGetNewSection(upperThanUppermost, uppermost);
+        Section newSection = sections.getNewSectionIfValid(createValue);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, UPPER_THAN_UPPERMOST_ID, -5));
         assertThat(newSection.getDistance()).isEqualTo(-5);
@@ -81,10 +96,10 @@ public class SectionsTest {
     @DisplayName("중간 상행점에 Section을 삽입")
     @Test
     void insertNewInMiddleLeft() {
-        Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
-        Section middleLeft = new Section(LINE_ID, MIDDLE_LEFT_ID, 3);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(MIDDLE_LEFT_ID, middleSection.getStationID(), 3));
 
-        Section newSection = sections.insertAndGetNewSection(middleLeft, middle);
+        Section newSection = sections.getNewSectionIfValid(createValue);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, MIDDLE_LEFT_ID, -1));
         assertThat(newSection.getDistance()).isEqualTo(-1);
@@ -93,10 +108,10 @@ public class SectionsTest {
     @DisplayName("중간 하행점에 Section을 삽입")
     @Test
     void insertNewInMiddleRight() {
-        Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
-        Section middleRight = new Section(LINE_ID, MIDDLE_RIGHT_ID, 3);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(middleSection.getStationID(), MIDDLE_RIGHT_ID, 3));
 
-        Section newSection = sections.insertAndGetNewSection(middle, middleRight);
+        Section newSection = sections.getNewSectionIfValid(createValue);
 
         assertThat(newSection).isEqualTo(new Section(LINE_ID, MIDDLE_RIGHT_ID, 5));
         assertThat(newSection.getDistance()).isEqualTo(5);
@@ -105,7 +120,10 @@ public class SectionsTest {
     @DisplayName("지하철 노선에 이미 등록되어있는 역을 등록한다")
     @Test
     void bothSectionAlreadyExists() {
-        assertThatThrownBy(() -> sections.insertAndGetNewSection(middleSection, lowermostSection))
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(middleSection.getStationID(), lowermostSection.getStationID(), 3));
+
+        assertThatThrownBy(() -> sections.getNewSectionIfValid(createValue))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already");
     }
@@ -113,10 +131,10 @@ public class SectionsTest {
     @DisplayName("지하철 노선에 등록되지 않은 역을 기준으로 등록한다")
     @Test
     void noneOfSectionsExists() {
-        Section nonExistingSection1 = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
-        Section nonExistingSection2 = new Section(LINE_ID, MIDDLE_RIGHT_ID, 2);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(MIDDLE_LEFT_ID, MIDDLE_RIGHT_ID, 2));
 
-        assertThatThrownBy(() -> sections.insertAndGetNewSection(nonExistingSection1, nonExistingSection2))
+        assertThatThrownBy(() -> sections.getNewSectionIfValid(createValue))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("neither");
     }
@@ -124,10 +142,10 @@ public class SectionsTest {
     @DisplayName("추가하려는 노선이 기존 노선의 거리 이상이다")
     @Test
     void invalidDistanceIsNotInsertable() {
-        Section middle = new Section(LINE_ID, middleSection.getStationID(), 0);
-        Section middleRight = new Section(LINE_ID, MIDDLE_RIGHT_ID, 4);
+        SectionCreateValue createValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(middleSection.getStationID(), MIDDLE_RIGHT_ID, 4));
 
-        assertThatThrownBy(() -> sections.insertAndGetNewSection(middle, middleRight))
+        assertThatThrownBy(() -> sections.getNewSectionIfValid(createValue))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -141,21 +159,24 @@ public class SectionsTest {
     @DisplayName("구간에 새로운 역을 추가할 수 있다")
     @Test
     void testAreInsertableSections() {
-        Section newSection = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
+        SectionCreateValue value = new SectionCreateValue(LINE_ID,
+                new SectionRequest(middleSection.getStationID(), MIDDLE_LEFT_ID, 0));
 
-        assertThatCode(() -> sections.checkAreValidSections(middleSection, newSection)).doesNotThrowAnyException();
+        assertThatCode(() -> sections.checkAreValidStationIDs(value)).doesNotThrowAnyException();
     }
 
     @DisplayName("구간에 추가할 역들이 모두 존재하거나 모두 존재하지 않을땐 삽입 불가능하다")
     @Test
     void testAreNotInsertableSections() {
-        Section nonExistingSection1 = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, 0);
-        Section nonExistingSection2 = new Section(LINE_ID, MIDDLE_LEFT_ID, 0);
+        SectionCreateValue bothExistingSectionsValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(uppermostSection.getStationID(), middleSection.getStationID(), 0));
+        SectionCreateValue nonExistingSectionsValue = new SectionCreateValue(LINE_ID,
+                new SectionRequest(LOWER_THAN_LOWERMOST_ID, MIDDLE_LEFT_ID, 0));
 
-        assertThatThrownBy(() -> sections.checkAreValidSections(uppermostSection, middleSection))
+        assertThatThrownBy(() -> sections.checkAreValidStationIDs(bothExistingSectionsValue))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already");
-        assertThatThrownBy(() -> sections.checkAreValidSections(nonExistingSection1, nonExistingSection2))
+        assertThatThrownBy(() -> sections.checkAreValidStationIDs(nonExistingSectionsValue))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("neither");
     }
@@ -212,8 +233,7 @@ public class SectionsTest {
     void testFindSection() {
         Section nonExistingSection = new Section(LINE_ID, LOWER_THAN_LOWERMOST_ID, -2);
 
-        assertThat(sections.findSection(middleSection)).isEqualTo(middleSection);
-        assertThat(sections.findSection(null)).isNull();
-        assertThat(sections.findSection(nonExistingSection)).isNull();
+        assertThat(sections.findSectionBy(middleSection.getStationID())).isEqualTo(middleSection);
+        assertThat(sections.findSectionBy(nonExistingSection.getStationID())).isNull();
     }
 }

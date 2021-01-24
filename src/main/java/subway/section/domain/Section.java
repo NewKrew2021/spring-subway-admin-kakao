@@ -1,7 +1,5 @@
 package subway.section.domain;
 
-import subway.section.vo.SectionResultValue;
-
 import java.util.Objects;
 
 public class Section implements Comparable<Section> {
@@ -9,20 +7,12 @@ public class Section implements Comparable<Section> {
     private final long stationID;
     private final int distance;
 
-    public Section(long lineID, long stationID) {
-        this(lineID, stationID, 0);
-    }
-
     public Section(long lineID, long stationID, int distance) {
         this.lineID = lineID;
         this.stationID = stationID;
         this.distance = distance;
 
         checkIsValidSection();
-    }
-
-    public SectionResultValue toResultValue() {
-        return new SectionResultValue(lineID, stationID, distance);
     }
 
     public int distanceDiff(Section downSection) {

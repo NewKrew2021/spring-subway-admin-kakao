@@ -1,5 +1,7 @@
 package subway.section.domain;
 
+import subway.section.vo.SectionCreateValue;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,31 +25,40 @@ public class Sections {
         return sections.isEmpty();
     }
 
-    public Section insertAndGetNewSection(Section upSection, Section downSection) {
-        checkAreValidSections(upSection, downSection);
+    public Section getNewSectionIfValid(SectionCreateValue createValue) {
+        checkAreValidStationIDs(createValue);
 
-        final int NOT_DEFINED = Integer.MAX_VALUE;
-        int distanceDiff = downSection.distanceDiff(upSection);
-
-        Section existingSection = findSection(upSection);
-        Section newSectionParameters = downSection;
-        int newSectionDistance = NOT_DEFINED;
-        if (!isExistingSection(existingSection)) {
-            existingSection = findSection(downSection);
-            newSectionParameters = upSection;
-            newSectionDistance = existingSection.getDistance() - distanceDiff;
-        }
-
-        if (newSectionDistance == NOT_DEFINED) {
-            newSectionDistance = existingSection.getDistance() + distanceDiff;
-        }
-
-        Section newSection = new Section(newSectionParameters.getLineID(),
-                newSectionParameters.getStationID(),
-                newSectionDistance);
+        Section existingSection = getExistingSection(createValue);
+        Section newSection = getNewSection(createValue);
 
         checkIsValidDistance(existingSection, newSection);
         return newSection;
+    }
+
+    private Section getExistingSection(SectionCreateValue createValue) {
+        Section section = findSectionBy(createValue.getUpStationID());
+        if (sectionExists(section)) {
+            return section;
+        }
+
+        return findSectionBy(createValue.getDownStationID());
+    }
+
+    private Section getNewSection(SectionCreateValue createValue) {
+        if (isNotExistingSection(createValue.getUpStationID())) {
+            Section downSection = findSectionBy(createValue.getDownStationID());
+
+            return new Section(createValue.getLineID(), createValue.getUpStationID(),
+                    downSection.getDistance() - createValue.getDistanceDiff());
+        }
+
+        Section upSection = findSectionBy(createValue.getUpStationID());
+        return new Section(createValue.getLineID(), createValue.getDownStationID(),
+                upSection.getDistance() + createValue.getDistanceDiff());
+    }
+
+    private boolean sectionExists(Section section) {
+        return section != null;
     }
 
     public void checkIsDeletable(Section section) {
@@ -55,15 +66,15 @@ public class Sections {
             throw new IllegalArgumentException("Cannot delete section when there are only two sections left");
         }
 
-        Optional.ofNullable(findSection(section))
+        Optional.ofNullable(findSectionBy(section.getStationID()))
                 .orElseThrow(() -> new NoSuchElementException(
                         String.format("Could not retrieve section with line id: %d and section id: %d",
                                 section.getLineID(), section.getStationID())));
     }
 
-    protected void checkAreValidSections(Section upSection, Section downSection) {
-        boolean upSectionIsExistingSection = isExistingSection(upSection);
-        boolean downSectionIsExistingSection = isExistingSection(downSection);
+    protected void checkAreValidStationIDs(SectionCreateValue createValue) {
+        boolean upSectionIsExistingSection = isExistingSection(createValue.getUpStationID());
+        boolean downSectionIsExistingSection = isExistingSection(createValue.getDownStationID());
 
         checkBothSectionsAlreadyExist(upSectionIsExistingSection, downSectionIsExistingSection);
         checkBothSectionsDoesNotExist(upSectionIsExistingSection, downSectionIsExistingSection);
@@ -81,20 +92,24 @@ public class Sections {
         }
     }
 
-    private boolean isExistingSection(Section section) {
-        return findSection(section) != null;
+    private boolean isExistingSection(long stationID) {
+        return findSectionBy(stationID) != null;
     }
 
-    protected Section findSection(Section section) {
+    private boolean isNotExistingSection(long stationID) {
+        return findSectionBy(stationID) == null;
+    }
+
+    protected Section findSectionBy(long stationID) {
         return sections.stream()
-                .filter(sec -> sec.equals(section))
+                .filter(section -> section.getStationID() == stationID)
                 .findFirst()
                 .orElse(null);
     }
 
     protected void checkIsValidDistance(Section existingSection, Section newSection) {
         Section nextSection = getNextSection(existingSection, newSection);
-        if (isNotHighestOrLowestSection(nextSection) && existingSection.isFartherOrEqualFromThan(newSection, nextSection)) {
+        if (isTerminalSection(nextSection) && existingSection.isFartherOrEqualFromThan(newSection, nextSection)) {
             throw new IllegalArgumentException("New section distance exceeds existing section distance");
         }
     }
@@ -118,7 +133,7 @@ public class Sections {
         return sections.indexOf(existingSection) - 1;
     }
 
-    private boolean isNotHighestOrLowestSection(Section section) {
+    private boolean isTerminalSection(Section section) {
         return section != null;
     }
 
@@ -134,6 +149,10 @@ public class Sections {
         if (hasDuplicates()) {
             throw new IllegalArgumentException("Sections cannot have duplicate elements");
         }
+
+        if (hasDifferentLineIDs()) {
+            throw new IllegalArgumentException("Sections cannot have different line IDs");
+        }
     }
 
     private boolean isSorted() {
@@ -147,5 +166,12 @@ public class Sections {
         return sections.stream()
                 .distinct()
                 .count() != sections.size();
+    }
+
+    private boolean hasDifferentLineIDs() {
+        return sections.stream()
+                .mapToLong(Section::getLineID)
+                .distinct()
+                .count() > 1;
     }
 }

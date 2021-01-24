@@ -155,11 +155,8 @@ public class Sections {
         return new LineInfoChangedResult(LineInfoChanged.NONE);
     }
 
-    public void initAddSections(){
+    public void initSectionsBeforeHandling(){
         addSections.clear();
-    }
-
-    public void initDelSections(){
         delSections.clear();
     }
 

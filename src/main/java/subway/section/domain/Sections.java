@@ -1,9 +1,6 @@
 package subway.section.domain;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -15,9 +12,6 @@ public class Sections {
 
     private static final int INITIAL_SIZE = 2;
     private static final int INITIAL_DEFAULT_POSITION = 0;
-    private static final int FIRST_INDEX = 0;
-    private static final int NEXT_DOWN = 1;
-    private static final int NEXT_UP = -1;
 
     private final List<Section> sections;
 
@@ -67,33 +61,35 @@ public class Sections {
     }
 
     void validateSectionDownDistance(Section section, int distance) {
-        int sequence = getIndexOf(section);
-        if (sequence < getLastIndex() && sections.get(sequence + NEXT_DOWN).calculateDistanceWith(section) <= distance) {
-            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
-        }
+        findNextDownSectionOf(section)
+                .ifPresent(it -> validateDistance(it, section, distance));
     }
 
     void validateSectionUpDistance(Section section, int distance) {
-        int sequence = getIndexOf(section);
-        if (sequence > FIRST_INDEX && sections.get(sequence + NEXT_UP).calculateDistanceWith(section) <= distance) {
-            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
-        }
+        findNextUpSectionOf(section)
+                .ifPresent(it -> validateDistance(it, section, distance));
     }
 
-    private int getIndexOf(Section section) {
+    private Optional<Section> findNextDownSectionOf(Section section) {
         return sections.stream()
-                .filter(section::equals)
-                .map(sections::indexOf)
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 구간이 없습니다"));
+                .filter(it -> it.isDownSideOf(section))
+                .min(Comparator.comparingInt(Section::getPosition));
+    }
+
+    private Optional<Section> findNextUpSectionOf(Section section) {
+        return sections.stream()
+                .filter(it -> it.isUpSideOf(section))
+                .max(Comparator.comparingInt(Section::getPosition));
+    }
+
+    private void validateDistance(Section section, Section other, int distance) {
+        if (section.calculateDistanceWith(other) <= distance) {
+            throw new IllegalArgumentException(DISTANCE_INVALID_EXCEPTION_MESSAGE);
+        }
     }
 
     private boolean isNotRemovable() {
         return sections.size() == INITIAL_SIZE;
-    }
-
-    private int getLastIndex() {
-        return sections.size() - 1;
     }
 
     public List<Section> getSections() {

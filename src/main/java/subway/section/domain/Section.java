@@ -33,6 +33,14 @@ public class Section {
         return position - distance;
     }
 
+    public boolean isDownSideOf(Section section) {
+        return position > section.position;
+    }
+
+    public boolean isUpSideOf(Section section) {
+        return position < section.position;
+    }
+
     public Long getId() {
         return id;
     }

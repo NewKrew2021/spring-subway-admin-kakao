@@ -1,5 +1,6 @@
 package subway.exceptions;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,7 @@ import subway.exceptions.sectionExceptions.SectionNoStationException;
 import subway.exceptions.sectionExceptions.SectionSameSectionException;
 
 @ControllerAdvice
-public class ExceptionController {
+public class ExceptionHandlers {
 
     @ExceptionHandler(LineNotFoundException.class)
     public ResponseEntity lineNotFoundHandle(LineNotFoundException e) {
@@ -32,22 +33,22 @@ public class ExceptionController {
 
     @ExceptionHandler(SectionNoStationException.class)
     public ResponseEntity SectionNoStationHandle(SectionNoStationException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
     @ExceptionHandler(SectionSameSectionException.class)
     public ResponseEntity SectionSameStationHandle(SectionSameSectionException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
     @ExceptionHandler(SectionDeleteException.class)
     public ResponseEntity SectionDeleteHandle(SectionDeleteException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
     @ExceptionHandler(SectionIllegalDistanceException.class)
     public ResponseEntity SectionIllegalDistanceHandle(SectionIllegalDistanceException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
     @ExceptionHandler(StationDuplicateException.class)

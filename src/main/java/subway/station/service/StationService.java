@@ -32,9 +32,7 @@ public class StationService {
     @Transactional
     public StationResponse createStation(StationRequest stationRequest) {
         Long stationId = stationDao.save(new Station(stationRequest.getName()));
-        Station newStation = stationDao.findById(stationId);
-
-        return new StationResponse(stationId, newStation.getName());
+        return new StationResponse(stationId, stationRequest.getName());
     }
 
     public List<StationResponse> showStations() {

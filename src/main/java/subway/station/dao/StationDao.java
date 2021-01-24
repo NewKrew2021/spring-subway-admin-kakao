@@ -43,8 +43,8 @@ public class StationDao {
                 stationMapper, id);
     }
 
-    public void deleteById(Long id) {
-        jdbcTemplate.update(StationQuery.DELETE_BY_ID.getQuery(), id);
+    public int deleteById(Long id) {
+        return jdbcTemplate.update(StationQuery.DELETE_BY_ID.getQuery(), id);
     }
 
 }

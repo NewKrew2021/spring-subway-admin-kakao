@@ -272,7 +272,7 @@ public class LineService {
         // 4. 역애 대한 정보 삭제 (stationDao)
 
         Sections sections = new Sections(sectionDao.findByLineId(id));
-        if (sections.size() == Line.END_STATION_SECTION_SIZE) {
+        if (sections.isLastSection()) {
             throw new DeleteSectionException(NOT_DELETE_SECTION);
         }
 

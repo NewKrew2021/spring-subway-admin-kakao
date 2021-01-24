@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.domain.Line;
 import subway.domain.Section;
+import subway.domain.Station;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
 import subway.dto.SectionRequest;
@@ -29,7 +30,12 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Section newSection = Section.of(lineRequest);
+        Section newSection = Section.of(
+                Line.of(lineRequest.getName(), lineRequest.getColor()),
+                Station.of(lineRequest.getUpStationId()),
+                Station.of(lineRequest.getDownStationId()),
+                lineRequest.getDistance()
+        );
         Line line = lineService.create(newSection);
         return ResponseEntity.created(URI.create("/lines/" + line.getId())).body(
                 LineResponse.of(line, lineService.getSortedStations(line.getId())));
@@ -52,7 +58,7 @@ public class LineController {
 
     @PutMapping("/{id}")
     public ResponseEntity modifyLine(@PathVariable Long id, @RequestBody LineRequest lineRequest){
-        lineService.modify(id, Line.of(lineRequest));
+        lineService.modify(id, Line.of(lineRequest.getName(), lineRequest.getColor()));
         return ResponseEntity.ok().build();
     }
 
@@ -64,7 +70,12 @@ public class LineController {
 
     @PostMapping("/{id}/sections")
     public ResponseEntity addSection(@PathVariable Long id, @RequestBody SectionRequest sectionRequest) {
-        Section section = Section.of(id, sectionRequest);
+        Section section = Section.of(
+                Line.of(id),
+                Station.of(sectionRequest.getUpStationId()),
+                Station.of(sectionRequest.getDownStationId()),
+                sectionRequest.getDistance()
+        );
         sectionService.add(id, section);
         return ResponseEntity.ok().build();
     }

@@ -26,22 +26,12 @@ public class Section {
         this.pointType = pointType;
     }
 
-    public Section(Line line, Station upStation, Station downStation, int distance, String pointType) {
-        this(null, line, upStation, downStation, distance, pointType);
+    public static Section of(Line line, Station upStation, Station downStation, int distance, String pointType) {
+        return new Section(null, line, upStation, downStation, distance, pointType);
     }
 
-    public Section(Long id, Line line, Station upStation, Station downStation, int distance) {
-        this(id, line, upStation, downStation, distance, Line.USE);
-    }
-
-    public static Section of(LineRequest lineRequest) {
-        return new Section(null, Line.of(lineRequest), Station.of(lineRequest.getUpStationId()),
-                Station.of(lineRequest.getDownStationId()), lineRequest.getDistance(), Line.USE);
-    }
-
-    public static Section of(Long id, SectionRequest sectionRequest) {
-        return new Section(null, Line.of(id), Station.of(sectionRequest.getUpStationId()),
-                Station.of(sectionRequest.getDownStationId()), sectionRequest.getDistance(), Line.USE);
+    public static Section of(Line line, Station upStation, Station downStation, int distance) {
+        return new Section(null, line, upStation, downStation, distance, Line.USE);
     }
 
     private void validateDistance(int distance) {
@@ -89,9 +79,9 @@ public class Section {
 
     public Section getSubSection(Section newSection) {
         if(upStation.equals(newSection.getUpStation())) {
-            return new Section(line, newSection.getDownStation(), downStation, distance - newSection.getDistance(), pointType);
+            return Section.of(line, newSection.getDownStation(), downStation, distance - newSection.getDistance(), pointType);
         }
-        return new Section(line, upStation, newSection.getUpStation(), distance - newSection.getDistance(), pointType);
+        return Section.of(line, upStation, newSection.getUpStation(), distance - newSection.getDistance(), pointType);
     }
 
     @Override

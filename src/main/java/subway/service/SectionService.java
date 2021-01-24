@@ -24,10 +24,13 @@ public class SectionService {
 
     public void add(Long id, Section section) {
         Sections sections = new Sections(sectionDao.findSectionsByLineId(id));
-        Section newSection = new Section(lineDao.findById(id),
+        Section newSection = Section.of(
+                lineDao.findById(id),
                 stationDao.findById(section.getUpStation().getId()),
                 stationDao.findById(section.getDownStation().getId()),
-                section.getDistance(), Line.USE);
+                section.getDistance(),
+                Line.USE
+        );
 
         if(sections.hasSameSection(newSection)){
             throw new IllegalArgumentException("이미 존재하는 구간입니다.");
@@ -59,11 +62,13 @@ public class SectionService {
 
         int distance = front.getDistance() + rear.getDistance();
 
-        sectionDao.save(new Section(
+        sectionDao.save(Section.of(
                 lineDao.findById(id),
                 front.getUpStation(),
                 rear.getDownStation(),
-                distance, Line.USE));
+                distance,
+                Line.USE
+        ));
     }
 
 }

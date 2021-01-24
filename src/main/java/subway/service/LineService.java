@@ -38,9 +38,9 @@ public class LineService {
         Station upStation = stationDao.findById(section.getUpStation().getId());
         Station downStation = stationDao.findById(section.getDownStation().getId());
 
-        sectionDao.save(new Section(newLine, upStation, upStation, Line.INF, Line.HEAD));
-        sectionDao.save(new Section(newLine, upStation, downStation, section.getDistance(), Line.USE));
-        sectionDao.save(new Section(newLine, downStation, downStation, Line.INF, Line.TAIL));
+        sectionDao.save(Section.of(newLine, upStation, upStation, Line.INF, Line.HEAD));
+        sectionDao.save(Section.of(newLine, upStation, downStation, section.getDistance(), Line.USE));
+        sectionDao.save(Section.of(newLine, downStation, downStation, Line.INF, Line.TAIL));
 
         return newLine;
     }

@@ -1,7 +1,6 @@
 package subway.line.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DeleteSectionException;
@@ -138,8 +137,7 @@ public class LineService {
                 Section newSection = new Section(
                         line.getId(),
                         upStationId,
-                        sectionRequest.getDownStationId(),
-                        sectionRequest.getDistance() - distanceSum);
+                        sectionRequest.getDownStationId(), sectionRequest.getDistance() - distanceSum);
 
                 sectionDao.save(newSection);
 

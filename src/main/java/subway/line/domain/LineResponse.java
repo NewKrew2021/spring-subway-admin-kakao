@@ -1,13 +1,16 @@
 package subway.line.domain;
 
+import subway.station.domain.Station;
 import subway.station.domain.Stations;
+
+import java.util.List;
 
 public class LineResponse {
     private Long id;
     private String name;
     private String color;
     private int extraFare;
-    private Stations stations;
+    private List<Station> stations;
 
     public LineResponse() {
     }
@@ -16,13 +19,6 @@ public class LineResponse {
         this.id = id;
         this.name = name;
         this.color = color;
-    }
-
-    public LineResponse(Long id, String name, String color, Stations stations) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.stations = stations;
     }
 
     public LineResponse(Line line) {
@@ -36,7 +32,7 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-        this.stations = stations;
+        this.stations = stations.getStations();
     }
 
     public Long getId() {
@@ -51,7 +47,7 @@ public class LineResponse {
         return color;
     }
 
-    public Stations getStations() {
+    public List<Station> getStations() {
         return stations;
     }
 

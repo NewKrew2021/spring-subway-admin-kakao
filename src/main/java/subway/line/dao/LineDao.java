@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public class LineDao {
 
-    private static final String SELECT_FROM_LINE_WHERE_NAME = "select * from line where name = ?";
+    private static final String SELECT_FROM_LINE_WHERE_NAME = "select count (*) from line where name = ?";
     private static final String UPDATE_LINE_SET_NAME_COLOR_WHERE_ID = "update line set name = ?, color = ? where id = ?";
     private static final String DELETE_FROM_LINE_WHERE_ID = "delete from line where id = ?";
     private static final String SELECT_FROM_LINE = "select * from line";
@@ -56,12 +56,8 @@ public class LineDao {
         return jdbcTemplate.query(SELECT_FROM_LINE, lineMapper);
     }
 
-    public Line findByName(String name) {
-        try {
-            return jdbcTemplate.queryForObject(SELECT_FROM_LINE_WHERE_NAME, lineMapper, name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+    public boolean isNameExist(String name) {
+        return jdbcTemplate.queryForObject(SELECT_FROM_LINE_WHERE_NAME, int.class, name) != 0;
     }
 
     public Line findById(Long id) {

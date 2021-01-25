@@ -4,7 +4,6 @@ import subway.exceptions.sectionExceptions.SectionDeleteException;
 import subway.exceptions.sectionExceptions.SectionIllegalDistanceException;
 import subway.exceptions.sectionExceptions.SectionNoStationException;
 import subway.exceptions.sectionExceptions.SectionSameSectionException;
-import subway.section.domain.Section;
 import subway.section.domain.strategy.DownSectionGenerateStrategy;
 import subway.section.domain.strategy.SectionGenerateStrategy;
 import subway.section.domain.strategy.UpSectionGenerateStrategy;
@@ -13,10 +12,10 @@ import java.util.List;
 
 public class Sections {
     private static final int NUM_OF_INITIAL_STATIONS = 2;
-    public static final int MINIMUM_DISTANCE = 1;
-    public static final int FIRST_INDEX = 0;
-    public static final int NEXT_DOWNSECTION_INDEX_ADD_NUM = 1;
-    public static final int NEXT_UPSECTION_INDEX_ADD_NUM = -1;
+    private static final int MINIMUM_DISTANCE = 1;
+    private static final int FIRST_INDEX = 0;
+    private static final int NEXT_DOWNSECTION_INDEX_ADD_NUM = 1;
+    private static final int NEXT_UPSECTION_INDEX_ADD_NUM = -1;
 
     private final List<Section> sections;
 
@@ -24,7 +23,7 @@ public class Sections {
         this.sections = sections;
     }
 
-    public SectionGenerateStrategy validateAndGenerateStrategy(Long upStationId, Long downStationId, int distance) {
+    public SectionGenerateStrategy generateStrategy(Long upStationId, Long downStationId, int distance) {
         boolean isUpStationExist = isStationIdExist(upStationId);
         boolean isDownStationExist = isStationIdExist(downStationId);
         validateInput(isUpStationExist,isDownStationExist,distance);

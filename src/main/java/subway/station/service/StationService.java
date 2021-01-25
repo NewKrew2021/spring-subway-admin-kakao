@@ -1,7 +1,6 @@
 package subway.station.service;
 
 import org.springframework.stereotype.Service;
-import subway.exceptions.stationExceptions.StationDeleteException;
 import subway.exceptions.stationExceptions.StationDuplicateException;
 import subway.station.domain.Station;
 import subway.station.dao.StationDao;
@@ -21,7 +20,7 @@ public class StationService {
 
     public StationResponse createStation(StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-        if (stationDao.findByName(station.getName()) != null) {
+        if (stationDao.isNameExist(station.getName())) {
             throw new StationDuplicateException();
         }
         return StationResponse.from(stationDao.save(station));
@@ -34,9 +33,7 @@ public class StationService {
     }
 
     public void deleteStationById(Long StationId) {
-        if (stationDao.findById(StationId) == null) {
-            throw new StationDeleteException();
-        }
+        stationDao.findById(StationId);
         stationDao.deleteById(StationId);
     }
 

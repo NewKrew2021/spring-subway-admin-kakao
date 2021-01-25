@@ -16,17 +16,10 @@ public class Line {
         this.extraFare = extraFare;
     }
 
-    public Line(Long id, LineRequest lineRequest) {
-        this.id = id;
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-        this.extraFare = lineRequest.getExtraFare();
-    }
-
-    public Line (LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-        this.extraFare = lineRequest.getExtraFare();
+    public Line (String name, String color, int extraFare) {
+        this.name = name;
+        this.color = color;
+        this.extraFare = extraFare;
     }
 
     public Long getId() {

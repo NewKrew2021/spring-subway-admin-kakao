@@ -1,6 +1,7 @@
 package subway.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,39 +17,33 @@ public class AppGlobalExceptionHandler {
     public static final String DELETE_IMPOSSIBLE_STRING = "삭제가 불가능 합니다.";
     public static final String UPDATE_IMPOSSIBLE_STRING = "수정이 불가능 합니다.";
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(AlreadyExistDataException.class)
-    public String alreadyExistDataHandler() {
-        return ALREADY_EXIST_DATA_STRING;
+    public ResponseEntity<String> alreadyExistDataHandler() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ALREADY_EXIST_DATA_STRING);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DataEmptyException.class)
-    public String dataEmptyHandler() {
-        return EMPTY_DATA_STRING;
+    public ResponseEntity<String> dataEmptyHandler() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(EMPTY_DATA_STRING);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DistanceException.class)
-    public String distanceHandler() {
-        return WRONG_DISTANCE_STRING;
+    public ResponseEntity<String> distanceHandler() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WRONG_DISTANCE_STRING);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalStationException.class)
-    public String illegalStationHandler() {
-        return ILLEGAL_STATION_STRING;
+    public ResponseEntity<String> illegalStationHandler() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ILLEGAL_STATION_STRING);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DeleteImpossibleException.class)
-    public String deleteImpossibleHandler() {
-        return DELETE_IMPOSSIBLE_STRING;
+    public ResponseEntity<String> deleteImpossibleHandler() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(DELETE_IMPOSSIBLE_STRING);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UpdateImpossibleException.class)
-    public String updateImpossibleHandler() {
-        return UPDATE_IMPOSSIBLE_STRING;
+    public ResponseEntity<String> updateImpossibleHandler() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(UPDATE_IMPOSSIBLE_STRING);
     }
 }

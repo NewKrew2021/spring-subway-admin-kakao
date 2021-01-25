@@ -1,13 +1,16 @@
 package subway.line;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import subway.exceptions.InvalidSectionException;
+import org.springframework.transaction.annotation.Transactional;
+import subway.exceptions.DuplicateLineNameException;
+import subway.exceptions.InvalidLineArgumentException;
 import subway.section.Section;
-import subway.section.SectionDao;
 import subway.section.SectionRequest;
+import subway.section.SectionService;
 import subway.section.Sections;
-import subway.station.StationDao;
 import subway.station.StationResponse;
+import subway.station.StationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,24 +18,28 @@ import java.util.List;
 @Service
 public class LineService {
 
-    public static final String CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE = "두 역이 모두 포함되어 있거나, 두 역 모두 포함되어 있지 않습니다.";
-    public static final String SECTIONS_SIZE_ERROR_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
+    public static final int ZERO = 0;
     private LineDao lineDao;
-    private SectionDao sectionDao;
-    private StationDao stationDao;
+    private SectionService sectionService;
+    private StationService stationService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
+    public LineService(LineDao lineDao, SectionService sectionService, StationService stationService) {
         this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
+        this.sectionService = sectionService;
+        this.stationService = stationService;
     }
 
+    @Transactional
     public Line save(LineRequest lineRequest) {
         lineRequest.checkLineRequest();
-        Line newLine = lineDao.save(lineRequest.toLine());
-        Section section = lineRequest.toSection(newLine.getId());
-        sectionDao.save(section);
-        return findById(newLine.getId());
+        try {
+            Line newLine = lineDao.save(lineRequest.toLine()).orElseThrow(() -> new InvalidLineArgumentException("노선 저장에 오류가 발생했습니다."));
+            Section section = lineRequest.toSection(newLine.getId());
+            sectionService.save(section);
+            return findById(newLine.getId());
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateLineNameException("노선 이름이 중복되었습니다.");
+        }
     }
 
     public List<Line> findAll() {
@@ -40,90 +47,67 @@ public class LineService {
     }
 
     public Line findById(Long id) {
-        return lineDao.findById(id);
+        return lineDao.findById(id).orElseThrow(()-> new InvalidLineArgumentException("해당하는 노선이 존재하지 않습니다."));
     }
 
+    @Transactional
     public void deleteById(Long id) {
-         lineDao.deleteById(id);
-         sectionDao.deleteAllByLineId(id);
+        int deletedRow = lineDao.deleteById(id);
+        if(deletedRow == ZERO) {
+            throw new InvalidLineArgumentException("노선을 삭제하지 못했습니다.");
+        }
+        sectionService.deleteAllByLineId(id);
     }
 
     public Line updateLine(Long id, LineRequest lineRequest) {
-        Line line = lineDao.findById(id);
-        line.updateLineInfo(lineRequest);
-        return lineDao.updateById(line);
+        Line line = findById(id);
+        Line newLine = lineRequest.toLine();
+        line.updateLine(newLine);
+        return lineDao.updateById(line).orElseThrow(() -> new InvalidLineArgumentException("노선 정보를 업데이트 하지 못했습니다."));
     }
 
     public List<StationResponse> getStationResponsesById(Long lineId) {
+        Line line = findById(lineId);
         List<StationResponse> responses = new ArrayList<>();
-        Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(line.getId()), line.getStartStationId());
+        Sections sections = new Sections(sectionService.getSectionsByLineId(line.getId()), line.getStartStationId());
         for (Long stationId : sections.getStationsSortedSequence()) {
-            responses.add(new StationResponse(stationDao.findById(stationId)));
+            responses.add(StationResponse.from(stationService.findById(stationId)));
         }
         return responses;
     }
 
+    @Transactional
     public Line saveSection(Long lineId, SectionRequest sectionRequest) {
-        Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if (sections.isContainsBothStationsOrNothing(sectionRequest.getUpStationId(), sectionRequest.getDownStationId())) {
-            throw new InvalidSectionException(CONTAINS_BOTH_STATIONS_OR_NOT_EXISTS_STATIONS_ERROR_MESSAGE);
+        Line line = findById(lineId);
+        if (line.isStartStation(sectionRequest.getDownStationId()) || line.isEndStation(sectionRequest.getUpStationId())) {
+            return saveSectionsHeadOrTail(sectionRequest.toSection(lineId), line);
         }
-        Section newSection = sectionRequest.toSection(line.getId());
-
-        if(line.isStartStation(newSection.getDownStationId()) || line.isEndStation(newSection.getUpStationId())) {
-            return saveSectionsHeadOrTail(newSection, line);
-        }
-        return saveBetweenSections(sections, newSection);
+        sectionService.save(line, sectionRequest);
+        return findById(lineId);
     }
 
     private Line saveSectionsHeadOrTail(Section newSection, Line line) {
-        line.updateStationInfoWhenInserted(newSection);
+        Section newStartEndSection = findUpdateSection(newSection, line);
+        line.updateLine(newStartEndSection);
         lineDao.updateById(line);
-        sectionDao.save(newSection);
-        return lineDao.findById(newSection.getLineId());
+        sectionService.save(newSection);
+        return findById(line.getId());
     }
 
-    private Line saveBetweenSections(Sections sections, Section newSection) {
-        Section updatedSection = sections.findUpdatedSection(newSection);
-        sectionDao.updateById(updatedSection);
-        sectionDao.save(newSection);
-        return lineDao.findById(newSection.getLineId());
+    private Section findUpdateSection(Section newSection, Line line) {
+        if (line.isStartStation(newSection.getDownStationId())) {
+            return new Section(newSection.getUpStationId(), line.getEndStationId());
+        }
+        return new Section(line.getStartStationId(), newSection.getDownStationId());
     }
 
+    @Transactional
     public void deleteStationById(Long lineId, Long stationId) {
-        Line line = lineDao.findById(lineId);
-        Sections sections = new Sections(sectionDao.findAllSectionsByLineId(lineId), line.getStartStationId());
-        if (!sections.isRemovable()) {
-            throw new InvalidSectionException(SECTIONS_SIZE_ERROR_MESSAGE);
+        Line line = findById(lineId);
+        Section newStartEndSection = sectionService.deleteSectionByStationId(line, stationId);
+        if (newStartEndSection != null) {
+            line.updateLine(newStartEndSection);
+            lineDao.updateById(line);
         }
-        if(line.isStartStation(stationId) || line.isEndStation(stationId)) {
-            deleteStartOrEndStation(sections, stationId, line);
-            return;
-        }
-        mergeAndDeleteStation(sections, stationId);
-    }
-
-    private void mergeAndDeleteStation(Sections sections, Long stationId) {
-        Section deletedSection = sections.findByUpStationId(stationId);
-        Section updatedSection = sections.findByDownStationId(stationId);
-        updatedSection.updateSectionInfoWhenDeleted(deletedSection);
-        sectionDao.updateById(updatedSection);
-        sectionDao.deleteById(deletedSection.getId());
-    }
-
-    private void deleteStartOrEndStation(Sections sections, Long stationId, Line line) {
-        Section section = getStartOrEndSection(sections, stationId, line);
-        line.updateStationInfoWhenDeleted(section);
-        lineDao.updateById(line);
-        sectionDao.deleteById(section.getId());
-    }
-
-    private Section getStartOrEndSection(Sections sections, Long stationId, Line line) {
-        if(line.isStartStation(stationId)) {
-            return sections.getFirstSection();
-        }
-        return sections.getLastSection();
     }
 }

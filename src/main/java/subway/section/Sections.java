@@ -35,10 +35,6 @@ public class Sections {
         return sections.get(sections.size() - 1).getDownStationId();
     }
 
-    public int getSize() {
-        return sections.size();
-    }
-
     public Section findByUpStationId(Long stationId) {
         Section resultSection = sections.stream()
                 .filter(section -> section.getUpStationId() == stationId)

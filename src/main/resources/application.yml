@@ -10,3 +10,8 @@ spring:
   h2:
     console:
       enabled: true     # h2 console 설정
+
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.web: DEBUG # 로그 설정

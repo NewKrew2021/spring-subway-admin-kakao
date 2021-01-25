@@ -1,4 +1,4 @@
-package subway.line.controller;
+package subway;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

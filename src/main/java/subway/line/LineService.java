@@ -17,7 +17,7 @@ public class LineService {
 
     public Long requestToLine(Line line) {
         if( lineDao.hasLineName(line.getName()) ) {
-            new ExistLineSaveException().printStackTrace();
+            throw new ExistLineSaveException();
         }
         return lineDao.save(line);
     }

@@ -46,7 +46,7 @@ public class LineDao {
         String SQL = "SELECT * FROM line";
         return jdbcTemplate.query(
                 SQL,
-                new LineDao.SelectLineMapper()
+                LineDao.selectLineMapper
         );
     }
 
@@ -54,7 +54,7 @@ public class LineDao {
         String SQL = "SELECT * FROM line WHERE id = ?";
         return jdbcTemplate.queryForObject(
                 SQL,
-                new LineDao.SelectLineMapper(),
+                LineDao.selectLineMapper,
                 id
         );
     }
@@ -70,15 +70,10 @@ public class LineDao {
         jdbcTemplate.update(SQL, id);
     }
 
-    private final static class SelectLineMapper implements RowMapper<Line> {
-        @Override
-        public Line mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-            return new Line(
-                    resultSet.getLong("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("color")
-            );
-        }
-    }
+    private final static RowMapper<Line> selectLineMapper = (resultSet, rowNum) -> new Line(
+            resultSet.getLong("id"),
+            resultSet.getString("name"),
+            resultSet.getString("color")
+    );
 
 }

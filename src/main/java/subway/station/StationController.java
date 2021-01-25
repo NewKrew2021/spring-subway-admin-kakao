@@ -1,9 +1,11 @@
 package subway.station;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.exception.ExistStationSaveException;
+import subway.exception.TooFewSectionAsDeleteException;
 
 import java.net.URI;
 import java.util.List;
@@ -42,4 +44,10 @@ public class StationController {
         stationDao.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @ExceptionHandler(ExistStationSaveException.class)
+    private ResponseEntity<?> handleExistStationSaveException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
 }

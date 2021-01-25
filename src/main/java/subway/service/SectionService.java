@@ -66,6 +66,7 @@ public class SectionService {
             sectionDao.delete(deleteSections.get(0).getId());
             line.modifyLineWhenSectionDelete(deleteSections.get(0));
             lineDao.update(line);
+            return;
         }
         if (deleteSections.size() == MATCHED_TWO_STATION) {
             Section modifySection = deleteSections.get(0);
@@ -73,6 +74,7 @@ public class SectionService {
             modifySection.mergeSection(deleteSection);
             sectionDao.modify(modifySection);
             sectionDao.delete(deleteSection.getId());
+            return;
         }
     }
 

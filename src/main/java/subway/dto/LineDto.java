@@ -1,4 +1,6 @@
-package subway.line;
+package subway.dto;
+
+import subway.http.request.LineRequest;
 
 public class LineDto {
     private final String name;

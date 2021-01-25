@@ -1,8 +1,10 @@
-package subway.section;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.dao.queries.SectionQuery;
+import subway.domain.section.Section;
 
 import java.util.List;
 

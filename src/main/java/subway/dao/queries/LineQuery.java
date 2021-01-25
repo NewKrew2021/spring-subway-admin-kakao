@@ -1,4 +1,4 @@
-package subway.line;
+package subway.dao.queries;
 
 public class LineQuery {
     public static final String insert = "insert into line (name, color) values(?, ?)";

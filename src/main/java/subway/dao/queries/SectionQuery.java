@@ -1,4 +1,4 @@
-package subway.section;
+package subway.dao.queries;
 
 public class SectionQuery {
     public static final String insert = "insert into section (line_id, up_station_id, down_station_id, distance) values(?, ?, ?, ?)";

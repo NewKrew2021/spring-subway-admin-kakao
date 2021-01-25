@@ -1,10 +1,11 @@
-package subway.section;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.domain.Section;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -54,5 +55,9 @@ public class SectionDao {
 
     public void deleteById(Long id) {
         jdbcTemplate.update("delete from SECTION where id = ?", id);
+    }
+
+    public void deleteByLineId(Long lineId) {
+        jdbcTemplate.update("delete from SECTION where line_id = ?", lineId);
     }
 }

@@ -1,9 +1,11 @@
-package subway.section;
+package subway.domain;
 
-import subway.line.LineRequest;
+import subway.dto.LineRequest;
+import subway.dto.SectionRequest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Section {
     private Long id;
@@ -79,5 +81,19 @@ public class Section {
     public boolean containStation(Section newSection) {
         List<Long> stationIds = Arrays.asList(newSection.getUpStationId(), newSection.getDownStationId());
         return stationIds.contains(upStationId) || stationIds.contains(downStationId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return distance == section.distance && Objects.equals(id, section.id) && Objects.equals(lineId, section.lineId)
+                && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, lineId, upStationId, downStationId, distance);
     }
 }

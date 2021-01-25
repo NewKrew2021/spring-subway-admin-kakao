@@ -1,4 +1,8 @@
-package subway.line;
+package subway.domain;
+
+import subway.dto.LineRequest;
+
+import java.util.Objects;
 
 public class Line {
     private Long id;
@@ -39,5 +43,18 @@ public class Line {
     public void updateNameAndColor(String name, String color) {
         this.name = name;
         this.color = color;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Line line = (Line) o;
+        return Objects.equals(id, line.id) && Objects.equals(name, line.name) && Objects.equals(color, line.color);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, color);
     }
 }

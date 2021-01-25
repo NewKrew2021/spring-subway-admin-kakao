@@ -44,19 +44,10 @@ public class Sections {
 
     private Section getUpEndSection() {
         List<Long> endStationIds = getEndStationIds();
-//        return sections.stream()
-//                .filter(section -> endStationIds.contains(section.getUpStationId()))
-//                .collect(Collectors.collectingAndThen(
-//                        Collectors.toList(),
-//                        list -> {
-//                            assert (list != null && list.size() == 1);
-//                            return list.get(0);
-//                        }
-//                ));
         return sections.stream()
                 .filter(section -> endStationIds.contains(section.getUpStationId()))
                 .findAny()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalStateException("상행 종점이 존재하지 않습니다."));
     }
 
     private List<Long> getEndStationIds() {

@@ -10,7 +10,7 @@ import subway.line.domain.SectionInsertException;
 import subway.line.domain.SectionNotValidDeleteException;
 
 @RestControllerAdvice
-public class ControllerAdvice {
+public class CustomExceptonHandler {
 
     @ExceptionHandler({LineNotFoundException.class, LineAlreadyExistException.class})
     public ResponseEntity lineNotFound() {

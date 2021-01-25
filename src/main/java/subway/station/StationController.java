@@ -3,53 +3,50 @@ package subway.station;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.domain.Station;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/stations")
 public class StationController {
-    private final StationDao stationDao;
+    private final StationService stationService;
 
-    public StationController(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationController(StationService stationService) {
+        this.stationService = stationService;
     }
 
     @PostMapping
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
-        Station newStation = stationDao.insert(new Station(stationRequest.getName()));
-        if (newStation == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        Station station = stationService.createWithName(stationRequest.getName());
 
-        StationResponse response = newStation.toDto();
+        StationResponse response = StationResponse.of(station);
         return ResponseEntity.created(URI.create("/stations/" + response.getID())).body(response);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StationResponse>> showStations() {
-        Stations stations = new Stations(stationDao.findAll());
-        return ResponseEntity.ok(stations.allToDto());
+        List<StationResponse> stationResponses = stationService.findAll()
+                .stream()
+                .map(StationResponse::of)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(stationResponses);
     }
 
     @GetMapping(value = "/{stationID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StationResponse> showStation(@PathVariable Long stationID) {
-        Station station = stationDao.findByID(stationID);
-        if (station == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(station.toDto());
+        Station station = stationService.findByID(stationID);
+        return ResponseEntity.ok(StationResponse.of(station));
     }
 
     @DeleteMapping("/{stationID}")
-    public ResponseEntity<?> deleteStation(@PathVariable Long stationID) {
-        boolean deleted = stationDao.deleteByID(stationID);
-        if (!deleted) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<Void> deleteStation(@PathVariable Long stationID) {
+        stationService.deleteByID(stationID);
         return ResponseEntity.noContent().build();
     }
 }

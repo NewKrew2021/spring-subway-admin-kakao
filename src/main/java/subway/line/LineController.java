@@ -1,15 +1,17 @@
 package subway.line;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.section.SectionRequest;
-import subway.section.Sections;
-import subway.station.StationDao;
-import subway.station.Stations;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.line.vo.LineAttributes;
+import subway.line.vo.LineCreateValue;
+import subway.line.vo.LineResultValue;
+import subway.section.SectionService;
+import subway.section.dto.SectionRequest;
+import subway.section.vo.SectionCreateValue;
 
 import java.net.URI;
 import java.util.List;
@@ -18,102 +20,64 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/lines")
 public class LineController {
-    private final LineDao lineDao;
-    private final SectionDao sectionDao;
-    private final StationDao stationDao;
+    private final LineService lineService;
+    private final SectionService sectionService;
 
-    public LineController(LineDao lineDao, SectionDao sectionDao, StationDao stationDao) {
-        this.lineDao = lineDao;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
+    public LineController(LineService lineService, SectionService sectionService) {
+        this.lineService = lineService;
+        this.sectionService = sectionService;
     }
 
+    @Transactional
     @PostMapping
-    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest request) {
-        final Line line = new Line(request.getName(), request.getColor());
+    public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
+        long newLineID = lineService.create(new LineCreateValue(lineRequest));
+        sectionService.create(new SectionCreateValue(newLineID, lineRequest));
 
-        if (lineDao.isDuplicatedName(line)) {
-            return ResponseEntity.badRequest().build();
-        }
-        final Line newLine = lineDao.insert(line);
-
-        final Section upSection = new Section(newLine.getID(), request.getUpStationID(), 0);
-        final Section downSection = new Section(newLine.getID(), request.getDownStationID(), request.getDistance());
-
-        boolean created = sectionDao.insert(upSection, downSection);
-        if (!created) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        LineResponse lineResponse = newLine.toDto(getStationsByLine(newLine));
+        LineResponse lineResponse = LineResponse.of(lineService.findByID(newLineID));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getID())).body(lineResponse);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
-        List<LineResponse> res = lineDao.findAll()
+        List<LineResponse> lineResultValues = lineService.findAll()
                 .stream()
-                .map(line -> line.toDto(getStationsByLine(line)))
+                .map(LineResponse::of)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(lineResultValues);
     }
 
     @GetMapping(value = "/{lineID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineID) {
-        Line line = lineDao.findOne(lineID);
-        return ResponseEntity.ok(line.toDto(getStationsByLine(line)));
+        LineResultValue lineResultValue = lineService.findByID(lineID);
+        return ResponseEntity.ok(LineResponse.of(lineResultValue));
     }
 
     @PutMapping("/{lineID}")
-    public ResponseEntity<?> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
-        boolean updated = lineDao.update(lineID, lineRequest);
-        if (!updated) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LineResponse> updateLine(@PathVariable Long lineID, @RequestBody LineRequest lineRequest) {
+        LineResultValue resultValue = lineService.update(lineID, new LineAttributes(lineRequest));
+        return ResponseEntity.ok(LineResponse.of(resultValue));
     }
 
     @DeleteMapping("/{lineID}")
-    public ResponseEntity<?> deleteLine(@PathVariable Long lineID) {
-        boolean deleted = lineDao.delete(lineID);
-        if (!deleted) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<Void> deleteLine(@PathVariable Long lineID) {
+        lineService.delete(lineID);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{lineID}/sections")
-    public ResponseEntity<?> addSection(@PathVariable Long lineID, @RequestBody SectionRequest request) {
-        final Section upSection = new Section(lineID, request.getUpStationID(), 0);
-        final Section downSection = new Section(lineID, request.getDownStationID(), request.getDistance());
+    public ResponseEntity<LineResponse> addSection(@PathVariable Long lineID,
+                                                   @RequestBody SectionRequest sectionRequest) {
+        sectionService.create(new SectionCreateValue(lineID, sectionRequest));
 
-        boolean created = sectionDao.insert(upSection, downSection);
-        if (!created) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        return ResponseEntity.ok().build();
+        LineResultValue lineResultValue = lineService.findByID(lineID);
+        return ResponseEntity.ok(LineResponse.of(lineResultValue));
     }
 
     @DeleteMapping("/{lineID}/sections")
-    public ResponseEntity<?> deleteSection(@PathVariable Long lineID, @RequestParam Long stationID) {
-        final Section section = new Section(lineID, stationID, 0);
-
-        boolean deleted = sectionDao.delete(section);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
+    public ResponseEntity<Void> deleteSection(@PathVariable Long lineID, @RequestParam Long stationID) {
+        sectionService.delete(lineID, stationID);
         return ResponseEntity.ok().build();
-    }
-
-    private Stations getStationsByLine(Line line) {
-        Sections sections = sectionDao.findAllSectionsOf(line.getID());
-        return new Stations(sections.getStationIDs().stream()
-                .map(stationDao::findByID)
-                .collect(Collectors.toList()));
     }
 }

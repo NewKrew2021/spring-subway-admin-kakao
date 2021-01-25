@@ -1,11 +1,11 @@
-package subway.station;
+package subway.station.dto;
 
-import java.beans.ConstructorProperties;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class StationRequest {
     private String name;
 
-    @ConstructorProperties("name")
+    @JsonCreator
     public StationRequest(String name) {
         this.name = name;
     }

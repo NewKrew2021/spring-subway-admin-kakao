@@ -1,32 +1,21 @@
-package subway.station;
+package subway.station.domain;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
-
 public class Station {
+    private static final long UNUSED_ID = 0L;
     private final Long id;
     private final String name;
 
     public Station(String name) {
-        this(0L, name);
+        this(UNUSED_ID, name);
     }
 
     public Station(Long id, String name) {
-        if (isNegative(id)) {
-            throw new IllegalArgumentException("Station ID cannot be negative");
-        }
-
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Station name cannot be null or blank characters");
-        }
-
         this.id = id;
         this.name = name;
-    }
 
-    public StationResponse toDto() {
-        return new StationResponse(id, name);
+        checkIsValidStation();
     }
 
     public Long getID() {
@@ -48,7 +37,7 @@ public class Station {
         }
 
         Station station = (Station) o;
-        return Objects.equals(name, station.name);
+        return name.equals(station.name);
     }
 
     @Override
@@ -56,7 +45,17 @@ public class Station {
         return id.intValue();
     }
 
-    private boolean isNegative(Long id) {
+    private void checkIsValidStation() {
+        if (isNegativeID()) {
+            throw new IllegalArgumentException("Station ID cannot be negative");
+        }
+
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Station name cannot be null or blank characters");
+        }
+    }
+
+    private boolean isNegativeID() {
         return id < 0;
     }
 }

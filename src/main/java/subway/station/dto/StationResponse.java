@@ -1,15 +1,20 @@
-package subway.station;
+package subway.station.dto;
 
-import java.beans.ConstructorProperties;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import subway.station.domain.Station;
 
 public class StationResponse {
     private Long id;
     private String name;
 
-    @ConstructorProperties({"id", "name"})
+    @JsonCreator
     public StationResponse(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public static StationResponse of(Station station) {
+        return new StationResponse(station.getID(), station.getName());
     }
 
     public Long getID() {

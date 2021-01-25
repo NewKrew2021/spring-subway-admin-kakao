@@ -14,8 +14,8 @@ const validator = {
     color: [(v) => !!v || '색상 입력이 필요합니다.'],
   },
   section: {
-    upStationId: [(v) => !!v || '상행역을 선택하세요.'],
-    downStationId: [(v) => !!v || '하행역을 선택하세요.'],
+    upStationID: [(v) => !!v || '상행역을 선택하세요.'],
+    downStationID: [(v) => !!v || '하행역을 선택하세요.'],
     distance: [(v) => !!v || '거리 입력이 필요합니다.']
   },
   member: {

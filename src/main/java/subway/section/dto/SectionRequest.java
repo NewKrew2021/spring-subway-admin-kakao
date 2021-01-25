@@ -1,17 +1,17 @@
-package subway.section;
+package subway.section.dto;
 
-import java.beans.ConstructorProperties;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class SectionRequest {
     private Long upStationID;
     private Long downStationID;
-    private int distance;
+    private int distanceDiff;
 
-    @ConstructorProperties({"upStationID", "downStationID", "distance"})
-    public SectionRequest(Long upStationID, Long downStationID, int distance) {
+    @JsonCreator
+    public SectionRequest(Long upStationID, Long downStationID, int distanceDiff) {
         this.upStationID = upStationID;
         this.downStationID = downStationID;
-        this.distance = distance;
+        this.distanceDiff = distanceDiff;
     }
 
     public Long getUpStationID() {
@@ -22,7 +22,7 @@ public class SectionRequest {
         return downStationID;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getDistanceDiff() {
+        return distanceDiff;
     }
 }

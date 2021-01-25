@@ -3,6 +3,10 @@ package subway.section;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.section.domain.Section;
+import subway.section.domain.Sections;
+
+import java.util.NoSuchElementException;
 
 @Repository
 public class SectionDao {
@@ -12,36 +16,22 @@ public class SectionDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean insert(Section upSection, Section downSection) {
-        if (upSection.equals(downSection)) {
-            return false;
-        }
+    public Section insert(Section section) {
+        String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
+        jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance());
 
-        Sections sections = findAllSectionsOf(upSection.getLineID());
-
-        if (sections.hasNoSections()) {
-            insertSection(upSection);
-            insertSection(downSection);
-            return true;
-        }
-
-        Section newSection = sections.insert(upSection, downSection);
-        if (couldNotInsertNewSection(newSection)) {
-            return false;
-        }
-
-        insertSection(newSection);
-        return true;
+        return new Section(section.getLineID(), section.getStationID(), section.getDistance());
     }
 
-    public boolean delete(Section section) {
-        Sections sections = findAllSectionsOf(section.getLineID());
-        if (sections.hasMinimumSectionCount()) {
-            return false;
-        }
+    public void delete(Section section) {
+        String sql = "delete from section where line_id = ? and station_id = ?";
+        int affectedRows = jdbcTemplate.update(sql, section.getLineID(), section.getStationID());
 
-        deleteSection(section);
-        return true;
+        if (isNotDeleted(affectedRows)) {
+            throw new NoSuchElementException(
+                    String.format("Could not delete section with line id: %d and station id: %d",
+                            section.getLineID(), section.getStationID()));
+        }
     }
 
     public Sections findAllSectionsOf(Long lineID) {
@@ -49,23 +39,21 @@ public class SectionDao {
         return new Sections(jdbcTemplate.query(sql, sectionRowMapper, lineID));
     }
 
-    private boolean insertSection(Section section) {
-        String sql = "insert into section (line_id, station_id, distance) values(?, ?, ?)";
-        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID(), section.getDistance()) > 0;
+    public Section findOneBy(long lineID, long sectionID) {
+        String sql = "select * from section where line_id = ? and station_id = ?";
+        return jdbcTemplate.queryForObject(sql, sectionRowMapper, lineID, sectionID);
     }
 
-    private boolean deleteSection(Section section) {
-        String sql = "delete from section where line_id = ? and station_id = ?";
-        return jdbcTemplate.update(sql, section.getLineID(), section.getStationID()) > 0;
+    private boolean isNotDeleted(int affectedRows) {
+        return noRowsWereAffected(affectedRows);
     }
 
-    private boolean couldNotInsertNewSection(Section newSection) {
-        return newSection == null;
+    private boolean noRowsWereAffected(int affectedRows) {
+        return affectedRows != 1;
     }
 
     private final RowMapper<Section> sectionRowMapper =
             (resultSet, rowNum) -> new Section(
-                    resultSet.getLong("id"),
                     resultSet.getLong("line_id"),
                     resultSet.getLong("station_id"),
                     resultSet.getInt("distance"));

@@ -1,14 +1,15 @@
 package subway.station;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository
 public class StationDao {
@@ -22,32 +23,34 @@ public class StationDao {
         String sql = "insert into station (name) values(?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        try {
-            jdbcTemplate.update(con -> {
-                PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
-                st.setString(1, station.getName());
-                return st;
-            }, keyHolder);
-        } catch (DataAccessException ignored) {
-            return null;
-        }
+        jdbcTemplate.update(con -> {
+            PreparedStatement st = con.prepareStatement(sql, new String[]{"id"});
+            st.setString(1, station.getName());
+            return st;
+        }, keyHolder);
 
         return new Station(keyHolder.getKey().longValue(), station.getName());
     }
 
     public List<Station> findAll() {
-        String sql = "select * from station";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        return jdbcTemplate.query("select * from station", stationRowMapper);
     }
 
-    public Station findByID(Long id) {
-        String sql = "select id, name from station where id = ?";
-        return jdbcTemplate.queryForObject(sql, stationRowMapper, id);
+    public Station findByID(long stationID) {
+        return jdbcTemplate.queryForObject("select id, name from station where id = ?",
+                stationRowMapper, stationID);
     }
 
-    public boolean deleteByID(Long id) {
-        String sql = "delete from station where id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+    public void deleteByID(long stationID) {
+        int affectedRows = jdbcTemplate.update("delete from station where id = ?", stationID);
+
+        if (isNotDeleted(affectedRows)) {
+            throw new NoSuchElementException("Could not delete station with id: " + stationID);
+        }
+    }
+
+    private boolean isNotDeleted(int affectedRows) {
+        return affectedRows != 1;
     }
 
     private final RowMapper<Station> stationRowMapper =

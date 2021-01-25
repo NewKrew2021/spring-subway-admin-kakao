@@ -1,26 +1,18 @@
-package subway.section;
+package subway.section.domain;
 
 import java.util.Objects;
 
 public class Section implements Comparable<Section> {
-    private final long id;
     private final long lineID;
     private final long stationID;
     private final int distance;
 
     public Section(long lineID, long stationID, int distance) {
-        this(0L, lineID, stationID, distance);
-    }
-
-    public Section(long id, long lineID, long stationID, int distance) {
-        if (isNegative(id)) {
-            throw new IllegalArgumentException("Line ID cannot be negative");
-        }
-
-        this.id = id;
         this.lineID = lineID;
         this.stationID = stationID;
         this.distance = distance;
+
+        checkIsValidSection();
     }
 
     public int distanceDiff(Section downSection) {
@@ -31,12 +23,8 @@ public class Section implements Comparable<Section> {
         return distance < newSection.distance;
     }
 
-    public boolean isCloserFromThan(Section fromSection, Section thanSection) {
-        return Math.abs(distance - fromSection.distance) < Math.abs(distance - thanSection.distance);
-    }
-
-    public long getID() {
-        return id;
+    public boolean isFartherOrEqualFromThan(Section fromSection, Section thanSection) {
+        return Math.abs(distance - fromSection.distance) >= Math.abs(distance - thanSection.distance);
     }
 
     public long getLineID() {
@@ -67,7 +55,7 @@ public class Section implements Comparable<Section> {
 
     @Override
     public int hashCode() {
-        return (int) id;
+        return Objects.hash(lineID, stationID);
     }
 
     @Override
@@ -75,7 +63,13 @@ public class Section implements Comparable<Section> {
         return distance - that.getDistance();
     }
 
-    private boolean isNegative(Long id) {
+    private void checkIsValidSection() {
+        if (isNegativeID(lineID) || isNegativeID(stationID)) {
+            throw new IllegalArgumentException("Line id and station id cannot be negative");
+        }
+    }
+
+    private boolean isNegativeID(long id) {
         return id < 0;
     }
 }

@@ -1,22 +1,22 @@
-package subway.line;
+package subway.line.dto;
 
-import java.beans.ConstructorProperties;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class LineRequest {
     private String name;
     private String color;
     private Long upStationID;
     private Long downStationID;
-    private int distance;
+    private int distanceDiff;
     private int extraFare;
 
-    @ConstructorProperties({"name", "color", "upStationID", "downStationID", "distance"})
-    public LineRequest(String name, String color, Long upStationID, Long downStationID, int distance) {
+    @JsonCreator
+    public LineRequest(String name, String color, Long upStationID, Long downStationID, int distanceDiff) {
         this.name = name;
         this.color = color;
         this.upStationID = upStationID;
         this.downStationID = downStationID;
-        this.distance = distance;
+        this.distanceDiff = distanceDiff;
     }
 
     public String getName() {
@@ -35,8 +35,8 @@ public class LineRequest {
         return downStationID;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getDistanceDiff() {
+        return distanceDiff;
     }
 
     public int getExtraFare() {

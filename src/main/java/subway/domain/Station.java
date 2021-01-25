@@ -1,7 +1,5 @@
 package subway.domain;
 
-import subway.dto.StationRequest;
-
 import java.util.Objects;
 
 public class Station {
@@ -16,8 +14,8 @@ public class Station {
         this.name = name;
     }
 
-    public static Station of(StationRequest stationRequest) {
-        return new Station(null, stationRequest.getName());
+    public static Station of(String name) {
+        return new Station(null, name);
     }
 
     public static Station of(Long stationId) {

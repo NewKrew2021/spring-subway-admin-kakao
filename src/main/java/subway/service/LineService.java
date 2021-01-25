@@ -38,9 +38,7 @@ public class LineService {
         Station upStation = stationDao.findById(section.getUpStation().getId());
         Station downStation = stationDao.findById(section.getDownStation().getId());
 
-        sectionDao.save(new Section(newLine, upStation, upStation, Line.INF, Line.HEAD));
-        sectionDao.save(new Section(newLine, upStation, downStation, section.getDistance(), Line.USE));
-        sectionDao.save(new Section(newLine, downStation, downStation, Line.INF, Line.TAIL));
+        sectionDao.save(Section.of(newLine, upStation, downStation, section.getDistance()));
 
         return newLine;
     }
@@ -67,13 +65,13 @@ public class LineService {
 
     public List<StationResponse> getSortedStations(Long id) {
         Line line = lineDao.findById(id);
-
         Sections sections = new Sections(sectionDao.findSectionsByLineId(line.getId()));
 
         Section currentSection = sections.findHeadSection();
-
         List<Station> stations = new ArrayList<>();
-        while (!currentSection.isEndType()) {
+        stations.add(stationDao.findById(currentSection.getUpStation().getId()));
+
+        while (currentSection != null) {
             stations.add(stationDao.findById(currentSection.getDownStation().getId()));
             currentSection = sections.findNextSection(currentSection);
         }

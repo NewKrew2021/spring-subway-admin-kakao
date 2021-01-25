@@ -1,7 +1,5 @@
 package subway.domain;
 
-import subway.dto.LineRequest;
-
 import java.util.Objects;
 
 public class Line {
@@ -19,8 +17,8 @@ public class Line {
         this.color = color;
     }
 
-    public static Line of(LineRequest lineRequest) {
-        return new Line(null, lineRequest.getName(), lineRequest.getColor());
+    public static Line of(String name, String color) {
+        return new Line(null, name, color);
     }
 
     public static Line of(Long id) {

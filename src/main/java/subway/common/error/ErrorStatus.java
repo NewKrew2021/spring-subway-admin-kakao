@@ -7,45 +7,31 @@ import subway.common.exception.NotDeletableEntityException;
 import subway.common.exception.NotExistEntityException;
 import subway.common.exception.NotUpdatableEntityException;
 
+import java.util.Arrays;
+
 public enum ErrorStatus {
-    DATA_ACCESS(HttpStatus.BAD_REQUEST),
-    ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST),
-    ILLEGAL_STATE(HttpStatus.INTERNAL_SERVER_ERROR),
-    ALREADY_EXIST(HttpStatus.BAD_REQUEST),
-    NOT_EXIST(HttpStatus.BAD_REQUEST),
-    NOT_DELETABLE(HttpStatus.INTERNAL_SERVER_ERROR),
-    NOT_UPDATABLE(HttpStatus.INTERNAL_SERVER_ERROR),
-    DEFAULT(HttpStatus.INTERNAL_SERVER_ERROR);
+    DATA_ACCESS(HttpStatus.BAD_REQUEST, DataAccessException.class),
+    ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, IllegalArgumentException.class),
+    ILLEGAL_STATE(HttpStatus.INTERNAL_SERVER_ERROR, IllegalStateException.class),
+    ALREADY_EXIST(HttpStatus.BAD_REQUEST, AlreadyExistEntityException.class),
+    NOT_EXIST(HttpStatus.BAD_REQUEST, NotExistEntityException.class),
+    NOT_DELETABLE(HttpStatus.INTERNAL_SERVER_ERROR, NotDeletableEntityException.class),
+    NOT_UPDATABLE(HttpStatus.INTERNAL_SERVER_ERROR, NotUpdatableEntityException.class),
+    DEFAULT(HttpStatus.INTERNAL_SERVER_ERROR, Exception.class);
 
     private final HttpStatus httpStatus;
+    private final Class<? extends Exception> exception;
 
-    ErrorStatus(HttpStatus httpStatus) {
+    ErrorStatus(HttpStatus httpStatus, Class<? extends Exception> exception) {
         this.httpStatus = httpStatus;
+        this.exception = exception;
     }
 
-    public static ErrorStatus of(Exception e) {
-        if (e instanceof DataAccessException) {
-            return DATA_ACCESS;
-        }
-        if (e instanceof IllegalArgumentException) {
-            return ILLEGAL_ARGUMENT;
-        }
-        if (e instanceof IllegalStateException) {
-            return ILLEGAL_STATE;
-        }
-        if (e instanceof AlreadyExistEntityException) {
-            return ALREADY_EXIST;
-        }
-        if (e instanceof NotExistEntityException) {
-            return NOT_EXIST;
-        }
-        if (e instanceof NotDeletableEntityException) {
-            return NOT_DELETABLE;
-        }
-        if (e instanceof NotUpdatableEntityException) {
-            return NOT_UPDATABLE;
-        }
-        return DEFAULT;
+    public static ErrorStatus of(Exception exception) {
+        return Arrays.stream(ErrorStatus.values())
+                .filter(errorStatus -> errorStatus.exception.isInstance(exception))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("일치하는 예외 타입이 없습니다."));
     }
 
     public HttpStatus getHttpStatus() {

@@ -1,6 +1,6 @@
 package subway.section.domain;
 
-public class Section {
+public class Section implements Comparable<Section> {
     private final Long id;
     private final long lineId;
     private final long stationId;
@@ -21,16 +21,24 @@ public class Section {
         return this.stationId == stationId;
     }
 
-    public int getDifferenceOfPosition(Section section) {
+    public int calculateDistanceWith(Section section) {
         return Math.abs(position - section.position);
     }
 
-    public int calculateNextDownPosition(int distance) {
+    public int getNextDownPosition(int distance) {
         return position + distance;
     }
 
-    public int calculateNextUpPosition(int distance) {
+    public int getNextUpPosition(int distance) {
         return position - distance;
+    }
+
+    public boolean isDownSideOf(Section section) {
+        return position > section.position;
+    }
+
+    public boolean isUpSideOf(Section section) {
+        return position < section.position;
     }
 
     public Long getId() {
@@ -47,5 +55,10 @@ public class Section {
 
     public int getPosition() {
         return position;
+    }
+
+    @Override
+    public int compareTo(Section o) {
+        return position - o.position;
     }
 }

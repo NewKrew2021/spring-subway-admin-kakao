@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import subway.section.presentation.SectionRequest;
 
 import java.util.Arrays;
@@ -68,53 +69,10 @@ class SectionsTest {
                 ));
     }
 
-    /**
-     * 10은 새로 추가될 구간의 역 id
-     * <p>
-     * 위치:     -2 -1 0 1 2 3 4 5 6 7 8 9
-     * 기존:           1         2
-     * 추가 위치:  x        x x       x
-     */
-    @DisplayName("상/하행역과 거리가 주어지면 새로 추가할 구간을 생성한다")
+    @DisplayName("(다음역 - 역) 상행방향 구간의 거리가 주어진 거리보다 작거나 같으면 예외가 발생한다")
     @ParameterizedTest
-    @CsvSource({"1,10,2,2", "10,1,2,-2", "10,2,2,3", "2,10,2,7"})
-    void createNewSection(long upStationId, long downStationId, int distance, int expectedPosition) {
-        // given
-        long lineId = 1L;
-        Sections sections = Sections.from(Arrays.asList(
-                new Section(1L, lineId, 1L, 0),
-                new Section(2L, lineId, 2L, 5)
-        ));
-        // when
-        Section newSection = sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, distance));
-
-        // then
-        assertThat(newSection).usingRecursiveComparison()
-                .isEqualTo(new Section(lineId, 10, expectedPosition));
-    }
-
-    @DisplayName("새로운 구간 생성시, 상/하행역이 모두 기존 구간에 포함되어 있거나 모두 포함되어 있지 않다면 예외가 발생한다")
-    @ParameterizedTest
-    @CsvSource({"1,2", "100,101"})
-    void createNewSectionFail1(long upStationId, long downStationId) {
-        // given
-        long lineId = 1L;
-        Sections sections = Sections.from(Arrays.asList(
-                new Section(1L, lineId, 1L, 0),
-                new Section(2L, lineId, 2L, 5)
-        ));
-
-        // then
-        assertThatIllegalArgumentException()
-                // when
-                .isThrownBy(() -> sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, 2)))
-                .withMessage("상/하행역 중 하나만 일치해야합니다");
-    }
-
-    @DisplayName("새로운 구간 생성시, 추가할 구간의 거리가 기존 거리보다 크거나 같으면 예외가 발생한다")
-    @ParameterizedTest
-    @CsvSource({"1,10,5", "1,10,100", "10,2,5", "10,2,100"})
-    void createNewSectionFail2(long upStationId, long downStationId, int distance) {
+    @ValueSource(ints = {5, 100})
+    void validateSectionUpDistance(int distance) {
         // given
         long lineId = 1L;
         Sections sections = Sections.from(Arrays.asList(
@@ -124,7 +82,24 @@ class SectionsTest {
         // then
         assertThatIllegalArgumentException()
                 // when
-                .isThrownBy(() -> sections.createSection(new SectionCreateValue(lineId, upStationId, downStationId, distance)))
+                .isThrownBy(() -> sections.validateSectionUpDistance(sections.getSections().get(1), distance))
+                .withMessage("기존 구간보다 새로 생긴 구간의 거리가 더 짧아야합니다");
+    }
+
+    @DisplayName("(역 - 다음역) 하행방향 구간의 거리가 주어진 거리보다 작거나 같으면 예외가 발생한다")
+    @ParameterizedTest
+    @ValueSource(ints = {5, 100})
+    void validateSectionDownDistance(int distance) {
+        // given
+        long lineId = 1L;
+        Sections sections = Sections.from(Arrays.asList(
+                new Section(1L, lineId, 1L, 0),
+                new Section(2L, lineId, 2L, 5)
+        ));
+        // then
+        assertThatIllegalArgumentException()
+                // when
+                .isThrownBy(() -> sections.validateSectionDownDistance(sections.getSections().get(0), distance))
                 .withMessage("기존 구간보다 새로 생긴 구간의 거리가 더 짧아야합니다");
     }
 

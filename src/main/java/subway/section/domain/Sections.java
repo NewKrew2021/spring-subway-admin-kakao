@@ -1,5 +1,7 @@
 package subway.section.domain;
 
+import subway.line.domain.Line;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,6 +49,14 @@ public class Sections {
 
         return new Section(frontSection.getLineId(), upStationId, downStationId,
                 frontSection.getDistance() + backSection.getDistance());
+    }
+
+    public boolean isEmpty(){
+        return sections.isEmpty();
+    }
+
+    public boolean isLastSection(){
+        return sections.size() == Line.END_STATION_SECTION_SIZE;
     }
 
     public int size() {

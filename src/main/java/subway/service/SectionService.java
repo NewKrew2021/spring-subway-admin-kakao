@@ -1,17 +1,16 @@
 package subway.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
 import subway.dao.SectionDao;
-import subway.domain.Line;
+import subway.dao.StationDao;
 import subway.domain.Section;
 import subway.domain.Sections;
-import subway.dao.StationDao;
 
 @Service
 public class SectionService {
 
-    private static final int MINIMUM_SECTION_COUNT = 3;
     private SectionDao sectionDao;
     private LineDao lineDao;
     private StationDao stationDao;
@@ -22,14 +21,14 @@ public class SectionService {
         this.stationDao = stationDao;
     }
 
+    @Transactional
     public void add(Long id, Section section) {
         Sections sections = new Sections(sectionDao.findSectionsByLineId(id));
         Section newSection = Section.of(
                 lineDao.findById(id),
                 stationDao.findById(section.getUpStation().getId()),
                 stationDao.findById(section.getDownStation().getId()),
-                section.getDistance(),
-                Line.USE
+                section.getDistance()
         );
 
         if(sections.hasSameSection(newSection)){
@@ -40,34 +39,40 @@ public class SectionService {
             throw new IllegalArgumentException("요청한 역 중 하나는 노선에 존재해야 합니다.");
         }
 
+        sectionDao.save(newSection);
+
+        if(sections.isExtendTerminal(newSection)) {
+            return;
+        }
+
         Section originSection = sections.sameUpStationOrDownStation(newSection);
         Section subSection = originSection.getSubSection(newSection);
-
-        sectionDao.save(newSection);
         sectionDao.save(subSection);
         sectionDao.deleteById(originSection.getId());
     }
 
+    @Transactional
     public void delete(Long id, Long stationId) {
-        int sectionsCount = sectionDao.countByLineId(id);
+        Sections sections = new Sections((sectionDao.findSectionsByLineId(id)));
 
-        if(sectionsCount <= MINIMUM_SECTION_COUNT) {
+        if(sections.canNotDelete()) {
             throw new IllegalArgumentException("마지막 구간은 삭제할 수 없습니다");
         }
 
-        Section front = sectionDao.findSectionByLineIdAndDownStationId(id, stationId);
-        Section rear = sectionDao.findSectionByLineIdAndUpStationId(id, stationId);
-        sectionDao.deleteById(front.getId());
-        sectionDao.deleteById(rear.getId());
+        sectionDao.deleteByStationId(id, stationId);
 
-        int distance = front.getDistance() + rear.getDistance();
+        if(sections.isTerminalStation(stationId)) {
+            return;
+        }
+
+        Section front = sections.findFrontSection(stationId);
+        Section rear = sections.findRearSection(stationId);
 
         sectionDao.save(Section.of(
                 lineDao.findById(id),
                 front.getUpStation(),
                 rear.getDownStation(),
-                distance,
-                Line.USE
+                front.getDistance() + rear.getDistance()
         ));
     }
 

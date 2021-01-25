@@ -8,27 +8,22 @@ public class Section {
     private Station upStation;
     private Station downStation;
     private int distance;
-    private String pointType;
 
     public Section() {
     }
 
-    public Section(Long id, Line line, Station upStation, Station downStation, int distance, String pointType) {
+    public Section(Long id, Line line, Station upStation, Station downStation, int distance) {
         validateDistance(distance);
         this.id = id;
         this.line = line;
         this.upStation = upStation;
         this.downStation = downStation;
         this.distance = distance;
-        this.pointType = pointType;
     }
 
-    public static Section of(Line line, Station upStation, Station downStation, int distance, String pointType) {
-        return new Section(null, line, upStation, downStation, distance, pointType);
-    }
 
     public static Section of(Line line, Station upStation, Station downStation, int distance) {
-        return new Section(null, line, upStation, downStation, distance, Line.USE);
+        return new Section(null, line, upStation, downStation, distance);
     }
 
     private void validateDistance(int distance) {
@@ -57,18 +52,6 @@ public class Section {
         return distance;
     }
 
-    public String getPointType() {
-        return pointType;
-    }
-
-    public boolean isEndType() {
-        return pointType.equals(Line.TAIL);
-    }
-
-    public boolean isHeadType() {
-        return pointType.equals(Line.HEAD);
-    }
-
     public boolean existStation(Section other) {
         return upStation.equals(other.getUpStation()) || upStation.equals(other.getDownStation())
                 || downStation.equals(other.getDownStation()) || downStation.equals(other.getUpStation());
@@ -76,9 +59,9 @@ public class Section {
 
     public Section getSubSection(Section newSection) {
         if(upStation.equals(newSection.getUpStation())) {
-            return Section.of(line, newSection.getDownStation(), downStation, distance - newSection.getDistance(), pointType);
+            return Section.of(line, newSection.getDownStation(), downStation, distance - newSection.getDistance());
         }
-        return Section.of(line, upStation, newSection.getUpStation(), distance - newSection.getDistance(), pointType);
+        return Section.of(line, upStation, newSection.getUpStation(), distance - newSection.getDistance());
     }
 
     @Override

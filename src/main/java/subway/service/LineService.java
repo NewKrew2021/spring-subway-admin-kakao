@@ -26,11 +26,7 @@ public class LineService {
     }
 
     public Line findLineByName(String name) {
-        Line result = lineDao.findLineByName(name);
-        if(result == null){
-            throw new LineNotFoundException();
-        }
-        return result;
+        return lineDao.findLineByName(name).orElseThrow(LineNotFoundException::new);
     }
 
     public List<Line> findAll() {
@@ -38,7 +34,7 @@ public class LineService {
     }
 
     public Line findById(Long id) {
-        return lineDao.findById(id);
+        return lineDao.findById(id).orElseThrow(LineNotFoundException::new);
     }
 
     public void modifyLine(Line line) {

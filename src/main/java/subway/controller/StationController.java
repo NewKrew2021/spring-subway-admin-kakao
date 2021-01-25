@@ -29,19 +29,10 @@ public class StationController {
     @PostMapping("/stations")
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
-
-        try{
-            stationService.insertStation(station);
-            Station newStation = stationService.findStationByName(station.getName());
-            StationResponse stationResponse = new StationResponse(newStation);
-            return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
-        }
-        catch (DuplicateStationNameException e){
-            return ResponseEntity.badRequest().build();
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        stationService.insertStation(station);
+        Station newStation = stationService.findStationByName(station.getName());
+        StationResponse stationResponse = new StationResponse(newStation);
+        return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }
 
     @GetMapping(value = "/stations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,15 +49,7 @@ public class StationController {
 
     @DeleteMapping("/stations/{id}")
     public ResponseEntity<Void> deleteStation(@PathVariable Long id) {
-        try{
-            stationService.deleteStation(id);
-            return ResponseEntity.noContent().build();
-        }
-        catch (StationNotFoundException e){
-            return ResponseEntity.badRequest().build();
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        stationService.deleteStation(id);
+        return ResponseEntity.noContent().build();
     }
 }

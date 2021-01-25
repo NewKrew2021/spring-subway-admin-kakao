@@ -2,13 +2,8 @@ package subway.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import subway.dao.LineDao;
-import subway.dao.SectionDao;
-import subway.dao.StationDao;
-import subway.domain.Line;
-import subway.domain.Section;
-import subway.domain.Sections;
-import subway.domain.Station;
+import subway.dao.*;
+import subway.domain.*;
 import subway.exception.InvalidSectionInsertException;
 import subway.exception.NotEnoughLengthToDeleteSectionException;
 import subway.exception.StationNotFoundException;
@@ -56,11 +51,9 @@ public class SectionService {
             return;
         }
 
-        Optional<Section> modifiedSection = Optional.ofNullable(sections.getModifiedSection(newSection).orElseThrow(InvalidSectionInsertException::new));
-        if(modifiedSection.isPresent()){
-            sectionDao.update(modifiedSection.get());
-            sectionDao.save(newSection);
-        }
+        Section modifiedSection = sections.getModifiedSection(newSection).orElseThrow(InvalidSectionInsertException::new);
+        sectionDao.update(modifiedSection);
+        sectionDao.save(newSection);
     }
 
 

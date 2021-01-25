@@ -6,6 +6,7 @@ import subway.exception.DeleteImpossibleException;
 import subway.exception.IllegalStationException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Sections {
     public static final int ZERO = 0;
@@ -30,7 +31,16 @@ public class Sections {
 
     public Sections(List<Section> sections, List<Station> stations) {
         this(sections);
-        this.stations = stations;
+        HashMap<Long, Station> stationMap = new LinkedHashMap<>();
+        for (Station station : stations) {
+            stationMap.put(station.getId(),station);
+        }
+        HashMap<Long, Station> resultMap = new LinkedHashMap<>();
+        for (Section section : sections) {
+            resultMap.put(section.getUpStationId(),stationMap.get(section.getUpStationId()));
+            resultMap.put(section.getDownStationId(),stationMap.get(section.getDownStationId()));
+        }
+        this.stations = Collections.unmodifiableList(new ArrayList<>(resultMap.values()));
     }
 
     private Long getStartStationId(List<Section> sections) {

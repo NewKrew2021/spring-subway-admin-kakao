@@ -8,6 +8,7 @@ import subway.line.domain.LineAlreadyExistException;
 import subway.line.domain.LineNotFoundException;
 import subway.line.domain.SectionInsertException;
 import subway.line.domain.SectionNotValidDeleteException;
+import subway.station.domain.StationAlreadyExistException;
 
 @RestControllerAdvice
 public class CustomExceptonHandler {
@@ -30,6 +31,11 @@ public class CustomExceptonHandler {
     @ExceptionHandler({SectionNotValidDeleteException.class})
     public ResponseEntity sectionNotValidDelete() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(StationAlreadyExistException.class)
+    public ResponseEntity stationAlreadyExist() {
+        return ResponseEntity.badRequest().build();
     }
 
 }

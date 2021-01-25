@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.station.domain.Station;
+import subway.station.domain.StationAlreadyExistException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -29,7 +30,7 @@ public class StationDao {
     public Station save(Station station) {
         List<Station> findStation = findStationByName(station.getName());
         if (findStation.size() > 0) {
-            return null;
+            throw new StationAlreadyExistException();
         }
         String sql = "insert into station (name) values (?)";
 

@@ -57,13 +57,6 @@ public class LineDaoImpl implements LineDao {
 
     @Override
     public Optional<Line> findLineById(Long id) {
-//        Line line = null;
-//        try {
-//            line = jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, lineRowMapper, id);
-//        } catch (EmptyResultDataAccessException e) {
-//            return Optional.empty();
-//        }
-//        return Optional.ofNullable(line);
         try {
             Line line = jdbcTemplate.queryForObject(SELECT_BY_ID_QUERY, lineRowMapper, id);
             return Optional.ofNullable(line);

@@ -1,11 +1,13 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import subway.line.dao.SectionDao;
+import subway.line.domain.Section;
+import subway.line.domain.SectionStatus;
+import subway.line.domain.Sections;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class SectionService {
@@ -17,10 +19,8 @@ public class SectionService {
 
     public List<Section> showAll(Long lineId) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
-        Map<Long, Long> upStationAndDownStation = sections.getUpStationAndDownStation();
-        Map<Long, Integer> downStationAndDistance = sections.getDownStationAndDistance();
 
-        return sections.sort(lineId, upStationAndDownStation, downStationAndDistance);
+        return sections.sort(lineId, sections.getUpStationAndDownStation(), sections.getDownStationAndDistance());
     }
 
     public void insert(Section section) {
@@ -54,41 +54,28 @@ public class SectionService {
         sectionDao.update(new Section(downStationMatchSection.getId(), section.getLineId(), downStationMatchSection.getUpStationId(), section.getUpStationId(), newDistance));
     }
 
-    public int delete(Long lineId, Long stationId) {
+    public void delete(Long lineId, Long stationId) {
         Sections sections = new Sections(sectionDao.findByLineId(lineId));
         Section upStationMatch = sections.getUpStationMatch(stationId);
         Section downStationMatch = sections.getDownStationMatch(stationId);
 
         sections.checkValidDelete(stationId);
 
-        if (isMiddleStation(upStationMatch, downStationMatch)) {
-            return deleteWhenMiddleSection(lineId, upStationMatch, downStationMatch);
+        if (sections.isMiddleStation(stationId)) {
+            deleteWhenMiddleSection(lineId, upStationMatch, downStationMatch);
         }
-        if (isTerminalStation(upStationMatch, downStationMatch)) {
-            return sectionDao.delete((upStationMatch == null) ? downStationMatch : upStationMatch);
+        if (sections.isTerminalStation(stationId)) {
+            sectionDao.delete((upStationMatch == null) ? downStationMatch : upStationMatch);
         }
-
-        return 0;
     }
 
-    private int deleteWhenMiddleSection(Long lineId, Section upStationMatch, Section downStationMatch) {
-        int deleteCount = 0;
+    private void deleteWhenMiddleSection(Long lineId, Section upStationMatch, Section downStationMatch) {
         int newDistance = upStationMatch.getDeleteNewDistance(downStationMatch);
 
         Section newSection = new Section(lineId, downStationMatch.getUpStationId(), upStationMatch.getDownStationId(), newDistance);
         sectionDao.insert(newSection);
 
-        deleteCount += sectionDao.delete(upStationMatch);
-        deleteCount += sectionDao.delete(downStationMatch);
-
-        return deleteCount;
-    }
-
-    private boolean isTerminalStation(Section upStationMatch, Section downStationMatch) {
-        return upStationMatch != null ^ downStationMatch != null;
-    }
-
-    private boolean isMiddleStation(Section upStationMatch, Section downStationMatch) {
-        return upStationMatch != null && downStationMatch != null;
+        sectionDao.delete(upStationMatch);
+        sectionDao.delete(downStationMatch);
     }
 }

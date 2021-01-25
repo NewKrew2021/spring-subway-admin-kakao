@@ -1,10 +1,11 @@
-package subway.station;
+package subway.station.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.station.domain.Station;
 
 import java.sql.PreparedStatement;
 import java.util.List;

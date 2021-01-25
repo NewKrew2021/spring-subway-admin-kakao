@@ -1,9 +1,9 @@
 package subway.util;
 
-import subway.line.Line;
-import subway.line.LineResponse;
-import subway.station.Station;
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.line.dto.LineResponse;
+import subway.station.domain.Station;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

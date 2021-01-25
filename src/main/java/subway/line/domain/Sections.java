@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Sections {
+    private static final String SECTION_NOT_VALID_DELETE_MESSAGE = "유일한 세션은 지울 수 없습니다.";
     private final List<Section> sections;
 
     public Sections(List<Section> sections) {
@@ -47,8 +48,8 @@ public class Sections {
     }
 
     public void checkValidDelete(Long stationId) {
-        if (sections.size() == 1 && getUpStationMatch(stationId) != null || getDownStationMatch(stationId) != null) {
-            throw new SectionNotValidDeleteException("유일한 세션은 지울 수 없습니다.");
+        if (sections.size() == 1 && (getUpStationMatch(stationId) != null || getDownStationMatch(stationId) != null)) {
+            throw new SectionNotValidDeleteException(SECTION_NOT_VALID_DELETE_MESSAGE);
         }
     }
 
@@ -65,5 +66,13 @@ public class Sections {
             startId = upStationAndDownStation.get(startId);
         }
         return result;
+    }
+
+    public boolean isMiddleStation(Long stationId) {
+        return getUpStationMatch(stationId) != null && getDownStationMatch(stationId) != null;
+    }
+
+    public boolean isTerminalStation(Long stationId) {
+        return getUpStationMatch(stationId) != null ^ getDownStationMatch(stationId) != null;
     }
 }

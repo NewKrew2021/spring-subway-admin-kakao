@@ -1,8 +1,11 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
-import subway.station.Station;
-import subway.station.StationDao;
+import subway.line.dao.LineDao;
+import subway.line.dao.SectionDao;
+import subway.line.domain.*;
+import subway.station.domain.Station;
+import subway.station.dao.StationDao;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,9 @@ public class LineService {
     }
 
     public Line insert(Line line, Long upStationId, Long downStationId, int distance) {
+        if (lineDao.findLineByName(line.getName()).size() > 0) {
+            throw new LineAlreadyExistException();
+        }
         Line newLine = lineDao.save(line);
         sectionService.insert(new Section(newLine.getId(), upStationId, downStationId, distance));
         return newLine;
@@ -52,6 +58,6 @@ public class LineService {
 
     public void deleteById(Long id) {
         lineDao.deleteById(id);
-        sectionDao.delete(id);
+        sectionDao.deleteByLineId(id);
     }
 }

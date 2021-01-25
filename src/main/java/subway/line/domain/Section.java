@@ -1,8 +1,13 @@
-package subway.line;
+package subway.line.domain;
+
+import subway.line.dto.SectionRequest;
 
 import java.util.List;
 
 public class Section {
+    private static final String SAME_SECTION_MESSAGE = "같은 section이 추가될 수 없습니다.";
+    private static final String STATION_NOT_EXIST_MESSAGE = "어떤 station도 없으면 추가할 수 없습니다.";
+    private static final String DISTANCE_EXCEED_MESSAGE = "추가하려는 거리가 기존의 거리보다 클 수 없습니다.";
     private Long id;
     private Long lineId;
     private Long upStationId;
@@ -19,10 +24,6 @@ public class Section {
     public Section(Long id, Long lineId, Long upStationId, Long downStationId, int distance) {
         this(lineId, upStationId, downStationId, distance);
         this.id = id;
-    }
-
-    public Section(Long id, SectionRequest sectionRequest) {
-        this(id, sectionRequest.getUpStationId(), sectionRequest.getDownStationId(), sectionRequest.getDistance());
     }
 
     public Long getLineId() {
@@ -53,7 +54,7 @@ public class Section {
     private void checkSameSection(List<Section> sections) {
         if (sections.stream()
                 .anyMatch(section -> section.getUpStationId().equals(upStationId) && section.getDownStationId().equals(downStationId))) {
-            throw new SectionInsertException("같은 section이 추가될 수 없습니다.");
+            throw new SectionInsertException(SAME_SECTION_MESSAGE);
         }
     }
 
@@ -61,13 +62,13 @@ public class Section {
         if (sections.size() > 0 && !sections.stream()
                 .anyMatch(section -> section.getUpStationId().equals(upStationId) || section.getDownStationId().equals(downStationId)
                         || section.getUpStationId().equals(downStationId) || section.getDownStationId().equals(upStationId))) {
-            throw new SectionInsertException("어떤 station도 없으면 추가할 수 없습니다.");
+            throw new SectionInsertException(STATION_NOT_EXIST_MESSAGE);
         }
     }
 
     private void checkValidDistance(Section section) {
         if (this.distance <= section.getDistance()) {
-            throw new SectionInsertException("추가하려는 거리가 기존의 거리보다 클 수 없습니다.");
+            throw new SectionInsertException(DISTANCE_EXCEED_MESSAGE);
         }
     }
 

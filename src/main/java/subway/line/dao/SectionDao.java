@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import subway.line.domain.Section;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -64,7 +65,7 @@ public class SectionDao {
         return jdbcTemplate.update(sql, section.getId(), section.getUpStationId(), section.getDownStationId());
     }
 
-    public int delete(Long lineId) {
+    public int deleteByLineId(Long lineId) {
         String sql = "delete from section where line_id = ?";
         return jdbcTemplate.update(sql, lineId);
     }

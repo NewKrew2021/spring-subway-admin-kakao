@@ -12,13 +12,23 @@ import subway.line.domain.SectionNotValidDeleteException;
 @RestControllerAdvice
 public class CustomExceptonHandler {
 
-    @ExceptionHandler({LineNotFoundException.class, LineAlreadyExistException.class})
+    @ExceptionHandler({LineNotFoundException.class})
     public ResponseEntity lineNotFound() {
         return ResponseEntity.badRequest().build();
     }
 
-    @ExceptionHandler({SectionInsertException.class, SectionNotValidDeleteException.class})
-    public ResponseEntity illegal() {
+    @ExceptionHandler(LineAlreadyExistException.class)
+    public ResponseEntity lineAlreadyExist() {
+        return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler({SectionInsertException.class})
+    public ResponseEntity sectionInsertException() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler({SectionNotValidDeleteException.class})
+    public ResponseEntity sectionNotValidDelete() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 

@@ -3,6 +3,7 @@ package subway.domain;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Sections {
 
@@ -17,37 +18,39 @@ public class Sections {
         return sectionList.size() > MIN_SECTION_SIZE;
     }
 
-    public Section getSectionByDownStationId(Long downStationId){
+    public Optional<Section> getSectionByDownStationId(Long downStationId){
         return sectionList
                 .stream()
-                .filter(section-> section.getDownStationId().equals(downStationId))
-                .findFirst().orElse(null);
+                .filter(section -> section.getDownStationId().equals(downStationId))
+                .findFirst();
     }
 
-    public Section getSectionByUpStationId(Long upStationId){
+    public Optional<Section> getSectionByUpStationId(Long upStationId){
         return sectionList
                 .stream()
                 .filter(section -> section.getUpStationId().equals(upStationId))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
-    public Section getModifiedSection(Section newSection) {
+    public Optional<Section> getModifiedSection(Section newSection) {
         for (Section oldSection : sectionList) {
             if (oldSection.canInsertMatchingUpStation(newSection)) {
-                return new Section(oldSection.getId(), oldSection.getLineId(), newSection.getDownStationId(), oldSection.getDownStationId(), oldSection.getDistance() - newSection.getDistance());
+                oldSection.modifyUpByInsertingSection(newSection);
+                return Optional.of(oldSection);
             }
             if (oldSection.canInsertMatchingDownStation(newSection)) {
-                return new Section(oldSection.getId(), oldSection.getLineId(), oldSection.getUpStationId(), newSection.getUpStationId(), oldSection.getDistance() - newSection.getDistance());
+                oldSection.modifyDownByInsertingSection(newSection);
+                return Optional.of(oldSection);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public Map<Long, Long> getSectionMap(){
         Map<Long, Long> result = new HashMap<>();
-        sectionList.stream().forEach(i->{
+        for (Section i : sectionList) {
             result.put(i.getUpStationId(), i.getDownStationId());
-        });
+        }
         return result;
     }
 }

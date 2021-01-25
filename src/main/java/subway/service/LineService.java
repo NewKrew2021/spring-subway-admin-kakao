@@ -18,19 +18,15 @@ public class LineService {
         this.lineDao = lineDao;
     }
 
-    public void insertLine(Line line) throws DuplicateLineNameException {
+    public void insertLine(Line line) {
         if (lineDao.isContainSameName(line.getName())) {
             throw new DuplicateLineNameException();
         }
         lineDao.save(line);
     }
 
-    public Line findLineByName(String name) throws LineNotFoundException{
-        Line result = lineDao.findLineByName(name);
-        if(result == null){
-            throw new LineNotFoundException();
-        }
-        return result;
+    public Line findLineByName(String name) {
+        return lineDao.findLineByName(name).orElseThrow(LineNotFoundException::new);
     }
 
     public List<Line> findAll() {
@@ -38,7 +34,7 @@ public class LineService {
     }
 
     public Line findById(Long id) {
-        return lineDao.findById(id);
+        return lineDao.findById(id).orElseThrow(LineNotFoundException::new);
     }
 
     public void modifyLine(Line line) {

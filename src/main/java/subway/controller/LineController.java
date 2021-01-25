@@ -31,7 +31,6 @@ public class LineController {
 
     @PostMapping(value = "/lines")
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        try{
             lineService.insertLine(lineRequest.toLine());
             Line newLine = lineService.findLineByName(lineRequest.getName());
             sectionService.insertFirstSection(new Section(newLine.getId(), newLine.getUpStationId(), newLine.getDownStationId(), lineRequest.getDistance()));
@@ -39,13 +38,7 @@ public class LineController {
             return ResponseEntity.created(
                     URI.create("/line/" + newLine.getId()))
                     .body(new LineResponse(newLine, stations));
-        }
-        catch (DuplicateLineNameException e){
-            return ResponseEntity.badRequest().build();
-        }
-        catch (LineNotFoundException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
     }
 
     @GetMapping("/lines")

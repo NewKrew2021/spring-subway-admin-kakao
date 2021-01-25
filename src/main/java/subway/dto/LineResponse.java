@@ -37,10 +37,6 @@ public class LineResponse {
         return name;
     }
 
-    public String getColor() {
-        return color;
-    }
-
     public List<StationResponse> getStations() {
         return this.stations;
     }

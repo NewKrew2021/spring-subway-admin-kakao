@@ -19,7 +19,7 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public void insertStation(Station station) throws DuplicateStationNameException {
+    public void insertStation(Station station){
         if (checkDuplicatedStationName(station.getName())) {
             throw new DuplicateStationNameException();
         }
@@ -38,7 +38,7 @@ public class StationService {
         return stationDao.findAll();
     }
 
-    public void deleteStation(Long id) throws StationNotFoundException {
+    public void deleteStation(Long id) {
         if(!stationDao.hasStationId(id)){
             throw new StationNotFoundException();
         }

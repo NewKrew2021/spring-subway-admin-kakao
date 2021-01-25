@@ -1,12 +1,13 @@
 package subway.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.domain.Line;
-
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class LineDao {
@@ -31,13 +32,16 @@ public class LineDao {
     public void save(Line line) {
         String sql = "insert into line (name,color,up_station_id,down_station_id) values (?,?,?,?)";
         jdbcTemplate.update(sql, line.getName(), line.getColor(), line.getUpStationId(), line.getDownStationId());
-
     }
 
-    public Line findLineByName(String name) {
+    public Optional<Line> findLineByName(String name) {
         String sql = "select * from line where name=?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, name);
-
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(sql, lineRowMapper, name));
+        }
+        catch (EmptyResultDataAccessException e){
+            return Optional.empty();
+        }
     }
 
     public boolean isContainSameName(String name) {
@@ -46,9 +50,14 @@ public class LineDao {
         return count != 0;
     }
 
-    public Line findById(Long lineId) {
+    public Optional<Line> findById(Long lineId) {
         String sql = "select * from line where id = ?";
-        return jdbcTemplate.queryForObject(sql, lineRowMapper, lineId);
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(sql, lineRowMapper, lineId));
+        }
+        catch (EmptyResultDataAccessException e){
+            return Optional.empty();
+        }
     }
 
     public List<Line> findAll() {

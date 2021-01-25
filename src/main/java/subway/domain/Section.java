@@ -47,6 +47,21 @@ public class Section {
         return this.distance;
     }
 
+    public void modifyDownByDeletingSection(Section section){
+        this.downStationId = section.getDownStationId();
+        this.distance += section.getDistance();
+    }
+
+    public void modifyUpByInsertingSection(Section newSection){
+        this.upStationId = newSection.getDownStationId();
+        this.distance -= newSection.getDistance();
+    }
+
+    public void modifyDownByInsertingSection(Section newSection){
+        this.downStationId = newSection.getUpStationId();
+        this.distance -= newSection.getDistance();
+    }
+
     public boolean canInsertMatchingUpStation(Section newSection) {
         return this.getUpStationId().equals(newSection.getUpStationId()) &&
                 !this.getDownStationId().equals(newSection.getDownStationId()) &&

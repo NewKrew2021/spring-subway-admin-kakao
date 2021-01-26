@@ -58,6 +58,20 @@ public class Sections {
         return sections.get(SECOND);
     }
 
+    public Section getPreviousSection(Section lastSection) {
+        Section previousSection = getDownStationKeyMap().get(lastSection.getUpStationId());
+        previousSection.setLastSection(true);
+
+        return previousSection;
+    }
+
+    public Section getNextSection(Section firstSection) {
+        Section nextSection = getUpStationKeyMap().get(firstSection.getDownStationId());
+        nextSection.setFirstSection(true);
+
+        return nextSection;
+    }
+
     public Sections getSeparatedSections(Section section) {
         validateDuplicate(section);
 
@@ -131,7 +145,6 @@ public class Sections {
             throw new IllegalArgumentException(DUPLICATED_CREATE_EXCEPTION_MESSAGE);
         }
     }
-
 
     private void validateDistance(Section section, Section targetSection) {
         if (section.getDistance() >= targetSection.getDistance()) {

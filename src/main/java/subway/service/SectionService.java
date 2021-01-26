@@ -90,17 +90,13 @@ public class SectionService {
     }
 
     private void deleteLastStation(Sections sections, Section lastSection) {
-        Map<Long, Section> downStationKeyMap = sections.getDownStationKeyMap();
-        Section previousSection = downStationKeyMap.get(lastSection.getUpStationId());
-        previousSection.setLastSection(true);
+        Section previousSection = sections.getPreviousSection(lastSection);
         sectionDao.deleteById(lastSection.getId());
         sectionDao.update(previousSection);
     }
 
     private void deleteFirstStation(Sections sections, Section firstSection) {
-        Map<Long, Section> upStationKeyMap = sections.getUpStationKeyMap();
-        Section nextSection = upStationKeyMap.get(firstSection.getDownStationId());
-        nextSection.setFirstSection(true);
+        Section nextSection = sections.getNextSection(firstSection);
         sectionDao.deleteById(firstSection.getId());
         sectionDao.update(nextSection);
     }

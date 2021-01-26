@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("Station 도메인 관련 기능")
 class StationTest {
 
     @DisplayName("같은 아이디")
@@ -14,7 +15,7 @@ class StationTest {
 
         boolean sameId = station.hasSameId(1L);
 
-        assertThat(sameId).isEqualTo(true);
+        assertThat(sameId).isTrue();
     }
 
     @DisplayName("다른 아이디")
@@ -24,6 +25,6 @@ class StationTest {
 
         boolean sameId = station.hasSameId(1L);
 
-        assertThat(sameId).isEqualTo(false);
+        assertThat(sameId).isFalse();
     }
 }

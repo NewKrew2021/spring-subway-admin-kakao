@@ -88,11 +88,9 @@ public class Sections {
                 .orElse(null);
     }
 
-    public Section findSectionByStationId(Station station) {
+    public boolean existSectionByStation(Station station) {
         return sections.stream()
-                .filter(sec -> sec.getUpStation().equals(station) || sec.getDownStation().equals(station))
-                .findFirst()
-                .orElse(null);
+                .anyMatch(sec -> sec.getUpStation().equals(station) || sec.getDownStation().equals(station));
     }
 
     public boolean isCanSaveSection(Section section) {
@@ -144,8 +142,7 @@ public class Sections {
     }
 
     private boolean existSection(Section section) {
-        return sections.stream()
-                .anyMatch(section1 -> section.getUpStation().equals(section1.getUpStation()) && section.getDownStation().equals(section1.getDownStation()));
+        return existSectionByStation(section.getUpStation()) && existSectionByStation(section.getDownStation());
     }
 
     private void addSectionBack(Section section) {
@@ -167,7 +164,7 @@ public class Sections {
     }
 
     private void deleteStationValidate(Station station) {
-        if (!isPossibleToDelete() || findSectionByStationId(station) == null) {
+        if (!isPossibleToDelete() || !existSectionByStation(station)) {
             throw new DeleteImpossibleException();
         }
     }
@@ -176,6 +173,7 @@ public class Sections {
     private void delete(Station station) {
         Section nextSection = findSectionByUpStation(station);
         Section prevSection = findSectionByDownStation(station);
+        Long lineId = getLineId();
         if (prevSection != null) {
             sections.remove(prevSection);
         }
@@ -184,7 +182,7 @@ public class Sections {
         }
         if (nextSection != null && prevSection != null) {
             sections.add(new Section(prevSection.getUpStation(), nextSection.getDownStation(),
-                    prevSection.getDistance() + nextSection.getDistance(), getLineId()));
+                    prevSection.getDistance() + nextSection.getDistance(), lineId));
         }
     }
 }

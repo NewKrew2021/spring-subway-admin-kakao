@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import subway.exception.DistanceException;
 import subway.exception.IllegalStationException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+@DisplayName("구간 유닛 테스트")
 public class SectionTest {
 
     @Test
@@ -23,5 +25,13 @@ public class SectionTest {
         assertThatExceptionOfType(DistanceException.class).isThrownBy(() -> {
             new Section(new Station(1L), new Station(2L), 0);
         });
+    }
+
+    @Test
+    @DisplayName("구간 비교 테스트")
+    void sectionEqualTest(){
+        Section section = new Section(new Station(1L),new Station(2L),1,2L);
+        Section section2 = new Section(new Station(1L),new Station(2L),5,2L);
+        assertThat(section.equals(section2)).isEqualTo(true);
     }
 }

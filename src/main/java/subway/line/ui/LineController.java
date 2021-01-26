@@ -48,7 +48,7 @@ public class LineController {
 
     @PutMapping("/lines/{id}")
     public ResponseEntity<Void> editLineById(@RequestBody LineRequest lineRequest, @PathVariable long id) {
-        lineService.update(LineFactory.makeLine(lineRequest));
+        lineService.update(LineFactory.makeLine(id, lineRequest));
         return ResponseEntity.ok().build();
     }
 
@@ -60,13 +60,13 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<Void> addSections(@RequestBody SectionRequest sectionRequest, @PathVariable long lineId) {
-        sectionService.insertSection(sectionRequest,lineId);
+        sectionService.insertSection(sectionRequest, lineId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/lines/{lineId}/sections")
     public ResponseEntity<Void> deleteSection(@PathVariable long lineId, @RequestParam long stationId) {
-        sectionService.deleteSection(lineId,stationId);
+        sectionService.deleteSection(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 

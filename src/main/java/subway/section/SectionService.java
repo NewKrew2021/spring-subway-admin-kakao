@@ -35,9 +35,9 @@ public class SectionService{
 
     public boolean deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
-        Sections delSections = new Sections(sections.deleteSection(stationId), lineId);
+        Sections delSections = new Sections(sections.deleteStation(stationId), lineId);
         sectionDao.deleteSections(delSections);
-        lineService.update(sectionDao.getSectionsByLineId(section.getLineId()));
+        lineService.update(sectionDao.getSectionsByLineId(lineId));
         return true;
     }
 }

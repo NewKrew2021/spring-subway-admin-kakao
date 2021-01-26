@@ -146,7 +146,8 @@ public class Sections {
         return addSections;
     }
 
-    public LineInfoChangedResult deleteStation(Long lineId, Long stationId) {
+    public List<Section> deleteStation(Long stationId) {
+        List<Section> delSections = new ArrayList<>();
         if (!isPossibleToDelete(stationId)) {
             throw new IllegalArgumentException("적절하지 않은 역 정보입니다.");
         }
@@ -157,19 +158,13 @@ public class Sections {
         if (nextSection != null && prevSection != null) {
             delSections.add(nextSection);
             delSections.add(prevSection);
-            addSections.add(new Section(prevSection.getUpStationId(),
-                    nextSection.getDownStationId(),
-                    prevSection.getDistance() + nextSection.getDistance(),
-                    lineId));
         } else if (nextSection != null) {
             delSections.add(nextSection);
-            return new LineInfoChangedResult(LineInfoChanged.UP_STATION_CHANGED, lineId, nextSection.getDownStationId());
         } else if (prevSection != null) {
             delSections.add(prevSection);
-            return new LineInfoChangedResult(LineInfoChanged.DOWN_STATION_CHANGED, lineId, prevSection.getUpStationId());
         }
 
-        return new LineInfoChangedResult(LineInfoChanged.NONE);
+        return delSections;
     }
 
     public Long getLineId() {

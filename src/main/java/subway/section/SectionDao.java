@@ -41,7 +41,7 @@ public class SectionDao {
                 rs.getLong("line_id")), lineId), lineId);
     }
 
-    public int deleteExistSection(Section section){
+    private int deleteExistSection(Section section){
         String sql = "delete from SECTION where up_station_id = ? or down_station_id = ?";
         return jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId());
     }
@@ -70,6 +70,33 @@ public class SectionDao {
     }
 
     public List<Integer> deleteSections(Sections sections){
+        if(sections.getSections().size() == 2){
+            Long midStationId =
+                    sections.getSections().get(0).getDownStationId() == sections.getSections().get(1).getUpStationId()
+                    ? sections.getSections().get(0).getDownStationId()
+                    : sections.getSections().get(0).getUpStationId();
+
+            Long fromStationId =
+                    midStationId == sections.getSections().get(0).getUpStationId()
+                            ? sections.getSections().get(1).getUpStationId()
+                            : sections.getSections().get(1).getDownStationId();
+
+            Long toStationId =
+                    midStationId == sections.getSections().get(0).getUpStationId()
+                            ? sections.getSections().get(0).getDownStationId()
+                            : sections.getSections().get(0).getUpStationId();
+
+            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                    .withTableName("section")
+                    .usingGeneratedKeyColumns("id");
+
+            SqlParameterSource parameters = new BeanPropertySqlParameterSource(new Section(
+                    fromStationId,
+                    toStationId,
+                    sections.getSections().get(0).getDistance() + sections.getSections().get(1).getDistance(),
+                    sections.getLineId()));
+            simpleJdbcInsert.execute(parameters);
+        }
         return sections.getSections()
                 .stream()
                 .map(section -> deleteSectionById(section.getSectionId()))

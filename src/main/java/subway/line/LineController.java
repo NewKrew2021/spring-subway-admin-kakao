@@ -36,7 +36,7 @@ public class LineController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<LineResponse>> showLines() {
+    public ResponseEntity<List<LineResponse>> getLines() {
         List<LineResponse> lineResponses = lineService.getAllLines().stream()
                 .map(LineResponse::new)
                 .collect(Collectors.toList());
@@ -44,7 +44,7 @@ public class LineController {
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
+    public ResponseEntity<LineResponse> getLine(@PathVariable long id) {
         Line line = lineService.getLine(id);
         List<Station> stations = stationService.convertIdsToStations(
                 sectionService.getStationIdsOfLine(line));

@@ -1,7 +1,6 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.InvalidSectionException;
 import subway.exception.NotExistException;
@@ -52,7 +51,7 @@ public class SectionService {
         sectionDao.updateById(id, section);
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+    @Transactional
     public void addSection(long id, Section section) {
         Line line = lineDao.findById(id);
         if (line == null) {

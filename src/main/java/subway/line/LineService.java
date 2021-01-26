@@ -1,7 +1,6 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DuplicateNameException;
 import subway.exception.NotExistException;
@@ -20,7 +19,7 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+    @Transactional
     public Line createLineAndSection(Line line, int distance) {
         Line newLine = createLine(line);
 

@@ -3,6 +3,7 @@ package subway.line;
 import org.springframework.stereotype.Service;
 import subway.section.Section;
 import subway.section.SectionDao;
+import subway.section.Sections;
 
 import java.util.List;
 
@@ -47,16 +48,14 @@ public class LineService{
         return lineDao.updateAll(line) != 0;
     }
 
-    public boolean update(LineInfoChangedResult result){
-        if(result.getStatus() == LineInfoChanged.NONE) return true;
+    public boolean update(Sections sections){
+        Line line = lineDao.findOne(sections.getLineId());
 
-        Line line = lineDao.findOne(result.getLineId());
+        if(sections.findFirstUpStationId() != line.getUpStationId())
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), sections.findFirstUpStationId(), line.getDownStationId())) != 0;
 
-        if(result.getStatus() == LineInfoChanged.UP_STATION_CHANGED)
-            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), result.getStationId(), line.getDownStationId())) != 0;
-
-        if(result.getStatus() == LineInfoChanged.DOWN_STATION_CHANGED)
-            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), result.getStationId())) != 0;
+        if(sections.findLastDownStationId() != line.getDownStationId())
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), sections.findLastDownStationId())) != 0;
 
         return false;
     }

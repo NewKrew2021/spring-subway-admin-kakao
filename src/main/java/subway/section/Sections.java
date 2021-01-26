@@ -170,4 +170,20 @@ public class Sections {
     public Long getLineId() {
         return lineId;
     }
+
+    public Long findFirstUpStationId(){
+        return sections.stream()
+                .filter(section -> findPrevSection(section) == null)
+                .map(section -> section.getUpStationId())
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Long findLastDownStationId(){
+        return sections.stream()
+                .filter(section -> findNextSection(section) == null)
+                .map(section -> section.getDownStationId())
+                .findFirst()
+                .orElse(null);
+    }
 }

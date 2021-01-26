@@ -72,7 +72,7 @@ public class LineService {
         List<StationResponse> stationResponses = stationsId
                 .stream()
                 .map(stationDao::findById)
-                .map(StationResponse::new)
+                .map(StationResponse::of)
                 .collect(Collectors.toList());
         return new LineResponse(line, stationResponses);
     }

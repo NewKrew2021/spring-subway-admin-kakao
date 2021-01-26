@@ -1,12 +1,14 @@
 package subway.section.application;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import subway.section.dao.SectionDao;
 import subway.section.domain.Section;
+import subway.section.domain.SectionType;
 import subway.section.domain.Sections;
 import subway.section.dto.SectionRequest;
+import subway.section.exception.LeastSizeException;
+import subway.section.exception.NoStationException;
+import subway.section.exception.SectionBetweenStationExistException;
 
 @Service
 public class SectionService {
@@ -17,23 +19,30 @@ public class SectionService {
         this.sectionDao = sectionDao;
     }
 
-    public ResponseEntity<Void> insertSection(SectionRequest sectionRequest, long lineId) {
+    public void insertSection(SectionRequest sectionRequest, long lineId) {
         Sections sections = new Sections(sectionDao.getSections(lineId));
-        Section newSection = sections.checkAddSection(sectionRequest, lineId);
+        Section standardSection = sections.findStandardSection(sectionRequest.getUpStationId(), sectionRequest.getDownStationId());
+        SectionType sectionType = standardSection.sectionConfirm(sectionRequest.getUpStationId());
 
-        if (newSection != null) {
-            sectionDao.save(newSection);
-            return ResponseEntity.ok().build();
+        long stationId = sectionRequest.getInsertStationId(sectionType);
+        int newPosition = standardSection.calculateSectionPosition(sectionType, sectionRequest.getDistance());
+
+        if (sections.checkDistance(sectionType, standardSection.getPosition(), newPosition)) {
+            throw new SectionBetweenStationExistException();
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        Section newSection = new Section(stationId, lineId, newPosition);
+        sectionDao.save(newSection);
     }
 
-    public ResponseEntity<Void> deleteSection(long lineId, long stationId) {
+    public void deleteSection(long lineId, long stationId) {
         Sections sections = new Sections(sectionDao.getSections(lineId));
-        if (sections.isLeastSizeSections() || !sections.hasSection(stationId)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (!sections.hasSection(stationId)) {
+            throw new NoStationException();
+        }
+        if (sections.isLeastSizeSections()) {
+            throw new LeastSizeException();
         }
         sectionDao.delete(lineId, stationId);
-        return ResponseEntity.ok().build();
     }
 }

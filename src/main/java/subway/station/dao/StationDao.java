@@ -1,6 +1,7 @@
 package subway.station.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import subway.station.domain.Station;
 
@@ -15,25 +16,22 @@ public class StationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Station save(Station station) {
+    private final RowMapper<Station> rowMapper = (resultSet, rowNum) -> new Station(
+            resultSet.getLong("id"),
+            resultSet.getString("name")
+    );
+
+    public Station save(String stationName) {
         String SQL = "INSERT INTO station (name) VALUES (?)";
         String SELECT_SQL = "SELECT * FROM station where name = ?";
-        jdbcTemplate.update(SQL, station.getName());
+        jdbcTemplate.update(SQL, stationName);
 
-        return jdbcTemplate.queryForObject(SELECT_SQL,
-                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
-                station.getName());
+        return jdbcTemplate.queryForObject(SELECT_SQL, rowMapper, stationName);
     }
 
     public List<Station> findAll() {
         String SQL = "SELECT * FROM station";
-        return jdbcTemplate.query(
-                SQL,
-                (resultSet, rowNum) -> new Station(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name")
-                )
-        );
+        return jdbcTemplate.query(SQL, rowMapper);
     }
 
     public void deleteById(Long id) {
@@ -43,9 +41,7 @@ public class StationDao {
 
     public Station findById(Long id) {
         String SELECT_SQL = "SELECT * FROM station where id = ?";
-        return jdbcTemplate.queryForObject(SELECT_SQL,
-                (resultSet, rowNum) -> new Station(resultSet.getLong("id"), resultSet.getString("name")),
-                id);
+        return jdbcTemplate.queryForObject(SELECT_SQL, rowMapper, id);
     }
 
 }

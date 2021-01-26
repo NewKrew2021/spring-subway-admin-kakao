@@ -10,8 +10,6 @@ public class Section {
     private final long stationId;
     private final long lineId;
     private final int position;
-    private SectionType sectionType;
-    // TODO SectionType 삭제가 필요함
 
     public Section(long id, long stationId, long lineId, int position) {
         this.id = id;
@@ -20,35 +18,28 @@ public class Section {
         this.position = position;
     }
 
-    public Section(long lineId, long stationId, int position) {
-        this.lineId = lineId;
+    public Section(long stationId, long lineId, int position) {
         this.stationId = stationId;
+        this.lineId = lineId;
         this.position = position;
     }
 
-    public void sectionConfirm(long upStationId) {
+    public SectionType sectionConfirm(long upStationId) {
         if (stationId == upStationId) {
-            sectionType = SectionType.INSERT_DOWN_STATION;
-            return;
+            return SectionType.INSERT_DOWN_STATION;
         }
-        sectionType = SectionType.INSERT_UP_STATION;
+        return SectionType.INSERT_UP_STATION;
     }
 
-    public int calculateSectionPosition(int position){
-        if(sectionType == SectionType.INSERT_UP_STATION){
+    public int calculateSectionPosition(SectionType sectionType, int position) {
+        if (sectionType == SectionType.INSERT_UP_STATION) {
             return this.position - position;
         }
         return this.position + position;
     }
 
-    public long chooseInsertSectionStationId(SectionRequest sectionRequest){
-        if(sectionType == SectionType.INSERT_UP_STATION){
-            return sectionRequest.getUpStationId();
-        }
-        return sectionRequest.getDownStationId();
-    }
 
-    public boolean isInvalidPositionSection(int basicPosition, int newPosition) {
+    public boolean isInvalidPositionSection(SectionType sectionType, int basicPosition, int newPosition) {
         if (sectionType == SectionType.INSERT_UP_STATION) {
             return basicPosition <= position && position <= newPosition;
         }
@@ -69,6 +60,16 @@ public class Section {
 
     public int getPosition() {
         return position;
+    }
+
+    @Override
+    public String toString() {
+        return "Section{" +
+                "id=" + id +
+                ", stationId=" + stationId +
+                ", lineId=" + lineId +
+                ", position=" + position +
+                '}';
     }
 
     @Override

@@ -20,8 +20,8 @@ public class SectionDao {
 
     private final RowMapper<Section> rowMapper = (rs, rowNum) -> new Section(
             rs.getLong("id"),
-            rs.getLong("line_id"),
             rs.getLong("station_id"),
+            rs.getLong("line_id"),
             rs.getInt("position")
     );
 

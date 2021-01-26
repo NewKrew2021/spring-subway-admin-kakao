@@ -1,37 +1,31 @@
 package subway.section;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.exceptions.EmptySectionException;
+import subway.line.Line;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
 
-    private static final String EMPTY_SECTION_MESSAGE = "라인 내에 구간이 존재하지 않습니다.";
-
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
 
-    public SectionDao(JdbcTemplate jdbcTemplate) {
+    public SectionDao(JdbcTemplate jdbcTemplate, DataSource dataSource) {
         this.jdbcTemplate = jdbcTemplate;
+        this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName("SECTION")
+                .usingGeneratedKeyColumns("id");
     }
-
-    private final RowMapper<Section> sectionRowMapper = (resultSet, rowNum) -> {
-        Section section = new Section(
-                resultSet.getLong("id"),
-                resultSet.getLong("line_id"),
-                resultSet.getLong("up_station_id"),
-                resultSet.getLong("down_station_id"),
-                resultSet.getInt("distance")
-        );
-        return section;
-    };
 
     public long save(long lineId, Section section) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -49,27 +43,19 @@ public class SectionDao {
         return keyHolder.getKey().longValue();
     }
 
-    public List<Section> findByLineId(long id) {
-        try {
-            return jdbcTemplate.query("select * from SECTION where line_id = ?", sectionRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EmptySectionException(EMPTY_SECTION_MESSAGE+" : "+e.getMessage());
-        }
-    }
-
-    public void updateSection(Section section) {
-        jdbcTemplate.update(
-                "update SECTION set up_station_id = ?, down_station_id = ?, distance = ? where id = ?",
-                section.getUpStationId(), section.getDownStationId(), section.getDistance(), section.getId()
-        );
-    }
-
-    public void deleteByLineIdAndUpStationId(long lineId, long stationId) {
-        jdbcTemplate.update("delete from SECTION where line_id = ? and up_station_id = ?", lineId, stationId);
-    }
-
-    public void deleteByLineIdAndDownStationId(long lineId, long stationId) {
-        jdbcTemplate.update("delete from SECTION where line_id = ? and down_station_id = ?", lineId, stationId);
+    public void insertAllSectionsInLine(Line line) {
+        List<Section> sections = line.getSections().getSections();
+        List<Map<String, Object>> batchValues = sections.stream()
+                .map(section -> {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("line_id", line.getId());
+                    params.put("up_station_id", section.getUpStationId());
+                    params.put("down_station_id", section.getDownStationId());
+                    params.put("distance", section.getDistance());
+                    return params;
+                })
+                .collect(Collectors.toList());
+        simpleJdbcInsert.executeBatch(batchValues.toArray(new Map[sections.size()]));
     }
 
     public int deleteAllByLineId(long id) {

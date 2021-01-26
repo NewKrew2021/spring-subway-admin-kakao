@@ -44,11 +44,13 @@ public class Section {
     public void updateUpStationAndDistance(long newUpStationId, int subtrahend) {
         upStationId = newUpStationId;
         distance -= subtrahend;
+        validateDistance(distance);
     }
 
     public void updateDownStationAndDistance(long newDownStationId, int subtrahend) {
         downStationId = newDownStationId;
         distance -= subtrahend;
+        validateDistance(distance);
     }
 
     public long getId() {

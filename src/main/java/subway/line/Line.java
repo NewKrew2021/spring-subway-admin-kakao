@@ -1,31 +1,27 @@
 package subway.line;
 
+import subway.section.Section;
+import subway.section.Sections;
+
+import java.util.List;
+
 public class Line {
 
     private long id;
     private final String name;
     private final String color;
-    private final long startStationId;
-    private final long endStationId;
+    private Sections sections;
 
-    public Line(String name, String color, long startStationId, long endStationId) {
+    public Line(String name, String color) {
         this.name = name;
         this.color = color;
-        this.startStationId = startStationId;
-        this.endStationId = endStationId;
     }
 
-    public Line(long id, String name, String color, long startStationId, long endStationId) {
-        this(name, color, startStationId, endStationId);
+    public Line(long id, String name, String color, Sections sections) {
         this.id = id;
-    }
-
-    public boolean isLineStartStation(long stationId) {
-        return startStationId == stationId;
-    }
-
-    public boolean isLineEndStation(long stationId) {
-        return endStationId == stationId;
+        this.name = name;
+        this.color = color;
+        this.sections = sections;
     }
 
     public long getId() {
@@ -40,11 +36,19 @@ public class Line {
         return color;
     }
 
-    public long getStartStationId() {
-        return startStationId;
+    public Sections getSections() {
+        return sections;
     }
 
-    public long getEndStationId() {
-        return endStationId;
+    public List<Long> getStationIds() {
+        return sections.getStationIds();
+    }
+
+    public void addSection(Section newSection) {
+        sections.addSection(newSection);
+    }
+
+    public void deleteSection(long stationId) {
+        sections.deleteSection(stationId);
     }
 }

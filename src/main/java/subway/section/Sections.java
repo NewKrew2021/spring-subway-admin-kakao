@@ -5,6 +5,8 @@ import subway.line.LineInfoChanged;
 import subway.line.LineInfoChangedResult;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Sections {
     private List<Section> sections;
@@ -171,19 +173,27 @@ public class Sections {
         return lineId;
     }
 
-    public Long findFirstUpStationId(){
-        return sections.stream()
-                .filter(section -> findPrevSection(section) == null)
-                .map(section -> section.getUpStationId())
-                .findFirst()
-                .orElse(null);
+    public boolean isFirstUpStationId(Long stationId){
+        return findSectionByUpStationId(stationId) != null && findSectionByDownStationId(stationId) == null;
     }
 
-    public Long findLastDownStationId(){
+    public boolean isLastDownStationId(Long stationId){
+        return findSectionByUpStationId(stationId) == null && findSectionByDownStationId(stationId) != null;
+    }
+
+    public Long getFirstUpStationId(){
         return sections.stream()
-                .filter(section -> findNextSection(section) == null)
+                .filter(section -> isFirstUpStationId(section.getUpStationId()))
+                .map(section -> section.getUpStationId())
+                .findFirst()
+                .orElse(NOT_EXIST);
+    }
+
+    public Long getLastDownStationId(){
+        return sections.stream()
+                .filter(section -> isLastDownStationId(section.getDownStationId()))
                 .map(section -> section.getDownStationId())
                 .findFirst()
-                .orElse(null);
+                .orElse(NOT_EXIST);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.domain.Section;
+import subway.domain.Sections;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -39,22 +40,9 @@ public class SectionDao {
                 section.getDistance());
     }
 
-    public Section findOne(Long id) {
-        String sql = "select id, line_id, up_station_id, down_station_id, distance from section where id = ?";
-        return jdbcTemplate.queryForObject(
-                sql,
-                (resultSet, rowNum) -> new Section(
-                        resultSet.getLong("id"),
-                        resultSet.getLong("line_id"),
-                        stationDao.findOne(resultSet.getLong("up_station_id")),
-                        stationDao.findOne(resultSet.getLong("down_station_id")),
-                        resultSet.getInt("distance")
-                ), id);
-    }
-
-    public List<Section> findAll(Long lineId) {
+    public Sections findAll(Long lineId) {
         String sql = "select id, line_id, up_station_id, down_station_id, distance from section where line_id = ?";
-        return jdbcTemplate.query(
+        return new Sections(jdbcTemplate.query(
                 sql,
                 (resultSet, rowNum) -> new Section(
                         resultSet.getLong("id"),
@@ -62,7 +50,7 @@ public class SectionDao {
                         stationDao.findOne(resultSet.getLong("up_station_id")),
                         stationDao.findOne(resultSet.getLong("down_station_id")),
                         resultSet.getInt("distance")
-                ), lineId);
+                ), lineId));
 
     }
 

@@ -1,15 +1,13 @@
 package subway.domain;
 
-import java.util.*;
+import subway.request.LineRequest;
 
 public class Line {
     private Long id;
     private String name;
     private String color;
-    private final Sections sections;
 
     public Line() {
-        this.sections = new Sections();
     }
 
     public Line(String name, String color) {
@@ -21,11 +19,6 @@ public class Line {
     public Line(Long id, String name, String color) {
         this(name, color);
         this.id = id;
-    }
-
-    public Line(Long id, String name, String color, List<Section> sections) {
-        this(id, name, color);
-        this.sections.initSections(sections);
     }
 
     public Long getId() {
@@ -40,18 +33,17 @@ public class Line {
         return color;
     }
 
-    public Sections getSections() {
-        return sections;
+    public void setPropertyByRequest(LineRequest lineRequest) {
+        this.name = lineRequest.getName();
+        this.color = lineRequest.getColor();
     }
-
 
     @Override
     public String toString() {
         return "Line{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", color='" + color + '\'' +
-                ", sections=" + sections +
+                ", color='" + color +
                 '}';
     }
 

@@ -3,6 +3,8 @@ package subway.section;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.section.Section;
+import subway.domain.section.SectionPair;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

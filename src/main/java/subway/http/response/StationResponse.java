@@ -1,4 +1,6 @@
-package subway.station;
+package subway.http.response;
+
+import subway.domain.station.Station;
 
 public class StationResponse {
     private Long id;

@@ -1,4 +1,4 @@
-package subway.station;
+package subway.dao.queries;
 
 public class stationQuery {
     public static final String insert = "insert into station(name) values (?)";

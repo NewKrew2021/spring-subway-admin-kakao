@@ -1,8 +1,10 @@
-package subway.station;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import subway.dao.queries.stationQuery;
+import subway.domain.station.Station;
 import subway.exceptions.DuplicateException;
 
 import java.util.List;

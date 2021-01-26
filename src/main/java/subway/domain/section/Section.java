@@ -1,7 +1,8 @@
-package subway.section;
+package subway.domain.section;
 
 import subway.exceptions.IllegalSectionCreateException;
 import subway.exceptions.IllegalSectionSubtraction;
+import subway.dto.SectionDto;
 
 import java.util.Objects;
 

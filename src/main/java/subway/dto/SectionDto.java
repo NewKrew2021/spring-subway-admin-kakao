@@ -1,6 +1,7 @@
-package subway.section;
+package subway.dto;
 
-import subway.line.LineRequest;
+import subway.http.request.LineRequest;
+import subway.http.request.SectionRequest;
 
 public class SectionDto {
     private final Long upStationId, downStationId;

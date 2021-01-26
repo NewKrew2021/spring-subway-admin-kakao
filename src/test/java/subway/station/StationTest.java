@@ -3,6 +3,7 @@ package subway.station;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.station.Station;
 
 @DisplayName("Station 클래스")
 public class StationTest {

@@ -11,6 +11,10 @@ public class Sections {
     public static final int ZERO = 0;
     List<Section> sections;
 
+    public Sections() {
+        sections = new ArrayList<>();
+    }
+
     public Sections(List<Section> sections) {
         Station cur = getStartStation(sections);
         Station dest = getEndStation(sections);
@@ -125,7 +129,7 @@ public class Sections {
         if (existSection(section)) {
             throw new AlreadyExistDataException();
         }
-        if (!isCanSaveSection(section)) {
+        if (sections.size() > ZERO && !isCanSaveSection(section)) {
             throw new IllegalStationException();
         }
         if (isExistUpStationAndMiddleSection(section)) {

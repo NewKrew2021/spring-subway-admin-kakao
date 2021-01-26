@@ -8,7 +8,9 @@ import subway.domain.Station;
 import subway.dto.LineRequest;
 import subway.dto.LineResponse;
 import subway.dto.LineResponseWithStation;
+import subway.dto.SectionRequest;
 import subway.factory.LineFactory;
+import subway.factory.SectionFactory;
 import subway.service.LineService;
 
 import java.net.URI;
@@ -50,6 +52,18 @@ public class LineController {
     @DeleteMapping("/{lineId}")
     public ResponseEntity deleteLine(@PathVariable Long lineId) {
         lineService.deleteById(lineId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{lineId}/sections")
+    public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
+        lineService.saveSection(SectionFactory.getSection(sectionRequest, lineId));
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{lineId}/sections")
+    public ResponseEntity deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
+        lineService.deleteSection(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 }

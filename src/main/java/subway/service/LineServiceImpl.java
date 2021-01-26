@@ -6,6 +6,8 @@ import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
+import subway.domain.Sections;
+import subway.domain.Station;
 
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class LineServiceImpl implements LineService {
     @Transactional
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
-        sectionDao.save(new Section(section.getUpStation(), section.getDownStation(), section.getDistance(), newLine.getId()));
+        saveSection(newLine, new Section(section.getSectionId(), section.getUpStation(), section.getDownStation(), section.getDistance(), newLine.getId()));
         return newLine;
     }
 
@@ -47,5 +49,32 @@ public class LineServiceImpl implements LineService {
     @Override
     public void update(Line line) {
         lineDao.update(line);
+    }
+
+    @Override
+    public Sections getSectionsByLineId(Long lineId) {
+        return sectionDao.getSectionsByLineId(lineId);
+    }
+
+    @Override
+    public void saveSection(Section section) {
+        saveSection(lineDao.findOne(section.getLineId()), section);
+    }
+
+    @Override
+    @Transactional
+    public void saveSection(Line line, Section section) {
+        line.addSection(section);
+        sectionDao.deleteSectionByLineId(line.getId());
+        sectionDao.saveSections(line.getSections());
+    }
+
+    @Override
+    @Transactional
+    public void deleteSection(Long lineId, Long stationId) {
+        Line line = lineDao.findOne(lineId);
+        line.deleteSection(new Station(stationId));
+        sectionDao.deleteSectionByLineId(line.getId());
+        sectionDao.saveSections(line.getSections());
     }
 }

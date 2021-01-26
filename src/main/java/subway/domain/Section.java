@@ -1,5 +1,7 @@
 package subway.domain;
 
+import java.util.Objects;
+
 public class Section {
     public static final boolean LAST_SECTION = true;
     public static final boolean FIRST_SECTION = true;
@@ -93,5 +95,13 @@ public class Section {
 
     public boolean equalsWithDownStation(Long stationId) {
         return downStationId.equals(stationId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return distance == section.distance && firstSection == section.firstSection && lastSection == section.lastSection && Objects.equals(lineId, section.lineId) && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
     }
 }

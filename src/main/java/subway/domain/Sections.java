@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 public class Sections {
     private static final String DISTANCE_EXCEED_EXCEPTION_MESSAGE = "역 사이에 새로운 역을 등록할 경우 기존 역 사이 길이보다 크거나 같으면 등록을 할 수 없음";
+    private static final String DUPLICATED_CREATE_EXCEPTION_MESSAGE = "상행역과 하행역이 이미 노선에 모두 등록되어 있다면 추가할 수 없음";
+    private static final String NOT_CONTAINED_CREATE_EXCEPTION_MESSAGE = "상행역과 하행역 둘 중 하나도 포함되어있지 않으면 추가할 수 없음";
     public static final int FIRST = 0;
     public static final int SECOND = 1;
     private final List<Section> sections;
@@ -56,7 +58,23 @@ public class Sections {
         return sections.get(SECOND);
     }
 
+    public Section getPreviousSection(Section lastSection) {
+        Section previousSection = getDownStationKeyMap().get(lastSection.getUpStationId());
+        previousSection.setLastSection(true);
+
+        return previousSection;
+    }
+
+    public Section getNextSection(Section firstSection) {
+        Section nextSection = getUpStationKeyMap().get(firstSection.getDownStationId());
+        nextSection.setFirstSection(true);
+
+        return nextSection;
+    }
+
     public Sections getSeparatedSections(Section section) {
+        validateDuplicate(section);
+
         Map<Long, Section> upStationKeyMap = getUpStationKeyMap();
 
         if (upStationKeyMap.containsKey(section.getUpStationId())) {
@@ -71,7 +89,7 @@ public class Sections {
             return separateUpStation(section, targetSection);
         }
 
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(NOT_CONTAINED_CREATE_EXCEPTION_MESSAGE);
     }
 
     private Sections separateDownStation(Section section, Section targetSection) {
@@ -84,7 +102,6 @@ public class Sections {
                 targetSection.getDistance() - section.getDistance(),
                 Section.NOT_FIRST_SECTION,
                 targetSection.isLastSection());
-
 
         Section updateSection = new Section(
                 targetSection.getId(),
@@ -109,7 +126,6 @@ public class Sections {
                 Section.NOT_FIRST_SECTION,
                 targetSection.isLastSection());
 
-
         Section updateSection = new Section(
                 targetSection.getId(),
                 targetSection.getLineId(),
@@ -122,6 +138,13 @@ public class Sections {
         return new Sections(Arrays.asList(newSection, updateSection));
     }
 
+    private void validateDuplicate(Section sectionRequest) {
+        if (sections.stream()
+                .filter(section -> section.getUpStationId().equals(sectionRequest.getUpStationId()))
+                .anyMatch(section -> section.getDownStationId().equals(sectionRequest.getDownStationId()))) {
+            throw new IllegalArgumentException(DUPLICATED_CREATE_EXCEPTION_MESSAGE);
+        }
+    }
 
     private void validateDistance(Section section, Section targetSection) {
         if (section.getDistance() >= targetSection.getDistance()) {

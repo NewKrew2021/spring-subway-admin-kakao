@@ -83,7 +83,6 @@ public class LineController {
     @PostMapping(value = "/{lineId}/sections")
     public ResponseEntity createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
         Section section = sectionRequest.getSection(lineId);
-        sectionService.validateCreate(section, stationService.getStations(lineId));
         sectionService.create(lineId, section);
 
         return ResponseEntity.ok().build();

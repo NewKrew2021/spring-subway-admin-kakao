@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.controller.dto.LineResponse;
+import subway.controller.dto.SectionRequest;
 import subway.controller.dto.StationRequest;
 import subway.controller.dto.StationResponse;
 
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static subway.line.LineAcceptanceTest.지하철_노선_등록되어_있음;
 
 @DisplayName("지하철역 관련 기능")
 public class StationAcceptanceTest extends AcceptanceTest {
@@ -55,6 +58,40 @@ public class StationAcceptanceTest extends AcceptanceTest {
 
         // when
         ExtractableResponse<Response> response = 지하철역_제거_요청(stationResponse);
+
+        // then
+        지하철역_삭제됨(response);
+    }
+
+    @DisplayName("라인의 구간에 포함된 지하철역을 제거한다.")
+    @Test
+    void deleteStation2() {
+        // given
+        StationResponse 강남역 = 지하철역_등록되어_있음("강남역");
+        StationResponse 양재역 = 지하철역_등록되어_있음("양재역");
+        StationResponse 광교역 = 지하철역_등록되어_있음("광교역");
+        LineResponse 신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 강남역, 광교역, 10);
+        지하철_구간_생성_요청(신분당선, 강남역, 양재역, 2);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_제거_요청(양재역);
+
+        // then
+        지하철역_삭제됨(response);
+    }
+
+    @DisplayName("라인의 구간에 포함된 지하철역을 제거한다.")
+    @Test
+    void deleteStation3() {
+        // given
+        StationResponse 강남역 = 지하철역_등록되어_있음("강남역");
+        StationResponse 양재역 = 지하철역_등록되어_있음("양재역");
+        StationResponse 광교역 = 지하철역_등록되어_있음("광교역");
+        LineResponse 신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 강남역, 광교역, 10);
+        지하철_구간_생성_요청(신분당선, 양재역, 강남역, 2);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_제거_요청(강남역);
 
         // then
         지하철역_삭제됨(response);
@@ -115,5 +152,17 @@ public class StationAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         assertThat(resultLineIds).containsAll(expectedLineIds);
+    }
+
+    public static ExtractableResponse<Response> 지하철_구간_생성_요청(LineResponse line, StationResponse upStation, StationResponse downStation, int distance) {
+        SectionRequest sectionRequest = new SectionRequest(upStation.getId(), downStation.getId(), distance);
+
+        return RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(sectionRequest)
+                .when().post("/lines/{lineId}/sections", line.getId())
+                .then().log().all()
+                .extract();
     }
 }

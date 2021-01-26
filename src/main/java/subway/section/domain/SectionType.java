@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.domain;
 
 public enum SectionType {
     INSERT_DOWN_STATION, // 추가되는 구간이 위로 추가될때

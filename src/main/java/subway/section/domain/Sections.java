@@ -1,4 +1,7 @@
-package subway.section;
+package subway.section.domain;
+
+import subway.section.domain.Section;
+import subway.section.dto.SectionRequest;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +17,7 @@ public class Sections {
     }
 
     public boolean isDuplicatedSection(SectionRequest sectionRequest) {
+        // TODO SectionRequest가 아닌 다른 객체를 받아서 검사
         // 이미 존재하는 구간을 넣으려고 할 때를 검사하기위한 메소드
         List<Long> stationsId = getStationsId();
         return stationsId.contains(sectionRequest.getUpStationId())
@@ -21,6 +25,7 @@ public class Sections {
     }
 
     public Section checkAddSection(SectionRequest sectionRequest, long lineId) {
+        // TODO SectionRequest가 아닌 다른 객체를 받아서 검사
         if (isDuplicatedSection(sectionRequest)) {
             throw new IllegalArgumentException("같은 구간이 존재합니다.");
         }

@@ -1,8 +1,12 @@
-package subway.station;
+package subway.station.ui;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.dao.StationDao;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
+import subway.station.domain.Station;
 
 import java.net.URI;
 import java.util.List;

@@ -1,6 +1,7 @@
-package subway.line;
+package subway.line.dto;
 
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class LineResponse {
         this.name = name;
         this.color = color;
         this.stations = stations;
+    }
+
+    public static LineResponse of(Line line) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor(), null);
     }
 
     public Long getId() {

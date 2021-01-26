@@ -1,4 +1,6 @@
-package subway.section;
+package subway.section.domain;
+
+import subway.section.dto.SectionRequest;
 
 import java.util.Objects;
 
@@ -9,6 +11,7 @@ public class Section {
     private final long lineId;
     private final int position;
     private SectionType sectionType;
+    // TODO SectionType 삭제가 필요함
 
     public Section(long id, long stationId, long lineId, int position) {
         this.id = id;
@@ -31,11 +34,11 @@ public class Section {
         sectionType = SectionType.INSERT_UP_STATION;
     }
 
-    public int calculateSectionPosition(int distance){
+    public int calculateSectionPosition(int position){
         if(sectionType == SectionType.INSERT_UP_STATION){
-            return position - distance;
+            return this.position - position;
         }
-        return position + distance;
+        return this.position + position;
     }
 
     public long chooseInsertSectionStationId(SectionRequest sectionRequest){

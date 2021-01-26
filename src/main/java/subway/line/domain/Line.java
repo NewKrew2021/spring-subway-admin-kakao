@@ -1,4 +1,4 @@
-package subway.line;
+package subway.line.domain;
 
 import java.util.Objects;
 
@@ -15,10 +15,9 @@ public class Line {
         this.color = color;
     }
 
-    public Line(LineRequest lineRequest) {
-        this.name = lineRequest.getName();
-        this.color = lineRequest.getColor();
-
+    public Line(String name, String color) {
+        this.name = name;
+        this.color = color;
     }
 
     public long getId() {
@@ -59,7 +58,6 @@ public class Line {
                 ", color='" + color + '\'' +
                 '}';
     }
-
 
 
 }

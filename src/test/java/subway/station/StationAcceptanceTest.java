@@ -80,6 +80,23 @@ public class StationAcceptanceTest extends AcceptanceTest {
         지하철역_삭제됨(response);
     }
 
+    @DisplayName("라인의 구간에 포함된 지하철역을 제거한다.")
+    @Test
+    void deleteStation3() {
+        // given
+        StationResponse 강남역 = 지하철역_등록되어_있음("강남역");
+        StationResponse 양재역 = 지하철역_등록되어_있음("양재역");
+        StationResponse 광교역 = 지하철역_등록되어_있음("광교역");
+        LineResponse 신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 강남역, 광교역, 10);
+        지하철_구간_생성_요청(신분당선, 양재역, 강남역, 2);
+
+        // when
+        ExtractableResponse<Response> response = 지하철역_제거_요청(강남역);
+
+        // then
+        지하철역_삭제됨(response);
+    }
+
     public static StationResponse 지하철역_등록되어_있음(String name) {
         return 지하철역_생성_요청(name).as(StationResponse.class);
     }

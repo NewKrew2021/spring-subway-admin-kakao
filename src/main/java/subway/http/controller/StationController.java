@@ -1,8 +1,12 @@
-package subway.station;
+package subway.http.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.domain.station.Station;
+import subway.http.request.StationRequest;
+import subway.http.response.StationResponse;
+import subway.service.StationService;
 
 import java.net.URI;
 import java.util.List;

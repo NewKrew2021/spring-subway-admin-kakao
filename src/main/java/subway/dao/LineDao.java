@@ -1,9 +1,11 @@
-package subway.line;
+package subway.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import subway.dao.queries.LineQuery;
+import subway.domain.line.Line;
 import subway.exceptions.DuplicateException;
 
 import java.util.List;

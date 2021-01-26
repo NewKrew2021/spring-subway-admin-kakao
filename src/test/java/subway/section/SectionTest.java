@@ -2,6 +2,7 @@ package subway.section;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.section.Section;
 import subway.exceptions.IllegalSectionCreateException;
 import subway.exceptions.IllegalSectionSubtraction;
 

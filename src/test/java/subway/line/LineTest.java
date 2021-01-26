@@ -3,6 +3,9 @@ package subway.line;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.line.Line;
+import subway.dto.LineDto;
+import subway.http.request.LineRequest;
 
 
 public class LineTest {

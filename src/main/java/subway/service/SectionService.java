@@ -1,11 +1,15 @@
-package subway.section;
+package subway.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import subway.dao.SectionDao;
+import subway.domain.section.Section;
+import subway.domain.section.SectionPair;
+import subway.domain.section.SectionsInOneLine;
+import subway.dto.SectionDto;
 import subway.exceptions.IllegalSectionSave;
 import subway.exceptions.NotFoundException;
-import subway.station.Station;
-import subway.station.StationService;
+import subway.domain.station.Station;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +64,6 @@ public class SectionService {
         }
     }
 
-    @Transactional
     private void deleteableCheck(Long lineId, Long stationId, List<Long> stationIds) {
         if(!stationIds.contains(stationId)) {
             throw new NotFoundException("삭제할 station이 존재하지 않습니다.");

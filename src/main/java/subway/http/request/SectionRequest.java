@@ -1,4 +1,4 @@
-package subway.section;
+package subway.http.request;
 
 public class SectionRequest {
     private Long upStationId;

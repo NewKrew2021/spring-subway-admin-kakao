@@ -1,4 +1,4 @@
-package subway.section;
+package subway.domain.section;
 
 import subway.exceptions.IllegalSectionSave;
 import subway.exceptions.NotFoundException;

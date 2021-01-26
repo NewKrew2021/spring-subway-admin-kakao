@@ -2,6 +2,8 @@ package subway.section;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.domain.section.Section;
+import subway.domain.section.SectionsInOneLine;
 import subway.exceptions.IllegalSectionSave;
 
 import java.util.ArrayList;

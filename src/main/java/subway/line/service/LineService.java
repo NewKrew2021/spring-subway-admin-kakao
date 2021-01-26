@@ -15,13 +15,11 @@ import java.util.stream.Collectors;
 public class LineService {
     private final LineDao lineDao;
     private final StationDao stationDao;
-    private final SectionService sectionService;
     private final SectionDao sectionDao;
 
-    public LineService(LineDao lineDao, StationDao stationDao, SectionService sectionService, SectionDao sectionDao) {
+    public LineService(LineDao lineDao, StationDao stationDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
         this.stationDao = stationDao;
-        this.sectionService = sectionService;
         this.sectionDao = sectionDao;
     }
 

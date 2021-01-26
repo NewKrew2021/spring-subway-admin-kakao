@@ -3,6 +3,7 @@ package subway.line.domain;
 import subway.line.dto.SectionRequest;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Section {
     private static final String SAME_SECTION_MESSAGE = "같은 section이 추가될 수 없습니다.";
@@ -81,4 +82,16 @@ public class Section {
         return distance + section.getDistance();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return distance == section.distance && Objects.equals(id, section.id) && Objects.equals(lineId, section.lineId) && Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, lineId, upStationId, downStationId, distance);
+    }
 }

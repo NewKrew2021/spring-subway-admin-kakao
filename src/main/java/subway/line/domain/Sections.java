@@ -13,6 +13,63 @@ public class Sections {
         this.sections = sections;
     }
 
+    public List<Section> getSections() {
+        return sections;
+    }
+
+    public void addSection(Section section) {
+        section.checkValidInsert(sections);
+
+        Map<Long, Long> upStationAndDownStation = getUpStationAndDownStation();
+
+        sections.add(section);
+        if (SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.UP_STATION_MATCHING) {
+            updateWhenUpStationMatching(section);
+            return;
+        }
+        if (SectionStatus.getSectionStatus(upStationAndDownStation, section) == SectionStatus.DOWN_STATION_MATCHING) {
+            updateWhenDownStationMatching(section);
+        }
+    }
+
+    public void deleteSection(Long lineId, Long stationId) {
+        Section upStationMatch = getUpStationMatch(stationId);
+        Section downStationMatch = getDownStationMatch(stationId);
+
+        checkValidDelete(stationId);
+
+        if (isMiddleStation(stationId)) {
+            deleteWhenMiddleSection(lineId, upStationMatch, downStationMatch);
+        }
+        if (isTerminalStation(stationId)) {
+            sections.remove((upStationMatch == null) ? downStationMatch : upStationMatch);
+        }
+    }
+
+    private void deleteWhenMiddleSection(Long lineId, Section upStationMatch, Section downStationMatch) {
+        int newDistance = upStationMatch.getDeleteNewDistance(downStationMatch);
+
+        Section newSection = new Section(lineId, downStationMatch.getUpStationId(), upStationMatch.getDownStationId(), newDistance);
+        sections.add(newSection);
+
+        sections.remove(upStationMatch);
+        sections.remove(downStationMatch);
+    }
+
+    private void updateWhenUpStationMatching(Section section) {
+        Section upStationMatchSection = getUpStationMatch(section.getUpStationId());
+        int newDistance = upStationMatchSection.getInsertNewDistance(section);
+        sections.remove(upStationMatchSection);
+        sections.add(new Section(upStationMatchSection.getId(), section.getLineId(), section.getDownStationId(), upStationMatchSection.getDownStationId(), newDistance));
+    }
+
+    private void updateWhenDownStationMatching(Section section) {
+        Section downStationMatchSection = getDownStationMatch(section.getDownStationId());
+        int newDistance = downStationMatchSection.getInsertNewDistance(section);
+        sections.remove(downStationMatchSection);
+        sections.add(new Section(downStationMatchSection.getId(), section.getLineId(), downStationMatchSection.getUpStationId(), section.getUpStationId(), newDistance));
+    }
+
     public Section getUpStationMatch(Long stationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(stationId))
@@ -65,6 +122,7 @@ public class Sections {
                     downStationAndDistance.get(upStationAndDownStation.get(startId))));
             startId = upStationAndDownStation.get(startId);
         }
+
         return result;
     }
 

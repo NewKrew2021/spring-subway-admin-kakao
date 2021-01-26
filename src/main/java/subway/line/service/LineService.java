@@ -30,7 +30,10 @@ public class LineService {
             throw new LineAlreadyExistException();
         }
         Line newLine = lineDao.save(line);
-        sectionService.insert(new Section(newLine.getId(), upStationId, downStationId, distance));
+        Sections sections = new Sections(sectionDao.showAllByLineId(newLine.getId()));
+        sections.addSection(new Section(newLine.getId(), upStationId, downStationId, distance));
+        sectionDao.deleteByLineId(newLine.getId());
+        sectionDao.saveAll(sections.getSections());
         return newLine;
     }
 
@@ -48,9 +51,11 @@ public class LineService {
     }
 
     public List<Station> getStations(Line line) {
-        Sections sections = new Sections(sectionService.showAll(line.getId()));
-        List<Long> stationIds = sections.getStationIds();
-        stationIds.add(sections.getLastSectionDownStationId());
+        Sections sections = new Sections(sectionDao.showAllByLineId(line.getId()));
+        Sections sortedSection = new Sections(sections.sort(line.getId(), sections.getUpStationAndDownStation(), sections.getDownStationAndDistance()));
+
+        List<Long> stationIds = sortedSection.getStationIds();
+        stationIds.add(sortedSection.getLastSectionDownStationId());
         return stationIds.stream()
                 .map(stationDao::findStationById)
                 .collect(Collectors.toList());

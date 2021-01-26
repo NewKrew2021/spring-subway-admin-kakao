@@ -1,14 +1,21 @@
-package subway.line;
+package subway.line.dao;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import subway.line.domain.Section;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
@@ -64,9 +71,29 @@ public class SectionDao {
         return jdbcTemplate.update(sql, section.getId(), section.getUpStationId(), section.getDownStationId());
     }
 
-    public int delete(Long lineId) {
+    public int deleteByLineId(Long lineId) {
         String sql = "delete from section where line_id = ?";
         return jdbcTemplate.update(sql, lineId);
+    }
+
+    public List<Section> showAllByLineId(Long lineId) {
+        String sql = "select * from section where line_id = ?";
+        return jdbcTemplate.query(sql, sectionRowMapper, lineId);
+    }
+
+    public void saveAll(List<Section> sections) {
+        List<Map<String, Object>> batchValues = sections.stream()
+                .map(section -> {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("line_id", section.getLineId());
+                    params.put("up_station_id", section.getUpStationId());
+                    params.put("down_station_id", section.getDownStationId());
+                    params.put("distance", section.getDistance());
+                    return params;
+                })
+                .collect(Collectors.toList());
+
+        insertActor.executeBatch(batchValues.toArray(new Map[sections.size()]));
     }
 
 }

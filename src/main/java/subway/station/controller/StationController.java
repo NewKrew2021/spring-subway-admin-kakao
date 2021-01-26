@@ -1,8 +1,12 @@
-package subway.station;
+package subway.station.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.dao.StationDao;
+import subway.station.domain.Station;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.net.URI;
 import java.util.List;
@@ -20,9 +24,6 @@ public class StationController {
     public ResponseEntity<StationResponse> createStation(@RequestBody StationRequest stationRequest) {
         Station station = new Station(stationRequest.getName());
         Station newStation = stationDao.save(station);
-        if (newStation == null) {
-            return ResponseEntity.badRequest().build();
-        }
         StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
         return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
     }

@@ -1,5 +1,6 @@
-package subway.line;
+package subway.line.domain;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Line {

@@ -1,10 +1,11 @@
-package subway.line;
+package subway.line.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import subway.line.domain.Line;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -27,7 +28,6 @@ public class LineDao {
     };
 
     public Line save(Line line) {
-        Lines lines = new Lines(findLineByName(line.getName()));
         String sql = "insert into line (name, color) values (?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -65,6 +65,4 @@ public class LineDao {
         String sql = "delete from line where id = ?";
         jdbcTemplate.update(sql, Long.valueOf(id));
     }
-
-
 }

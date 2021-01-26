@@ -1,15 +1,20 @@
-package subway.line;
+package subway.line.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.StationResponse;
+import subway.line.domain.*;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.line.dto.SectionRequest;
+import subway.line.service.LineService;
+import subway.line.service.SectionService;
+import subway.station.dto.StationResponse;
 import subway.util.ResponseUtil;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class LineController {
@@ -23,19 +28,15 @@ public class LineController {
 
     @PostMapping("/lines")
     public ResponseEntity<LineResponse> createStation(@RequestBody LineRequest lineRequest) {
-        try {
-            Line line = new Line(lineRequest.getName(), lineRequest.getColor());
+        Line line = new Line(lineRequest.getName(), lineRequest.getColor());
 
-            Line newLine = lineService.insert(line, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
+        Line newLine = lineService.insert(line, lineRequest.getUpStationId(), lineRequest.getDownStationId(), lineRequest.getDistance());
 
-            List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(newLine));
+        List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(newLine));
 
-            LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
+        LineResponse lineResponse = new LineResponse(newLine.getId(), newLine.getName(), newLine.getColor(), stationResponses);
 
-            return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
-        } catch (LineAlreadyExistException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(lineResponse);
     }
 
     @GetMapping(value = "/lines", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,17 +48,13 @@ public class LineController {
 
     @GetMapping("/lines/{lineId}")
     public ResponseEntity<LineResponse> showLine(@PathVariable Long lineId) {
-        try {
-            Line line = lineService.findById(lineId);
+        Line line = lineService.findById(lineId);
 
-            List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(line));
+        List<StationResponse> stationResponses = ResponseUtil.getStationResponses(lineService.getStations(line));
 
-            LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
+        LineResponse lineResponse = new LineResponse(line.getId(), line.getName(), line.getColor(), stationResponses);
 
-            return ResponseEntity.ok(lineResponse);
-        } catch (LineNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(lineResponse);
     }
 
     @PutMapping("/lines/{id}")
@@ -75,22 +72,13 @@ public class LineController {
 
     @PostMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> createSection(@PathVariable Long lineId, @RequestBody SectionRequest sectionRequest) {
-        Section newSection = new Section(lineId, sectionRequest);
-        try {
-            sectionService.insert(newSection);
-        } catch (SectionInsertException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        sectionService.insert(SectionFactory.create(lineId, sectionRequest));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/lines/{lineId}/sections")
     public ResponseEntity<LineResponse> deleteSection(@PathVariable Long lineId, @RequestParam Long stationId) {
-        try {
-            sectionService.delete(lineId, stationId);
-        } catch (SectionInsertException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        sectionService.delete(lineId, stationId);
         return ResponseEntity.ok().build();
     }
 }

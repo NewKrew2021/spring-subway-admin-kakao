@@ -1,12 +1,8 @@
 package subway.section;
 
 import subway.line.Line;
-import subway.line.LineInfoChanged;
-import subway.line.LineInfoChangedResult;
 
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class Sections {
     private List<Section> sections;

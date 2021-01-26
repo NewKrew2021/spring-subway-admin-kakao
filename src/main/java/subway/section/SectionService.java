@@ -1,14 +1,7 @@
 package subway.section;
 
 import org.springframework.stereotype.Service;
-import subway.line.Line;
-import subway.line.LineInfoChangedResult;
 import subway.line.LineService;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class SectionService{

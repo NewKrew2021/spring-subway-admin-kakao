@@ -85,7 +85,6 @@ public class Sections {
                 Section.NOT_FIRST_SECTION,
                 targetSection.isLastSection());
 
-
         Section updateSection = new Section(
                 targetSection.getId(),
                 targetSection.getLineId(),
@@ -108,7 +107,6 @@ public class Sections {
                 section.getDistance(),
                 Section.NOT_FIRST_SECTION,
                 targetSection.isLastSection());
-
 
         Section updateSection = new Section(
                 targetSection.getId(),

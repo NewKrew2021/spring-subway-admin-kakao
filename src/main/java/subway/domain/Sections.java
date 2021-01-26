@@ -3,7 +3,6 @@ package subway.domain;
 import subway.exception.AlreadyExistDataException;
 import subway.exception.DataEmptyException;
 import subway.exception.DeleteImpossibleException;
-import subway.exception.IllegalStationException;
 
 import java.util.*;
 
@@ -141,10 +140,6 @@ public class Sections {
         sections.add(section);
     }
 
-    public void addSection(Station upStation, Station downStation, int distance) {
-        addSection(new Section(upStation, downStation, distance));
-    }
-
     private boolean existSection(Section section) {
         return existSectionByStation(section.getUpStation()) && existSectionByStation(section.getDownStation());
     }
@@ -172,7 +167,6 @@ public class Sections {
             throw new DeleteImpossibleException();
         }
     }
-
 
     private void delete(Station station) {
         Section nextSection = findSectionByUpStation(station);

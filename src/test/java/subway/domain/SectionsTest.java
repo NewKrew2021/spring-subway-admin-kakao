@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.exception.AlreadyExistDataException;
 import subway.exception.DeleteImpossibleException;
-import subway.exception.IllegalStationException;
 
 import java.util.Arrays;
 
@@ -83,13 +82,13 @@ public class SectionsTest {
 
     @Test
     @DisplayName("구간 추가 예외 테스트 - 중복")
-    void addSectionExceptionTest(){
+    void addSectionExceptionTest() {
         assertThatExceptionOfType(AlreadyExistDataException.class).isThrownBy(() -> sections.addSection(new Section(잠실, 분당, 3, 1L)));
     }
 
     @Test
     @DisplayName("구간 추가 예외 테스트 - 잘못된 정보")
-    void addSectionExceptionTest2(){
+    void addSectionExceptionTest2() {
         assertThatExceptionOfType(IllegalStationException.class).isThrownBy(() -> sections.addSection(new Section(야탑, 광교, 3, 1L)));
     }
 
@@ -102,7 +101,7 @@ public class SectionsTest {
 
     @Test
     @DisplayName("구간 삭제 예외 테스트 - 존재 섹션 1일때")
-    void deleteSectionExceptionTest(){
+    void deleteSectionExceptionTest() {
         assertThatExceptionOfType(DeleteImpossibleException.class).isThrownBy(() -> {
             sections.deleteSection(잠실);
             sections.deleteSection(분당);
@@ -111,7 +110,7 @@ public class SectionsTest {
 
     @Test
     @DisplayName("구간 삭제 예외 테스트 - 존재하지 않는 역일때")
-    void deleteSectionExceptionTest2(){
+    void deleteSectionExceptionTest2() {
         assertThatExceptionOfType(DeleteImpossibleException.class).isThrownBy(() -> {
             sections.deleteSection(광교);
         });

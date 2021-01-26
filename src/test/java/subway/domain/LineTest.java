@@ -33,14 +33,14 @@ public class LineTest {
 
     @Test
     @DisplayName("역 가져오기 테스트")
-    void getStationTest(){
-        assertThat(line.getStations()).containsExactly(잠실,분당,판교);
+    void getStationTest() {
+        assertThat(line.getStations()).containsExactly(잠실, 분당, 판교);
     }
 
     @Test
     @DisplayName("섹션 추가 테스트")
-    void addSectionTest(){
-        line.addSection(판교,정자,1);
-        assertThat(line.getStations()).containsExactly(잠실,분당,판교,정자);
+    void addSectionTest() {
+        line.addSection(판교, 정자, 1);
+        assertThat(line.getStations()).containsExactly(잠실, 분당, 판교, 정자);
     }
 }

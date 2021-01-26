@@ -12,7 +12,6 @@ import subway.domain.Station;
 import subway.exception.AlreadyExistDataException;
 import subway.exception.DataEmptyException;
 import subway.exception.DeleteImpossibleException;
-import subway.exception.UpdateImpossibleException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +20,14 @@ import java.util.stream.Collectors;
 public class LineDao {
     public static final String DELETE_FROM_LINE_WHERE_ID = "delete from LINE where id = ?";
     public static final String SELECT_FROM_LINE = "select * from LINE";
-    public static final String SELECT_FROM_LINE_WHERE_ID = "select L.id as id, L.name as name, L.color as color, SE.id as section_id, SE.distance as distance,SE.up_station_id as up_station_id, SE.down_station_id as down_station_id, UST.name as uname, DST.name dname  from LINE L left join SECTION SE on SE.line_id = L.id left join STATION UST on SE.up_station_id = UST.id left join STATION DST on SE.down_station_id = DST.id where L.id= ? ";
+    public static final String SELECT_FROM_LINE_WHERE_ID = "select L.id as id, L.name as name, L.color as color, " +
+            "SE.id as section_id, SE.distance as distance," +
+            "SE.up_station_id as up_station_id, UST.name as uname, " +
+            "SE.down_station_id as down_station_id, DST.name dname  " +
+            "from LINE L left join SECTION SE on SE.line_id = L.id " +
+            "left join STATION UST on SE.up_station_id = UST.id " +
+            "left join STATION DST on SE.down_station_id = DST.id " +
+            "where L.id= ? ";
     public static final String UPDATE_LINE_SET_COLOR_NAME_WHERE_ID = "update LINE set color = ?, name = ? where id = ?";
     private final JdbcTemplate jdbcTemplate;
 

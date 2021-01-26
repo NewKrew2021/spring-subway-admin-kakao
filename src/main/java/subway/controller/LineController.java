@@ -28,8 +28,8 @@ public class LineController {
 
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Section section = new Section(new Station(lineRequest.getUpStationId()),new Station(lineRequest.getDownStationId()), lineRequest.getDistance());
-        LineResponse lineResponse = LineConvertor.convertLine(lineService.save(LineFactory.getLine(lineRequest),section));
+        Section section = new Section(new Station(lineRequest.getUpStationId()), new Station(lineRequest.getDownStationId()), lineRequest.getDistance());
+        LineResponse lineResponse = LineConvertor.convertLine(lineService.save(LineFactory.getLine(lineRequest), section));
         return ResponseEntity.created(URI.create("/lines/" + lineResponse.getId())).body(lineResponse);
     }
 

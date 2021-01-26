@@ -15,18 +15,18 @@ public class Line {
     }
 
     public Line(String name, String color, Sections sections) {
-        this(name,color);
+        this(name, color);
         this.sections = sections;
     }
 
     public Line(Long id, String name, String color) {
-        this(name,color);
+        this(name, color);
         this.id = id;
         sections = new Sections();
     }
 
     public Line(Long id, String name, String color, Sections sections) {
-        this(name,color,sections);
+        this(name, color, sections);
         this.id = id;
     }
 
@@ -58,14 +58,9 @@ public class Line {
         return sections.getStations();
     }
 
-    public void addSection(Section section) {
-        sections.addSection(section);
-    }
-
     public void addSection(Station upStation, Station downStation, int distance) {
-        sections.addSection(upStation, downStation, distance);
+        sections.addSection(new Section(upStation, downStation, distance, id));
     }
-
 
     public void deleteSection(Station station) {
         sections.deleteSection(station);

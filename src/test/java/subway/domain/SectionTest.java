@@ -2,8 +2,6 @@ package subway.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.exception.DistanceException;
-import subway.exception.IllegalStationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -29,9 +27,9 @@ public class SectionTest {
 
     @Test
     @DisplayName("구간 비교 테스트")
-    void sectionEqualTest(){
-        Section section = new Section(new Station(1L),new Station(2L),1,2L);
-        Section section2 = new Section(new Station(1L),new Station(2L),5,2L);
+    void sectionEqualTest() {
+        Section section = new Section(new Station(1L), new Station(2L), 1, 2L);
+        Section section2 = new Section(new Station(1L), new Station(2L), 5, 2L);
         assertThat(section.equals(section2)).isEqualTo(true);
     }
 }

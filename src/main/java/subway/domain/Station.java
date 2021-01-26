@@ -1,10 +1,9 @@
 package subway.domain;
 
-import subway.exception.IllegalStationException;
-
 import java.util.Objects;
 
 public class Station {
+    public static final int ZERO = 0;
     private Long id;
     private String name;
 
@@ -12,7 +11,7 @@ public class Station {
     }
 
     public Station(Long id, String name) {
-        if (id < 0) {
+        if (id < ZERO) {
             throw new IllegalStationException();
         }
         this.id = id;
@@ -24,7 +23,7 @@ public class Station {
     }
 
     public Station(Long id) {
-        if (id < 0) {
+        if (id < ZERO) {
             throw new IllegalStationException();
         }
         this.id = id;

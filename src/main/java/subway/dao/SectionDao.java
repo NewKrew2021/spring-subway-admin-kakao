@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 
 @Repository
 public class SectionDao {
-    public static final String SELECT_FROM_SECTION_WHERE_LINE_ID = "select SE.id as id, UST.id as up_station_id, UST.name as uname, DST.id as down_station_id, DST.name as dname, SE.distance as distance, SE.line_id as line_id " +
+    public static final String SELECT_FROM_SECTION_WHERE_LINE_ID = "select SE.id as id, SE.distance as distance, SE.line_id as line_id, " +
+            "UST.id as up_station_id, UST.name as uname, " +
+            "DST.id as down_station_id, DST.name as dname " +
             "from SECTION SE left outer join STATION UST on SE.up_station_id = UST.id " +
             "left outer join STATION DST on SE.down_station_id = DST.id " +
             "where line_id = ?";
@@ -54,11 +56,6 @@ public class SectionDao {
 
     public Sections getSectionsByLineId(Long lineId) {
         String sql = SELECT_FROM_SECTION_WHERE_LINE_ID;
-//        Sections sections = new Sections(jdbcTemplate.query(sql, (rs, rowNum) -> new Section(rs.getLong("id"),
-//                rs.getLong("up_station_id"),
-//                rs.getLong("down_station_id"),
-//                rs.getInt("distance"),
-//                rs.getLong("line_id")), lineId));
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, lineId);
         Sections sections = new Sections(list.stream()
                 .collect(Collectors.groupingBy(it -> it.get("id"))).values().stream()
@@ -69,16 +66,6 @@ public class SectionDao {
                 .collect(Collectors.toList()));
         return sections;
     }
-
-    private List<Station> getStations(Sections sections) {
-        Set<Station> stations = new LinkedHashSet<>();
-        for (Section section : sections.getSections()) {
-            stations.add(section.getUpStation());
-            stations.add(section.getDownStation());
-        }
-        return new ArrayList<>(stations);
-    }
-
 
     public void deleteSectionById(Long sectionId) {
         String sql = DELETE_FROM_SECTION_WHERE_ID;

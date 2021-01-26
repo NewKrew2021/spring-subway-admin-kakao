@@ -25,6 +25,4 @@ public interface LineService {
     void saveSection(Section section);
 
     void saveSection(Line line, Section section);
-
-    Sections getSectionsByLineId(Long lineId);
 }

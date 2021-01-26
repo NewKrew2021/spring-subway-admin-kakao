@@ -1,8 +1,5 @@
 package subway.domain;
 
-import subway.exception.DistanceException;
-import subway.exception.IllegalStationException;
-
 import java.util.Objects;
 
 public class Section {

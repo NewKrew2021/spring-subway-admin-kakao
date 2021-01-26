@@ -6,7 +6,6 @@ import subway.dao.LineDao;
 import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
-import subway.domain.Sections;
 import subway.domain.Station;
 
 import java.util.List;
@@ -52,11 +51,6 @@ public class LineServiceImpl implements LineService {
     }
 
     @Override
-    public Sections getSectionsByLineId(Long lineId) {
-        return sectionDao.getSectionsByLineId(lineId);
-    }
-
-    @Override
     public void saveSection(Section section) {
         saveSection(lineDao.findOne(section.getLineId()), section);
     }
@@ -64,7 +58,7 @@ public class LineServiceImpl implements LineService {
     @Override
     @Transactional
     public void saveSection(Line line, Section section) {
-        line.addSection(section);
+        line.addSection(section.getUpStation(), section.getDownStation(), section.getDistance());
         sectionDao.deleteSectionByLineId(line.getId());
         sectionDao.saveSections(line.getSections());
     }

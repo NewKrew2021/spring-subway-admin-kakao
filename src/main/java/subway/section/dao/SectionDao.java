@@ -1,12 +1,17 @@
 package subway.section.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
 import subway.section.domain.Section;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -26,15 +31,24 @@ public class SectionDao {
     );
 
     public Section save(long stationId, long lineId, int position) {
-        String INSERT_SQL = "INSERT INTO section(line_id,station_id,position) VALUES (?,?,?)";
-        String SQL = "SELECT * FROM section WHERE station_id = ? AND line_id = ?";
-        jdbcTemplate.update(INSERT_SQL, lineId, stationId, position);
-
-        return jdbcTemplate.queryForObject(SQL, rowMapper, stationId, lineId);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(insertSection(stationId, lineId, position), keyHolder);
+        return findById((Long) keyHolder.getKey());
     }
 
     public Section save(Section section) {
         return save(section.getStationId(), section.getLineId(), section.getPosition());
+    }
+
+    private PreparedStatementCreator insertSection(long stationId, long lineId, int position) {
+        return con -> {
+            PreparedStatement psmt = con.prepareStatement("INSERT INTO section(station_id,line_id,position) VALUES (?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            psmt.setLong(1, stationId);
+            psmt.setLong(2, lineId);
+            psmt.setInt(3, position);
+            return psmt;
+        };
     }
 
 
@@ -46,6 +60,11 @@ public class SectionDao {
     public List<Section> getSections(long lineId) {
         String SQL = "SELECT * FROM section WHERE line_id = ?";
         return jdbcTemplate.query(SQL, rowMapper, lineId);
+    }
+
+    public Section findById(long id) {
+        String SQL = "SELECT id, line_id, station_id, position FROM section where id = ?";
+        return jdbcTemplate.queryForObject(SQL, rowMapper, id);
     }
 
 

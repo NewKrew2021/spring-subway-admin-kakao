@@ -1,10 +1,15 @@
 package subway.line.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import subway.line.domain.Line;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -23,20 +28,29 @@ public class LineDao {
     );
 
     public Line save(Line line) {
-        String SQL = "INSERT INTO line(name,color) VALUES (?,?)";
-        String SELECT_SQL = "SELECT * FROM line where name = ?";
-        jdbcTemplate.update(SQL, line.getName(), line.getColor());
-        return jdbcTemplate.queryForObject(SELECT_SQL, rowMapper, line.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(insertLine(line), keyHolder);
+        return findById((Long) keyHolder.getKey());
+    }
+
+    private PreparedStatementCreator insertLine(Line line) {
+        return con -> {
+            PreparedStatement psmt = con.prepareStatement("INSERT INTO line(name,color) VALUES (?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            psmt.setString(1, line.getName());
+            psmt.setString(2, line.getColor());
+            return psmt;
+        };
     }
 
 
     public List<Line> findAll() {
-        String SQL = "SELECT * FROM line";
+        String SQL = "SELECT id, name, color FROM line";
         return jdbcTemplate.query(SQL, rowMapper);
     }
 
     public Line findById(long id) {
-        String SQL = "SELECT * FROM line WHERE id = ?";
+        String SQL = "SELECT id, name, color FROM line WHERE id = ?";
         return jdbcTemplate.queryForObject(SQL, rowMapper, id);
     }
 
@@ -48,7 +62,7 @@ public class LineDao {
 
     public int findByName(String name) {
         String SQL = "SELECT count(*) from line where name = ?";
-        return jdbcTemplate.queryForObject(SQL,Integer.class,name);
+        return jdbcTemplate.queryForObject(SQL, Integer.class, name);
     }
 
     public int update(Line line) {

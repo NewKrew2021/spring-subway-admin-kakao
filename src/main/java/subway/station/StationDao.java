@@ -42,11 +42,9 @@ public class StationDao {
         );
     }
 
-    public int countByName(String stationName) {
+    public boolean checkExistByName(String stationName) {
         return jdbcTemplate.queryForObject(
-                "select count(*) from STATION where name = ?",
-                Integer.class, stationName
-        );
+                "select exists (select * from STATION where name = ?) as success", Boolean.class, stationName);
     }
 
     public List<Station> findAll() {

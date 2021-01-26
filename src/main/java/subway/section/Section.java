@@ -7,8 +7,6 @@ import java.util.Objects;
 
 public class Section {
 
-    private static final String INVALID_DISTANCE_MESSAGE = "추가될 구간의 거리가 기존 노선 거리보다 깁니다.";
-
     private long id;
     private long lineId;
     private long upStationId;

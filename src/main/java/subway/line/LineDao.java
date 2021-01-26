@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 @Repository
 public class LineDao {
 
-    private static final String NOT_FOUND_LINE_MESSAGE = "노선을 찾을 수 없습니다.";
-
     private final JdbcTemplate jdbcTemplate;
 
     public LineDao(JdbcTemplate jdbcTemplate) {

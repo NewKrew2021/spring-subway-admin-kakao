@@ -14,10 +14,6 @@ import java.util.stream.Collectors;
 @Service
 public class LineService {
 
-    private static final String DUPLICATE_LINE_NAME_MESSAGE = "중복된 노선 이름입니다.";
-    private static final String FAIL_DELETE_LINE_MESSAGE = "노선을 삭제할 수 없습니다.";
-    private static final String FAIL_DELETE_SECTIONS_MESSAGE = "노선 내 모든 구간 정보를 삭제할 수 없습니다.";
-
     private final LineDao lineDao;
     private final SectionDao sectionDao;
     private final StationDao stationDao;

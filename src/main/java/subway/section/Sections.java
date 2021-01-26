@@ -1,7 +1,5 @@
 package subway.section;
 
-import subway.exception.exceptions.FailedSaveException;
-import subway.exception.exceptions.FailedSaveExceptionEnum;
 import subway.exception.exceptions.InvalidValueException;
 import subway.exception.exceptions.InvalidValueExceptionEnum;
 
@@ -14,10 +12,6 @@ import java.util.stream.Collectors;
 public class Sections {
 
     private static final long MIN_NECESSARY_SECTION_COUNT = 1;
-
-    private static final String ALREADY_EXIST_STATION_MESSAGE = "두 역 모두 노선에 이미 존재합니다.";
-    private static final String NOTHING_EXIST_STATION_MESSAGE = "두 역 모두 노선에 존재하지 않습니다.";
-    private static final String ALONE_SECTION_MESSAGE = "구간이 하나이기 때문에 삭제할 수 없습니다.";
 
     private List<Section> sections;
 

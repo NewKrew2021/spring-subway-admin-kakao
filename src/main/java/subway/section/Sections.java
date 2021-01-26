@@ -7,18 +7,23 @@ import subway.line.LineInfoChangedResult;
 import java.util.*;
 
 public class Sections {
-    List<Section> sections;
-    List<Section> addSections = new ArrayList<>();
-    List<Section> delSections = new ArrayList<>();
-
+    private List<Section> sections;
+    private Long lineId;
     public static final Long NOT_EXIST = -1L;
 
     Sections() {
         sections = new ArrayList<>();
+        lineId = -1L;
     }
 
-    Sections(List<Section> sections) {
+    Sections(Long lineId) {
+        this.sections = new ArrayList<>();
+        this.lineId = lineId;
+    }
+
+    Sections(List<Section> sections, Long lineId) {
         this.sections = Collections.unmodifiableList(sections);
+        this.lineId = lineId;
     }
 
     public Section findSectionByUpStationId(Long id) {
@@ -80,7 +85,7 @@ public class Sections {
         if(visit.contains(cur))
             throw new RuntimeException("반복되는 구간이 존재합니다.");
 
-        return new Sections(orderedSections);
+        return new Sections(orderedSections, line.getId());
     }
 
     public boolean checkSectionValidation(Section section){
@@ -103,7 +108,8 @@ public class Sections {
         return findSectionByDownStationId(section.getDownStationId());
     }
 
-    public LineInfoChangedResult addSection(Line line, Section section) {
+    public List<Section> addSection(Section section) {
+        List<Section> addSections = new ArrayList<>();
         Long existStationId = findStationExistBySection(section);
 
         if(!checkSectionValidation(section))
@@ -112,52 +118,32 @@ public class Sections {
         addSections.add(section);
 
         if (section.getUpStationId() == existStationId) {
-            return addSectionBack(line, section);
+            return addSectionBack(section, addSections);
         }
 
-        return addSectionFront(line, section);
+        return addSectionFront(section, addSections);
     }
 
-    public List<Section> getAddSections() {
+    private List<Section> addSectionBack(Section section, List<Section> addSections) {
+        Section nextSection = findNextSection(section);
+        if(nextSection != null){
+            addSections.add(new Section(section.getDownStationId(),
+                    nextSection.getDownStationId(),
+                    nextSection.getDistance() - section.getDistance(),
+                    lineId));
+        }
         return addSections;
     }
 
-    public List<Section> getDelSections() {
-        return delSections;
-    }
-
-    private LineInfoChangedResult addSectionBack(Line line, Section section) {
-        Section nextSection = findNextSection(section);
-        if (line.isFinalDownStation(section) || nextSection == null) {
-            return new LineInfoChangedResult(LineInfoChanged.DOWN_STATION_CHANGED, line.getId(), section.getDownStationId());
-        }
-        delSections.add(nextSection);
-        addSections.add(new Section(section.getDownStationId(),
-                nextSection.getDownStationId(),
-                nextSection.getDistance() - section.getDistance(),
-                line.getId()));
-
-        return new LineInfoChangedResult(LineInfoChanged.NONE);
-    }
-
-    private LineInfoChangedResult addSectionFront(Line line, Section section) {
+    private List<Section> addSectionFront(Section section, List<Section> addSections) {
         Section prevSection = findPrevSection(section);
-        if (line.isFinalUpStation(section) || prevSection == null) {
-            return new LineInfoChangedResult(LineInfoChanged.UP_STATION_CHANGED, line.getId(), section.getUpStationId());
+        if(prevSection != null){
+            addSections.add(new Section(prevSection.getUpStationId(),
+                    section.getUpStationId(),
+                    prevSection.getDistance() - section.getDistance(),
+                    lineId));
         }
-
-        delSections.add(prevSection);
-        addSections.add(new Section(prevSection.getUpStationId(),
-                section.getUpStationId(),
-                prevSection.getDistance() - section.getDistance(),
-                line.getId()));
-
-        return new LineInfoChangedResult(LineInfoChanged.NONE);
-    }
-
-    public void initSectionsBeforeHandling(){
-        addSections.clear();
-        delSections.clear();
+        return addSections;
     }
 
     public LineInfoChangedResult deleteStation(Long lineId, Long stationId) {
@@ -184,5 +170,9 @@ public class Sections {
         }
 
         return new LineInfoChangedResult(LineInfoChanged.NONE);
+    }
+
+    public Long getLineId() {
+        return lineId;
     }
 }

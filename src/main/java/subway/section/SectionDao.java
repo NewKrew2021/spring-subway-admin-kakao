@@ -19,6 +19,7 @@ public class SectionDao {
     }
 
     public Section save(Section section) {
+        deleteExistSection(section);
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("section")
                 .usingGeneratedKeyColumns("id");
@@ -37,7 +38,12 @@ public class SectionDao {
                 rs.getLong("up_station_id"),
                 rs.getLong("down_station_id"),
                 rs.getInt("distance"),
-                rs.getLong("line_id")), lineId));
+                rs.getLong("line_id")), lineId), lineId);
+    }
+
+    public int deleteExistSection(Section section){
+        String sql = "delete from SECTION where up_station_id = ? or down_station_id = ?";
+        return jdbcTemplate.update(sql, section.getUpStationId(), section.getDownStationId());
     }
 
     public int deleteSectionById(Long sectionId) {
@@ -45,11 +51,21 @@ public class SectionDao {
         return jdbcTemplate.update(sql, sectionId);
     }
 
+    public int deleteSectionByUpStationId(Long upStationId, Long lineId) {
+        String sql = "delete from SECTION where up_station_id = ? and line_id = ?";
+        return jdbcTemplate.update(sql, upStationId, lineId);
+    }
+
+    public int deleteSectionByDownStationId(Long downStationId, Long lineId) {
+        String sql = "delete from SECTION where down_station_id = ? and line_id = ?";
+        return jdbcTemplate.update(sql, downStationId, lineId);
+    }
+
     public Sections saveSections(Sections sections){
         return new Sections(sections.getSections()
                 .stream()
                 .map(section -> save(section))
-                .collect(Collectors.toList())
+                .collect(Collectors.toList()), sections.getLineId()
         );
     }
 

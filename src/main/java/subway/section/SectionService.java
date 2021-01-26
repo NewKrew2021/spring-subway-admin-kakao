@@ -27,23 +27,17 @@ public class SectionService{
 
     public boolean saveSection(Section section) {
         Sections sections = sectionDao.getSectionsByLineId(section.getLineId());
-        sections.initSectionsBeforeHandling();
-        LineInfoChangedResult result = sections.addSection(lineService.findOne(section.getLineId()), section);
-        updateSections(sections, result);
+        Sections addSections = new Sections(sections.addSection(section), section.getLineId());
+        sectionDao.saveSections(addSections);
+        lineService.update(sectionDao.getSectionsByLineId(section.getLineId()));
         return true;
     }
 
     public boolean deleteSection(Long lineId, Long stationId) {
         Sections sections = getSectionsByLineId(lineId);
-        sections.initSectionsBeforeHandling();
-        LineInfoChangedResult result = sections.deleteStation(lineId, stationId);
-        updateSections(sections, result);
+        Sections delSections = new Sections(sections.deleteSection(stationId), lineId);
+        sectionDao.deleteSections(delSections);
+        lineService.update(sectionDao.getSectionsByLineId(section.getLineId()));
         return true;
-    }
-
-    private void updateSections(Sections sections, LineInfoChangedResult result){
-        lineService.update(result);
-        sectionDao.saveSections(new Sections(sections.getAddSections()));
-        sectionDao.deleteSections(new Sections(sections.getDelSections()));
     }
 }

@@ -1,6 +1,7 @@
 package subway.section;
 
-import subway.exception.exceptions.InvalidSectionException;
+import subway.exception.exceptions.InvalidValueException;
+import subway.exception.exceptions.InvalidValueExceptionEnum;
 
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class Section {
 
     private void validateDistance(int distance) {
         if (distance <= 0) {
-            throw new InvalidSectionException(INVALID_DISTANCE_MESSAGE);
+            throw new InvalidValueException(InvalidValueExceptionEnum.INVALID_DISTANCE);
         }
     }
 

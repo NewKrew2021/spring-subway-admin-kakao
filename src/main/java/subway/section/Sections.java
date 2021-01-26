@@ -1,6 +1,9 @@
 package subway.section;
 
-import subway.exception.exceptions.InvalidSectionException;
+import subway.exception.exceptions.FailedSaveException;
+import subway.exception.exceptions.FailedSaveExceptionEnum;
+import subway.exception.exceptions.InvalidValueException;
+import subway.exception.exceptions.InvalidValueExceptionEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +33,7 @@ public class Sections {
         return sections.stream()
                 .filter(section -> section.getUpStationId() == stationId)
                 .findFirst()
-                .orElseThrow(InvalidSectionException::new)
+                .orElseThrow(InvalidValueException::new)
                 .getDownStationId();
     }
 
@@ -47,14 +50,14 @@ public class Sections {
         List<Long> stationIds = getStationIds();
         List<Long> stationIdsInNewSection = Arrays.asList(section.getUpStationId(), section.getDownStationId());
         if (stationIds.containsAll(stationIdsInNewSection)) {
-            throw new InvalidSectionException(ALREADY_EXIST_STATION_MESSAGE);
+            throw new InvalidValueException(InvalidValueExceptionEnum.ALREADY_EXIST_STATION);
         }
     }
 
     private void checkExistNothing(Section section) {
         List<Long> stationIds = getStationIds();
         if (!stationIds.contains(section.getUpStationId()) && !stationIds.contains(section.getDownStationId())) {
-            throw new InvalidSectionException(NOTHING_EXIST_STATION_MESSAGE);
+            throw new InvalidValueException(InvalidValueExceptionEnum.NOTHING_EXIST_STATION);
         }
     }
 
@@ -135,7 +138,7 @@ public class Sections {
 
     private void validateLineContainsOverOneSection() {
         if (sections.size() == MIN_NECESSARY_SECTION_COUNT) {
-            throw new InvalidSectionException(ALONE_SECTION_MESSAGE);
+            throw new InvalidValueException(InvalidValueExceptionEnum.ALONE_SECTION);
         }
     }
 }

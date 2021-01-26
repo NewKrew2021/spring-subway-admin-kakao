@@ -1,8 +1,7 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
-import subway.exception.exceptions.DuplicateLineNameException;
-import subway.exception.exceptions.FailedDeleteLineException;
+import subway.exception.exceptions.*;
 import subway.section.Section;
 import subway.section.SectionDao;
 import subway.section.SectionRequest;
@@ -40,7 +39,7 @@ public class LineService {
 
     private void validateDuplicateLineName(String name) {
         if (lineDao.checkExistByName(name)) {
-            throw new DuplicateLineNameException(DUPLICATE_LINE_NAME_MESSAGE);
+            throw new DuplicateException(DuplicateExceptionEnum.DUPLICATE_LINE_NAME);
         }
     }
 
@@ -72,10 +71,10 @@ public class LineService {
 
     public void deleteById(long id) {
         if (lineDao.deleteById(id) != 1) {
-            throw new FailedDeleteLineException(FAIL_DELETE_LINE_MESSAGE);
+            throw new FailedDeleteException(FailedDeleteExceptionEnum.FAIL_DELETE_LINE);
         }
         if (sectionDao.deleteAllByLineId(id) <= 0) {
-            throw new FailedDeleteLineException(FAIL_DELETE_SECTIONS_MESSAGE);
+            throw new FailedDeleteException(FailedDeleteExceptionEnum.FAIL_DELETE_SECTIONS);
         }
     }
 

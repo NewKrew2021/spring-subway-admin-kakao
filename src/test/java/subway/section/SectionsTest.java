@@ -3,8 +3,7 @@ package subway.section;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.exception.exceptions.InvalidSectionException;
-import subway.line.Line;
+import subway.exception.exceptions.InvalidValueException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +58,7 @@ public class SectionsTest {
     void alreadyExistBothStations() {
         assertThatThrownBy(() -> {
             sections.addSection(sectionRequest2.toSection());
-        }).isInstanceOf(InvalidSectionException.class);
+        }).isInstanceOf(InvalidValueException.class);
     }
 
     @DisplayName("추가할 구간의 두 역이 모두 존재하지 않음")
@@ -67,7 +66,7 @@ public class SectionsTest {
     void nothingStation() {
         assertThatThrownBy(() -> {
             sections.addSection(sectionRequest4.toSection());
-        }).isInstanceOf(InvalidSectionException.class);
+        }).isInstanceOf(InvalidValueException.class);
     }
 
     @DisplayName("새 구간을 추가함")
@@ -116,7 +115,7 @@ public class SectionsTest {
 
         assertThatThrownBy(() -> {
             sections2.deleteSection(2);
-        }).isInstanceOf(InvalidSectionException.class);
+        }).isInstanceOf(InvalidValueException.class);
     }
 
     @DisplayName("노선에서 끝에 존재하는 역을 제거함")

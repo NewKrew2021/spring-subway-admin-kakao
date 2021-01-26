@@ -2,7 +2,7 @@ package subway.line;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.exception.exceptions.InvalidLineArgumentException;
+import subway.exception.exceptions.FailedSaveException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -15,7 +15,7 @@ public class LineRequestTest {
 
         assertThatThrownBy(() -> {
             lineRequest.validateLineRequest();
-        }).isInstanceOf(InvalidLineArgumentException.class);
+        }).isInstanceOf(FailedSaveException.class);
     }
 
     @DisplayName("상행 종점과 하행 종점이 같은 역으로 선택됐는가")
@@ -25,6 +25,6 @@ public class LineRequestTest {
 
         assertThatThrownBy(() -> {
             lineRequest.validateLineRequest();
-        }).isInstanceOf(InvalidLineArgumentException.class);
+        }).isInstanceOf(FailedSaveException.class);
     }
 }

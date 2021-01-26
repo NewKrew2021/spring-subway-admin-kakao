@@ -1,6 +1,6 @@
 package subway.line;
 
-import subway.exception.exceptions.InvalidLineArgumentException;
+import subway.exception.exceptions.*;
 import subway.section.Section;
 
 public class LineRequest {
@@ -40,13 +40,13 @@ public class LineRequest {
 
     private void validateNonemptyArgument() {
         if (upStationId == 0 || downStationId == 0 || distance == 0) {
-            throw new InvalidLineArgumentException(NONEMPTY_ARGUMENT_MESSAGE);
+            throw new FailedSaveException(FailedSaveExceptionEnum.EMPTY_LINE_ARGUMENT);
         }
     }
 
     private void validateDifferentUpDown() {
         if (upStationId == downStationId) {
-            throw new InvalidLineArgumentException(SAME_STATION_MESSAGE);
+            throw new FailedSaveException(FailedSaveExceptionEnum.SAME_STATION);
         }
     }
 

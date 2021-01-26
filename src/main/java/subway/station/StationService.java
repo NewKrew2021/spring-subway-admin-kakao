@@ -1,7 +1,8 @@
 package subway.station;
 
 import org.springframework.stereotype.Service;
-import subway.exception.exceptions.DuplicateStationNameException;
+import subway.exception.exceptions.DuplicateException;
+import subway.exception.exceptions.DuplicateExceptionEnum;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class StationService {
 
     private void validateDuplicateStationName(String name) {
         if (stationDao.countByName(name) >= MIN_DUPLICATE_STATION_NAME_COUNT) {
-            throw new DuplicateStationNameException(DUPLICATE_STATION_NAME_MESSAGE);
+            throw new DuplicateException(DuplicateExceptionEnum.DUPLICATE_STATION_NAME);
         }
     }
 

@@ -4,7 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import subway.exception.exceptions.EmptyLineException;
+import subway.exception.exceptions.EmptyException;
+import subway.exception.exceptions.EmptyExceptionEnum;
 import subway.section.Section;
 import subway.section.Sections;
 
@@ -68,7 +69,7 @@ public class LineDao {
 
     private Line mapToLine(List<Map<String, Object>> line) {
         if (line.isEmpty()) {
-            throw new EmptyLineException(NOT_FOUND_LINE_MESSAGE);
+            throw new EmptyException(EmptyExceptionEnum.NOT_FOUND_LINE);
         }
         List<Section> sections = extractSections(line);
 

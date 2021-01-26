@@ -1,99 +1,107 @@
 package subway.domain;
 
+import subway.exception.AlreadyExistDataException;
 import subway.exception.DataEmptyException;
+import subway.exception.DeleteImpossibleException;
 
 import java.util.*;
 
 public class Sections {
+    public static final int ZERO = 0;
     List<Section> sections;
-    List<Station> stations;
+
+    public Sections() {
+        sections = new ArrayList<>();
+    }
 
     public Sections(List<Section> sections) {
-        Long cur = getStartStationId(sections);
-        Long dest = getEndStationId(sections);
+        Station cur = getStartStation(sections);
+        Station dest = getEndStation(sections);
         List<Section> orderedSections = new LinkedList<>();
         while (!cur.equals(dest)) {
-            Long finalCur = cur;
+            Station finalCur = cur;
             Section section = sections.stream()
-                    .filter(sec -> sec.getUpStationId().equals(finalCur))
+                    .filter(sec -> sec.getUpStation().equals(finalCur))
                     .findFirst()
                     .get();
             orderedSections.add(section);
-            cur = section.getDownStationId();
+            cur = section.getDownStation();
         }
-        this.sections = Collections.unmodifiableList(orderedSections);
+        this.sections = orderedSections;
     }
 
-    public Sections(List<Section> sections, List<Station> stations) {
-        this(sections);
-        this.stations = stations;
+    public List<Station> getStations() {
+        Set<Station> resultSet = new LinkedHashSet<>();
+        for (Section section : sections) {
+            resultSet.add(section.getUpStation());
+            resultSet.add(section.getDownStation());
+        }
+        return new ArrayList<>(resultSet);
     }
 
-    private Long getStartStationId(List<Section> sections) {
+    private Station getStartStation(List<Section> sections) {
         return sections.stream()
                 .filter(section -> isInSectionUpStation(sections, section))
                 .findFirst()
                 .orElseThrow(DataEmptyException::new)
-                .getUpStationId();
+                .getUpStation();
     }
 
     private boolean isInSectionUpStation(List<Section> sections, Section section) {
         return sections.stream()
-                .noneMatch(section1 -> section.getUpStationId().equals(section1.getDownStationId()));
+                .noneMatch(section1 -> section.getUpStation().equals(section1.getDownStation()));
     }
 
-    private Long getEndStationId(List<Section> sections) {
+    private Station getEndStation(List<Section> sections) {
         return sections.stream()
                 .filter(section -> isInSectionDownStation(sections, section))
                 .findFirst()
                 .orElseThrow(DataEmptyException::new)
-                .getDownStationId();
+                .getDownStation();
     }
 
     private boolean isInSectionDownStation(List<Section> sections, Section section) {
         return sections.stream()
-                .noneMatch(section1 -> section.getDownStationId().equals(section1.getUpStationId()));
+                .noneMatch(section1 -> section.getDownStation().equals(section1.getUpStation()));
     }
 
-    public Long getStartStation() {
+    public Station getStartStation() {
         return this.sections
-                .get(0)
-                .getUpStationId();
+                .get(ZERO)
+                .getUpStation();
     }
 
-    public Long getEndStation() {
+    public Station getEndStation() {
         return this.sections
                 .get(this.sections.size() - 1)
-                .getDownStationId();
+                .getDownStation();
     }
 
-    public Section findSectionByUpStationId(Long id) {
+    public Section findSectionByUpStation(Station station) {
         return sections.stream()
-                .filter(sec -> sec.getUpStationId().equals(id))
+                .filter(sec -> sec.getUpStation().equals(station))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Section findSectionByDownStationId(Long id) {
+    public Section findSectionByDownStation(Station station) {
         return sections.stream()
-                .filter(sec -> sec.getDownStationId().equals(id))
+                .filter(sec -> sec.getDownStation().equals(station))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Section findSectionByStationId(Long id) {
+    public boolean existSectionByStation(Station station) {
         return sections.stream()
-                .filter(sec -> sec.getUpStationId().equals(id) || sec.getDownStationId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .anyMatch(sec -> sec.getUpStation().equals(station) || sec.getDownStation().equals(station));
     }
 
     public boolean isCanSaveSection(Section section) {
         return sections.stream()
-                .anyMatch(sec -> sec.getUpStationId().equals(section.getUpStationId())
-                        || sec.getDownStationId().equals(section.getUpStationId())
-                        || sec.getUpStationId().equals(section.getDownStationId())
-                        || sec.getDownStationId().equals(section.getDownStationId()));
+                .anyMatch(sec -> sec.getUpStation().equals(section.getUpStation())
+                        || sec.getDownStation().equals(section.getUpStation())
+                        || sec.getUpStation().equals(section.getDownStation())
+                        || sec.getDownStation().equals(section.getDownStation()));
     }
 
     public boolean isPossibleToDelete() {
@@ -104,28 +112,75 @@ public class Sections {
         return sections;
     }
 
-    public List<Long> getStationIds() {
-        Set<Long> stationIds = new LinkedHashSet<>();
-        sections.forEach(section -> {
-                    stationIds.add(section.getUpStationId());
-                    stationIds.add(section.getDownStationId());
-                });
-        return new ArrayList<>(stationIds);
-    }
-
     public boolean isExistUpStationAndMiddleSection(Section section) {
-        return findSectionByUpStationId(section.getUpStationId()) != null && !getEndStation().equals(section.getDownStationId());
+        return findSectionByUpStation(section.getUpStation()) != null && !getEndStation().equals(section.getDownStation());
     }
 
     public boolean isExistDownStationAndMiddleSection(Section section) {
-        return findSectionByDownStationId(section.getDownStationId()) != null && !getStartStation().equals(section.getDownStationId());
+        return findSectionByDownStation(section.getDownStation()) != null && !getStartStation().equals(section.getDownStation());
     }
 
     public Long getLineId() {
-        return sections.get(0).getLineId();
+        return sections.get(ZERO).getLineId();
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public void addSection(Section section) {
+        if (existSection(section)) {
+            throw new AlreadyExistDataException();
+        }
+        if (sections.size() > ZERO && !isCanSaveSection(section)) {
+            throw new IllegalStationException();
+        }
+        if (isExistUpStationAndMiddleSection(section)) {
+            addSectionBack(section);
+        }
+        if (isExistDownStationAndMiddleSection(section)) {
+            addSectionFront(section);
+        }
+        sections.add(section);
+    }
+
+    private boolean existSection(Section section) {
+        return existSectionByStation(section.getUpStation()) && existSectionByStation(section.getDownStation());
+    }
+
+    private void addSectionBack(Section section) {
+        Section nextSection = findSectionByUpStation(section.getUpStation());
+        sections.remove(nextSection);
+        sections.add(new Section(section.getDownStation(), nextSection.getDownStation(), nextSection.getDistance() - section.getDistance(), section.getLineId()));
+    }
+
+    private void addSectionFront(Section section) {
+        Section prevSection = findSectionByDownStation(section.getDownStation());
+        sections.remove(prevSection);
+        Section newSection = new Section(prevSection.getUpStation(), section.getUpStation(), prevSection.getDistance() - section.getDistance(), section.getLineId());
+        sections.add(newSection);
+    }
+
+    public void deleteSection(Station station) {
+        deleteStationValidate(station);
+        delete(station);
+    }
+
+    private void deleteStationValidate(Station station) {
+        if (!isPossibleToDelete() || !existSectionByStation(station)) {
+            throw new DeleteImpossibleException();
+        }
+    }
+
+    private void delete(Station station) {
+        Section nextSection = findSectionByUpStation(station);
+        Section prevSection = findSectionByDownStation(station);
+        Long lineId = getLineId();
+        if (prevSection != null) {
+            sections.remove(prevSection);
+        }
+        if (nextSection != null) {
+            sections.remove(nextSection);
+        }
+        if (nextSection != null && prevSection != null) {
+            sections.add(new Section(prevSection.getUpStation(), nextSection.getDownStation(),
+                    prevSection.getDistance() + nextSection.getDistance(), lineId));
+        }
     }
 }

@@ -8,23 +8,26 @@ public class Line {
     private final String color;
     private Sections sections;
 
-
-    public Line(Long id, String name, String color) {
-        this.id = id;
-        this.color = color;
-        this.name = name;
-    }
-
-    public Line(Long id, String name, String color, Sections sections) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.sections = sections;
-    }
-
     public Line(String name, String color) {
         this.name = name;
         this.color = color;
+        sections = new Sections();
+    }
+
+    public Line(String name, String color, Sections sections) {
+        this(name, color);
+        this.sections = sections;
+    }
+
+    public Line(Long id, String name, String color) {
+        this(name, color);
+        this.id = id;
+        sections = new Sections();
+    }
+
+    public Line(Long id, String name, String color, Sections sections) {
+        this(name, color, sections);
+        this.id = id;
     }
 
     public Long getId() {
@@ -39,15 +42,28 @@ public class Line {
         return name;
     }
 
-    public Long getUpStationId() {
+    public Station getUpStation() {
         return sections.getStartStation();
     }
 
-    public Long getDownStationId() {
+    public Station getDownStationId() {
         return sections.getEndStation();
+    }
+
+    public Sections getSections() {
+        return sections;
     }
 
     public List<Station> getStations() {
         return sections.getStations();
     }
+
+    public void addSection(Station upStation, Station downStation, int distance) {
+        sections.addSection(new Section(upStation, downStation, distance, id));
+    }
+
+    public void deleteSection(Station station) {
+        sections.deleteSection(station);
+    }
+
 }

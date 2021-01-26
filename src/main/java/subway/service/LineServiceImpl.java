@@ -3,61 +3,72 @@ package subway.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.dao.LineDao;
+import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
-import subway.exception.DataEmptyException;
-import subway.exception.DeleteImpossibleException;
-import subway.exception.UpdateImpossibleException;
+import subway.domain.Station;
 
 import java.util.List;
 
 @Service
 public class LineServiceImpl implements LineService {
     private final LineDao lineDao;
-    private final SectionService sectionService;
+    private final SectionDao sectionDao;
 
-    public LineServiceImpl(LineDao lineDao, SectionService sectionService) {
+    public LineServiceImpl(LineDao lineDao, SectionDao sectionDao) {
         this.lineDao = lineDao;
-        this.sectionService = sectionService;
+        this.sectionDao = sectionDao;
     }
 
     @Override
     @Transactional
     public Line save(Line line, Section section) {
-        return lineDao.save(line, section);
+        Line newLine = lineDao.save(line);
+        saveSection(newLine, new Section(section.getSectionId(), section.getUpStation(), section.getDownStation(), section.getDistance(), newLine.getId()));
+        return newLine;
     }
 
     @Override
     @Transactional
     public void deleteById(Long lineId) {
-        sectionService.deleteSectionByLineId(lineId);
-        if (lineDao.deleteById(lineId) == 0) {
-            throw new DeleteImpossibleException();
-        }
+        sectionDao.deleteSectionByLineId(lineId);
+        lineDao.deleteById(lineId);
     }
 
     @Override
     public List<Line> findAll() {
-        List<Line> lines = lineDao.findAll();
-        if (lines.size() == 0) {
-            throw new DataEmptyException();
-        }
-        return lines;
+        return lineDao.findAll();
     }
 
     @Override
     public Line findOne(Long lineId) {
-        Line line = lineDao.findOne(lineId);
-        if (line == null) {
-            throw new DataEmptyException();
-        }
-        return line;
+        return lineDao.findOne(lineId);
     }
 
     @Override
     public void update(Line line) {
-        if (lineDao.update(line) == 0) {
-            throw new UpdateImpossibleException();
-        }
+        lineDao.update(line);
+    }
+
+    @Override
+    public void saveSection(Section section) {
+        saveSection(lineDao.findOne(section.getLineId()), section);
+    }
+
+    @Override
+    @Transactional
+    public void saveSection(Line line, Section section) {
+        line.addSection(section.getUpStation(), section.getDownStation(), section.getDistance());
+        sectionDao.deleteSectionByLineId(line.getId());
+        sectionDao.saveSections(line.getSections());
+    }
+
+    @Override
+    @Transactional
+    public void deleteSection(Long lineId, Long stationId) {
+        Line line = lineDao.findOne(lineId);
+        line.deleteSection(new Station(stationId));
+        sectionDao.deleteSectionByLineId(line.getId());
+        sectionDao.saveSections(line.getSections());
     }
 }

@@ -1,4 +1,4 @@
-package subway.exception;
+package subway.domain;
 
 
 public class IllegalStationException extends IllegalArgumentException {

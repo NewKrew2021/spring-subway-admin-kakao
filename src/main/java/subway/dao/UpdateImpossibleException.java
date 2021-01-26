@@ -1,4 +1,4 @@
-package subway.exception;
+package subway.dao;
 
 public class UpdateImpossibleException extends IllegalArgumentException{
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class StationServiceImpl implements StationService {
+    public static final int ZERO = 0;
     private final StationDao stationDao;
 
     public StationServiceImpl(StationDao stationDao) {
@@ -25,7 +26,7 @@ public class StationServiceImpl implements StationService {
     @Override
     public List<Station> findAll() {
         List<Station> stations = stationDao.findAll();
-        if (stations.size() == 0) {
+        if (stations.size() == ZERO) {
             throw new DataEmptyException();
         }
         return stations;
@@ -42,7 +43,7 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public void deleteById(Long stationId) {
-        if (stationDao.deleteById(stationId) == 0) {
+        if (stationDao.deleteById(stationId) == ZERO) {
             throw new DeleteImpossibleException();
         }
     }

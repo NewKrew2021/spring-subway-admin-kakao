@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 @Repository
 public class StationDao {
+    public static final String SELECT_FROM_STATION = "select * from STATION";
+    public static final String SELECT_FROM_STATION_WHERE_ID = "select * from STATION where id = ?";
+    public static final String DELETE_FROM_STATION_WHERE_ID = "delete from STATION where id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public StationDao(JdbcTemplate jdbcTemplate) {
@@ -29,7 +32,7 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select * from STATION";
+        String sql = SELECT_FROM_STATION;
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
         return rows.stream()
                 .map(row -> new Station((Long) row.get("id"), row.get("name").toString()))
@@ -37,12 +40,12 @@ public class StationDao {
     }
 
     public Station findOne(Long stationId) {
-        String sql = "select * from STATION where id = ?";
+        String sql = SELECT_FROM_STATION_WHERE_ID;
         return jdbcTemplate.queryForObject(sql, (resultSet, idx) -> new Station(resultSet.getLong("id"), resultSet.getString("name")), stationId);
     }
 
     public int deleteById(Long stationId) {
-        String sql = "delete from STATION where id = ?";
+        String sql = DELETE_FROM_STATION_WHERE_ID;
         return jdbcTemplate.update(sql, stationId);
     }
 

@@ -8,55 +8,86 @@ import org.springframework.stereotype.Repository;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
+import subway.domain.Station;
 import subway.exception.AlreadyExistDataException;
+import subway.exception.DataEmptyException;
+import subway.exception.DeleteImpossibleException;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class LineDao {
+    public static final String DELETE_FROM_LINE_WHERE_ID = "delete from LINE where id = ?";
+    public static final String SELECT_FROM_LINE = "select * from LINE";
+    public static final String SELECT_FROM_LINE_WHERE_ID = "select L.id as id, L.name as name, L.color as color, " +
+            "SE.id as section_id, SE.distance as distance," +
+            "SE.up_station_id as up_station_id, UST.name as uname, " +
+            "SE.down_station_id as down_station_id, DST.name dname  " +
+            "from LINE L left join SECTION SE on SE.line_id = L.id " +
+            "left join STATION UST on SE.up_station_id = UST.id " +
+            "left join STATION DST on SE.down_station_id = DST.id " +
+            "where L.id= ? ";
+    public static final String UPDATE_LINE_SET_COLOR_NAME_WHERE_ID = "update LINE set color = ?, name = ? where id = ?";
     private final JdbcTemplate jdbcTemplate;
-    private final SectionDao sectionDao;
 
-    public LineDao(JdbcTemplate jdbcTemplate, SectionDao sectionDao) {
+    public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.sectionDao = sectionDao;
     }
 
-    public Line save(Line line, Section section) {
-        Long lineId;
+    public Line save(Line line) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("line")
                 .usingGeneratedKeyColumns("id");
         SqlParameterSource parameters = new BeanPropertySqlParameterSource(line);
         try {
-            lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-            sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), lineId));
+            Long lineId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+            return new Line(lineId, line.getName(), line.getColor());
         } catch (RuntimeException e) {
             throw new AlreadyExistDataException();
         }
-        return findOne(lineId);
 
     }
 
-    public int deleteById(Long lineId) {
-        String sql = "delete from LINE where id = ?";
-        return jdbcTemplate.update(sql, lineId);
+    public void deleteById(Long lineId) {
+        String sql = DELETE_FROM_LINE_WHERE_ID;
+        if (jdbcTemplate.update(sql, lineId) == 0) {
+            throw new DeleteImpossibleException();
+        }
     }
 
     public List<Line> findAll() {
-        String sql = "select id from LINE";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> findOne(rs.getLong("id")));
+        String sql = SELECT_FROM_LINE;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")));
     }
 
     public Line findOne(Long lineId) {
-        String getLineSql = "select * from LINE where id = ?";
-        Line line = jdbcTemplate.queryForObject(getLineSql, (rs, rowNum) -> new Line(rs.getLong("id"), rs.getString("name"), rs.getString("color")), lineId);
-        Sections sections = sectionDao.getSectionsByLineId(lineId);
-
-        return new Line(line.getId(), line.getName(), line.getColor(), sections);
+        String sql = SELECT_FROM_LINE_WHERE_ID;
+        return mapLine(jdbcTemplate.queryForList(sql, lineId));
     }
 
-    public int update(Line line) {
-        String sql = "update LINE set color = ?, name = ? where id = ?";
-        return jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId());
+    public void update(Line line) {
+        String sql = UPDATE_LINE_SET_COLOR_NAME_WHERE_ID;
+        if (jdbcTemplate.update(sql, line.getColor(), line.getName(), line.getId()) == 0) {
+            throw new UpdateImpossibleException();
+        }
+    }
+
+    private Line mapLine(List<Map<String, Object>> resultSet) {
+        if (resultSet.size() < 1) {
+            throw new DataEmptyException();
+        }
+        List<Section> sections = getSections(resultSet);
+        return new Line((Long) resultSet.get(0).get("id"), resultSet.get(0).get("name").toString(), resultSet.get(0).get("color").toString(), new Sections(sections));
+    }
+
+    private List<Section> getSections(List<Map<String, Object>> resultSet) {
+        List<Section> sections = resultSet.stream()
+                .map(result -> new Section((Long) result.get("section_id"),
+                        new Station((Long) result.get("up_station_id"), result.get("uname").toString()),
+                        new Station((Long) result.get("down_station_id"), result.get("dname").toString()),
+                        (Integer) result.get("distance"),
+                        (Long) result.get("id")))
+                .collect(Collectors.toList());
+        return sections;
     }
 }

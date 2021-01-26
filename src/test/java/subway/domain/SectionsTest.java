@@ -2,39 +2,41 @@ package subway.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import subway.domain.Section;
-import subway.domain.Sections;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SectionsTest {
     Sections sections;
-
+    Station 잠실;
+    Station 분당;
+    Station 판교;
     @BeforeEach
     void setUp() {
-        sections = new Sections(Arrays.asList(new Section(1L, 2L, 3)));
+        잠실 = new Station(1L,"잠실");
+        분당 = new Station(2L,"분당");
+        판교 = new Station(3L,"판교");
+        sections = new Sections(Arrays.asList(new Section(잠실, 분당, 3)));
     }
 
     @Test
     void findSectionByDownId() {
-        assertThat(sections.findSectionByDownStationId(2L)).isEqualTo(new Section(1L, 2L, 3));
+        assertThat(sections.findSectionByDownStation(분당)).isEqualTo(new Section(잠실, 분당, 3));
     }
 
     @Test
     void findSectionByUpId() {
-        assertThat(sections.findSectionByUpStationId(1L)).isEqualTo(new Section(1L, 2L, 3));
+        assertThat(sections.findSectionByUpStation(잠실)).isEqualTo(new Section(잠실, 분당, 3));
     }
 
     @Test
     void findSectionByDownIdNull() {
-        assertThat(sections.findSectionByDownStationId(1L)).isNull();
+        assertThat(sections.findSectionByDownStation(잠실)).isNull();
     }
 
     @Test
     void findSectionByUpIdNull() {
-        assertThat(sections.findSectionByUpStationId(2L)).isNull();
+        assertThat(sections.findSectionByUpStation(분당)).isNull();
     }
 }

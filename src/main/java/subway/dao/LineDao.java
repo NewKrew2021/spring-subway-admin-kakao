@@ -71,24 +71,14 @@ public class LineDao {
             throw new DataEmptyException();
         }
         List<Section> sections = getSections(resultSet);
-        List<Station> stations = getStations(resultSet);
-        return new Line((Long) resultSet.get(0).get("id"), resultSet.get(0).get("name").toString(), resultSet.get(0).get("color").toString(), new Sections(sections, stations));
-    }
-
-    private List<Station> getStations(List<Map<String, Object>> resultSet) {
-        List<Station> stations = new LinkedList<>();
-        resultSet.stream().forEach(result -> {
-            stations.add(new Station((Long) result.get("up_station_id"), result.get("uname").toString()));
-            stations.add(new Station((Long) result.get("down_station_id"), result.get("dname").toString()));
-        });
-        return stations;
+        return new Line((Long) resultSet.get(0).get("id"), resultSet.get(0).get("name").toString(), resultSet.get(0).get("color").toString(), new Sections(sections));
     }
 
     private List<Section> getSections(List<Map<String, Object>> resultSet) {
         List<Section> sections = resultSet.stream()
                 .map(result -> new Section((Long) result.get("section_id"),
-                        (Long) result.get("up_station_id"),
-                        (Long) result.get("down_station_id"),
+                        new Station((Long) result.get("up_station_id"), result.get("uname").toString()),
+                        new Station((Long) result.get("down_station_id"), result.get("dname").toString()),
                         (Integer) result.get("distance"),
                         (Long) result.get("id")))
                 .collect(Collectors.toList());

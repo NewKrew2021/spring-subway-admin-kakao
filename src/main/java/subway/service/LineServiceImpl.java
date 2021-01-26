@@ -23,7 +23,7 @@ public class LineServiceImpl implements LineService {
     @Transactional
     public Line save(Line line, Section section) {
         Line newLine = lineDao.save(line);
-        sectionDao.save(new Section(section.getUpStationId(), section.getDownStationId(), section.getDistance(), newLine.getId()));
+        sectionDao.save(new Section(section.getUpStation(), section.getDownStation(), section.getDistance(), newLine.getId()));
         return newLine;
     }
 
@@ -41,8 +41,7 @@ public class LineServiceImpl implements LineService {
 
     @Override
     public Line findOne(Long lineId) {
-        Line line = lineDao.findOne(lineId);
-        return new Line(line.getId(), line.getName(), line.getColor(), sectionDao.getSectionsByLineId(lineId));
+        return lineDao.findOne(lineId);
     }
 
     @Override

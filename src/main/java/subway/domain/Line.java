@@ -39,11 +39,11 @@ public class Line {
         return name;
     }
 
-    public Long getUpStationId() {
+    public Station getUpStation() {
         return sections.getStartStation();
     }
 
-    public Long getDownStationId() {
+    public Station getDownStationId() {
         return sections.getEndStation();
     }
 
@@ -59,8 +59,13 @@ public class Line {
         sections.addSection(section);
     }
 
-    public void deleteStation(Long stationId) {
-        sections.deleteStation(stationId);
+    public void addSection(Station upStation, Station downStation, int distance) {
+        sections.addSection(upStation, downStation, distance);
+    }
+
+
+    public void deleteSection(Station station) {
+        sections.deleteSection(station);
     }
 
 }

@@ -7,8 +7,8 @@ import java.util.Objects;
 
 public class Section {
     public static final int ZERO = 0;
-    private Long upStationId;
-    private Long downStationId;
+    private Station upStation;
+    private Station downStation;
     private Integer distance;
     private Long lineId;
     private Long sectionId;
@@ -16,44 +16,34 @@ public class Section {
     public Section() {
     }
 
-    public Section(Long upStationId, Long downStationId, Integer distance) {
-        if (checkProblemStationId(upStationId, downStationId)) {
+    public Section(Station upStation, Station downStation, Integer distance) {
+        if (upStation.equals(downStation)) {
             throw new IllegalStationException();
         }
         if (distance <= ZERO) {
             throw new DistanceException();
         }
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
     }
 
-    public Section(Long upStationId, Long downStationId, Integer distance, Long lineId) {
-        this(upStationId, downStationId, distance);
+    public Section(Station upStation, Station downStation, Integer distance, Long lineId) {
+        this(upStation, downStation, distance);
         this.lineId = lineId;
     }
 
-    public Section(Long sectionId, Long upStationId, Long downStationId, Integer distance, Long lineId) {
-        this(upStationId, downStationId, distance, lineId);
+    public Section(Long sectionId, Station upStation, Station downStation, Integer distance, Long lineId) {
+        this(upStation, downStation, distance, lineId);
         this.sectionId = sectionId;
     }
 
-    private boolean checkProblemStationId(Long upStationId, Long downStationId) {
-        if (upStationId < ZERO) {
-            return true;
-        }
-        if (downStationId < ZERO) {
-            return true;
-        }
-        return upStationId.equals(downStationId);
+    public Station getUpStation() {
+        return upStation;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
+    public Station getDownStation() {
+        return downStation;
     }
 
     public Integer getDistance() {
@@ -73,11 +63,11 @@ public class Section {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Section section = (Section) o;
-        return Objects.equals(upStationId, section.upStationId) && Objects.equals(downStationId, section.downStationId) && Objects.equals(lineId, section.lineId);
+        return Objects.equals(upStation, section.upStation) && Objects.equals(downStation, section.downStation) && Objects.equals(lineId, section.lineId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(upStationId, downStationId, lineId);
+        return Objects.hash(upStation, downStation, lineId);
     }
 }

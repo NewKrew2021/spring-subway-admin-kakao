@@ -20,6 +20,8 @@ public class LineConvertor {
     }
 
     public static LineResponseWithStation convertLineWithResponse(Line line) {
+        System.out.println("#####################");
+        System.out.println(line.getStations());
         return new LineResponseWithStation(line.getId(), line.getName(), line.getColor(), line.getStations()
                 .stream()
                 .map(station -> new StationResponse(station.getId(), station.getName()))

@@ -13,7 +13,7 @@ public class SectionTest {
     @DisplayName("역번호 중복 예외 테스트")
     void createExceptionTest() {
         assertThatExceptionOfType(IllegalStationException.class).isThrownBy(() -> {
-            new Section(1L, 1L, 3);
+            new Section(new Station(1L), new Station(1L), 3);
         });
     }
 
@@ -21,7 +21,7 @@ public class SectionTest {
     @DisplayName("거리 부족 테스트")
     void createExceptionTest2() {
         assertThatExceptionOfType(DistanceException.class).isThrownBy(() -> {
-            new Section(1L, 2L, 0);
+            new Section(new Station(1L), new Station(2L), 0);
         });
     }
 }

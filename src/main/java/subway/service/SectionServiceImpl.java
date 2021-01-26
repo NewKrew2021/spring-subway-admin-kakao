@@ -7,6 +7,7 @@ import subway.dao.SectionDao;
 import subway.domain.Line;
 import subway.domain.Section;
 import subway.domain.Sections;
+import subway.domain.Station;
 
 @Service
 public class SectionServiceImpl implements SectionService {
@@ -43,7 +44,7 @@ public class SectionServiceImpl implements SectionService {
     @Transactional
     public void deleteSection(Long lineId, Long stationId) {
         Line line = lineDao.findOne(lineId);
-        line.deleteStation(stationId);
+        line.deleteSection(new Station(stationId));
         sectionDao.deleteSectionByLineId(line.getId());
         sectionDao.saveSections(line.getSections());
     }

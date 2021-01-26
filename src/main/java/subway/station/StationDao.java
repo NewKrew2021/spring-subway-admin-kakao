@@ -1,7 +1,6 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -46,20 +45,17 @@ public class StationDao {
 
     public Station findById(Long id) {
         String sql = "select id, name from STATION where id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+    }
+
+    public boolean isDuplicateName(String name) {
+        String sql = "select count(*) from STATION where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name) != 0;
     }
 
     public Station findByName(String name) {
         String sql = "select id, name from STATION where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
     }
 
     public int deleteById(Long id) {

@@ -49,20 +49,17 @@ public class LineDao {
 
     public Line findById(Long id) {
         String sql = "select id, name, color from LINE where id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 
-    public Line findByName(String name) {
-        String sql = "select id, name, color from LINE where name = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+    public boolean isExistLine(Long id) {
+        String sql = "select count(*) from LINE where id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, id) != 0;
+    }
+
+    public boolean isDuplicateName(String name) {
+        String sql = "select count(*) from LINE where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name) != 0;
     }
 
     public void update(Line newLine) {

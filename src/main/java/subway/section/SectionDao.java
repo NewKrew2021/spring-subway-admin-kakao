@@ -53,11 +53,7 @@ public class SectionDao {
     public Section findById(Long id) {
         String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where id = ?";
 
-        try {
-            return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 
     public List<Section> findSectionsByLineId(Long lineId) {

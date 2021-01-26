@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.section.exceptions.InvalidAddSectionException;
 import subway.section.exceptions.InvalidDeleteSectionException;
-import subway.section.exceptions.NoSuchSectionException;
 
 import java.util.List;
 
@@ -125,17 +124,9 @@ public class SectionService {
 
     public void delete(Long id) {
         try {
-            checkExistSection(id);
             sectionDao.deleteById(id);
         } catch (Exception e) {
-            System.out.println(e.getClass());
-            throw new InvalidDeleteSectionException("삭제하려는 section이 존재하지 않습니다.");
-        }
-    }
-
-    private void checkExistSection(Long id) {
-        if (sectionDao.findById(id) == null) {
-            throw new NoSuchSectionException(id);
+            throw new InvalidDeleteSectionException("Section 삭제에 실패했습니다.");
         }
     }
 }

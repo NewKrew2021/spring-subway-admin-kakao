@@ -8,12 +8,12 @@ import subway.line.LineService;
 
 @RestController
 @RequestMapping("/lines/{lineId}")
-public class SectionController {
+public class LineSectionController {
 
     LineService lineService;
     SectionService sectionService;
 
-    public SectionController(LineService lineService, SectionService sectionService) {
+    public LineSectionController(LineService lineService, SectionService sectionService) {
         this.lineService = lineService;
         this.sectionService = sectionService;
     }
@@ -21,7 +21,7 @@ public class SectionController {
     @PostMapping("/sections")
     public ResponseEntity<LineResponse> createLineSection(@RequestBody SectionRequest sectionRequest, @PathVariable Long lineId) {
         sectionService.addSectionToLine(sectionRequest.toDomainObject(lineId));
-        return ResponseEntity.ok().body(LineResponse.of(lineService.find(lineId)));
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/sections")

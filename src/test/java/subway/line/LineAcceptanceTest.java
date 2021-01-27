@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
-import subway.station.StationResponse;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.station.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +56,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_노선_등록되어_있음(lineRequest1);
 
         // when
-        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
+        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1); // http code 400
 
         // then
         지하철_노선_생성_실패됨(response);

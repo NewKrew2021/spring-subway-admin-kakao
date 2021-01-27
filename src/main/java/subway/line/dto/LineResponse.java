@@ -1,6 +1,7 @@
-package subway.line;
+package subway.line.dto;
 
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.station.dto.StationResponse;
 
 import java.util.List;
 
@@ -11,11 +12,27 @@ public class LineResponse {
     private int extraFare;
     private List<StationResponse> stations;
 
+    public LineResponse() {
+        // 없으면 jackson.databind 오류가 발생함. 기본생성자가 있어야 가능하다.
+    }
+
+
+    public LineResponse(Line line, List<StationResponse> stationResponses) {
+        this.id = line.getId();
+        this.name = line.getName();
+        this.color = line.getColor();
+        this.stations = stationResponses;
+    }
+
     public LineResponse(Long id, String name, String color, List<StationResponse> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.stations = stations;
+    }
+
+    public static LineResponse of(Line line) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor(), null);
     }
 
     public Long getId() {

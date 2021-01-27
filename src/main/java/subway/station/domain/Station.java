@@ -1,13 +1,10 @@
-package subway.station;
+package subway.station.domain;
 
-public class StationResponse {
+public class Station {
     private Long id;
     private String name;
 
-    public StationResponse() {
-    }
-
-    public StationResponse(Long id, String name) {
+    public Station(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -20,3 +17,4 @@ public class StationResponse {
         return name;
     }
 }
+

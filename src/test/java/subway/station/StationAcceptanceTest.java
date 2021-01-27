@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +27,16 @@ public class StationAcceptanceTest extends AcceptanceTest {
     void createStation() {
         // when
         ExtractableResponse<Response> response = 지하철역_생성_요청(강남역);
+//        ExtractableResponse<Response> response2 = 지하철역_생성_요청(강남역);
+//        ExtractableResponse<Response> response3 = 지하철역_생성_요청(강남역);
+
 
         // then
         지하철역_생성됨(response);
+//        지하철역_생성됨(response2);
+//        지하철역_생성됨(response3);
     }
+
 
     @DisplayName("지하철역을 조회한다.")
     @Test

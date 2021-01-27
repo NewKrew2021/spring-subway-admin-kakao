@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 public class SectionDao {
     private JdbcTemplate jdbcTemplate;
 
+    private final int MIDDLE_STATION_DELETE_SIZE = 2;
+
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -50,17 +52,7 @@ public class SectionDao {
         String sql = "delete from SECTION where id = ?";
         return jdbcTemplate.update(sql, sectionId);
     }
-
-    public int deleteSectionByUpStationId(Long upStationId, Long lineId) {
-        String sql = "delete from SECTION where up_station_id = ? and line_id = ?";
-        return jdbcTemplate.update(sql, upStationId, lineId);
-    }
-
-    public int deleteSectionByDownStationId(Long downStationId, Long lineId) {
-        String sql = "delete from SECTION where down_station_id = ? and line_id = ?";
-        return jdbcTemplate.update(sql, downStationId, lineId);
-    }
-
+    
     public Sections saveSections(Sections sections){
         return new Sections(sections.getSections()
                 .stream()
@@ -70,36 +62,35 @@ public class SectionDao {
     }
 
     public List<Integer> deleteSections(Sections sections){
-        if(sections.getSections().size() == 2){
-            Long midStationId =
-                    sections.getSections().get(0).getDownStationId() == sections.getSections().get(1).getUpStationId()
-                    ? sections.getSections().get(0).getDownStationId()
-                    : sections.getSections().get(0).getUpStationId();
-
-            Long fromStationId =
-                    midStationId == sections.getSections().get(0).getUpStationId()
-                            ? sections.getSections().get(1).getUpStationId()
-                            : sections.getSections().get(1).getDownStationId();
-
-            Long toStationId =
-                    midStationId == sections.getSections().get(0).getUpStationId()
-                            ? sections.getSections().get(0).getDownStationId()
-                            : sections.getSections().get(0).getUpStationId();
-
-            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("section")
-                    .usingGeneratedKeyColumns("id");
-
-            SqlParameterSource parameters = new BeanPropertySqlParameterSource(new Section(
-                    fromStationId,
-                    toStationId,
-                    sections.getSections().get(0).getDistance() + sections.getSections().get(1).getDistance(),
-                    sections.getLineId()));
-            simpleJdbcInsert.execute(parameters);
-        }
+        saveWhenStationIsMiddle(sections);
         return sections.getSections()
                 .stream()
                 .map(section -> deleteSectionById(section.getSectionId()))
                 .collect(Collectors.toList());
+    }
+
+    private void saveWhenStationIsMiddle(Sections sections){
+        if(hasMiddleStationToDelete(sections)){
+            Long s1UpStationId = sections.getSections().get(0).getUpStationId();
+            Long s1DownStationId = sections.getSections().get(0).getDownStationId();
+            Long s2UpStationId = sections.getSections().get(1).getUpStationId();
+            Long s2DownStationId = sections.getSections().get(1).getDownStationId();
+
+            Long midStationId = (s1DownStationId == s2UpStationId) ? s1DownStationId : s1UpStationId;
+            Long fromStationId = (midStationId == s1UpStationId) ? s2UpStationId : s2DownStationId;
+            Long toStationId = (midStationId == s1UpStationId) ? s1DownStationId : s1UpStationId;
+
+            Section middleSection = new Section(
+                    fromStationId,
+                    toStationId,
+                    sections.getSections().get(0).getDistance() + sections.getSections().get(1).getDistance(),
+                    sections.getLineId());
+
+            save(middleSection);
+        }
+    }
+
+    private boolean hasMiddleStationToDelete(Sections delSections){
+        return delSections.getSections().size() == MIDDLE_STATION_DELETE_SIZE;
     }
 }

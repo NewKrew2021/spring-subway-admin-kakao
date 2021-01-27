@@ -12,19 +12,16 @@ import subway.section.service.SectionService;
 
 @RestController
 public class SectionController {
-    private final LineService lineService;
     private final SectionService sectionService;
 
-    public SectionController(LineService lineService, SectionService sectionService) {
-        this.lineService = lineService;
+    public SectionController(SectionService sectionService) {
         this.sectionService = sectionService;
     }
 
     @PostMapping(value = "/lines/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId,
                                                          @RequestBody SectionRequest sectionRequest) {
-        Line line = lineService.findById(lineId);
-        Section section = new Section(line.getId(),
+        Section section = new Section(lineId,
                 sectionRequest.getUpStationId(),
                 sectionRequest.getDownStationId(),
                 sectionRequest.getDistance());

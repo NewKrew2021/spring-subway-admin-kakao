@@ -12,8 +12,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import subway.station.service.StationService;
-
 @RestController
 @RequestMapping("/lines")
 public class LineController {
@@ -26,7 +24,10 @@ public class LineController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
-        Line newline = lineService.saveLine(lineRequest);
+        Line newline = lineService.saveLine(lineRequest.getDomain(),
+                lineRequest.getUpStationId(),
+                lineRequest.getDownStationId(),
+                lineRequest.getDistance());
         return ResponseEntity
                 .created(URI.create(("/lines/" + newline.getId())))
                 .body(LineResponse.of(newline));

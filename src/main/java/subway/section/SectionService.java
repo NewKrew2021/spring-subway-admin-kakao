@@ -71,35 +71,47 @@ public class SectionService {
         return currentSection.getDistance() - section.getDistance();
     }
 
-    public int deleteSection(Long lineId, Long stationId) {
+    public void deleteSection(Long lineId, Long stationId) {
         if (sectionDao.countByLineId(lineId) < 2) {
             throw new IllegalArgumentException("구간이 하나 이하인 노선에서는 구간을 제거할 수 없습니다.");
         }
 
-        Line line = lineService.getLineById(lineId);
-        if (line.getUpStationId() == stationId) { // 상행 종점 제거
-            Section currentSection = sectionDao.findByLineIdAndUpStationId(lineId, stationId);
-            lineService.updateLine(new Line(lineId, line.getName(), line.getColor(), currentSection.getDownStationId(), line.getDownStationId(), line.getDistance()));
-            return sectionDao.delete(currentSection);
-        }
-        if (line.getDownStationId() == stationId) { // 하행 종점 제거
-            Section currentSection = sectionDao.findByLineIdAndDownStationId(lineId, stationId);
-            lineService.updateLine(new Line(lineId, line.getName(), line.getColor(), line.getUpStationId(), currentSection.getUpStationId(), line.getDistance()));
-            return sectionDao.delete(currentSection);
-        }
-        // 중간 구간 제거
         int deleteCount = 0;
+        Line line = lineService.getLineById(lineId);
+
+        deleteCount += deleteLineFront(line, stationId);
+        deleteCount += deleteLineBack(line, stationId);
+
+        if(deleteCount == 0) {
+            deleteMiddleStation(lineId, stationId);
+        }
+    }
+
+    private int deleteLineFront(Line line, Long stationId){
+        if (line.getUpStationId() == stationId) { // 상행 종점 제거
+            Section currentSection = sectionDao.findByLineIdAndUpStationId(line.getId(), stationId);
+            lineService.updateLine(new Line(line.getId(), line.getName(), line.getColor(), currentSection.getDownStationId(), line.getDownStationId(), line.getDistance()));
+            return sectionDao.delete(currentSection);
+        }
+        return 0;
+    }
+
+    private int deleteLineBack(Line line, Long stationId){
+        if (line.getDownStationId() == stationId) { // 하행 종점 제거
+            Section currentSection = sectionDao.findByLineIdAndDownStationId(line.getId(), stationId);
+            lineService.updateLine(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), currentSection.getUpStationId(), line.getDistance()));
+            return sectionDao.delete(currentSection);
+        }
+        return 0;
+    }
+
+    private void deleteMiddleStation(Long lineId, Long stationId){  // 중간 구간 제거
         Section upSection = sectionDao.findByLineIdAndDownStationId(lineId, stationId);
         Section downSection = sectionDao.findByLineIdAndUpStationId(lineId, stationId);
         int newDistance = upSection.getDistance() + downSection.getDistance();
         Section newSection = new Section(lineId, upSection.getUpStationId(), downSection.getDownStationId(), newDistance);
         sectionDao.insert(newSection);
-        deleteCount += sectionDao.delete(upSection);
-        deleteCount += sectionDao.delete(downSection);
-        return deleteCount;
-    }
-
-    public void createSection(Section section) {
-        sectionDao.insert(section);
+        sectionDao.delete(upSection);
+        sectionDao.delete(downSection);
     }
 }

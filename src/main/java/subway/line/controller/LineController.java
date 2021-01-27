@@ -7,13 +7,11 @@ import subway.line.domain.Line;
 import subway.line.dto.LineRequest;
 import subway.line.dto.LineResponse;
 import subway.line.service.LineService;
-import subway.station.repository.StationDao;
 
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import subway.section.repository.SectionDao;
 import subway.station.service.StationService;
 
 @RestController
@@ -21,15 +19,9 @@ import subway.station.service.StationService;
 public class LineController {
 
     private final LineService lineService;
-    private final SectionDao sectionDao;
-    private final StationDao stationDao;
-    private final StationService stationService;
 
-    public LineController(LineService lineService, SectionDao sectionDao, StationDao stationDao, StationService stationService) {
+    public LineController(LineService lineService) {
         this.lineService = lineService;
-        this.sectionDao = sectionDao;
-        this.stationDao = stationDao;
-        this.stationService = stationService;
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,19 +29,19 @@ public class LineController {
         Line newline = lineService.saveLine(lineRequest);
         return ResponseEntity
                 .created(URI.create(("/lines/" + newline.getId())))
-                .body(new LineResponse(newline, stationService.getStationsByLineId(newline.getId())));
+                .body(LineResponse.of(newline));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LineResponse>> showLines() {
         return ResponseEntity.ok().body(lineService.findAll().stream()
-                .map((Line line) -> new LineResponse(line, stationService.getStationsByLineId(line.getId())))
+                .map(LineResponse::of)
                 .collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-        return ResponseEntity.ok().body(new LineResponse(lineService.findById(id), stationService.getStationsByLineId(id)));
+        return ResponseEntity.ok().body(LineResponse.of(lineService.findById(id)));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)

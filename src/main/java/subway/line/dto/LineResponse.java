@@ -4,6 +4,7 @@ import subway.line.domain.Line;
 import subway.station.dto.StationResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LineResponse {
 
@@ -28,8 +29,24 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line, List<StationResponse> stations) {
-        this(line.getId(), line.getName(), line.getColor(), stations, line.getExtraFare());
+    public static LineResponse of(Line line){
+        return new LineResponse(
+                line.getId(),
+                line.getName(),
+                line.getColor(),
+                line.getStations().stream()
+                        .map(StationResponse::of)
+                        .collect(Collectors.toList()),
+                line.getExtraFare()
+        );
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setStations(List<StationResponse> stations) {
+        this.stations = stations;
     }
 
     public Long getId() {
@@ -44,11 +61,11 @@ public class LineResponse {
         return color;
     }
 
-    public int getExtraFare() {
-        return extraFare;
-    }
-
     public List<StationResponse> getStations() {
         return stations;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
     }
 }

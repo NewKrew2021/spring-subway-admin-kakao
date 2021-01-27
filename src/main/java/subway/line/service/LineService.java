@@ -1,6 +1,7 @@
 package subway.line.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import subway.exceptions.BadRequestException;
 import subway.line.domain.Line;
 import subway.line.repository.LineDao;

@@ -1,5 +1,7 @@
 package subway.line.dto;
 
+import subway.line.domain.Line;
+
 public class LineRequest {
     private String name;
     private String color;
@@ -9,6 +11,10 @@ public class LineRequest {
     private int extraFare;
 
     public LineRequest() {
+    }
+
+    public Line getDomain(){
+        return new Line(name, color, extraFare);
     }
 
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance, int extraFare) {

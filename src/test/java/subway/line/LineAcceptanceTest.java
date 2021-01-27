@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.station.StationDao;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -51,7 +52,34 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void createLineWithDuplicateName() {
         // given
+        // 신분당선 , 강남역, 광교역
         지하철_노선_등록되어_있음(lineRequest1);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
+
+        // then
+        지하철_노선_생성_실패됨(response);
+    }
+
+    @DisplayName("상행역, 하행역, 노선거리를 입력하지 않고 지하철 노선을 생성한다.")
+    @Test
+    void createLineInvalidArguments() {
+        // given
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 0, 0, 0);
+
+        // when
+        ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
+
+        // then
+        지하철_노선_생성_실패됨(response);
+    }
+
+    @DisplayName("상행역, 하행역이 같은 지하철 노선을 생성한다.")
+    @Test
+    void createLineWithSameUpAndDownStation() {
+        // given
+        lineRequest1 = new LineRequest("신분당선", "bg-red-600", 강남역.getId(), 강남역.getId(), 1);
 
         // when
         ExtractableResponse<Response> response = 지하철_노선_생성_요청(lineRequest1);
@@ -129,8 +157,8 @@ public class LineAcceptanceTest extends AcceptanceTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(params)
                 .when().post("/lines")
-                .then().log().all().
-                        extract();
+                .then().log().all()
+                .extract();
     }
 
     private static ExtractableResponse<Response> 지하철_노선_목록_조회_요청() {

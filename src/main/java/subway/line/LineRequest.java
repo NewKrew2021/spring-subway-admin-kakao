@@ -1,21 +1,50 @@
 package subway.line;
 
+import subway.exception.exceptions.*;
+import subway.section.Section;
+
 public class LineRequest {
+
     private String name;
     private String color;
-    private Long upStationId;
-    private Long downStationId;
+    private long upStationId;
+    private long downStationId;
     private int distance;
 
     public LineRequest() {
     }
 
-    public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance) {
+    public LineRequest(String name, String color, long upStationId, long downStationId, int distance) {
         this.name = name;
         this.color = color;
         this.upStationId = upStationId;
         this.downStationId = downStationId;
         this.distance = distance;
+    }
+
+    public Line toLine() {
+        return new Line(name, color);
+    }
+
+    public Section toSection() {
+        return new Section(upStationId, downStationId, distance);
+    }
+
+    public void validateLineRequest() {
+        validateNonemptyArgument();
+        validateDifferentUpDown();
+    }
+
+    private void validateNonemptyArgument() {
+        if (upStationId == 0 || downStationId == 0 || distance == 0) {
+            throw new FailedSaveException(FailedSaveExceptionEnum.EMPTY_LINE_ARGUMENT);
+        }
+    }
+
+    private void validateDifferentUpDown() {
+        if (upStationId == downStationId) {
+            throw new FailedSaveException(FailedSaveExceptionEnum.SAME_STATION);
+        }
     }
 
     public String getName() {
@@ -26,11 +55,11 @@ public class LineRequest {
         return color;
     }
 
-    public Long getUpStationId() {
+    public long getUpStationId() {
         return upStationId;
     }
 
-    public Long getDownStationId() {
+    public long getDownStationId() {
         return downStationId;
     }
 

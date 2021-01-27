@@ -1,33 +1,61 @@
 package subway.station;
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
 import java.util.List;
 
+@Repository
 public class StationDao {
-    private Long seq = 0L;
-    private List<Station> stations = new ArrayList<>();
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public StationDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<Station> stationRowMapper = (resultSet, rowNum) -> {
+        Station station = new Station(
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+        );
+        return station;
+    };
 
     public Station save(Station station) {
-        Station persistStation = createNewObject(station);
-        stations.add(persistStation);
-        return persistStation;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement pstmt = connection.prepareStatement(
+                    "insert into STATION(name) values(?)",
+                    new String[] {"id"}
+            );
+            pstmt.setString(1, station.getName());
+            return pstmt;
+        }, keyHolder);
+        return jdbcTemplate.queryForObject(
+                "select id, name from STATION where id = ?",
+                stationRowMapper, keyHolder.getKey().longValue()
+        );
+    }
+
+    public boolean checkExistByName(String stationName) {
+        return jdbcTemplate.queryForObject(
+                "select exists (select * from STATION where name = ?) as success", Boolean.class, stationName);
     }
 
     public List<Station> findAll() {
-        return stations;
+        return jdbcTemplate.query("select * from STATION limit 20", stationRowMapper);
     }
 
-    public void deleteById(Long id) {
-        stations.removeIf(it -> it.getId().equals(id));
+    public int deleteById(long id) {
+        return jdbcTemplate.update("delete from STATION where id = ?", id);
     }
 
-    private Station createNewObject(Station station) {
-        Field field = ReflectionUtils.findField(Station.class, "id");
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, station, ++seq);
-        return station;
+    public Station findById(long id) {
+        return jdbcTemplate.queryForObject("select * from STATION where id = ?", stationRowMapper, id);
     }
 }

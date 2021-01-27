@@ -1,4 +1,4 @@
-package subway.line;
+package subway.section;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.AcceptanceTest;
+import subway.line.LineResponse;
 import subway.station.StationResponse;
 
 import java.util.Arrays;
@@ -65,6 +66,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void addLineSectionWithSameStation() {
         // when
+        지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
         ExtractableResponse<Response> response = 지하철_구간_생성_요청(신분당선, 강남역, 광교역, 3);
 
         // then

@@ -16,36 +16,59 @@ public class SectionService {
 
     public void insertNewSection(Section section) {
         Line line = lineService.getLineById(section.getLineId());
+        boolean isUpdated = false;
 
+        isUpdated = updateLineFront(section, line) || isUpdated;
+        isUpdated = updateLineBack(section, line) || isUpdated;
+        isUpdated = updateMatchUpToUp(section, line) || isUpdated;
+        isUpdated = updateMatchDownToDown(section, line) || isUpdated;
+
+        if(!isUpdated){
+            throw new IllegalArgumentException("상행역과 하행역 모두 노선에 등록되어 있지 않아 구간을 추가할 수 없습니다.");
+        }
+
+        sectionDao.insert(section);
+    }
+
+    private boolean updateLineFront(Section section, Line line){
         if (line.getUpStationId() == section.getDownStationId()) { // 상행 종점으로 삽입
-            sectionDao.insert(section);
             lineService.updateLine(new Line(line.getId(), line.getName(), line.getColor(), section.getUpStationId(), line.getDownStationId()));
-            return;
+            return true;
         }
+        return false;
+    }
+
+    private boolean updateLineBack(Section section, Line line){
         if (line.getDownStationId() == section.getUpStationId()) { // 하행 종점으로 삽입
-            sectionDao.insert(section);
             lineService.updateLine(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), section.getDownStationId()));
-            return;
+            return true;
         }
-        if (sectionDao.countByLineIdAndUpStationId(line.getId(), section.getUpStationId()) > 0) { // 상행역이 일치하는 경우 새로운 구간 중간 삽입
+        return false;
+    }
+
+    private boolean updateMatchUpToUp(Section section, Line line) {
+        if (sectionDao.existByLineIdAndUpStationId(line.getId(), section.getUpStationId())) { // 상행역이 일치하는 경우 새로운 구간 중간 삽입
             Section currentSection = sectionDao.findByLineIdAndUpStationId(line.getId(), section.getUpStationId());
-            section.checkValidInsert(currentSection);
-            sectionDao.insert(section);
-            int newDistance = currentSection.getDistance() - section.getDistance();
+            int newDistance = checkValidAndGetDistance(section, currentSection);
             sectionDao.update(new Section(currentSection.getId(), section.getLineId(), section.getDownStationId(), currentSection.getDownStationId(), newDistance));
-            return;
+            return true;
         }
-        if (sectionDao.countByLineIdAndDownStationId(line.getId(), section.getDownStationId()) > 0) { // 하행역이 일치하는 경우 새로운 구간 중간 삽
+        return false;
+    }
+
+    private boolean updateMatchDownToDown(Section section, Line line) {
+        if (sectionDao.existByLineIdAndDownStationId(line.getId(), section.getDownStationId())) { // 하행역이 일치하는 경우 새로운 구간 중간 삽입
             Section currentSection = sectionDao.findByLineIdAndDownStationId(line.getId(), section.getDownStationId());
-            section.checkValidInsert(currentSection);
-            sectionDao.insert(section);
-            int newDistance = currentSection.getDistance() - section.getDistance();
+            int newDistance = checkValidAndGetDistance(section, currentSection);
             sectionDao.update(new Section(currentSection.getId(), section.getLineId(), currentSection.getUpStationId(), section.getUpStationId(), newDistance));
-            return;
+            return true;
         }
+        return false;
+    }
 
-        throw new IllegalArgumentException("상행역과 하행역 모두 노선에 존재하지 않는 역입니다.");
-
+    private int checkValidAndGetDistance(Section section, Section currentSection){
+        section.checkValidInsert(currentSection);
+        return currentSection.getDistance() - section.getDistance();
     }
 
     public int deleteSection(Long lineId, Long stationId) {

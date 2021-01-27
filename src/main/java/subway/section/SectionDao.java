@@ -64,14 +64,14 @@ public class SectionDao {
         return jdbcTemplate.update(sql, section.getId());
     }
 
-    public int countByLineIdAndUpStationId(Long lineId, Long upStationId) {
-        String sql = "select count(*) from section where line_id = ? and up_station_id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, upStationId);
+    public boolean existByLineIdAndUpStationId(Long lineId, Long upStationId) {
+        String sql = "select exists(select * from section where line_id = ? and up_station_id = ?) as success";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, lineId, upStationId);
     }
 
-    public int countByLineIdAndDownStationId(Long lineId, Long downStationId) {
-        String sql = "select count(*) from section where line_id = ? and down_station_id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, lineId, downStationId);
+    public boolean existByLineIdAndDownStationId(Long lineId, Long downStationId) {
+        String sql = "select exists(select * from section where line_id = ? and down_station_id = ?) as success";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, lineId, downStationId);
     }
 
     public int countByLineId(Long lineId) {

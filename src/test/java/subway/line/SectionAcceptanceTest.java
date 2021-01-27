@@ -43,7 +43,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         신분당선 = 지하철_노선_등록되어_있음("신분당선", "bg-red-600", 양재역, 미금역, 10);
     }
 
-    @DisplayName("기존 구간 사이에 구간 등")
+    @DisplayName("기존 구간 사이에 구간 등록")
     @Test
     void addLineSection() {
         // when

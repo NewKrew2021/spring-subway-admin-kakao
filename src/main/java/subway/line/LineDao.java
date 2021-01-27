@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public class LineDao {
     private JdbcTemplate jdbcTemplate;
+    private final int LINE_LIMIT = 50;
 
     public LineDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -48,8 +49,8 @@ public class LineDao {
     }
 
     public List<Line> findAll() {
-        String sql = "select id, name, color, up_station_id, down_station_id from line limit 50";
-        return jdbcTemplate.query(sql, lineRowMapper);
+        String sql = "select id, name, color, up_station_id, down_station_id from line limit ?";
+        return jdbcTemplate.query(sql, lineRowMapper, LINE_LIMIT);
     }
 
     public Line findLineById(Long id) {

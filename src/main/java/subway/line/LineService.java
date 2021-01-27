@@ -44,16 +44,15 @@ public class LineService {
     private List<Section> getSortedSections(Long lineId, Map<Long, Section> sections) {
         Line line = lineDao.findLineById(lineId);
         Long headStationId = line.getUpStationId();
-        Long tailStationId = line.getDownStationId();
 
         List<Section> result = new ArrayList<>();
         Section section;
         Long iterStationId = headStationId;
-        do {
+        for (int i = 0; i < sections.size(); i++) {
             section = sections.get(iterStationId);
             result.add(section);
             iterStationId = section.getDownStationId();
-        } while (iterStationId != tailStationId);
+        }
 
         return result;
     }

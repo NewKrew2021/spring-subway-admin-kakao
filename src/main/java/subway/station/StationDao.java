@@ -13,6 +13,7 @@ import java.util.function.BooleanSupplier;
 @Repository
 public class StationDao {
     private JdbcTemplate jdbcTemplate;
+    private final int STATION_LIMIT = 500;
 
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -49,8 +50,8 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        String sql = "select id, name from station limit 50";
-        return jdbcTemplate.query(sql, stationRowMapper);
+        String sql = "select id, name from station limit ?";
+        return jdbcTemplate.query(sql, stationRowMapper, STATION_LIMIT);
     }
 
     public Station findStationById(Long id) {

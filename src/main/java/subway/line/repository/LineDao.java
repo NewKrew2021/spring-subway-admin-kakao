@@ -43,11 +43,11 @@ public class LineDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    public Line save(LineRequest lineRequest) {
+    public Line save(Line newLine) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("name", lineRequest.getName())
-                .addValue("color", lineRequest.getColor())
-                .addValue("extra_fare", lineRequest.getExtraFare());
+                .addValue("name", newLine.getName())
+                .addValue("color", newLine.getColor())
+                .addValue("extra_fare", newLine.getExtraFare());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         return findById(id.longValue());
     }

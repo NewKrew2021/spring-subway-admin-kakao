@@ -20,7 +20,7 @@ public class SectionController {
 
     @PostMapping(value = "/lines/{lineId}/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SectionResponse> createSection(@PathVariable Long lineId,
-                                                         @RequestBody SectionRequest sectionRequest){
+                                                         @RequestBody SectionRequest sectionRequest) {
         Line line = lineService.findById(lineId);
         Section section = new Section(line.getId(),
                 sectionRequest.getUpStationId(),

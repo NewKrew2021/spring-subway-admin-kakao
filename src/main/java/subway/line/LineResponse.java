@@ -17,11 +17,12 @@ public class LineResponse {
     private List<StationResponse> stations;
     private int extraFare;
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public LineResponse(){ }
+    public LineResponse() {
+    }
 
     public LineResponse(Long id, String name, String color, List<StationResponse> stations, int extraFare) {
         this.id = id;
@@ -31,7 +32,7 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line, List<StationResponse> stations){
+    public LineResponse(Line line, List<StationResponse> stations) {
         this(line.getId(), line.getName(), line.getColor(), stations, line.getExtraFare());
     }
 
@@ -57,7 +58,9 @@ public class LineResponse {
         return color;
     }
 
-    public int getExtraFare() { return extraFare;}
+    public int getExtraFare() {
+        return extraFare;
+    }
 
     public List<StationResponse> getStations() {
         return stations;

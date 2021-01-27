@@ -17,7 +17,7 @@ public class StationService {
         this.stationDao = stationDao;
     }
 
-    public List<StationResponse> getStationsByLineId(Long lineId){
+    public List<StationResponse> getStationsByLineId(Long lineId) {
         List<Long> stations = new ArrayList<>();
         sectionDao
                 .findByLineId(lineId)
@@ -32,15 +32,15 @@ public class StationService {
                 .collect(Collectors.toList());
     }
 
-    public Station saveStation(Station station){
+    public Station saveStation(Station station) {
         return stationDao.save(station);
     }
 
-    public List<Station> getAllStations(){
+    public List<Station> getAllStations() {
         return stationDao.findAll();
     }
 
-    public void deleteStationById(Long stationId){
+    public void deleteStationById(Long stationId) {
         stationDao.deleteById(stationId);
     }
 }

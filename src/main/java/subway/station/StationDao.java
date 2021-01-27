@@ -45,7 +45,7 @@ public class StationDao {
     }
 
     public void deleteById(Long id) {
-        if (sectionDao.findByStationId(id).size() > 0 ){
+        if (sectionDao.findByStationId(id).size() > 0) {
             throw new BadRequestException();
         }
         jdbcTemplate.update("delete from STATION where id = ?", id);

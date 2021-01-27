@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 import subway.exceptions.InvalidValueException;
 
 @Repository
@@ -38,7 +39,7 @@ public class SectionDao {
         return findById(id);
     }
 
-    public Section findById(Long id){
+    public Section findById(Long id) {
         return jdbcTemplate.queryForObject("select * from section where id = ?", rowMapper, id);
     }
 
@@ -52,69 +53,69 @@ public class SectionDao {
         List<Section> sections = findByLineId(lineId);
 
         int sectionsLength = sections.size();
-        if (sections.size() == 1){
+        if (sections.size() == 1) {
             throw new InvalidValueException();
         }
 
-        if (sections.get(0).getUpStationId() == stationId){
+        if (sections.get(0).getUpStationId() == stationId) {
             deleteById(sections.get(0).getId());
             return;
         }
 
-        if (sections.get(sections.size()-1).getDownStationId() == stationId){
-            deleteById(sections.get(sections.size()-1).getId());
+        if (sections.get(sections.size() - 1).getDownStationId() == stationId) {
+            deleteById(sections.get(sections.size() - 1).getId());
             return;
         }
 
         for (int i = 0; i < sectionsLength; i++) {
             if (sections.get(i).getDownStationId() == stationId) {
                 Section leftSection = sections.get(i);
-                Section rightSection = sections.get(i+1);
+                Section rightSection = sections.get(i + 1);
 
                 update(sections.get(i).getId(), new Section(
                         sections.get(i).getLineId(), // line
                         sections.get(i).getUpStationId(), // up
-                        sections.get(i+1).getDownStationId(), // down
-                        sections.get(i).getDistance() + sections.get(i+1).getDistance() // dis
+                        sections.get(i + 1).getDownStationId(), // down
+                        sections.get(i).getDistance() + sections.get(i + 1).getDistance() // dis
                 ));
 
-                deleteById(sections.get(i+1).getId());
+                deleteById(sections.get(i + 1).getId());
                 break;
             }
         }
 
     }
 
-    public void deleteById(Long sectionId){
+    public void deleteById(Long sectionId) {
         jdbcTemplate.update("delete from section where id = ?", sectionId);
     }
 
-    public void deleteByLineId(Long lineId){
+    public void deleteByLineId(Long lineId) {
         jdbcTemplate.update("delete from section where line_id = ?", lineId);
     }
 
-    public void update(Long sectionId, Section section){
+    public void update(Long sectionId, Section section) {
         jdbcTemplate.update("update section set up_station_id = ?, down_station_id = ?, distance = ?, line_id = ? where id = ?",
-                        section.getUpStationId(),
-                        section.getDownStationId(),
-                        section.getDistance(),
-                        section.getLineId(),
-                        sectionId);
+                section.getUpStationId(),
+                section.getDownStationId(),
+                section.getDistance(),
+                section.getLineId(),
+                sectionId);
     }
 
-    public List<Section> findByLineId(Long lineId){
+    public List<Section> findByLineId(Long lineId) {
         return jdbcTemplate.query("SELECT * FROM SECTION WHERE line_id = ?",
                 rowMapper,
                 lineId);
     }
 
-    public Long getDownStationId(Long lineId){
+    public Long getDownStationId(Long lineId) {
         List<Section> sections = findByLineId(lineId);
-        return sections.get(sections.size()-1).getDownStationId();
+        return sections.get(sections.size() - 1).getDownStationId();
     }
 
-    public Long getUpStationId(Long lineId){
+    public Long getUpStationId(Long lineId) {
         List<Section> sections = findByLineId(lineId);
         return sections.get(0).getUpStationId();
     }
-    }
+}

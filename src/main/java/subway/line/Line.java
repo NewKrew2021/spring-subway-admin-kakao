@@ -1,7 +1,9 @@
 package subway.line;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.*;
+
 import subway.section.SectionDao;
 import subway.station.StationDao;
 
@@ -38,7 +40,9 @@ public class Line {
         return name;
     }
 
-    public int getExtraFare() { return extraFare;}
+    public int getExtraFare() {
+        return extraFare;
+    }
 
     public Long getUpStationId(SectionDao sectionDao) {
         return sectionDao.getUpStationId(id);

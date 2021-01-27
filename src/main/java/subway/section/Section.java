@@ -25,7 +25,9 @@ public class Section {
         this.distance = distance;
     }
 
-    public Long getLineId() { return lineId;}
+    public Long getLineId() {
+        return lineId;
+    }
 
     public Long getUpStationId() {
         return upStationId;
@@ -39,9 +41,13 @@ public class Section {
         return distance;
     }
 
-    public Long getId(){return id;}
+    public Long getId() {
+        return id;
+    }
 
-    public void setDistance(int distance){ this.distance = distance; }
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
 
     public void setUpStationId(Long downStationId) {
         this.upStationId = downStationId;

@@ -29,7 +29,7 @@ public class LineDao {
     };
 
     public Line save(Line line) {
-        if (countByName(line.getName()) > 0) {
+        if (checkExistName(line.getName())) {
             throw new IllegalArgumentException("이미 존재하는 노선입니다.");
         }
         String sql = "insert into line (name, color, up_station_id, down_station_id) values (?, ?, ?, ?)";
@@ -62,9 +62,9 @@ public class LineDao {
         return jdbcTemplate.query(sql, lineRowMapper, name);
     }
 
-    public int countByName(String name) {
-        String sql = "select count(*) from line where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+    public boolean checkExistName(String name) {
+        String sql = "select exists(select * from station where name=?) as success";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, name);
     }
 
     public void update(Line line) {

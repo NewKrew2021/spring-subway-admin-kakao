@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 @Repository
 public class StationDao {
@@ -26,7 +27,7 @@ public class StationDao {
     };
 
     public Station save(Station station) {
-        if (countByName(station.getName()) > 0) {
+        if (checkExistName(station.getName())) {
             throw new IllegalArgumentException("이미 존재하는 역입니다.");
         }
         String sql = "insert into station (name) values (?)";
@@ -42,9 +43,9 @@ public class StationDao {
 
     }
 
-    public int countByName(String name) {
-        String sql = "select count(*) from station where name = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, name);
+    public boolean checkExistName(String name) {
+        String sql = "select exists(select * from station where name=?) as success";
+        return jdbcTemplate.queryForObject(sql, Boolean.class, name);
     }
 
     public List<Station> findAll() {

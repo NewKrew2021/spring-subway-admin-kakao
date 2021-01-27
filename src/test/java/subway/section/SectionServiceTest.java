@@ -51,7 +51,7 @@ class SectionServiceTest {
         sectionService.addSection(line.getId(), section);
 
         // then
-        assertThat(sectionService.getStationIdsOfLine(lineService.getLine(line.getId()))).containsExactly(1L, 2L, 3L);
+        assertThat(lineService.getLine(line.getId()).getSections().getStationIds()).containsExactly(1L, 2L, 3L);
     }
 
     @Test
@@ -64,6 +64,6 @@ class SectionServiceTest {
         sectionService.addSection(line.getId(), section);
 
         // then
-        assertThat(sectionService.getStationIdsOfLine(lineService.getLine(line.getId()))).containsExactly(3L, 1L, 2L);
+        assertThat(lineService.getLine(line.getId()).getSections().getStationIds()).containsExactly(3L, 1L, 2L);
     }
 }

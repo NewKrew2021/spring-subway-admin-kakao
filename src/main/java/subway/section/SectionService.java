@@ -42,11 +42,6 @@ public class SectionService {
         return sectionDao.save(section);
     }
 
-    public List<Long> getStationIdsOfLine(Line line) {
-        Sections sections = new Sections(sectionDao.findAllByLineId(line.getId()));
-        return sections.getSortedStationIds(line.getStartStationId());
-    }
-
     public void updateSection(long id, Section section) {
         sectionDao.updateById(id, section);
     }
@@ -58,7 +53,7 @@ public class SectionService {
             throw new NotExistException("해당 노선이 존재하지 않습니다.");
         }
 
-        List<Long> stationIds = getStationIdsOfLine(line);
+        List<Long> stationIds = line.getSections().getStationIds();
 
         boolean upStationExist = stationIds.stream()
                 .anyMatch(section.getUpStationId()::equals);
@@ -81,7 +76,7 @@ public class SectionService {
             return;
         }
 
-        Section existingSection = getSectionByUpstationIdAndLineId(section.getUpStationId(), line.getId());
+        Section existingSection = line.getSections().findByUpStationId(section.getUpStationId());
         addSectionUpward(section, existingSection);
     }
 
@@ -91,16 +86,8 @@ public class SectionService {
             return;
         }
 
-        Section existingSection = getSectionByDownstationIdAndLineId(section.getDownStationId(), line.getId());
+        Section existingSection = line.getSections().findByDownStationId(section.getDownStationId());
         addSectionDownward(section, existingSection);
-    }
-
-    public Section getSectionByUpstationIdAndLineId(Long upStationId, Long lineId) {
-        return sectionDao.findByUpStationIdAndLineId(upStationId, lineId);
-    }
-
-    public Section getSectionByDownstationIdAndLineId(Long downStationId, Long lineId) {
-        return sectionDao.findByDownStationIdAndLineId(downStationId, lineId);
     }
 
     private void extendDownwardEdge(Section section, Line line) {
@@ -148,14 +135,14 @@ public class SectionService {
     }
 
     private void deleteMiddleStation(Line line, long stationId) {
-        Section upSection = sectionDao.findByDownStationIdAndLineId(stationId, line.getId());
-        Section downSection = sectionDao.findByUpStationIdAndLineId(stationId, line.getId());
+        Section upSection = line.getSections().findByDownStationId(stationId);
+        Section downSection = line.getSections().findByUpStationId(stationId);
         sectionDao.updateById(upSection.getId(), upSection.getMergedSection(downSection));
         sectionDao.deleteById(downSection.getId());
     }
 
     private void deleteStartStation(Line line, long stationId) {
-        Section section = sectionDao.findByUpStationIdAndLineId(stationId, line.getId());
+        Section section = line.getSections().findByUpStationId(stationId);
         if (line.isEndStation(section.getDownStationId())) {
             throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
         }
@@ -164,7 +151,7 @@ public class SectionService {
     }
 
     private void deleteEndStation(Line line, long stationId) {
-        Section section = sectionDao.findByDownStationIdAndLineId(stationId, line.getId());
+        Section section = line.getSections().findByDownStationId(stationId);
         if (line.isStartStation(section.getUpStationId())) {
             throw new InvalidSectionException("노선의 마지막 구간은 삭제할 수 없습니다.");
         }

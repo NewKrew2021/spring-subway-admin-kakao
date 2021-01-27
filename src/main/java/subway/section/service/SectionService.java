@@ -18,9 +18,7 @@ public class SectionService {
         sections.addSection(newSection);
 
         sectionDao.deleteByLineId(newSection.getLineId());
-        sections.applyToAllSection((Section section) -> {
-            sectionDao.save(section);
-        });
+        sections.applyToAllSection(sectionDao::save);
 
         return sections.findByStationId(newSection.getUpStationId(), newSection.getDownStationId());
     }

@@ -20,12 +20,13 @@ public class LineService {
         this.sectionDao = sectionDao;
     }
 
-    public Line saveLine(LineRequest lineRequest) {
-        Line savedLine = lineDao.save(lineRequest);
+    @Transactional
+    public Line saveLine(Line newLine, Long upStationId, Long downStationId, int distance) {
+        Line savedLine = lineDao.save(newLine);
         sectionDao.save(new Section(savedLine.getId(),
-                lineRequest.getUpStationId(),
-                lineRequest.getDownStationId(),
-                lineRequest.getDistance()));
+                upStationId,
+                downStationId,
+                distance));
         return savedLine;
     }
 

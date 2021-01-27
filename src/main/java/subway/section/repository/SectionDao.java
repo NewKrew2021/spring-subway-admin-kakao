@@ -1,4 +1,4 @@
-package subway.section;
+package subway.section.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import subway.exceptions.InvalidValueException;
+import subway.section.domain.Section;
 
 @Repository
 public class SectionDao {

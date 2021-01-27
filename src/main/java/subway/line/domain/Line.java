@@ -1,11 +1,6 @@
-package subway.line;
+package subway.line.domain;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.*;
-
-import subway.section.SectionDao;
-import subway.station.StationDao;
+import subway.section.repository.SectionDao;
 
 public class Line {
 

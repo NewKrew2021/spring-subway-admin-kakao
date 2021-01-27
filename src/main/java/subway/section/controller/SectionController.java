@@ -1,12 +1,14 @@
-package subway.section;
+package subway.section.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.Line;
-import subway.line.LineDao;
-import subway.line.LineService;
+import subway.line.domain.Line;
+import subway.line.service.LineService;
+import subway.section.domain.Section;
+import subway.section.dto.SectionRequest;
+import subway.section.dto.SectionResponse;
+import subway.section.service.SectionService;
 
 @RestController
 public class SectionController {

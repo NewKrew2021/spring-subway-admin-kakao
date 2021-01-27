@@ -1,6 +1,9 @@
-package subway.section;
+package subway.section.service;
 
 import org.springframework.stereotype.Service;
+import subway.section.domain.AlignSections;
+import subway.section.domain.Section;
+import subway.section.repository.SectionDao;
 
 @Service
 public class SectionService {

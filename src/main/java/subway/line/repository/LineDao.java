@@ -1,10 +1,12 @@
-package subway.line;
+package subway.line.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import subway.section.SectionDao;
+import subway.line.domain.Line;
+import subway.line.dto.LineRequest;
+import subway.section.repository.SectionDao;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import java.util.List;

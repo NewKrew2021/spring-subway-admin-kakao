@@ -1,7 +1,10 @@
-package subway.station;
+package subway.station.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.SectionDao;
+import subway.section.repository.SectionDao;
+import subway.station.domain.Station;
+import subway.station.dto.StationResponse;
+import subway.station.repository.StationDao;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,16 +1,20 @@
-package subway.line;
+package subway.line.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.station.StationDao;
+import subway.line.domain.Line;
+import subway.line.dto.LineRequest;
+import subway.line.dto.LineResponse;
+import subway.line.service.LineService;
+import subway.station.repository.StationDao;
 
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import subway.section.SectionDao;
-import subway.station.StationService;
+import subway.section.repository.SectionDao;
+import subway.station.service.StationService;
 
 @RestController
 @RequestMapping("/lines")

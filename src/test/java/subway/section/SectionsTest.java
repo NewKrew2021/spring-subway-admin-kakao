@@ -14,7 +14,7 @@ public class SectionsTest {
 
     @BeforeEach
     void setUp() {
-        sections = new Sections(Arrays.asList(new Section(1L, 2L, 3), new Section(2L, 3L, 4)));
+        sections = new Sections(Arrays.asList(new Section(1L, 2L, 3), new Section(2L, 3L, 4)), 1L);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class SectionsTest {
 
     @Test
     void orderLoopTest(){
-        Sections sections = new Sections(Arrays.asList(new Section(1L, 2L, 3), new Section(2L, 1L, 4)));
+        Sections sections = new Sections(Arrays.asList(new Section(1L, 2L, 3), new Section(2L, 1L, 4)), 1L);
         assertThatThrownBy(() -> {
             sections.getOrderedSection(new Line("line1", "red", 1L, 3L));
         }).isInstanceOf(RuntimeException.class);

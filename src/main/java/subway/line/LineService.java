@@ -3,6 +3,7 @@ package subway.line;
 import org.springframework.stereotype.Service;
 import subway.section.Section;
 import subway.section.SectionDao;
+import subway.section.Sections;
 
 import java.util.List;
 
@@ -45,6 +46,18 @@ public class LineService{
 
     public boolean updateAll(Line line) {
         return lineDao.updateAll(line) != 0;
+    }
+
+    public boolean update(Sections sections){
+        Line line = lineDao.findOne(sections.getLineId());
+
+        if(!sections.isFirstUpStationId(line.getUpStationId())) {
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), sections.getFirstUpStationId(), line.getDownStationId())) != 0;
+        }
+        if(!sections.isLastDownStationId(line.getDownStationId())) {
+            return lineDao.updateAll(new Line(line.getId(), line.getName(), line.getColor(), line.getUpStationId(), sections.getLastDownStationId())) != 0;
+        }
+        return false;
     }
 
 }

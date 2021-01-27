@@ -5,16 +5,23 @@ import subway.line.Line;
 import java.util.*;
 
 public class Sections {
-    List<Section> sections;
-
+    private List<Section> sections;
+    private Long lineId;
     public static final Long NOT_EXIST = -1L;
 
     Sections() {
         sections = new ArrayList<>();
+        lineId = -1L;
     }
 
-    Sections(List<Section> sections) {
+    Sections(Long lineId) {
+        this.sections = new ArrayList<>();
+        this.lineId = lineId;
+    }
+
+    Sections(List<Section> sections, Long lineId) {
         this.sections = Collections.unmodifiableList(sections);
+        this.lineId = lineId;
     }
 
     public Section findSectionByUpStationId(Long id) {
@@ -76,10 +83,10 @@ public class Sections {
         if(visit.contains(cur))
             throw new RuntimeException("반복되는 구간이 존재합니다.");
 
-        return new Sections(orderedSections);
+        return new Sections(orderedSections, line.getId());
     }
 
-    public boolean checkSectionExist(Section section){
+    public boolean checkSectionValidation(Section section){
         if (isContainingSameSection(section) || findStationExistBySection(section) == Sections.NOT_EXIST) {
             return false;
         }
@@ -97,5 +104,92 @@ public class Sections {
 
     public Section findPrevSection(Section section){
         return findSectionByDownStationId(section.getDownStationId());
+    }
+
+    public List<Section> addSection(Section section) {
+        List<Section> addSections = new ArrayList<>();
+        Long existStationId = findStationExistBySection(section);
+
+        if(!checkSectionValidation(section))
+            throw new IllegalArgumentException("적절한 구간 정보를 입력해주세요.");
+
+        addSections.add(section);
+
+        if (section.getUpStationId() == existStationId) {
+            return addSectionBack(section, addSections);
+        }
+
+        return addSectionFront(section, addSections);
+    }
+
+    private List<Section> addSectionBack(Section section, List<Section> addSections) {
+        Section nextSection = findNextSection(section);
+        if(nextSection != null){
+            addSections.add(new Section(section.getDownStationId(),
+                    nextSection.getDownStationId(),
+                    nextSection.getDistance() - section.getDistance(),
+                    lineId));
+        }
+        return addSections;
+    }
+
+    private List<Section> addSectionFront(Section section, List<Section> addSections) {
+        Section prevSection = findPrevSection(section);
+        if(prevSection != null){
+            addSections.add(new Section(prevSection.getUpStationId(),
+                    section.getUpStationId(),
+                    prevSection.getDistance() - section.getDistance(),
+                    lineId));
+        }
+        return addSections;
+    }
+
+    public List<Section> deleteStation(Long stationId) {
+        List<Section> delSections = new ArrayList<>();
+        if (!isPossibleToDelete(stationId)) {
+            throw new IllegalArgumentException("적절하지 않은 역 정보입니다.");
+        }
+
+        Section nextSection = findSectionByUpStationId(stationId);
+        Section prevSection = findSectionByDownStationId(stationId);
+
+        if (nextSection != null && prevSection != null) {
+            delSections.add(nextSection);
+            delSections.add(prevSection);
+        } else if (nextSection != null) {
+            delSections.add(nextSection);
+        } else if (prevSection != null) {
+            delSections.add(prevSection);
+        }
+
+        return delSections;
+    }
+
+    public Long getLineId() {
+        return lineId;
+    }
+
+    public boolean isFirstUpStationId(Long stationId){
+        return findSectionByUpStationId(stationId) != null && findSectionByDownStationId(stationId) == null;
+    }
+
+    public boolean isLastDownStationId(Long stationId){
+        return findSectionByUpStationId(stationId) == null && findSectionByDownStationId(stationId) != null;
+    }
+
+    public Long getFirstUpStationId(){
+        return sections.stream()
+                .filter(section -> isFirstUpStationId(section.getUpStationId()))
+                .map(section -> section.getUpStationId())
+                .findFirst()
+                .orElse(NOT_EXIST);
+    }
+
+    public Long getLastDownStationId(){
+        return sections.stream()
+                .filter(section -> isLastDownStationId(section.getDownStationId()))
+                .map(section -> section.getDownStationId())
+                .findFirst()
+                .orElse(NOT_EXIST);
     }
 }

@@ -1,22 +1,30 @@
 package subway.line;
 
+import subway.section.Sections;
+
 public class Line {
     private Long id;
     private String name;
     private String color;
     private Long startStationId;
     private Long endStationId;
+    private Sections sections;
 
-    public Line(Long id, String name, String color, Long startStationId, Long endStationId) {
+    public Line(Long id, String name, String color, Long startStationId, Long endStationId, Sections sections) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.startStationId = startStationId;
         this.endStationId = endStationId;
+        this.sections = sections;
+    }
+
+    public Line(Long id, String name, String color, Long startStationId, Long endStationId) {
+        this(id, name, color, startStationId, endStationId, null);
     }
 
     public Line(String name, String color, Long startStationId, Long endStationId) {
-        this(0L, name, color, startStationId, endStationId);
+        this(0L, name, color, startStationId, endStationId, null);
     }
 
     public Line(LineRequest lineRequest) {
@@ -41,6 +49,10 @@ public class Line {
 
     public Long getEndStationId() {
         return endStationId;
+    }
+
+    public Sections getSections() {
+        return sections;
     }
 
     public Line getLineEndStationChanged(long newEndStationId) {

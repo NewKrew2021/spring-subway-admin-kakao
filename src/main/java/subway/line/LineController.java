@@ -30,13 +30,12 @@ public class LineController {
     @PostMapping
     public ResponseEntity<LineResponse> createLine(@RequestBody LineRequest lineRequest) {
         Line newLine = lineService.createLineAndSection(new Line(lineRequest), lineRequest.getDistance());
-        List<Station> stations = stationService.convertIdsToStations(
-                sectionService.getStationIdsOfLine(newLine));
+        List<Station> stations = stationService.convertIdsToStations(newLine.getSections().getStationIds());
         return ResponseEntity.created(URI.create("/lines/" + newLine.getId())).body(new LineResponse(newLine, stations));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<LineResponse>> showLines() {
+    public ResponseEntity<List<LineResponse>> getLines() {
         List<LineResponse> lineResponses = lineService.getAllLines().stream()
                 .map(LineResponse::new)
                 .collect(Collectors.toList());
@@ -44,10 +43,9 @@ public class LineController {
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LineResponse> showLines(@PathVariable long id) {
+    public ResponseEntity<LineResponse> getLine(@PathVariable long id) {
         Line line = lineService.getLine(id);
-        List<Station> stations = stationService.convertIdsToStations(
-                sectionService.getStationIdsOfLine(line));
+        List<Station> stations = stationService.convertIdsToStations(line.getSections().getStationIds());
         return ResponseEntity.ok().body(new LineResponse(line, stations));
     }
 

@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import subway.exception.InvalidSectionException;
 import subway.line.Line;
 import subway.line.LineService;
 import subway.station.Station;
 import subway.station.StationService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -51,7 +53,7 @@ class SectionServiceTest {
         sectionService.addSection(line.getId(), section);
 
         // then
-        assertThat(sectionService.getStationIdsOfLine(lineService.getLine(line.getId()))).containsExactly(1L, 2L, 3L);
+        assertThat(lineService.getLine(line.getId()).getSections().getStationIds()).containsExactly(1L, 2L, 3L);
     }
 
     @Test
@@ -64,6 +66,17 @@ class SectionServiceTest {
         sectionService.addSection(line.getId(), section);
 
         // then
-        assertThat(sectionService.getStationIdsOfLine(lineService.getLine(line.getId()))).containsExactly(3L, 1L, 2L);
+        assertThat(lineService.getLine(line.getId()).getSections().getStationIds()).containsExactly(3L, 1L, 2L);
+    }
+
+    @Test
+    @DisplayName("기존 구간과 거리가 같은 구간 추가했을 때 에러 발생")
+    void addSection_whenInvalidDistance() {
+        // given
+        Section section = new Section(station1.getId(), station3.getId(), 10, line.getId());
+
+        assertThatExceptionOfType(InvalidSectionException.class).isThrownBy(() -> {
+            sectionService.addSection(line.getId(), section);
+        }).withMessageMatching("구간의 길이는 0보다 커야 합니다.");
     }
 }

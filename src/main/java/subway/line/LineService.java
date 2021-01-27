@@ -1,7 +1,6 @@
 package subway.line;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import subway.exception.DuplicateNameException;
 import subway.exception.NotExistException;
@@ -20,7 +19,7 @@ public class LineService {
         this.sectionService = sectionService;
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+    @Transactional
     public Line createLineAndSection(Line line, int distance) {
         Line newLine = createLine(line);
 
@@ -29,7 +28,7 @@ public class LineService {
                 distance,
                 newLine.getId()));
 
-        return newLine;
+        return getLine(newLine.getId());
     }
 
     private Line createLine(Line line) {
@@ -58,20 +57,16 @@ public class LineService {
     }
 
     public void updateLine(long id, Line line) {
-        Line newLine = findById(id).getLineNameAndColorChanged(line.getName(), line.getColor());
+        Line newLine = getLine(id).getLineNameAndColorChanged(line.getName(), line.getColor());
         if (lineDao.updateById(id, newLine) == 0) {
             throw new NotExistException("해당 역이 존재하지 않습니다.");
         }
     }
 
     public Line getLine(long id) {
-        return findById(id);
-    }
-
-    private Line findById(Long id) {
         Line line = lineDao.findById(id);
         if (line == null) {
-            throw new NotExistException("해당 역이 존재하지 않습니다.");
+            throw new NotExistException("해당 노선이 존재하지 않습니다.");
         }
         return line;
     }

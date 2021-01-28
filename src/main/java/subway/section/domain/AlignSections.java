@@ -4,6 +4,7 @@ import subway.exceptions.InvalidValueException;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AlignSections {
     private List<Section> sections;
@@ -13,8 +14,9 @@ public class AlignSections {
     }
 
     public void addSection(Section newSection) {
-        checkDuplicatedSection(sections, newSection);
-        checkSameStationContain(sections, newSection);
+        checkDuplicatedSection(newSection);
+        checkSameStationContain(newSection);
+        checkSectionIsOverDistance(newSection);
 
         alignSections(newSection);
 
@@ -24,26 +26,27 @@ public class AlignSections {
     }
 
     private void alignSections(Section newSection) {
-        int sectionLength = sections.size();
-        for (int i = 0; i < sectionLength; i++) {
-            Section savedSection = sections.get(i);
-            if (savedSection.getUpStationId() == newSection.getUpStationId()) {
-                if (savedSection.getDistance() <= newSection.getDistance()) {
-                    throw new InvalidValueException();
-                }
-                savedSection.setUpStationId(newSection.getDownStationId());
-                savedSection.setDistance(savedSection.getDistance() - newSection.getDistance());
-            }
-            if (savedSection.getDownStationId() == newSection.getDownStationId()) {
-                if (savedSection.getDistance() <= newSection.getDistance()) {
-                    throw new InvalidValueException();
-                }
-                savedSection.setDownStationId(newSection.getUpStationId());
-                savedSection.setDistance(savedSection.getDistance() - newSection.getDistance());
-            }
+        if(isOverlappedSectionExist(newSection)){
+            Section overlappedSection = findOverlappedSection(newSection);
+            overlappedSection.splitBy(newSection);
         }
+        insertSectionToRightPosition(newSection);
+    }
 
-        for (int i = 0; i < sectionLength; i++) {
+    private boolean isOverlappedSectionExist(Section section){
+        return sections.stream()
+                .anyMatch((Section saved) -> saved.isInclude(section));
+    }
+
+    private Section findOverlappedSection(Section section){
+        return sections.stream()
+                .filter((Section saved) -> saved.isInclude(section))
+                .collect(Collectors.toList())
+                .get(0);
+    }
+
+    private void insertSectionToRightPosition(Section newSection) {
+        for (int i = 0; i < sections.size(); i++) {
             if (sections.get(i).getUpStationId() == newSection.getDownStationId()) {
                 sections.add(i, newSection);
                 break;
@@ -55,7 +58,16 @@ public class AlignSections {
         }
     }
 
-    private void checkDuplicatedSection(List<Section> sections, Section newSection) {
+    private void checkSectionIsOverDistance(Section newSection) {
+        sections.stream()
+                .forEach(savedSection -> {
+                    if (savedSection.isIncludeAndOverDistance(newSection)) {
+                        throw new InvalidValueException();
+                    }
+                });
+    }
+
+    private void checkDuplicatedSection(Section newSection) {
         if (sections.stream().anyMatch(section ->
                 section.getUpStationId() == newSection.getUpStationId() &&
                         section.getDownStationId() == newSection.getDownStationId()
@@ -64,7 +76,7 @@ public class AlignSections {
         }
     }
 
-    private void checkSameStationContain(List<Section> sections, Section newSection) {
+    private void checkSameStationContain(Section newSection) {
         if (sections.size() > 0 && sections.stream().allMatch(section ->
                 section.getUpStationId() != newSection.getUpStationId() &&
                         section.getUpStationId() != newSection.getDownStationId() &&

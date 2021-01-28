@@ -23,6 +23,12 @@ public class SectionDao {
             rs.getLong("down_station_id"),
             rs.getInt("distance"));
 
+    private final String DELETE_BY_ID_QUERY = "delete from section where id = ?";
+    private final String DELETE_BY_LINE_ID_QUERY = "delete from section where line_id = ?";
+    private final String FIND_BY_SECTION_ID_QUERY = "select * from SECTION where id = ?";
+    private final String FIND_BY_STATION_ID_QUERY = "select * from SECTION where up_station_id = ? or down_station_id = ?";
+    private final String FIND_BY_LINE_ID_QUERY = "SELECT * FROM SECTION WHERE line_id = ?";
+
     public SectionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -37,15 +43,15 @@ public class SectionDao {
                 .addValue("DOWN_STATION_ID", newSection.getDownStationId())
                 .addValue("DISTANCE", newSection.getDistance());
         Long id = simpleJdbcInsert.executeAndReturnKey(params).longValue();
-        return findById(id);
+                return findById(id);
     }
 
     public Section findById(Long id) {
-        return jdbcTemplate.queryForObject("select * from section where id = ?", rowMapper, id);
+        return jdbcTemplate.queryForObject(FIND_BY_SECTION_ID_QUERY, rowMapper, id);
     }
 
     public List<Section> findByStationId(Long stationId) {
-        return jdbcTemplate.query("select * from SECTION where up_station_id = ? or down_station_id = ?",
+        return jdbcTemplate.query(FIND_BY_STATION_ID_QUERY,
                 rowMapper,
                 stationId, stationId);
     }
@@ -88,11 +94,11 @@ public class SectionDao {
     }
 
     public void deleteById(Long sectionId) {
-        jdbcTemplate.update("delete from section where id = ?", sectionId);
+        jdbcTemplate.update(DELETE_BY_ID_QUERY, sectionId);
     }
 
     public void deleteByLineId(Long lineId) {
-        jdbcTemplate.update("delete from section where line_id = ?", lineId);
+        jdbcTemplate.update(DELETE_BY_LINE_ID_QUERY, lineId);
     }
 
     public void update(Long sectionId, Section section) {
@@ -105,7 +111,7 @@ public class SectionDao {
     }
 
     public List<Section> findByLineId(Long lineId) {
-        return jdbcTemplate.query("SELECT * FROM SECTION WHERE line_id = ?",
+        return jdbcTemplate.query(FIND_BY_LINE_ID_QUERY,
                 rowMapper,
                 lineId);
     }

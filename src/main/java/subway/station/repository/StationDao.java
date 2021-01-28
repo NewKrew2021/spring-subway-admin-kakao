@@ -18,6 +18,10 @@ public class StationDao {
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert simpleJdbcInsert;
 
+    private final String SELECT_ALL = "SELECT * FROM STATION";
+    private final String SELECT_ALL_BY_ID = "SELECT * FROM STATION where id = ?";
+    private final String DELETE_BY_ID = "delete from STATION where id = ?";
+
     public StationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
@@ -34,12 +38,12 @@ public class StationDao {
     }
 
     public List<Station> findAll() {
-        return this.jdbcTemplate.query("SELECT * FROM STATION",
+        return this.jdbcTemplate.query(SELECT_ALL,
                 (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")));
     }
 
     public Station findById(Long stationId) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM STATION where id = ?",
+        return this.jdbcTemplate.queryForObject(SELECT_ALL_BY_ID,
                 (rs, rowNum) -> new Station(rs.getLong("id"), rs.getString("name")),
                 stationId);
     }
@@ -48,6 +52,6 @@ public class StationDao {
         if (sectionDao.findByStationId(id).size() > 0) {
             throw new BadRequestException();
         }
-        jdbcTemplate.update("delete from STATION where id = ?", id);
+        jdbcTemplate.update(DELETE_BY_ID, id);
     }
 }

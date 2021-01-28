@@ -1,11 +1,8 @@
-package subway.line;
+package subway.line.dto;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import subway.section.SectionDao;
-import subway.station.StationDao;
-import subway.station.StationResponse;
+import subway.line.domain.Line;
+import subway.station.dto.StationResponse;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,11 +14,12 @@ public class LineResponse {
     private List<StationResponse> stations;
     private int extraFare;
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public LineResponse(){ }
+    public LineResponse() {
+    }
 
     public LineResponse(Long id, String name, String color, List<StationResponse> stations, int extraFare) {
         this.id = id;
@@ -31,14 +29,24 @@ public class LineResponse {
         this.extraFare = extraFare;
     }
 
-    public LineResponse(Line line, StationDao stationDao, SectionDao sectionDao) {
-        this(line.getId(),
+    public static LineResponse of(Line line){
+        return new LineResponse(
+                line.getId(),
                 line.getName(),
                 line.getColor(),
-                line.getStationInfo(stationDao, sectionDao).stream()
-                        .map(stationId -> new StationResponse(stationId, stationDao.findById(stationId).getName()))
+                line.getStations().stream()
+                        .map(StationResponse::of)
                         .collect(Collectors.toList()),
-                line.getExtraFare());
+                line.getExtraFare()
+        );
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setStations(List<StationResponse> stations) {
+        this.stations = stations;
     }
 
     public Long getId() {
@@ -53,9 +61,11 @@ public class LineResponse {
         return color;
     }
 
-    public int getExtraFare() { return extraFare;}
-
     public List<StationResponse> getStations() {
         return stations;
+    }
+
+    public int getExtraFare() {
+        return extraFare;
     }
 }

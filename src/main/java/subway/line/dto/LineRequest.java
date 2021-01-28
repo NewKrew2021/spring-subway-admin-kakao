@@ -1,4 +1,6 @@
-package subway.line;
+package subway.line.dto;
+
+import subway.line.domain.Line;
 
 public class LineRequest {
     private String name;
@@ -10,6 +12,11 @@ public class LineRequest {
 
     public LineRequest() {
     }
+
+    public Line getDomain(){
+        return new Line(name, color, extraFare);
+    }
+
     public LineRequest(String name, String color, Long upStationId, Long downStationId, int distance, int extraFare) {
         this.name = name;
         this.color = color;
@@ -27,7 +34,10 @@ public class LineRequest {
         this.distance = distance;
     }
 
-    public int getExtraFare(){ return this.extraFare; }
+    public int getExtraFare() {
+        return this.extraFare;
+    }
+
     public String getName() {
         return name;
     }

@@ -26,19 +26,19 @@ public class AlignSections {
     }
 
     private void alignSections(Section newSection) {
-        if(isOverlappedSectionExist(newSection)){
+        if (isOverlappedSectionExist(newSection)) {
             Section overlappedSection = findOverlappedSection(newSection);
             overlappedSection.splitBy(newSection);
         }
         insertSectionToRightPosition(newSection);
     }
 
-    private boolean isOverlappedSectionExist(Section section){
+    private boolean isOverlappedSectionExist(Section section) {
         return sections.stream()
                 .anyMatch((Section saved) -> saved.isInclude(section));
     }
 
-    private Section findOverlappedSection(Section section){
+    private Section findOverlappedSection(Section section) {
         return sections.stream()
                 .filter((Section saved) -> saved.isInclude(section))
                 .collect(Collectors.toList())

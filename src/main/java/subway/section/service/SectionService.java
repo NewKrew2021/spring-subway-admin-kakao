@@ -23,10 +23,6 @@ public class SectionService {
         return sections.findByStationId(newSection.getUpStationId(), newSection.getDownStationId());
     }
 
-    public void deleteById(Long id) {
-        sectionDao.deleteById(id);
-    }
-
     public void deleteById(Long id, Long stationdId) {
         sectionDao.deleteById(id, stationdId);
     }

@@ -10,6 +10,10 @@ public class StationRequest {
         this.name = name;
     }
 
+    public Station toDomainObject() {
+        return Station.of(name);
+    }
+
     public String getName() {
         return name;
     }

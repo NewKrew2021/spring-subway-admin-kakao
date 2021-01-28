@@ -50,15 +50,21 @@ public class SectionDao {
         jdbcTemplate.update(sql, newSection.getUpStationId(), newSection.getDownStationId(), newSection.getDistance(), originSectionId);
     }
 
-    public List<Section> getSectionsByLineId(Long lineId) {
-        String sql = "select * from SECTION where line_id = ?";
+    public Section findById(Long id) {
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where id = ?";
+
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
+    }
+
+    public List<Section> findSectionsByLineId(Long lineId) {
+        String sql = "select id, line_id, up_station_id, down_station_id, distance from SECTION where line_id = ?";
+
         return jdbcTemplate.query(sql, actorRowMapper, lineId);
     }
 
-    public void deleteById(Long id) throws EmptyResultDataAccessException {
-        if (jdbcTemplate.update("delete from SECTION where id = ?", id) == 0) {
-            throw new EmptyResultDataAccessException("삭제하려는 section이 존재하지 않습니다.", 1);
-        }
-        ;
+    public int deleteById(Long id) {
+        String sql = "delete from SECTION where id = ?";
+
+        return jdbcTemplate.update(sql, id);
     }
 }

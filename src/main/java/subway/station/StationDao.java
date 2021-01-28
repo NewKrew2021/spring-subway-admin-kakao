@@ -1,8 +1,6 @@
 package subway.station;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -27,7 +25,7 @@ public class StationDao {
             resultSet.getString("name")
     );
 
-    public Station save(Station station) throws DuplicateKeyException {
+    public Station save(Station station) {
         String sql = "insert into STATION (name) values (?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -45,16 +43,23 @@ public class StationDao {
         return jdbcTemplate.query(sql, actorRowMapper);
     }
 
-    public Station findById(Long id) throws EmptyResultDataAccessException {
+    public Station findById(Long id) {
         String sql = "select id, name from STATION where id = ?";
         return jdbcTemplate.queryForObject(sql, actorRowMapper, id);
     }
 
-    public void deleteById(Long id) throws EmptyResultDataAccessException {
-        String sql = "delete from STATION where id = ?";
+    public boolean isDuplicateName(String name) {
+        String sql = "select count(*) from STATION where name = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, name) != 0;
+    }
 
-        if (jdbcTemplate.update(sql, id) == 0) {
-            throw new EmptyResultDataAccessException("삭제하려는 station이 존재하지 않습니다.", 1);
-        }
+    public Station findByName(String name) {
+        String sql = "select id, name from STATION where name = ?";
+        return jdbcTemplate.queryForObject(sql, actorRowMapper, name);
+    }
+
+    public int deleteById(Long id) {
+        String sql = "delete from STATION where id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 }

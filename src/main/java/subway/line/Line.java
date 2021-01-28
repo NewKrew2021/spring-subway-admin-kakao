@@ -16,8 +16,8 @@ public class Line {
         this.color = color;
     }
 
-    public static Line of(LineRequest lineRequest) {
-        return new Line(lineRequest.getName(), lineRequest.getColor());
+    public static Line of(String name, String color) {
+        return new Line(name, color);
     }
 
     public static Line of(Long id, String name, String color) {

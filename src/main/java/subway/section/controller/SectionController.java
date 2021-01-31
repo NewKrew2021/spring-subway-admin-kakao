@@ -1,9 +1,12 @@
-package subway.section;
+package subway.section.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.line.LineResponse;
+import subway.line.dto.LineResponse;
+import subway.section.domain.Section;
+import subway.section.dto.SectionRequest;
+import subway.section.service.SectionService;
 
 @RestController
 public class SectionController {

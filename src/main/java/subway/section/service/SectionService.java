@@ -1,11 +1,14 @@
-package subway.section;
+package subway.section.service;
 
 import org.springframework.stereotype.Service;
-import subway.line.Line;
-import subway.line.LineService;
+import subway.line.domain.Line;
+import subway.line.service.LineService;
+import subway.section.domain.Section;
+import subway.section.dao.SectionDao;
 
 @Service
 public class SectionService {
+    private final int AVAILABLE_DELETE_COUNT = 2;
     private SectionDao sectionDao;
     private LineService lineService;
 
@@ -72,7 +75,7 @@ public class SectionService {
     }
 
     public void deleteSection(Long lineId, Long stationId) {
-        if (sectionDao.countByLineId(lineId) < 2) {
+        if (sectionDao.countByLineId(lineId) < AVAILABLE_DELETE_COUNT) {
             throw new IllegalArgumentException("구간이 하나 이하인 노선에서는 구간을 제거할 수 없습니다.");
         }
 

@@ -1,8 +1,13 @@
-package subway.station;
+package subway.station.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import subway.station.dto.StationRequest;
+import subway.station.dto.StationResponse;
+import subway.station.service.StationService;
+import subway.station.domain.Station;
 
 import java.net.URI;
 import java.util.List;
@@ -23,8 +28,10 @@ public class StationController {
             Station newStation = stationService.createStation(station);
             StationResponse stationResponse = new StationResponse(newStation.getId(), newStation.getName());
             return ResponseEntity.created(URI.create("/stations/" + newStation.getId())).body(stationResponse);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

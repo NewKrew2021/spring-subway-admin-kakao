@@ -1,10 +1,12 @@
-package subway.line;
+package subway.line.service;
 
 import org.springframework.stereotype.Service;
-import subway.section.Section;
-import subway.section.SectionDao;
-import subway.station.Station;
-import subway.station.StationService;
+import subway.line.dao.LineDao;
+import subway.line.domain.Line;
+import subway.section.domain.Section;
+import subway.section.dao.SectionDao;
+import subway.station.domain.Station;
+import subway.station.service.StationService;
 
 import java.util.ArrayList;
 import java.util.List;
